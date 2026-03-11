@@ -1,0 +1,31 @@
+"""Task registry — lazy-load tasks."""
+
+from __future__ import annotations
+
+from typing import Any
+
+from mm_embed.tasks.base import EvalTask
+
+# Registry: name -> (module_path, class_name)
+TASK_REGISTRY: dict[str, tuple[str, str]] = {
+    "mrl_stress": ("mm_embed.tasks.mrl_stress", "MRLStressTask"),
+    "cross_modal_retrieval": ("mm_embed.tasks.cross_modal_retrieval", "CrossModalRetrievalTask"),
+    "needle_in_haystack": ("mm_embed.tasks.needle_in_haystack", "NeedleInHaystackTask"),
+    "autonomous_driving": ("mm_embed.tasks.autonomous_driving", "AutonomousDrivingTask"),
+    "chinese_multimodal": ("mm_embed.tasks.chinese_multimodal", "ChineseMultimodalTask"),
+}
+
+
+def get_task(name: str, **kwargs: Any) -> EvalTask:
+    """Instantiate a task by name."""
+    if name not in TASK_REGISTRY:
+        available = ", ".join(sorted(TASK_REGISTRY.keys()))
+        raise KeyError(f"Unknown task '{name}'. Available: {available}")
+
+    module_path, class_name = TASK_REGISTRY[name]
+
+    import importlib
+
+    module = importlib.import_module(module_path)
+    cls = getattr(module, class_name)
+    return cls(**kwargs)

@@ -1,0 +1,47 @@
+# Default evaluation configuration
+# Usage: mm-bench run --config configs/default.yaml
+
+providers:
+  # --- China mainland direct access (no VPN) ---
+  - name: dashscope
+    model: qwen3-vl-embedding-8b
+    # API key from env: DASHSCOPE_API_KEY
+
+  - name: volcengine
+    model: seed-1.6-embedding
+    # API key from env: ARK_API_KEY
+    # Also needs: ARK_ENDPOINT_ID
+
+  # --- Requires VPN ---
+  - name: gemini
+    model: gemini-embedding-exp-03-07
+    # API key from env: GEMINI_API_KEY or GOOGLE_API_KEY
+
+  - name: voyage
+    model: voyage-multimodal-3.5
+    # API key from env: VOYAGE_API_KEY
+
+  # - name: cohere
+  #   model: embed-v4.0
+  #   # API key from env: COHERE_API_KEY
+
+  # - name: jina
+  #   model: jina-embeddings-v4
+  #   # API key from env: JINA_API_KEY
+
+  # --- Baseline (text-only) ---
+  - name: openai
+    model: text-embedding-3-large
+    # API key from env: OPENAI_API_KEY
+
+tasks:
+  - name: mrl_stress
+
+  - name: cross_modal_retrieval
+
+  - name: needle_in_haystack
+    haystack_lengths: [1000, 4000, 8000, 16000]
+
+  - name: autonomous_driving
+
+  - name: chinese_multimodal
