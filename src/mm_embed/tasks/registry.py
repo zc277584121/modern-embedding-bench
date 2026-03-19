@@ -11,6 +11,7 @@ TASK_REGISTRY: dict[str, tuple[str, str]] = {
     "mrl_stress": ("mm_embed.tasks.mrl_stress", "MRLStressTask"),
     "cross_modal_retrieval": ("mm_embed.tasks.cross_modal_retrieval", "CrossModalRetrievalTask"),
     "needle_in_haystack": ("mm_embed.tasks.needle_in_haystack", "NeedleInHaystackTask"),
+    "crosslingual_retrieval": ("mm_embed.tasks.crosslingual_retrieval", "CrossLingualRetrievalTask"),
     "autonomous_driving": ("mm_embed.tasks.autonomous_driving", "AutonomousDrivingTask"),
     "chinese_multimodal": ("mm_embed.tasks.chinese_multimodal", "ChineseMultimodalTask"),
 }

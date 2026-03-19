@@ -1,4 +1,4 @@
-"""OpenAI provider — text-embedding-3-large/small (baseline)."""
+"""ARK provider — Volcengine/ByteDance embedding via OpenAI-compatible API."""
 
 from __future__ import annotations
 
@@ -14,35 +14,37 @@ from mm_embed.providers.base import EmbeddingInput, EmbeddingProvider, Embedding
 logger = logging.getLogger(__name__)
 
 
-class OpenAIProvider(EmbeddingProvider):
-    """OpenAI text embedding API (used as baseline).
+class ArkProvider(EmbeddingProvider):
+    """Volcengine ARK embedding API (OpenAI-compatible interface).
 
-    Models:
-        - text-embedding-3-large: 3072 dims, MMTEB 58.9 (baseline)
-        - text-embedding-3-small: 1536 dims, cheaper
+    Uses the OpenAI SDK with a custom base_url pointing to Volcengine ARK.
+    This is a text-only provider — images are not supported through the
+    OpenAI-compatible embedding endpoint.
 
-    Note: OpenAI does NOT support multimodal embeddings (text only).
-
-    Pricing: $0.13/M tokens (large), $0.02/M tokens (small)
-    Access: Requires VPN from China mainland, or use Azure OpenAI (has China region).
+    Pricing: Pay-as-you-go on Volcengine ARK
+    Access: China mainland direct, no VPN needed.
+    Free tier: ~500K tokens — skip heavy tasks like needle_in_haystack.
     """
 
-    name = "openai"
+    name = "ark"
     supported_modalities = {ModalityType.TEXT}
-    max_text_length = 8191
-    default_dimensions = 3072
-    supports_mrl = True  # text-embedding-3 supports dimension reduction
+    max_text_length = 8192
+    default_dimensions = 2560
+    supports_mrl = False
+
+    DEFAULT_BASE_URL = "https://ark.cn-beijing.volces.com/api/v3"
 
     def __init__(
         self,
         api_key: str | None = None,
-        model: str = "text-embedding-3-large",
+        model: str | None = None,
         base_url: str | None = None,
         **kwargs: Any,
     ):
-        super().__init__(api_key=api_key or os.environ.get("OPENAI_API_KEY"), **kwargs)
-        self.model = model
-        self.base_url = base_url or os.environ.get("OPENAI_BASE_URL")
+        super().__init__(api_key=api_key or os.environ.get("ARK_API_KEY"), **kwargs)
+        # Model can be an endpoint ID (ep-xxxx) or model name
+        self.model = model or os.environ.get("ARK_ENDPOINT_ID", "doubao-embedding-text-240715")
+        self.base_url = base_url or os.environ.get("ARK_BASE_URL", self.DEFAULT_BASE_URL)
 
     def embed(
         self,
@@ -52,21 +54,16 @@ class OpenAIProvider(EmbeddingProvider):
     ) -> EmbeddingResult:
         from openai import OpenAI
 
-        client_kwargs: dict[str, Any] = {"api_key": self.api_key}
-        if self.base_url:
-            client_kwargs["base_url"] = self.base_url
-
-        client = OpenAI(**client_kwargs)
-        dim = dimensions or self.default_dimensions
+        client = OpenAI(api_key=self.api_key, base_url=self.base_url)
 
         texts = []
         for inp in inputs:
             if inp.modality != ModalityType.TEXT:
-                raise ValueError(f"OpenAI only supports text embeddings, got {inp.modality}")
+                raise ValueError(f"ARK provider only supports text embeddings, got {inp.modality}")
             texts.append(inp.content)
 
-        # OpenAI supports batch natively (up to 2048 texts per call)
-        batch_size = 2048
+        # Batch in groups of 25 to stay safe
+        batch_size = 25
         all_embeddings = []
         total_latency = 0.0
         total_tokens = 0
@@ -84,8 +81,6 @@ class OpenAIProvider(EmbeddingProvider):
                 "input": batch,
                 "model": self.model,
             }
-            if dim != self.default_dimensions:
-                embed_kwargs["dimensions"] = dim
 
             def _call(kw=embed_kwargs):
                 return client.embeddings.create(**kw)
@@ -105,9 +100,10 @@ class OpenAIProvider(EmbeddingProvider):
                 time.sleep(1.0)
 
         embeddings = np.array(all_embeddings)
+        actual_dim = embeddings.shape[1] if len(embeddings) > 0 else self.default_dimensions
         return EmbeddingResult(
             embeddings=embeddings,
-            dimensions=dim,
+            dimensions=actual_dim,
             model_name=self.model,
             provider=self.name,
             latency_ms=total_latency,

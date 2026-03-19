@@ -1,107 +1,131 @@
 # mm-embedding-bench
 
-Multimodal Embedding Model Benchmark & Evaluation Framework
-
-## Overview
-
 A framework for evaluating and comparing multimodal embedding models across multiple providers and tasks.
+
+## Features
+
+- **10+ embedding providers** — API services (OpenAI, Gemini, Voyage, Cohere, Jina, DashScope, Volcengine/ARK) and local models (SentenceTransformers, Transformers, Ollama)
+- **4 evaluation tasks** — MRL stress test, cross-modal retrieval, crosslingual retrieval, needle-in-a-haystack
+- **Disk-based embedding cache** — avoids redundant API calls and GPU computation
+- **Incremental result saving** — results saved after each model-task combination
 
 ## Supported Providers
 
-| Provider | Model | Modalities | China Mainland |
-|----------|-------|------------|:--------------:|
-| **DashScope** | Qwen3-VL-Embedding-8B | Text, Image, Video | Direct |
-| **Volcengine** | Seed-1.6-Embedding | Text, Image, Video | Direct |
-| **Gemini** | gemini-embedding-exp-03-07 | Text, Image, Video, Audio, PDF | VPN |
-| **Voyage** | voyage-multimodal-3.5 | Text, Image, Video, Document | VPN |
-| **Cohere** | embed-v4.0 | Text, Image, Document | VPN |
-| **OpenAI** | text-embedding-3-large | Text only | VPN/Azure |
-| **Jina** | jina-embeddings-v4 | Text, Image, Document | VPN |
+| Provider | Example Model | Modalities |
+|----------|--------------|------------|
+| **OpenAI** | text-embedding-3-large | Text |
+| **Gemini** | gemini-embedding-2-preview | Text, Image, Video, Audio, PDF |
+| **Voyage** | voyage-multimodal-3.5 | Text, Image |
+| **Cohere** | embed-v4.0 | Text, Image, Document |
+| **Jina** | jina-embeddings-v4, jina-clip-v2 | Text, Image, Document |
+| **DashScope** | text-embedding-v3, multimodal-embedding-v1 | Text, Image |
+| **Volcengine/ARK** | doubao-embedding | Text |
+| **SentenceTransformers** | BAAI/bge-m3, clip-ViT-B-32 | Text (+ Image for CLIP) |
+| **Transformers** | Qwen3-VL-Embedding-2B, SigLIP2 | Text, Image |
+| **Ollama** | nomic-embed-text, bge-m3 | Text |
 
 ## Evaluation Tasks
 
 | Task | Description | Modalities |
 |------|-------------|------------|
-| **MRL Stress** | Matryoshka dimension reduction quality test | Text |
-| **Cross-Modal Retrieval** | Bidirectional text↔image retrieval | Text + Image |
-| **Needle-in-Haystack** | Long document specific fact retrieval | Text |
-| **Autonomous Driving** | Domain-specific scene retrieval (CoVLA-style) | Text + Image |
-| **Chinese Multimodal** | Chinese text + cross-lingual alignment | Text + Image |
+| **MRL Stress** | Matryoshka dimension reduction quality (Spearman ρ) | Text |
+| **Cross-Modal Retrieval** | Bidirectional text ↔ image retrieval with hard negatives | Text + Image |
+| **Crosslingual Retrieval** | Chinese ↔ English parallel sentence retrieval | Text |
+| **Needle-in-a-Haystack** | Specific fact retrieval in long documents (1K–32K chars) | Text |
 
-## Setup
+## Installation
 
 ```bash
-# Install with uv
+# Clone and install with uv
+git clone https://github.com/your-org/mm-embedding-bench.git
+cd mm-embedding-bench
 uv sync
-
-# Install with specific provider dependencies
-uv sync --extra dashscope
-uv sync --extra all
 ```
 
-## Usage
+## Quick Start
+
+```python
+from mm_embed.providers import get_provider
+from mm_embed.tasks import get_task
+
+# Initialize a provider
+provider = get_provider("openai", model="text-embedding-3-large")
+
+# Run a task
+task = get_task("mrl_stress")
+result = task.run(provider)
+print(result.metrics)
+```
+
+Or use the evaluation scripts:
 
 ```bash
-# List available providers and tasks
-mm-bench list-providers
-mm-bench list-tasks
+# Run all evaluations
+uv run python scripts/run_rerun_all.py
 
-# Check provider connectivity
-mm-bench check dashscope
-
-# Run evaluation
-mm-bench run --provider dashscope --task mrl_stress cross_modal_retrieval
-mm-bench run --config configs/default.yaml --output results.json
-
-# Or use the script directly
-python scripts/run_eval.py --provider dashscope --task mrl_stress
+# Run specific evaluations
+uv run python scripts/run_crosslingual_eval.py
+uv run python scripts/run_crossmodal_hard.py
 ```
 
 ## Environment Variables
 
 ```bash
-# Required API keys (set in ~/.bashrc or .env)
-export DASHSCOPE_API_KEY="..."      # Alibaba DashScope
-export ARK_API_KEY="..."            # ByteDance Volcengine
-export GEMINI_API_KEY="..."         # Google Gemini
-export VOYAGE_API_KEY="..."         # Voyage AI
-export COHERE_API_KEY="..."         # Cohere
-export OPENAI_API_KEY="..."         # OpenAI (baseline)
-export JINA_API_KEY="..."           # Jina AI
+# API keys (set whichever providers you need)
+export OPENAI_API_KEY="..."
+export GEMINI_API_KEY="..."
+export VOYAGE_API_KEY="..."
+export COHERE_API_KEY="..."
+export JINA_API_KEY="..."
+export DASHSCOPE_API_KEY="..."
+export ARK_API_KEY="..."
+
+# Optional: GPU device for local models (default: cuda:0)
+export CUDA_DEVICE="cuda:0"
+
+# Optional: local model paths (default: HuggingFace model names)
+export QWEN_VL_MODEL_PATH="Qwen/Qwen3-VL-Embedding-2B"
+export SIGLIP_MODEL_PATH="google/siglip2-so400m-patch14-384"
 ```
 
 ## Project Structure
 
 ```
 mm-embedding-bench/
-├── pyproject.toml                  # Project config (uv/hatch)
-├── configs/
-│   └── default.yaml                # Default eval configuration
-├── scripts/
-│   └── run_eval.py                 # Quick evaluation script
+├── pyproject.toml
 ├── src/mm_embed/
-│   ├── cli.py                      # CLI entry point
+│   ├── cache.py                          # Disk-based embedding cache
+│   ├── cli.py                            # CLI entry point
 │   ├── providers/
-│   │   ├── base.py                 # EmbeddingProvider ABC
-│   │   ├── registry.py             # Lazy provider registry
-│   │   ├── dashscope_provider.py   # Qwen3 (Alibaba)
-│   │   ├── volcengine_provider.py  # Seed-1.6 (ByteDance)
-│   │   ├── gemini_provider.py      # Gemini (Google)
-│   │   ├── voyage_provider.py      # Voyage Multimodal
-│   │   ├── cohere_provider.py      # Cohere Embed v4
-│   │   ├── openai_provider.py      # OpenAI (baseline)
-│   │   └── jina_provider.py        # Jina v4
+│   │   ├── base.py                       # EmbeddingProvider ABC
+│   │   ├── registry.py                   # Lazy provider registry
+│   │   ├── openai_provider.py            # OpenAI
+│   │   ├── gemini_provider.py            # Google Gemini
+│   │   ├── voyage_provider.py            # Voyage AI
+│   │   ├── cohere_provider.py            # Cohere
+│   │   ├── jina_provider.py              # Jina AI
+│   │   ├── dashscope_provider.py         # Alibaba DashScope
+│   │   ├── ark_provider.py               # Volcengine/ByteDance ARK
+│   │   ├── ollama_provider.py            # Ollama (local)
+│   │   ├── sentence_transformers_provider.py  # SentenceTransformers (local GPU)
+│   │   └── transformers_provider.py      # HuggingFace Transformers (local GPU)
 │   ├── tasks/
-│   │   ├── base.py                 # EvalTask ABC
-│   │   ├── registry.py             # Lazy task registry
-│   │   ├── mrl_stress.py           # MRL dimension reduction test
-│   │   ├── cross_modal_retrieval.py# Text↔Image retrieval
-│   │   ├── needle_in_haystack.py   # Long-doc needle search
-│   │   ├── autonomous_driving.py   # Driving scene retrieval
-│   │   └── chinese_multimodal.py   # Chinese + cross-lingual
+│   │   ├── base.py                       # EvalTask ABC + EvalResult
+│   │   ├── registry.py                   # Lazy task registry
+│   │   ├── mrl_stress.py                 # MRL dimension reduction test
+│   │   ├── cross_modal_retrieval.py      # Text ↔ Image retrieval
+│   │   ├── crosslingual_retrieval.py     # Chinese ↔ English retrieval
+│   │   └── needle_in_haystack.py         # Long-doc needle search
 │   ├── data/
-│   │   └── mock.py                 # Mock data generators
+│   │   ├── mock.py                       # Mock data generators
+│   │   └── real_data.py                  # Real dataset loaders
 │   └── utils/
-│       └── metrics.py              # Eval metrics (Recall@K, MRR, etc.)
-└── tests/
+│       └── metrics.py                    # Cosine similarity, Recall@K, etc.
+├── scripts/                              # Evaluation runner scripts
+├── data/                                 # Datasets and embedding cache (gitignored)
+└── results/                              # Evaluation results (gitignored)
 ```
+
+## License
+
+MIT

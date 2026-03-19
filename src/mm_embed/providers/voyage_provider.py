@@ -3,13 +3,17 @@
 from __future__ import annotations
 
 import base64
+import logging
 import os
+import time
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 
 from mm_embed.providers.base import EmbeddingInput, EmbeddingProvider, EmbeddingResult, ModalityType
+
+logger = logging.getLogger(__name__)
 
 
 class VoyageProvider(EmbeddingProvider):
@@ -51,9 +55,7 @@ class VoyageProvider(EmbeddingProvider):
         client = voyageai.Client(api_key=self.api_key)
         dim = dimensions or self.default_dimensions
 
-        # Voyage multimodal accepts a list of content items
-        # Each item can be: str (text), or [[image_base64, None, "png"]] (image),
-        # or a mixed list for interleaved text+image
+        # Build all inputs
         voyage_inputs = []
         for inp in inputs:
             voyage_inputs.append(self._build_input(inp))
@@ -64,25 +66,58 @@ class VoyageProvider(EmbeddingProvider):
         elif task_type == "retrieval_document":
             input_type = "document"
 
-        embed_kwargs: dict[str, Any] = {
-            "inputs": voyage_inputs,
-            "model": self.model,
-        }
-        if input_type:
-            embed_kwargs["input_type"] = input_type
-        if dim != self.default_dimensions:
-            embed_kwargs["output_dimension"] = dim
+        # Batch to avoid rate limits (free tier: 3 RPM)
+        # Voyage SDK accepts up to ~128 text inputs, but for images keep batches small
+        has_images = any(inp.modality != ModalityType.TEXT for inp in inputs)
+        batch_size = 1 if has_images else 50
 
-        response, latency = self._timed_call(client.multimodal_embed, **embed_kwargs)
+        all_embeddings = []
+        total_latency = 0.0
+        total_tokens = 0
+        n_batches = (len(voyage_inputs) + batch_size - 1) // batch_size
 
-        embeddings = np.array(response.embeddings)
+        for batch_idx in range(n_batches):
+            start = batch_idx * batch_size
+            end = min(start + batch_size, len(voyage_inputs))
+            batch = voyage_inputs[start:end]
+
+            if n_batches > 1 and (batch_idx + 1) % 5 == 0:
+                logger.info("Voyage batch %d/%d...", batch_idx + 1, n_batches)
+
+            embed_kwargs: dict[str, Any] = {
+                "inputs": batch,
+                "model": self.model,
+            }
+            if input_type:
+                embed_kwargs["input_type"] = input_type
+            if dim != self.default_dimensions:
+                embed_kwargs["output_dimension"] = dim
+
+            def _call(kw=embed_kwargs):
+                return client.multimodal_embed(**kw)
+
+            response, latency = self._call_with_retry(_call)
+            total_latency += latency
+
+            all_embeddings.extend(response.embeddings)
+            if hasattr(response, "total_tokens") and response.total_tokens:
+                total_tokens += response.total_tokens
+
+            # Rate limit: sleep between batches (25s for free tier 3 RPM)
+            if batch_idx < n_batches - 1:
+                sleep_time = 25.0 if has_images else 1.0
+                if has_images:
+                    logger.info("Sleeping %.0fs for rate limit...", sleep_time)
+                time.sleep(sleep_time)
+
+        embeddings = np.array(all_embeddings)
         return EmbeddingResult(
             embeddings=embeddings,
             dimensions=embeddings.shape[1],
             model_name=self.model,
             provider=self.name,
-            latency_ms=latency,
-            token_usage=response.total_tokens if hasattr(response, "total_tokens") else None,
+            latency_ms=total_latency,
+            token_usage=total_tokens if total_tokens > 0 else None,
         )
 
     def _build_input(self, inp: EmbeddingInput) -> Any:
@@ -98,7 +133,7 @@ class VoyageProvider(EmbeddingProvider):
             else:
                 import io
                 img = PILImage.open(io.BytesIO(inp.content))
-            return [[img]]
+            return [img]
 
         if inp.modality == ModalityType.DOCUMENT:
             # Voyage treats screenshots/PDFs as images
@@ -109,6 +144,6 @@ class VoyageProvider(EmbeddingProvider):
             else:
                 import io
                 img = PILImage.open(io.BytesIO(inp.content))
-            return [[img]]
+            return [img]
 
         raise ValueError(f"Unsupported modality for Voyage: {inp.modality}")

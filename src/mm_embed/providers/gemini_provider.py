@@ -1,9 +1,11 @@
-"""Google Gemini provider — Gemini Embedding 2 (gemini-embedding-exp-03-07)."""
+"""Google Gemini provider — Gemini Embedding 2 (gemini-embedding-2-preview)."""
 
 from __future__ import annotations
 
 import base64
+import logging
 import os
+import time
 from pathlib import Path
 from typing import Any
 
@@ -11,12 +13,14 @@ import numpy as np
 
 from mm_embed.providers.base import EmbeddingInput, EmbeddingProvider, EmbeddingResult, ModalityType
 
+logger = logging.getLogger(__name__)
+
 
 class GeminiProvider(EmbeddingProvider):
     """Google Gemini Embedding API.
 
     Models:
-        - gemini-embedding-exp-03-07: Latest multimodal (text+image+video+audio+PDF)
+        - gemini-embedding-2-preview: Latest multimodal (text+image+video+audio+PDF)
         - text-embedding-004: Text-only, production stable
         - gemini-embedding-001: Text-only, MMTEB 68.4
 
@@ -47,7 +51,7 @@ class GeminiProvider(EmbeddingProvider):
     def __init__(
         self,
         api_key: str | None = None,
-        model: str = "gemini-embedding-exp-03-07",
+        model: str = "gemini-embedding-2-preview",
         **kwargs: Any,
     ):
         super().__init__(
@@ -67,39 +71,83 @@ class GeminiProvider(EmbeddingProvider):
         client = genai.Client(api_key=self.api_key)
         dim = dimensions or self.default_dimensions
 
-        # Determine task type
         gemini_task_type = None
         if task_type and task_type in self.TASK_TYPE_MAP:
             gemini_task_type = self.TASK_TYPE_MAP[task_type]
 
-        all_embeddings = []
+        # Separate text inputs (batchable) from non-text inputs
+        text_indices = [i for i, inp in enumerate(inputs) if inp.modality == ModalityType.TEXT]
+        non_text_indices = [i for i, inp in enumerate(inputs) if inp.modality != ModalityType.TEXT]
+
+        all_embeddings: list[tuple[int, list[float]]] = []
         total_latency = 0.0
 
-        for inp in inputs:
-            content = self._build_content(inp)
+        # Batch text inputs
+        if text_indices:
+            text_contents = [inputs[i].content for i in text_indices]
+            batch_size = self.default_batch_size
+            n_batches = (len(text_contents) + batch_size - 1) // batch_size
 
-            embed_kwargs: dict[str, Any] = {
-                "model": self.model,
-                "contents": content,
-            }
-            config_kwargs: dict[str, Any] = {
-                "output_dimensionality": dim,
-            }
+            for batch_idx in range(n_batches):
+                start = batch_idx * batch_size
+                end = min(start + batch_size, len(text_contents))
+                batch = text_contents[start:end]
+
+                if n_batches > 1:
+                    logger.info("Embedding text batch %d/%d (%d items)...", batch_idx + 1, n_batches, len(batch))
+
+                config_kwargs: dict[str, Any] = {"output_dimensionality": dim}
+                if gemini_task_type:
+                    config_kwargs["task_type"] = gemini_task_type
+
+                embed_kwargs: dict[str, Any] = {
+                    "model": self.model,
+                    "contents": batch,
+                    "config": config_kwargs,
+                }
+
+                def _call(kw=embed_kwargs):
+                    return client.models.embed_content(**kw)
+
+                response, latency = self._call_with_retry(_call)
+                total_latency += latency
+
+                for j, emb_obj in enumerate(response.embeddings):
+                    all_embeddings.append((text_indices[start + j], emb_obj.values))
+
+                # Pause between batches to respect rate limits
+                if batch_idx < n_batches - 1:
+                    time.sleep(10.0)
+
+        # Non-text inputs one by one (images, videos, etc. can't be batched)
+        for idx_count, i in enumerate(non_text_indices):
+            if idx_count > 0:
+                if len(non_text_indices) > 10 and (idx_count + 1) % 10 == 0:
+                    logger.info("Embedding non-text item %d/%d...", idx_count + 1, len(non_text_indices))
+                time.sleep(5.0)  # throttle image requests
+            content = self._build_content(inputs[i])
+
+            config_kwargs = {"output_dimensionality": dim}
             if gemini_task_type:
                 config_kwargs["task_type"] = gemini_task_type
 
-            embed_kwargs["config"] = config_kwargs
+            embed_kwargs = {
+                "model": self.model,
+                "contents": content,
+                "config": config_kwargs,
+            }
 
-            def _call():
-                return client.models.embed_content(**embed_kwargs)
+            def _call(kw=embed_kwargs):
+                return client.models.embed_content(**kw)
 
-            response, latency = self._timed_call(_call)
+            response, latency = self._call_with_retry(_call)
             total_latency += latency
+            all_embeddings.append((i, response.embeddings[0].values))
 
-            emb = response.embeddings[0].values
-            all_embeddings.append(emb)
+        # Reassemble in original order
+        all_embeddings.sort(key=lambda x: x[0])
+        embeddings = np.array([emb for _, emb in all_embeddings])
 
-        embeddings = np.array(all_embeddings)
         return EmbeddingResult(
             embeddings=embeddings,
             dimensions=dim,

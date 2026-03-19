@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import base64
+import logging
 import os
+import time
 from pathlib import Path
 from typing import Any
 
@@ -11,35 +13,35 @@ import numpy as np
 
 from mm_embed.providers.base import EmbeddingInput, EmbeddingProvider, EmbeddingResult, ModalityType
 
+logger = logging.getLogger(__name__)
+
 
 class DashScopeProvider(EmbeddingProvider):
-    """Alibaba DashScope API for Qwen3 embedding models.
+    """Alibaba DashScope API for embedding models.
 
     Models:
-        - qwen3-embedding-8b: Text-only, MMTEB Mean(Task) #1 (70.6)
-        - qwen3-embedding-4b: Text-only, smaller
-        - qwen3-embedding-0.6b: Text-only, lightweight
-        - qwen3-vl-embedding-8b: Multimodal (text+image+video), MMEB-V2 #1 (77.8)
-        - qwen3-vl-embedding-2b: Multimodal, smaller
+        - text-embedding-v3: Text-only, latest (1024 dims, supports MRL)
+        - text-embedding-v2: Text-only, previous generation
+        - multimodal-embedding-v1: Multimodal (text+image)
 
     Pricing: ~0.0007 RMB / 1K tokens (text), ~0.0007 RMB / image
     Access: China mainland direct, no VPN needed.
     """
 
     name = "dashscope"
-    supported_modalities = {ModalityType.TEXT, ModalityType.IMAGE, ModalityType.VIDEO}
+    supported_modalities = {ModalityType.TEXT, ModalityType.IMAGE}
     max_text_length = 32768
     default_dimensions = 1024
     supports_mrl = True
 
     # Available models
-    TEXT_MODELS = ["qwen3-embedding-8b", "qwen3-embedding-4b", "qwen3-embedding-0.6b"]
-    VL_MODELS = ["qwen3-vl-embedding-8b", "qwen3-vl-embedding-2b"]
+    TEXT_MODELS = ["text-embedding-v3", "text-embedding-v2", "text-embedding-v1"]
+    VL_MODELS = ["multimodal-embedding-v1"]
 
     def __init__(
         self,
         api_key: str | None = None,
-        model: str = "qwen3-vl-embedding-8b",
+        model: str = "text-embedding-v3",
         **kwargs: Any,
     ):
         super().__init__(api_key=api_key or os.environ.get("DASHSCOPE_API_KEY"), **kwargs)
@@ -73,25 +75,63 @@ class DashScopeProvider(EmbeddingProvider):
         texts = [inp.content for inp in inputs]
         dim = dimensions or self.default_dimensions
 
-        call_kwargs: dict[str, Any] = {
-            "model": self.model,
-            "input": texts,
-            "dimension": dim,
-        }
+        # DashScope text-embedding-v3 supports batch up to 10 texts
+        batch_size = 10
+        all_embeddings = []
+        total_latency = 0.0
+        total_tokens = 0
+        n_batches = (len(texts) + batch_size - 1) // batch_size
+
+        # Map task_type to DashScope text_type values ('query' or 'document')
+        ds_text_type = None
         if task_type:
-            # DashScope uses "query" / "document" for retrieval tasks
-            call_kwargs["text_type"] = task_type
+            text_type_map = {
+                "retrieval_query": "query",
+                "retrieval_document": "document",
+                "query": "query",
+                "document": "document",
+            }
+            ds_text_type = text_type_map.get(task_type)
 
-        response, latency = self._timed_call(TextEmbedding.call, **call_kwargs)
+        for batch_idx in range(n_batches):
+            start = batch_idx * batch_size
+            end = min(start + batch_size, len(texts))
+            batch = texts[start:end]
 
-        embeddings = np.array([item["embedding"] for item in response.output["embeddings"]])
+            if n_batches > 1:
+                logger.info("Embedding text batch %d/%d (%d items)...", batch_idx + 1, n_batches, len(batch))
+
+            call_kwargs: dict[str, Any] = {
+                "model": self.model,
+                "input": batch,
+                "dimension": dim,
+            }
+            if ds_text_type:
+                call_kwargs["text_type"] = ds_text_type
+
+            def _call(kw=call_kwargs):
+                return TextEmbedding.call(**kw)
+
+            response, latency = self._call_with_retry(_call)
+            total_latency += latency
+
+            for item in response.output["embeddings"]:
+                all_embeddings.append(item["embedding"])
+
+            if response.usage:
+                total_tokens += response.usage.get("total_tokens", 0)
+
+            if batch_idx < n_batches - 1:
+                time.sleep(0.5)
+
+        embeddings = np.array(all_embeddings)
         return EmbeddingResult(
             embeddings=embeddings,
             dimensions=dim,
             model_name=self.model,
             provider=self.name,
-            latency_ms=latency,
-            token_usage=response.usage.get("total_tokens"),
+            latency_ms=total_latency,
+            token_usage=total_tokens if total_tokens > 0 else None,
         )
 
     def _embed_multimodal(
@@ -127,21 +167,58 @@ class DashScopeProvider(EmbeddingProvider):
         total_latency = 0.0
         total_tokens = 0
 
-        for content in all_contents:
+        for i, content in enumerate(all_contents):
+            if len(all_contents) > 10 and (i + 1) % 10 == 0:
+                logger.info("Embedding multimodal item %d/%d...", i + 1, len(all_contents))
+
             call_kwargs: dict[str, Any] = {
                 "model": self.model,
                 "input": content,
-                "dimension": dim,
             }
+            # multimodal-embedding-v1 does NOT support the 'dimension' parameter
+            if self.model != "multimodal-embedding-v1" and dim:
+                call_kwargs["dimension"] = dim
 
-            response, latency = self._timed_call(MultiModalEmbedding.call, **call_kwargs)
+            def _call(kw=call_kwargs):
+                return MultiModalEmbedding.call(**kw)
+
+            response, latency = self._call_with_retry(_call)
             total_latency += latency
+
+            # Handle None output (often caused by 429 rate limiting)
+            retry_wait = 10.0
+            for retry_attempt in range(5):
+                if response.output is not None:
+                    break
+                status = getattr(response, "status_code", "?")
+                msg = getattr(response, "message", "?")
+                logger.warning(
+                    "Multimodal item %d/%d returned None output (status=%s, msg=%s), "
+                    "retrying after %.0fs (attempt %d/5)...",
+                    i + 1, len(all_contents), status, msg, retry_wait, retry_attempt + 1,
+                )
+                time.sleep(retry_wait)
+                retry_wait = min(retry_wait * 2, 120)
+                response, latency2 = self._call_with_retry(_call)
+                total_latency += latency2
+
+            if response.output is None:
+                status = getattr(response, "status_code", "?")
+                msg = getattr(response, "message", "?")
+                raise RuntimeError(
+                    f"DashScope multimodal item {i+1}/{len(all_contents)} returned None output "
+                    f"after 5 retries (status={status}, msg={msg})"
+                )
 
             emb = response.output["embeddings"][0]["embedding"]
             all_embeddings.append(emb)
 
             if hasattr(response, "usage") and response.usage:
                 total_tokens += response.usage.get("total_tokens", 0)
+
+            # Delay between items to avoid rate limiting
+            if i < len(all_contents) - 1:
+                time.sleep(0.3)
 
         embeddings = np.array(all_embeddings)
         return EmbeddingResult(

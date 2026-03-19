@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import base64
+import logging
 import os
+import time
 from pathlib import Path
 from typing import Any
 
@@ -11,12 +13,15 @@ import numpy as np
 
 from mm_embed.providers.base import EmbeddingInput, EmbeddingProvider, EmbeddingResult, ModalityType
 
+logger = logging.getLogger(__name__)
+
 
 class JinaProvider(EmbeddingProvider):
     """Jina AI embedding API (HTTP-based, no dedicated SDK needed).
 
     Models:
         - jina-embeddings-v4: Multimodal (text+image+doc), ViDoRe 90.2, CC-BY-NC
+        - jina-clip-v2: CLIP-style multimodal (text+image)
         - jina-embeddings-v3: Text-only, multilingual
 
     Pricing: Pay-per-use via Jina API
@@ -39,6 +44,9 @@ class JinaProvider(EmbeddingProvider):
         "similarity": "text-matching",
     }
 
+    # Models that use CLIP-style format (no task/LoRA support)
+    CLIP_MODELS = {"jina-clip-v2", "jina-clip-v1"}
+
     def __init__(
         self,
         api_key: str | None = None,
@@ -49,6 +57,11 @@ class JinaProvider(EmbeddingProvider):
         super().__init__(api_key=api_key or os.environ.get("JINA_API_KEY"), **kwargs)
         self.model = model
         self.late_interaction = late_interaction
+        # CLIP models have different default dimensions
+        if model in self.CLIP_MODELS:
+            self.default_dimensions = 1024
+            self.supports_mrl = False
+            self.supports_multi_vector = False
 
     def embed(
         self,
@@ -59,15 +72,88 @@ class JinaProvider(EmbeddingProvider):
         import httpx
 
         dim = dimensions or self.default_dimensions
+
+        # Separate text and non-text inputs for batching
+        text_indices = [i for i, inp in enumerate(inputs) if inp.modality == ModalityType.TEXT]
+        non_text_indices = [i for i, inp in enumerate(inputs) if inp.modality != ModalityType.TEXT]
+
+        all_embeddings: list[tuple[int, list[float]]] = []
+        total_latency = 0.0
+        total_tokens = 0
+
+        # Batch text inputs (up to 100 per request)
+        if text_indices:
+            text_batch_size = 100
+            for batch_start in range(0, len(text_indices), text_batch_size):
+                batch_idx_list = text_indices[batch_start:batch_start + text_batch_size]
+                batch_inputs = [self._build_input(inputs[i]) for i in batch_idx_list]
+
+                if len(text_indices) > text_batch_size:
+                    batch_num = batch_start // text_batch_size + 1
+                    n_batches = (len(text_indices) + text_batch_size - 1) // text_batch_size
+                    logger.info("Embedding text batch %d/%d (%d items)...", batch_num, n_batches, len(batch_inputs))
+
+                response, latency = self._send_batch(batch_inputs, dim, task_type, httpx)
+                total_latency += latency
+                total_tokens += response.get("usage", {}).get("total_tokens", 0)
+
+                # Sort by index to handle out-of-order API responses
+                sorted_data = sorted(response["data"], key=lambda x: x.get("index", 0))
+                for j, item in enumerate(sorted_data):
+                    all_embeddings.append((batch_idx_list[j], item["embedding"]))
+
+                if batch_start + text_batch_size < len(text_indices):
+                    time.sleep(1.0)
+
+        # Batch non-text inputs (images/docs, smaller batches due to payload size)
+        if non_text_indices:
+            img_batch_size = 10
+            for batch_start in range(0, len(non_text_indices), img_batch_size):
+                batch_idx_list = non_text_indices[batch_start:batch_start + img_batch_size]
+                batch_inputs = [self._build_input(inputs[i]) for i in batch_idx_list]
+
+                if len(non_text_indices) > img_batch_size:
+                    batch_num = batch_start // img_batch_size + 1
+                    n_batches = (len(non_text_indices) + img_batch_size - 1) // img_batch_size
+                    logger.info("Embedding image batch %d/%d (%d items)...", batch_num, n_batches, len(batch_inputs))
+
+                response, latency = self._send_batch(batch_inputs, dim, task_type, httpx)
+                total_latency += latency
+                total_tokens += response.get("usage", {}).get("total_tokens", 0)
+
+                # Sort by index to handle out-of-order API responses
+                sorted_data = sorted(response["data"], key=lambda x: x.get("index", 0))
+                for j, item in enumerate(sorted_data):
+                    all_embeddings.append((batch_idx_list[j], item["embedding"]))
+
+                if batch_start + img_batch_size < len(non_text_indices):
+                    time.sleep(2.0)
+
+        # Reassemble in original order
+        all_embeddings.sort(key=lambda x: x[0])
+        embeddings = np.array([emb for _, emb in all_embeddings])
+
+        return EmbeddingResult(
+            embeddings=embeddings,
+            dimensions=dim,
+            model_name=self.model,
+            provider=self.name,
+            latency_ms=total_latency,
+            token_usage=total_tokens if total_tokens else None,
+        )
+
+    def _send_batch(
+        self,
+        jina_inputs: list[dict[str, Any]],
+        dim: int,
+        task_type: str | None,
+        httpx_module: Any,
+    ) -> tuple[dict, float]:
+        """Send a batch of inputs to Jina API with retry."""
         headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
         }
-
-        # Build request body
-        jina_inputs = []
-        for inp in inputs:
-            jina_inputs.append(self._build_input(inp))
 
         body: dict[str, Any] = {
             "model": self.model,
@@ -75,9 +161,10 @@ class JinaProvider(EmbeddingProvider):
             "dimensions": dim,
         }
 
-        # Set task for LoRA adapter selection
-        if task_type and task_type in self.TASK_LORA_MAP:
-            body["task"] = self.TASK_LORA_MAP[task_type]
+        # Set task for LoRA adapter selection (not for CLIP models)
+        if self.model not in self.CLIP_MODELS:
+            if task_type and task_type in self.TASK_LORA_MAP:
+                body["task"] = self.TASK_LORA_MAP[task_type]
 
         # Late interaction mode (multi-vector)
         if self.late_interaction:
@@ -85,23 +172,11 @@ class JinaProvider(EmbeddingProvider):
             body["late_chunking"] = True
 
         def _call():
-            resp = httpx.post(self.API_URL, json=body, headers=headers, timeout=60.0)
+            resp = httpx_module.post(self.API_URL, json=body, headers=headers, timeout=120.0)
             resp.raise_for_status()
             return resp.json()
 
-        response, latency = self._timed_call(_call)
-
-        embeddings = np.array([item["embedding"] for item in response["data"]])
-        token_usage = response.get("usage", {}).get("total_tokens")
-
-        return EmbeddingResult(
-            embeddings=embeddings,
-            dimensions=dim,
-            model_name=self.model,
-            provider=self.name,
-            latency_ms=latency,
-            token_usage=token_usage,
-        )
+        return self._call_with_retry(_call)
 
     def _build_input(self, inp: EmbeddingInput) -> dict[str, Any]:
         """Build a single input for Jina API."""

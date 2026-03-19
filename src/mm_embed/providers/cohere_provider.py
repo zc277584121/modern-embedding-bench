@@ -3,13 +3,17 @@
 from __future__ import annotations
 
 import base64
+import logging
 import os
+import time
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 
 from mm_embed.providers.base import EmbeddingInput, EmbeddingProvider, EmbeddingResult, ModalityType
+
+logger = logging.getLogger(__name__)
 
 
 class CohereProvider(EmbeddingProvider):
@@ -28,7 +32,7 @@ class CohereProvider(EmbeddingProvider):
     supported_modalities = {ModalityType.TEXT, ModalityType.IMAGE, ModalityType.DOCUMENT}
     max_text_length = 128000
     default_dimensions = 1024
-    supports_mrl = True
+    supports_mrl = False  # Cohere SDK v5 does not expose dimension reduction parameter
 
     INPUT_TYPE_MAP = {
         "retrieval_query": "search_query",
@@ -75,25 +79,49 @@ class CohereProvider(EmbeddingProvider):
         texts = [inp.content for inp in inputs]
         input_type = self.INPUT_TYPE_MAP.get(task_type, "search_document") if task_type else "search_document"
 
-        def _call():
-            return client.embed(
-                texts=texts,
-                model=self.model,
-                input_type=input_type,
-                embedding_types=["float"],
-                output_dimension=dim,
-            )
+        # Batch manually (max 96 per call) with sleep to avoid rate limits
+        batch_size = 96
+        all_embeddings = []
+        total_latency = 0.0
+        total_tokens = 0
+        n_batches = (len(texts) + batch_size - 1) // batch_size
 
-        response, latency = self._timed_call(_call)
+        for batch_idx in range(n_batches):
+            start = batch_idx * batch_size
+            end = min(start + batch_size, len(texts))
+            batch = texts[start:end]
 
-        embeddings = np.array(response.embeddings.float)
+            if n_batches > 1:
+                logger.info("Cohere text batch %d/%d (%d items)...", batch_idx + 1, n_batches, len(batch))
+
+            def _call(b=batch):
+                return client.embed(
+                    texts=b,
+                    model=self.model,
+                    input_type=input_type,
+                    embedding_types=["float"],
+                    batching=False,
+                )
+
+            response, latency = self._call_with_retry(_call)
+            total_latency += latency
+
+            all_embeddings.extend(response.embeddings.float)
+            if response.meta and response.meta.billed_units:
+                total_tokens += response.meta.billed_units.input_tokens or 0
+
+            # Sleep between batches to avoid rate limit
+            if batch_idx < n_batches - 1:
+                time.sleep(2.0)
+
+        embeddings = np.array(all_embeddings)
         return EmbeddingResult(
             embeddings=embeddings,
             dimensions=dim,
             model_name=self.model,
             provider=self.name,
-            latency_ms=latency,
-            token_usage=response.meta.billed_units.input_tokens if response.meta else None,
+            latency_ms=total_latency,
+            token_usage=total_tokens if total_tokens > 0 else None,
         )
 
     def _embed_multimodal(
@@ -120,9 +148,8 @@ class CohereProvider(EmbeddingProvider):
                         model=self.model,
                         input_type=input_type,
                         embedding_types=["float"],
-                        output_dimension=dim,
                     )
-                response, latency = self._timed_call(_call)
+                response, latency = self._call_with_retry(_call)
                 emb = response.embeddings.float[0]
             else:
                 # Image input
@@ -133,9 +160,8 @@ class CohereProvider(EmbeddingProvider):
                         model=self.model,
                         input_type=input_type,
                         embedding_types=["float"],
-                        output_dimension=dim,
                     )
-                response, latency = self._timed_call(_call)
+                response, latency = self._call_with_retry(_call)
                 emb = response.embeddings.float[0]
 
             all_embeddings.append(emb)

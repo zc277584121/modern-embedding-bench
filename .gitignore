@@ -17,3 +17,17 @@ results/
 .ruff_cache/
 .mypy_cache/
 .pytest_cache/
+
+# Embedding cache and numpy files
+data/embedding_cache/
+*.npy
+*.npy.tmp
+
+# Generated outputs
+results/
+reports/
+
+# Tool/IDE metadata
+.cc-use/
+.claude/
+.memsearch/

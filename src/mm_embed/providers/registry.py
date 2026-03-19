@@ -16,6 +16,10 @@ PROVIDER_REGISTRY: dict[str, tuple[str, str]] = {
     "cohere": ("mm_embed.providers.cohere_provider", "CohereProvider"),
     "openai": ("mm_embed.providers.openai_provider", "OpenAIProvider"),
     "jina": ("mm_embed.providers.jina_provider", "JinaProvider"),
+    "ark": ("mm_embed.providers.ark_provider", "ArkProvider"),
+    "transformers": ("mm_embed.providers.transformers_provider", "TransformersProvider"),
+    "ollama": ("mm_embed.providers.ollama_provider", "OllamaProvider"),
+    "sentence_transformers": ("mm_embed.providers.sentence_transformers_provider", "SentenceTransformersProvider"),
 }
 
 
