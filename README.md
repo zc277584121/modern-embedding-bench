@@ -1,4 +1,4 @@
-# mm-embedding-bench
+# Modern Embedding Bench
 
 A maintainable benchmark framework for evaluating embedding models on practical
 retrieval scenarios that are under-covered by broad public leaderboards.
@@ -69,8 +69,8 @@ uv sync --extra data
 ## Inspect The Registry
 
 ```bash
-uv run mm-bench benchmark models
-uv run mm-bench benchmark tasks
+uv run modern-embed-bench benchmark models
+uv run modern-embed-bench benchmark tasks
 ```
 
 Model and task definitions live in `benchmark/models/*.yaml` and
@@ -80,12 +80,12 @@ change before any new provider code is written.
 ## Run A Smoke Benchmark
 
 ```bash
-uv run mm-bench benchmark run \
+uv run modern-embed-bench benchmark run \
   --manifest benchmark/runs/openai-smoke.yaml \
   --output results/openai-smoke.jsonl \
   --overwrite
 
-uv run mm-bench benchmark leaderboard \
+uv run modern-embed-bench benchmark leaderboard \
   --results results/openai-smoke.jsonl \
   --output results/openai-smoke-leaderboard.csv
 ```
@@ -131,7 +131,7 @@ Export a Gradio Space folder:
 
 ```bash
 uv run python scripts/export_hf_space.py \
-  --dataset-repo-id <namespace>/mm-embedding-bench \
+  --dataset-repo-id <namespace>/modern-embedding-bench \
   --leaderboard results/openai-smoke-leaderboard.csv \
   --output-dir dist/huggingface/space
 ```
@@ -143,18 +143,18 @@ Upload with a token from `HF_TOKEN`, `HUGGINGFACE_HUB_TOKEN`, or
 uv run python scripts/upload_hf.py \
   --folder dist/huggingface/dataset \
   --repo-type dataset \
-  --repo-id <namespace>/mm-embedding-bench
+  --repo-id <namespace>/modern-embedding-bench
 
 uv run python scripts/upload_hf.py \
   --folder dist/huggingface/space \
   --repo-type space \
-  --repo-id <namespace>/mm-embedding-bench-leaderboard \
-  --space-dataset-repo-id <namespace>/mm-embedding-bench
+  --repo-id <namespace>/modern-embedding-bench-leaderboard \
+  --space-dataset-repo-id <namespace>/modern-embedding-bench
 ```
 
 Use `--private` during dry runs if you want to avoid publishing public artifacts.
 
-## Old CLI
+## Compatibility CLI
 
-The original `mm-bench run --provider ... --task ...` command still exists for
-compatibility. New work should prefer `mm-bench benchmark run --manifest ...`.
+The historical `mm-bench` command still exists for compatibility. New work
+should prefer `modern-embed-bench benchmark run --manifest ...`.

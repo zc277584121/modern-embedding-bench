@@ -9,10 +9,10 @@ This directory is the data-backed control plane for the benchmark.
 The Python runner reuses the provider and task implementations under `src/mm_embed/`.
 
 ```bash
-uv run mm-bench benchmark models
-uv run mm-bench benchmark tasks
-uv run mm-bench benchmark run --manifest benchmark/runs/openai-smoke.yaml --output results/openai-smoke.jsonl
-uv run mm-bench benchmark leaderboard --results results/openai-smoke.jsonl --output results/openai-smoke-leaderboard.csv
+uv run modern-embed-bench benchmark models
+uv run modern-embed-bench benchmark tasks
+uv run modern-embed-bench benchmark run --manifest benchmark/runs/openai-smoke.yaml --output results/openai-smoke.jsonl
+uv run modern-embed-bench benchmark leaderboard --results results/openai-smoke.jsonl --output results/openai-smoke-leaderboard.csv
 ```
 
 Generated results remain outside the tracked source tree by default. Use

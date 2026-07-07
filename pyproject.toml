@@ -1,7 +1,7 @@
 [project]
-name = "mm-embedding-bench"
+name = "modern-embedding-bench"
 version = "0.1.0"
-description = "Multimodal Embedding Model Benchmark & Evaluation Framework"
+description = "Modern embedding benchmark for emerging retrieval scenarios"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
@@ -46,6 +46,7 @@ all = [
 ]
 
 [project.scripts]
+modern-embed-bench = "mm_embed.cli:main"
 mm-bench = "mm_embed.cli:main"
 
 [build-system]

@@ -4,10 +4,10 @@ on:
   workflow_dispatch:
     inputs:
       dataset_repo_id:
-        description: "Hugging Face Dataset repo id, e.g. namespace/mm-embedding-bench"
+        description: "Hugging Face Dataset repo id, e.g. namespace/modern-embedding-bench"
         required: true
       space_repo_id:
-        description: "Hugging Face Gradio Space repo id, e.g. namespace/mm-embedding-bench-leaderboard"
+        description: "Hugging Face Gradio Space repo id, e.g. namespace/modern-embedding-bench-leaderboard"
         required: true
       results_path:
         description: "Result JSONL path to publish"

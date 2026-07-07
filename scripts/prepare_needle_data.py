@@ -102,7 +102,7 @@ def fetch_wikipedia_article(title: str) -> str:
         "format": "json",
     }
     headers = {
-        "User-Agent": "mm-embedding-bench/0.1 (research; https://github.com/example)",
+        "User-Agent": "modern-embedding-bench/0.1 (research; https://github.com/zc277584121/modern-embedding-bench)",
     }
     with httpx.Client(timeout=30, follow_redirects=True, headers=headers) as client:
         resp = client.get(url, params=params)

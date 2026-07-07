@@ -1,4 +1,4 @@
-"""CLI entry point for mm-embedding-bench."""
+"""CLI entry point for Modern Embedding Bench."""
 
 from __future__ import annotations
 

@@ -58,13 +58,13 @@ tags:
   - retrieval
   - multimodal
   - rag
-pretty_name: MM Embedding Bench
+pretty_name: Modern Embedding Bench
 ---
 
-# MM Embedding Bench
+# Modern Embedding Bench
 
 This dataset repository contains benchmark metadata and published result
-artifacts for `mm-embedding-bench`.
+artifacts for `modern-embedding-bench`.
 
 ## Contents
 
@@ -244,7 +244,7 @@ def _write_empty_leaderboard(path: Path) -> None:
 def _space_readme(dataset_repo_id: str | None) -> str:
     dataset_line = f"DATASET_REPO_ID: {dataset_repo_id}" if dataset_repo_id else "DATASET_REPO_ID: optional"
     return f"""---
-title: MM Embedding Bench
+title: Modern Embedding Bench
 emoji: 📊
 colorFrom: blue
 colorTo: green
@@ -253,7 +253,7 @@ app_file: app.py
 pinned: false
 ---
 
-# MM Embedding Bench Leaderboard
+# Modern Embedding Bench Leaderboard
 
 This Gradio Space renders task-specific leaderboard views from a benchmark Dataset repo.
 
@@ -327,8 +327,8 @@ def render_table(task_id, provider):
 
 def main():
     default_task = TASKS[0] if TASKS else None
-    with gr.Blocks(title="MM Embedding Bench") as demo:
-        gr.Markdown("# MM Embedding Bench")
+    with gr.Blocks(title="Modern Embedding Bench") as demo:
+        gr.Markdown("# Modern Embedding Bench")
         gr.Markdown("Task-specific embedding benchmark views. Avoid treating these as a single global score.")
 
         with gr.Row():

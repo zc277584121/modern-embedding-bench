@@ -1,5 +1,5 @@
 # Default evaluation configuration
-# Usage: mm-bench run --config configs/default.yaml
+# Usage: modern-embed-bench run --config configs/default.yaml
 
 providers:
   # --- China mainland direct access (no VPN) ---

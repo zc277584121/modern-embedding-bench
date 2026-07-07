@@ -1,4 +1,4 @@
-"""Interactive data viewer for mm-embedding-bench datasets.
+"""Interactive data viewer for modern-embedding-bench datasets.
 
 Usage:
     uv run streamlit run scripts/data_viewer_app.py --server.port 8501

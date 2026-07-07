@@ -13,4 +13,4 @@ The active benchmark v2 entry points live in:
 - `scripts/run_benchmark.py`
 - `scripts/build_leaderboard.py`
 - `scripts/import_legacy_results.py`
-- `uv run mm-bench benchmark ...`
+- `uv run modern-embed-bench benchmark ...`
