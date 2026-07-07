@@ -1,0 +1,93 @@
+models:
+  - id: openai-text-embedding-3-large
+    display_name: OpenAI text-embedding-3-large
+    provider: openai
+    provider_kwargs:
+      model: text-embedding-3-large
+    modalities: [text]
+    dimensions: 3072
+    max_text_length: 8191
+    supports_mrl: true
+    access: api
+    api_key_env: OPENAI_API_KEY
+    status: active
+    priority: 10
+    tags: [api, baseline, text, mrl]
+    source: https://platform.openai.com/docs/guides/embeddings
+
+  - id: openai-text-embedding-3-small
+    display_name: OpenAI text-embedding-3-small
+    provider: openai
+    provider_kwargs:
+      model: text-embedding-3-small
+    modalities: [text]
+    dimensions: 1536
+    max_text_length: 8191
+    supports_mrl: true
+    access: api
+    api_key_env: OPENAI_API_KEY
+    status: active
+    priority: 20
+    tags: [api, low-cost, text, mrl]
+    source: https://platform.openai.com/docs/guides/embeddings
+
+  - id: bge-m3-local
+    display_name: BAAI/bge-m3
+    provider: sentence_transformers
+    provider_kwargs:
+      model: BAAI/bge-m3
+    modalities: [text]
+    dimensions: 1024
+    max_text_length: 8192
+    supports_mrl: true
+    access: open-weight
+    status: active
+    priority: 30
+    tags: [local, open-weight, multilingual, text, mrl]
+    source: https://huggingface.co/BAAI/bge-m3
+
+  - id: clip-vit-b-32-local
+    display_name: CLIP ViT-B/32
+    provider: sentence_transformers
+    provider_kwargs:
+      model: clip-ViT-B-32
+    modalities: [text, image]
+    dimensions: 512
+    max_text_length: 77
+    supports_mrl: false
+    access: open-weight
+    status: active
+    priority: 60
+    tags: [local, open-weight, multimodal, clip]
+    source: https://huggingface.co/sentence-transformers/clip-ViT-B-32
+
+  - id: geevec-lite-general
+    display_name: GeeVec Lite general
+    provider: geevec_lite
+    provider_kwargs:
+      domain: general
+    modalities: [text]
+    dimensions: 4096
+    max_text_length: 32768
+    supports_mrl: true
+    access: open-weight
+    status: active
+    priority: 70
+    tags: [local, open-weight, text, mrl, geevec]
+    source: https://huggingface.co/geevec-ai/geevec-embeddings-1.0-lite
+
+  - id: geevec-api-general
+    display_name: GeeVec API general
+    provider: geevec_api
+    provider_kwargs:
+      domain: general
+    modalities: [text]
+    dimensions: 4096
+    max_text_length: 32768
+    supports_mrl: true
+    access: api
+    api_key_env: GEE_API_KEY
+    status: active
+    priority: 80
+    tags: [api, text, mrl, geevec]
+    source: https://www.geevec.com/

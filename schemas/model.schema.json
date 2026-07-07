@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Benchmark Model Registry",
+  "type": "object",
+  "required": ["models"],
+  "properties": {
+    "models": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "display_name", "provider"],
+        "properties": {
+          "id": {"type": "string"},
+          "display_name": {"type": "string"},
+          "provider": {"type": "string"},
+          "provider_kwargs": {"type": "object"},
+          "modalities": {"type": "array", "items": {"type": "string"}},
+          "dimensions": {"type": ["integer", "null"]},
+          "max_text_length": {"type": ["integer", "null"]},
+          "supports_mrl": {"type": "boolean"},
+          "access": {"type": "string"},
+          "api_key_env": {"type": ["string", "null"]},
+          "status": {"type": "string"},
+          "priority": {"type": "integer"},
+          "tags": {"type": "array", "items": {"type": "string"}},
+          "source": {"type": ["string", "null"]},
+          "notes": {"type": ["string", "null"]}
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": false
+}

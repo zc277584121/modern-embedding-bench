@@ -1,131 +1,160 @@
 # mm-embedding-bench
 
-A framework for evaluating and comparing multimodal embedding models across multiple providers and tasks.
+A maintainable benchmark framework for evaluating embedding models on practical
+retrieval scenarios that are under-covered by broad public leaderboards.
 
-## Features
+The project is being refactored from a one-off evaluation repo into a
+data-backed benchmark that can publish clean artifacts to Hugging Face:
 
-- **10+ embedding providers** — API services (OpenAI, Gemini, Voyage, Cohere, Jina, DashScope, Volcengine/ARK) and local models (SentenceTransformers, Transformers, Ollama)
-- **4 evaluation tasks** — MRL stress test, cross-modal retrieval, crosslingual retrieval, needle-in-a-haystack
-- **Disk-based embedding cache** — avoids redundant API calls and GPU computation
-- **Incremental result saving** — results saved after each model-task combination
+- reviewable model registry
+- reviewable task registry
+- manifest-based runs
+- JSONL result records
+- generated leaderboard tables
+- legacy result import
 
-## Supported Providers
+## Current Focus
 
-| Provider | Example Model | Modalities |
-|----------|--------------|------------|
-| **OpenAI** | text-embedding-3-large | Text |
-| **Gemini** | gemini-embedding-2-preview | Text, Image, Video, Audio, PDF |
-| **Voyage** | voyage-multimodal-3.5 | Text, Image |
-| **Cohere** | embed-v4.0 | Text, Image, Document |
-| **Jina** | jina-embeddings-v4, jina-clip-v2 | Text, Image, Document |
-| **DashScope** | text-embedding-v3, multimodal-embedding-v1 | Text, Image |
-| **Volcengine/ARK** | doubao-embedding | Text |
-| **SentenceTransformers** | BAAI/bge-m3, clip-ViT-B-32 | Text (+ Image for CLIP) |
-| **Transformers** | Qwen3-VL-Embedding-2B, SigLIP2 | Text, Image |
-| **Ollama** | nomic-embed-text, bge-m3 | Text |
+The benchmark focuses on scenario gaps that matter for RAG, multimodal search,
+and agent systems:
 
-## Evaluation Tasks
+- MRL / dimension compression robustness
+- Chinese-English cross-lingual retrieval with hard negatives
+- long-document needle retrieval for embedding models
+- text-image retrieval with hard negative captions
+- domain retrieval tasks that can later grow into agent memory, tool-doc, and
+  code-aware retrieval tracks
 
-| Task | Description | Modalities |
-|------|-------------|------------|
-| **MRL Stress** | Matryoshka dimension reduction quality (Spearman ρ) | Text |
-| **Cross-Modal Retrieval** | Bidirectional text ↔ image retrieval with hard negatives | Text + Image |
-| **Crosslingual Retrieval** | Chinese ↔ English parallel sentence retrieval | Text |
-| **Needle-in-a-Haystack** | Specific fact retrieval in long documents (1K–32K chars) | Text |
+## Repository Layout
 
-## Installation
+```text
+benchmark/
+  models/                 # Model specs in YAML
+  tasks/                  # Task specs, metrics, dataset versions
+  runs/                   # Run manifests
+schemas/                  # JSON schemas for model/task/run/result artifacts
+src/mm_embed/
+  benchmark/              # v2 registry, runner, result, leaderboard utilities
+  providers/              # Provider adapters
+  tasks/                  # Evaluation task implementations
+  data/                   # Dataset loaders
+scripts/
+  run_benchmark.py        # Manifest runner
+  build_leaderboard.py    # JSONL -> CSV leaderboard
+  import_legacy_results.py
+  export_hf_dataset.py    # Build a Hugging Face Dataset repo folder
+  export_hf_space.py      # Build a Hugging Face Gradio Space folder
+  upload_hf.py            # Upload prepared folders to Hugging Face Hub
+  prepare_*.py            # Dataset preparation scripts
+legacy/
+  scripts/                # Old one-off runners and report generators
+```
+
+Generated `results/` and `reports/` directories are ignored by git.
+
+## Install
 
 ```bash
-# Clone and install with uv
-git clone https://github.com/your-org/mm-embedding-bench.git
-cd mm-embedding-bench
 uv sync
 ```
 
-## Quick Start
-
-```python
-from mm_embed.providers import get_provider
-from mm_embed.tasks import get_task
-
-# Initialize a provider
-provider = get_provider("openai", model="text-embedding-3-large")
-
-# Run a task
-task = get_task("mrl_stress")
-result = task.run(provider)
-print(result.metrics)
-```
-
-Or use the evaluation scripts:
+Install optional extras only when needed:
 
 ```bash
-# Run all evaluations
-uv run python scripts/run_rerun_all.py
-
-# Run specific evaluations
-uv run python scripts/run_crosslingual_eval.py
-uv run python scripts/run_crossmodal_hard.py
+uv sync --extra openai
+uv sync --extra local
+uv sync --extra data
 ```
 
-## Environment Variables
+## Inspect The Registry
 
 ```bash
-# API keys (set whichever providers you need)
-export OPENAI_API_KEY="..."
-export GEMINI_API_KEY="..."
-export VOYAGE_API_KEY="..."
-export COHERE_API_KEY="..."
-export JINA_API_KEY="..."
-export DASHSCOPE_API_KEY="..."
-export ARK_API_KEY="..."
-
-# Optional: GPU device for local models (default: cuda:0)
-export CUDA_DEVICE="cuda:0"
-
-# Optional: local model paths (default: HuggingFace model names)
-export QWEN_VL_MODEL_PATH="Qwen/Qwen3-VL-Embedding-2B"
-export SIGLIP_MODEL_PATH="google/siglip2-so400m-patch14-384"
+uv run mm-bench benchmark models
+uv run mm-bench benchmark tasks
 ```
 
-## Project Structure
+Model and task definitions live in `benchmark/models/*.yaml` and
+`benchmark/tasks/*.yaml`. Adding a new model should usually start as a YAML
+change before any new provider code is written.
 
-```
-mm-embedding-bench/
-├── pyproject.toml
-├── src/mm_embed/
-│   ├── cache.py                          # Disk-based embedding cache
-│   ├── cli.py                            # CLI entry point
-│   ├── providers/
-│   │   ├── base.py                       # EmbeddingProvider ABC
-│   │   ├── registry.py                   # Lazy provider registry
-│   │   ├── openai_provider.py            # OpenAI
-│   │   ├── gemini_provider.py            # Google Gemini
-│   │   ├── voyage_provider.py            # Voyage AI
-│   │   ├── cohere_provider.py            # Cohere
-│   │   ├── jina_provider.py              # Jina AI
-│   │   ├── dashscope_provider.py         # Alibaba DashScope
-│   │   ├── ark_provider.py               # Volcengine/ByteDance ARK
-│   │   ├── ollama_provider.py            # Ollama (local)
-│   │   ├── sentence_transformers_provider.py  # SentenceTransformers (local GPU)
-│   │   └── transformers_provider.py      # HuggingFace Transformers (local GPU)
-│   ├── tasks/
-│   │   ├── base.py                       # EvalTask ABC + EvalResult
-│   │   ├── registry.py                   # Lazy task registry
-│   │   ├── mrl_stress.py                 # MRL dimension reduction test
-│   │   ├── cross_modal_retrieval.py      # Text ↔ Image retrieval
-│   │   ├── crosslingual_retrieval.py     # Chinese ↔ English retrieval
-│   │   └── needle_in_haystack.py         # Long-doc needle search
-│   ├── data/
-│   │   ├── mock.py                       # Mock data generators
-│   │   └── real_data.py                  # Real dataset loaders
-│   └── utils/
-│       └── metrics.py                    # Cosine similarity, Recall@K, etc.
-├── scripts/                              # Evaluation runner scripts
-├── data/                                 # Datasets and embedding cache (gitignored)
-└── results/                              # Evaluation results (gitignored)
+## Run A Smoke Benchmark
+
+```bash
+uv run mm-bench benchmark run \
+  --manifest benchmark/runs/openai-smoke.yaml \
+  --output results/openai-smoke.jsonl \
+  --overwrite
+
+uv run mm-bench benchmark leaderboard \
+  --results results/openai-smoke.jsonl \
+  --output results/openai-smoke-leaderboard.csv
 ```
 
-## License
+The same commands are available as scripts:
 
-MIT
+```bash
+uv run python scripts/run_benchmark.py --manifest benchmark/runs/openai-smoke.yaml --overwrite
+uv run python scripts/build_leaderboard.py --results results/benchmark-v2.jsonl
+```
+
+## Result Shape
+
+Each evaluation writes one JSONL record per model-task pair. Records include:
+
+- schema version
+- run id and metadata
+- git sha
+- model spec id and provider kwargs without secrets
+- task spec id and task kwargs
+- metrics and details
+- error, if the model-task run failed
+
+Legacy JSON result files can be converted:
+
+```bash
+uv run python scripts/import_legacy_results.py legacy/results/eval_rerun_bugfix_20260315.json \
+  --output results/legacy-import.jsonl
+```
+
+## Hugging Face Publishing
+
+Export a Dataset repo folder:
+
+```bash
+uv run python scripts/export_hf_dataset.py \
+  --results results/openai-smoke.jsonl \
+  --leaderboard results/openai-smoke-leaderboard.csv \
+  --output-dir dist/huggingface/dataset
+```
+
+Export a Gradio Space folder:
+
+```bash
+uv run python scripts/export_hf_space.py \
+  --dataset-repo-id <namespace>/mm-embedding-bench \
+  --leaderboard results/openai-smoke-leaderboard.csv \
+  --output-dir dist/huggingface/space
+```
+
+Upload with a token from `HF_TOKEN`, `HUGGINGFACE_HUB_TOKEN`, or
+`HUGGINGFACE_TOKEN`:
+
+```bash
+uv run python scripts/upload_hf.py \
+  --folder dist/huggingface/dataset \
+  --repo-type dataset \
+  --repo-id <namespace>/mm-embedding-bench
+
+uv run python scripts/upload_hf.py \
+  --folder dist/huggingface/space \
+  --repo-type space \
+  --repo-id <namespace>/mm-embedding-bench-leaderboard \
+  --space-dataset-repo-id <namespace>/mm-embedding-bench
+```
+
+Use `--private` during dry runs if you want to avoid publishing public artifacts.
+
+## Old CLI
+
+The original `mm-bench run --provider ... --task ...` command still exists for
+compatibility. New work should prefer `mm-bench benchmark run --manifest ...`.

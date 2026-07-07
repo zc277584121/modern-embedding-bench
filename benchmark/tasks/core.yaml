@@ -1,0 +1,76 @@
+tasks:
+  - id: mrl_stress
+    display_name: MRL compression stress
+    task: mrl_stress
+    description: Spearman correlation under embedding dimension truncation on STS-B style sentence pairs.
+    default_kwargs:
+      use_mock: false
+      max_samples: 150
+      hard_mode: true
+      dimensions: [1024, 512, 256, 128, 64, 32]
+    required_modalities: [text]
+    primary_metric: spearman_dim_128
+    metric_direction: higher
+    dataset_version: mrl-stsb-v1
+    tags: [compression, mrl, text]
+
+  - id: crosslingual_retrieval
+    display_name: Chinese-English retrieval
+    task: crosslingual_retrieval
+    description: Bidirectional Chinese-English parallel sentence retrieval with hard negatives.
+    default_kwargs:
+      use_mock: false
+    required_modalities: [text]
+    primary_metric: hard_avg_recall@1
+    metric_direction: higher
+    dataset_version: crosslingual-v1
+    tags: [crosslingual, hard-negative, text]
+
+  - id: needle_in_haystack
+    display_name: Long-document needle retrieval
+    task: needle_in_haystack
+    description: Query sensitivity to specific facts inserted into long documents.
+    default_kwargs:
+      use_mock: false
+      haystack_lengths: [4000, 8000, 16000, 32000]
+      needle_positions: [0.0, 0.25, 0.5, 0.75, 1.0]
+    required_modalities: [text]
+    primary_metric: overall_accuracy
+    metric_direction: higher
+    dataset_version: needle-v1
+    tags: [long-context, rag, text]
+
+  - id: cross_modal_retrieval
+    display_name: Text-image retrieval
+    task: cross_modal_retrieval
+    description: Bidirectional COCO text-image retrieval with hard negative captions.
+    default_kwargs:
+      use_mock: false
+      max_samples: 200
+    required_modalities: [text, image]
+    primary_metric: hard_avg_recall@1
+    metric_direction: higher
+    dataset_version: cross-modal-coco-hard-v1
+    tags: [multimodal, hard-negative, image]
+
+  - id: autonomous_driving
+    display_name: Autonomous driving retrieval
+    task: autonomous_driving
+    description: Scenario retrieval for autonomous-driving style multimodal/text fallback cases.
+    default_kwargs: {}
+    required_modalities: [text]
+    primary_metric: avg_recall@1
+    metric_direction: higher
+    dataset_version: autonomous-driving-v0
+    tags: [agentic, domain, retrieval]
+
+  - id: chinese_multimodal
+    display_name: Chinese multimodal retrieval
+    task: chinese_multimodal
+    description: Chinese multimodal/text fallback retrieval scenarios.
+    default_kwargs: {}
+    required_modalities: [text]
+    primary_metric: avg_recall@1
+    metric_direction: higher
+    dataset_version: chinese-multimodal-v0
+    tags: [chinese, multimodal, retrieval]

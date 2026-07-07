@@ -107,8 +107,8 @@ def cache_put(
     path = d / f"{cache_key}.npy"
     try:
         fd, tmp_path = tempfile.mkstemp(dir=d, suffix=".npy.tmp")
-        os.close(fd)
-        np.save(tmp_path, embeddings)
+        with os.fdopen(fd, "wb") as f:
+            np.save(f, embeddings)
         os.rename(tmp_path, path)
         logger.debug("Cache STORE: %s shape=%s", path, embeddings.shape)
     except Exception as e:

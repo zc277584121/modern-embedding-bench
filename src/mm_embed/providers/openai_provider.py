@@ -43,6 +43,10 @@ class OpenAIProvider(EmbeddingProvider):
         super().__init__(api_key=api_key or os.environ.get("OPENAI_API_KEY"), **kwargs)
         self.model = model
         self.base_url = base_url or os.environ.get("OPENAI_BASE_URL")
+        if model == "text-embedding-3-small":
+            self.default_dimensions = 1536
+        else:
+            self.default_dimensions = 3072
 
     def embed(
         self,

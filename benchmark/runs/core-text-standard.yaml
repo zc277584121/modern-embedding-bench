@@ -1,0 +1,16 @@
+id: core-text-standard
+description: Standard text benchmark pass for active text embedding models.
+models:
+  - openai-text-embedding-3-large
+  - openai-text-embedding-3-small
+  - bge-m3-local
+tasks:
+  - mrl_stress
+  - crosslingual_retrieval
+  - id: needle_in_haystack
+    kwargs:
+      haystack_lengths: [1000, 4000, 8000]
+      needle_positions: [0.0, 0.25, 0.5, 0.75, 1.0]
+metadata:
+  tier: standard
+  scope: text

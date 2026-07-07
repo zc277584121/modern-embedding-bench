@@ -379,6 +379,9 @@ def chart6_needle_heatmap():
         ("OpenAI 3-large",    [1.000, 1.000, 1.000, None,  None]),
         ("Jina v4",           [1.000, 1.000, 1.000, None,  None]),
         ("Cohere v4",         [1.000, 1.000, 1.000, None,  None]),
+        ("Qwen3-VL-2B",       [1.000, 1.000, None,  None,  None]),
+        ("Voyage MM-3.5",     [1.000, 1.000, None,  None,  None]),
+        ("Jina CLIP v2",      [1.000, 1.000, 1.000, None,  None]),
         ("BGE-M3 (568M)",     [1.000, 1.000, 0.920, None,  None]),
         ("mxbai (335M)",      [0.980, 0.600, 0.400, None,  None]),
         ("nomic (137M)",      [1.000, 0.460, 0.440, None,  None]),
@@ -402,7 +405,7 @@ def chart6_needle_heatmap():
     )
     cmap.set_bad(color="#e8e8e8")  # gray for NaN
 
-    fig, ax = plt.subplots(figsize=(12, 6))
+    fig, ax = plt.subplots(figsize=(12, 7))
 
     im = ax.imshow(data, cmap=cmap, aspect="auto", vmin=0.3, vmax=1.0)
 

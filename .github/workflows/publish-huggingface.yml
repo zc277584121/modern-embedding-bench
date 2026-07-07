@@ -1,0 +1,64 @@
+name: Publish Hugging Face artifacts
+
+on:
+  workflow_dispatch:
+    inputs:
+      dataset_repo_id:
+        description: "Hugging Face Dataset repo id, e.g. namespace/mm-embedding-bench"
+        required: true
+      space_repo_id:
+        description: "Hugging Face Gradio Space repo id, e.g. namespace/mm-embedding-bench-leaderboard"
+        required: true
+      results_path:
+        description: "Result JSONL path to publish"
+        required: true
+        default: "results/benchmark-v2.jsonl"
+      leaderboard_path:
+        description: "Leaderboard CSV path to publish"
+        required: true
+        default: "results/leaderboard.csv"
+      private:
+        description: "Create repos as private"
+        required: true
+        default: "false"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      - name: Export Dataset folder
+        run: |
+          uv run python scripts/export_hf_dataset.py \
+            --results "${{ inputs.results_path }}" \
+            --leaderboard "${{ inputs.leaderboard_path }}" \
+            --output-dir dist/huggingface/dataset
+      - name: Export Space folder
+        run: |
+          uv run python scripts/export_hf_space.py \
+            --dataset-repo-id "${{ inputs.dataset_repo_id }}" \
+            --leaderboard "${{ inputs.leaderboard_path }}" \
+            --output-dir dist/huggingface/space
+      - name: Upload Dataset
+        run: |
+          private_flag=""
+          if [ "${{ inputs.private }}" = "true" ]; then private_flag="--private"; fi
+          uv run python scripts/upload_hf.py \
+            --folder dist/huggingface/dataset \
+            --repo-type dataset \
+            --repo-id "${{ inputs.dataset_repo_id }}" \
+            $private_flag
+      - name: Upload Space
+        run: |
+          private_flag=""
+          if [ "${{ inputs.private }}" = "true" ]; then private_flag="--private"; fi
+          uv run python scripts/upload_hf.py \
+            --folder dist/huggingface/space \
+            --repo-type space \
+            --repo-id "${{ inputs.space_repo_id }}" \
+            --space-dataset-repo-id "${{ inputs.dataset_repo_id }}" \
+            $private_flag

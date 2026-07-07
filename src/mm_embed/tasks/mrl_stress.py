@@ -94,7 +94,8 @@ class MRLStressTask(EvalTask):
                     rest = [t for t in test_data if t not in mid and t not in easy]
 
                     n_total = self.max_samples
-                    n_easy = max(int(n_total * 0.2), min(len(easy), 30))
+                    n_easy_target = min(max(int(n_total * 0.2), 1), n_total)
+                    n_easy = min(len(easy), n_easy_target)
                     n_mid = min(len(mid), n_total - n_easy)
                     n_rest = n_total - n_easy - n_mid
 

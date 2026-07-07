@@ -2,7 +2,6 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.egg-info/
-dist/
 build/
 .eggs/
 *.egg
@@ -11,21 +10,25 @@ venv/
 .env
 .env.*
 *.log
-results/
-*.json
 !configs/*.yaml
 .ruff_cache/
 .mypy_cache/
 .pytest_cache/
 
+# Local benchmark data and generated outputs
+/data/
+/dist/
+/reports/
+/results/
+/pytest-of-zhangchen/
+
 # Embedding cache and numpy files
-data/embedding_cache/
 *.npy
 *.npy.tmp
 
-# Generated outputs
-results/
-reports/
+# Legacy generated outputs
+/legacy/reports/
+/legacy/results/
 
 # Tool/IDE metadata
 .cc-use/

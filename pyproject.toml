@@ -23,7 +23,7 @@ dependencies = [
     "torchvision>=0.25.0",
     "plotly>=6.6.0",
     "kaleido>=1.2.0",
-    "streamlit>=1.55.0",
+    "huggingface-hub>=0.30",
 ]
 
 [project.optional-dependencies]

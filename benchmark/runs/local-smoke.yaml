@@ -1,0 +1,16 @@
+id: local-smoke
+description: Small local smoke run for validating benchmark v2 without API keys.
+models:
+  - bge-m3-local
+tasks:
+  - id: mrl_stress
+    kwargs:
+      max_samples: 12
+      dimensions: [512, 256, 128]
+  - id: needle_in_haystack
+    kwargs:
+      haystack_lengths: [1000]
+      needle_positions: [0.0, 0.5, 1.0]
+metadata:
+  tier: smoke
+  expected_cost: local

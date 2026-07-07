@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Benchmark v2 Result Record",
+  "type": "object",
+  "required": ["schema_version", "run", "timestamps", "model", "task", "provider_result", "metrics", "details", "error"],
+  "properties": {
+    "schema_version": {"type": "string"},
+    "run": {"type": "object"},
+    "timestamps": {"type": "object"},
+    "model": {"type": "object"},
+    "task": {"type": "object"},
+    "provider_result": {"type": "object"},
+    "metrics": {"type": "object"},
+    "details": {"type": "object"},
+    "error": {"type": ["string", "null"]}
+  },
+  "additionalProperties": true
+}

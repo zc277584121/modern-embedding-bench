@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Benchmark Run Manifest",
+  "type": "object",
+  "required": ["id", "models", "tasks"],
+  "properties": {
+    "id": {"type": "string"},
+    "description": {"type": "string"},
+    "models": {"type": "array", "items": {"type": "string"}},
+    "tasks": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {"type": "string"},
+          {
+            "type": "object",
+            "required": ["id"],
+            "properties": {
+              "id": {"type": "string"},
+              "kwargs": {"type": "object"}
+            },
+            "additionalProperties": false
+          }
+        ]
+      }
+    },
+    "metadata": {"type": "object"}
+  },
+  "additionalProperties": false
+}

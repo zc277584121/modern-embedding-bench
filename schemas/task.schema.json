@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Benchmark Task Registry",
+  "type": "object",
+  "required": ["tasks"],
+  "properties": {
+    "tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "display_name", "task", "description"],
+        "properties": {
+          "id": {"type": "string"},
+          "display_name": {"type": "string"},
+          "task": {"type": "string"},
+          "description": {"type": "string"},
+          "default_kwargs": {"type": "object"},
+          "required_modalities": {"type": "array", "items": {"type": "string"}},
+          "primary_metric": {"type": ["string", "null"]},
+          "metric_direction": {"type": "string", "enum": ["higher", "lower"]},
+          "dataset_version": {"type": "string"},
+          "tags": {"type": "array", "items": {"type": "string"}}
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": false
+}

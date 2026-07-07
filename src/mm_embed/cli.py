@@ -168,6 +168,97 @@ def check(provider_name: str):
         console.print(f"[red]Error: {e}[/red]")
 
 
+@main.group()
+def benchmark():
+    """Benchmark v2 registry, manifest, and leaderboard commands."""
+    pass
+
+
+@benchmark.command("models")
+@click.option("--root", type=click.Path(exists=True), default=None, help="Benchmark registry root")
+def benchmark_models(root: str | None):
+    """List registered benchmark model specs."""
+    from mm_embed.benchmark.registry import load_catalog
+
+    catalog = load_catalog(root)
+    table = Table(title="Benchmark Models")
+    table.add_column("ID", style="cyan")
+    table.add_column("Provider", style="blue")
+    table.add_column("Display Name", style="green")
+    table.add_column("Access")
+    table.add_column("Status")
+    table.add_column("Tags", style="dim")
+
+    for model in sorted(catalog.models.values(), key=lambda item: (item.priority, item.id)):
+        table.add_row(
+            model.id,
+            model.provider,
+            model.display_name,
+            model.access,
+            model.status,
+            ", ".join(model.tags),
+        )
+    console.print(table)
+
+
+@benchmark.command("tasks")
+@click.option("--root", type=click.Path(exists=True), default=None, help="Benchmark registry root")
+def benchmark_tasks(root: str | None):
+    """List registered benchmark task specs."""
+    from mm_embed.benchmark.registry import load_catalog
+
+    catalog = load_catalog(root)
+    table = Table(title="Benchmark Tasks")
+    table.add_column("ID", style="cyan")
+    table.add_column("Task", style="blue")
+    table.add_column("Primary Metric", style="green")
+    table.add_column("Dataset")
+    table.add_column("Tags", style="dim")
+
+    for task in sorted(catalog.tasks.values(), key=lambda item: item.id):
+        table.add_row(
+            task.id,
+            task.task,
+            task.primary_metric or "",
+            task.dataset_version,
+            ", ".join(task.tags),
+        )
+    console.print(table)
+
+
+@benchmark.command("run")
+@click.option("--manifest", "-m", "manifest_path", type=click.Path(exists=True), required=True)
+@click.option("--root", type=click.Path(exists=True), default=None, help="Benchmark registry root")
+@click.option("--output", "-o", type=click.Path(), default="results/benchmark-v2.jsonl")
+@click.option("--limit", type=int, default=None, help="Stop after N model-task combinations")
+@click.option("--overwrite", is_flag=True, help="Remove the output file before running.")
+def benchmark_run(manifest_path: str, root: str | None, output: str, limit: int | None, overwrite: bool):
+    """Run a v2 benchmark manifest and append JSONL results."""
+    from mm_embed.benchmark.runner import BenchmarkRunner
+
+    runner, manifest = BenchmarkRunner.from_manifest_path(
+        run_manifest=manifest_path,
+        benchmark_root=root,
+        output=output,
+        limit=limit,
+        overwrite=overwrite,
+    )
+    records = runner.run_manifest(manifest)
+    console.print(f"[green]Wrote {len(records)} result record(s) to {output}[/green]")
+
+
+@benchmark.command("leaderboard")
+@click.option("--results", "-r", "results_path", type=click.Path(exists=True), required=True)
+@click.option("--root", type=click.Path(exists=True), default=None, help="Benchmark registry root")
+@click.option("--output", "-o", type=click.Path(), default="results/leaderboard.csv")
+def benchmark_leaderboard(results_path: str, root: str | None, output: str):
+    """Build a flat CSV leaderboard from v2 result JSONL."""
+    from mm_embed.benchmark.leaderboard import build_from_file
+
+    rows = build_from_file(results_path, output, benchmark_root=root)
+    console.print(f"[green]Wrote {len(rows)} leaderboard row(s) to {output}[/green]")
+
+
 def _print_summary_table(results):
     """Print a summary table of all results."""
     table = Table(title="Evaluation Summary")
