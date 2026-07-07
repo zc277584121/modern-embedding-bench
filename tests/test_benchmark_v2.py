@@ -12,7 +12,7 @@ from mm_embed.benchmark.registry import (
     load_catalog,
     load_run_manifest,
 )
-from mm_embed.benchmark.results import import_legacy_result_file, load_jsonl
+from mm_embed.benchmark.results import import_legacy_result_file, load_jsonl, normalize_legacy_model_name
 from mm_embed.benchmark.runner import BenchmarkRunner
 from mm_embed.hf_publish.export import export_dataset_repo, export_space_repo
 
@@ -94,6 +94,11 @@ def test_import_legacy_results_to_jsonl(tmp_path) -> None:
     assert records[0]["model"]["id"] == "text-embedding-3-large"
     assert records[0]["task"]["id"] == "needle_in_haystack"
     assert records[0]["metrics"]["overall_accuracy"] == 1.0
+
+
+def test_normalize_legacy_model_name_keeps_public_ids() -> None:
+    assert normalize_legacy_model_name("/data2/models/Qwen3-VL-Embedding-2B") == "Qwen3-VL-Embedding-2B"
+    assert normalize_legacy_model_name("BAAI/bge-m3") == "BAAI/bge-m3"
 
 
 def test_runner_overwrite_replaces_existing_jsonl(tmp_path) -> None:

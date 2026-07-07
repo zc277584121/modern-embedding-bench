@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 from dataclasses import asdict, is_dataclass
 from datetime import datetime, timezone
@@ -147,6 +148,7 @@ def import_legacy_result_file(path: str | Path, output: str | Path) -> int:
 
     count = 0
     for row in rows:
+        model_name = normalize_legacy_model_name(row.get("model") or row.get("provider") or "unknown")
         record = {
             "schema_version": RESULT_SCHEMA_VERSION,
             "run": {
@@ -161,8 +163,8 @@ def import_legacy_result_file(path: str | Path, output: str | Path) -> int:
                 "duration_s": row.get("elapsed_s"),
             },
             "model": {
-                "id": row.get("model") or row.get("provider") or "unknown",
-                "display_name": row.get("model") or row.get("provider") or "unknown",
+                "id": model_name,
+                "display_name": model_name,
                 "provider": row.get("provider") or "unknown",
                 "provider_kwargs": {},
                 "modalities": [],
@@ -185,7 +187,7 @@ def import_legacy_result_file(path: str | Path, output: str | Path) -> int:
             },
             "provider_result": {
                 "provider": row.get("provider"),
-                "model_name": row.get("model"),
+                "model_name": model_name,
             },
             "metrics": row.get("metrics") or {},
             "details": row.get("details") or {},
@@ -194,3 +196,11 @@ def import_legacy_result_file(path: str | Path, output: str | Path) -> int:
         append_jsonl(output, record)
         count += 1
     return count
+
+
+def normalize_legacy_model_name(value: Any) -> str:
+    """Avoid publishing local absolute paths while preserving public model ids."""
+    name = str(value or "unknown")
+    if os.path.isabs(name):
+        return Path(name).name or "unknown"
+    return name
