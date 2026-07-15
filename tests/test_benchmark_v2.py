@@ -22,6 +22,8 @@ def test_default_catalog_and_run_manifests_load() -> None:
 
     assert "openai-text-embedding-3-large" in catalog.models
     assert "mrl_stress" in catalog.tasks
+    assert catalog.models["geevec-lite-general"].publish is False
+    assert catalog.models["geevec-api-general"].publish is False
 
     for path in (
         "benchmark/runs/openai-smoke.yaml",
@@ -146,6 +148,62 @@ def test_export_hf_dataset_skips_cache_artifacts(tmp_path) -> None:
     assert not any(path.endswith(".npy") for path in exported_files)
 
 
+def test_export_hf_dataset_filters_unpublished_models(tmp_path) -> None:
+    results = tmp_path / "results.jsonl"
+    records = [
+        {
+            "run": {"id": "test"},
+            "timestamps": {"duration_s": 1.0},
+            "model": {"id": "openai-text-embedding-3-large", "display_name": "OpenAI", "provider": "openai"},
+            "provider_result": {"provider": "openai", "model_name": "text-embedding-3-large"},
+            "task": {"id": "needle_in_haystack", "display_name": "Needle", "primary_metric": "overall_accuracy"},
+            "metrics": {"overall_accuracy": 0.9},
+            "error": None,
+        },
+        {
+            "run": {"id": "test"},
+            "timestamps": {"duration_s": 1.0},
+            "model": {"id": "geevec-api-general", "display_name": "Preview Model", "provider": "geevec_api"},
+            "provider_result": {"provider": "geevec_api", "model_name": "preview"},
+            "task": {"id": "needle_in_haystack", "display_name": "Needle", "primary_metric": "overall_accuracy"},
+            "metrics": {"overall_accuracy": 1.0},
+            "error": None,
+        },
+    ]
+    results.write_text("\n".join(json.dumps(record) for record in records) + "\n", encoding="utf-8")
+
+    leaderboard = tmp_path / "leaderboard.csv"
+    leaderboard.write_text(
+        "\n".join(
+            [
+                "task_id,task,model_id,model,provider,primary_metric,score,run_id,duration_s",
+                "needle_in_haystack,Needle,openai-text-embedding-3-large,OpenAI,openai,overall_accuracy,0.9,test,1.0",
+                "needle_in_haystack,Needle,geevec-api-general,Preview,geevec_api,overall_accuracy,1.0,test,1.0",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    output = export_dataset_repo(
+        output_dir=tmp_path / "dataset",
+        results_path=results,
+        leaderboard_path=leaderboard,
+    )
+
+    for path in (
+        output / "models.jsonl",
+        output / "results" / "latest.jsonl",
+        output / "results" / "latest-successful.jsonl",
+        output / "leaderboards" / "latest.csv",
+    ):
+        exported = path.read_text(encoding="utf-8").lower()
+        assert "geevec" not in exported
+        assert "preview model" not in exported
+
+    assert len(load_jsonl(output / "results" / "latest.jsonl")) == 1
+
+
 def test_export_hf_space_bundles_leaderboard(tmp_path) -> None:
     leaderboard = tmp_path / "leaderboard.csv"
     leaderboard.write_text("task_id,model,score\nmrl,model-a,1.0\n", encoding="utf-8")
@@ -154,4 +212,5 @@ def test_export_hf_space_bundles_leaderboard(tmp_path) -> None:
 
     assert (output / "README.md").exists()
     assert (output / "app.py").exists()
+    compile((output / "app.py").read_text(encoding="utf-8"), str(output / "app.py"), "exec")
     assert (output / "leaderboard.csv").read_text(encoding="utf-8").startswith("task_id,model,score")

@@ -53,7 +53,11 @@ def upload_hf_folder(
     if repo_type == "space":
         create_kwargs["space_sdk"] = space_sdk
 
-    api.create_repo(**create_kwargs)
+    try:
+        api.create_repo(**create_kwargs)
+    except Exception:
+        if not _repo_exists(api, repo_id=repo_id, repo_type=repo_type):
+            raise
     commit_info = api.upload_folder(
         folder_path=str(folder),
         repo_id=repo_id,
@@ -72,6 +76,14 @@ def _set_space_variable(api, repo_id: str, key: str, value: str) -> None:
     """Set a Space variable when the installed hub client supports it."""
     if hasattr(api, "add_space_variable"):
         api.add_space_variable(repo_id=repo_id, key=key, value=value)
+
+
+def _repo_exists(api, *, repo_id: str, repo_type: str) -> bool:
+    try:
+        api.repo_info(repo_id=repo_id, repo_type=repo_type)
+    except Exception:
+        return False
+    return True
 
 
 def patch_huggingface_dns(ip_address: str) -> None:

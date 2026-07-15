@@ -40,6 +40,7 @@ class ModelSpec:
     access: str = "unknown"
     api_key_env: str | None = None
     status: str = "active"
+    publish: bool = True
     priority: int = 100
     tags: list[str] = field(default_factory=list)
     source: str | None = None
@@ -63,6 +64,7 @@ class ModelSpec:
             access=str(data.get("access", "unknown")),
             api_key_env=data.get("api_key_env"),
             status=str(data.get("status", "active")),
+            publish=bool(data.get("publish", True)),
             priority=int(data.get("priority", 100)),
             tags=list(data.get("tags") or []),
             source=data.get("source"),

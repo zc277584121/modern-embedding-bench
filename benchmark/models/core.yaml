@@ -72,6 +72,7 @@ models:
     supports_mrl: true
     access: open-weight
     status: active
+    publish: false
     priority: 70
     tags: [local, open-weight, text, mrl, geevec]
     source: https://huggingface.co/geevec-ai/geevec-embeddings-1.0-lite
@@ -88,6 +89,7 @@ models:
     access: api
     api_key_env: GEE_API_KEY
     status: active
+    publish: false
     priority: 80
     tags: [api, text, mrl, geevec]
     source: https://www.geevec.com/

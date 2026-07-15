@@ -11,12 +11,48 @@ from typing import Any
 
 import yaml
 
-from mm_embed.benchmark.leaderboard import build_from_file
-from mm_embed.benchmark.registry import BenchmarkCatalog, load_catalog
+from mm_embed.benchmark.leaderboard import build_leaderboard, write_leaderboard_csv
+from mm_embed.benchmark.registry import BenchmarkCatalog, ModelSpec, load_catalog
 from mm_embed.benchmark.results import json_safe, load_jsonl
 
 
 DEFAULT_EXPORT_ROOT = Path("dist/huggingface")
+PUBLIC_EXCLUDED_PROVIDERS = {"geevec_api", "geevec_lite"}
+PUBLIC_EXCLUDED_MARKERS = ("geevec",)
+LEADERBOARD_FIELDNAMES = [
+    "task_id",
+    "task",
+    "model_id",
+    "model",
+    "provider",
+    "primary_metric",
+    "score",
+    "run_id",
+    "duration_s",
+]
+
+TASK_NOTES = {
+    "mrl_stress": {
+        "label": "MRL compression stress",
+        "summary": "Semantic stability when embeddings are truncated to smaller dimensions.",
+        "metric": "Spearman correlation at the configured low dimension.",
+    },
+    "crosslingual_retrieval": {
+        "label": "Chinese-English retrieval",
+        "summary": "Bidirectional technical retrieval with hard negatives across Chinese and English.",
+        "metric": "Hard-negative average recall@1.",
+    },
+    "needle_in_haystack": {
+        "label": "Long-document needle retrieval",
+        "summary": "Retrieving facts inserted at different positions in long documents.",
+        "metric": "Overall accuracy across length and position buckets.",
+    },
+    "cross_modal_retrieval": {
+        "label": "Text-image retrieval",
+        "summary": "COCO-style text-image matching with hard negative captions.",
+        "metric": "Hard-negative average recall@1.",
+    },
+}
 
 
 def _reset_dir(path: Path, clean: bool) -> None:
@@ -47,8 +83,120 @@ def _write_yaml(path: Path, data: dict[str, Any]) -> None:
         yaml.safe_dump(json_safe(data), f, sort_keys=False, allow_unicode=True)
 
 
-def _write_dataset_card(path: Path, catalog: BenchmarkCatalog, results_path: Path | None) -> None:
-    result_note = f"`results/latest.jsonl` imported from `{results_path}`" if results_path else "No result file bundled yet."
+def _is_public_model(model: ModelSpec) -> bool:
+    return model.publish and model.provider not in PUBLIC_EXCLUDED_PROVIDERS
+
+
+def _contains_excluded_marker(*values: Any) -> bool:
+    for value in values:
+        text = str(value or "").lower()
+        if any(marker in text for marker in PUBLIC_EXCLUDED_MARKERS):
+            return True
+    return False
+
+
+def _public_records(records: list[dict[str, Any]], private_model_ids: set[str]) -> list[dict[str, Any]]:
+    public = []
+    for record in records:
+        model = record.get("model") or {}
+        provider_result = record.get("provider_result") or {}
+        providers = {str(model.get("provider") or ""), str(provider_result.get("provider") or "")}
+        model_ids = {str(model.get("id") or ""), str(provider_result.get("model_name") or "")}
+        if private_model_ids.intersection(model_ids):
+            continue
+        if PUBLIC_EXCLUDED_PROVIDERS.intersection(providers):
+            continue
+        if _contains_excluded_marker(
+            model.get("id"),
+            model.get("display_name"),
+            model.get("provider"),
+            provider_result.get("provider"),
+            provider_result.get("model_name"),
+        ):
+            continue
+        public.append(record)
+    return public
+
+
+def _read_leaderboard_csv(path: Path) -> tuple[list[dict[str, str]], list[str]]:
+    with open(path, encoding="utf-8", newline="") as f:
+        reader = csv.DictReader(f)
+        return list(reader), list(reader.fieldnames or LEADERBOARD_FIELDNAMES)
+
+
+def _write_leaderboard_csv_rows(path: Path, rows: list[dict[str, Any]], fieldnames: list[str] | None = None) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    ordered_fields = fieldnames or LEADERBOARD_FIELDNAMES
+    extras = sorted({key for row in rows for key in row if key not in ordered_fields})
+    with open(path, "w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=ordered_fields + extras)
+        writer.writeheader()
+        for row in rows:
+            writer.writerow(row)
+
+
+def _public_leaderboard_rows(rows: list[dict[str, Any]], private_model_ids: set[str]) -> list[dict[str, Any]]:
+    public = []
+    for row in rows:
+        provider = str(row.get("provider") or "")
+        model_id = str(row.get("model_id") or "")
+        model = str(row.get("model") or "")
+        if provider in PUBLIC_EXCLUDED_PROVIDERS:
+            continue
+        if model_id in private_model_ids:
+            continue
+        if _contains_excluded_marker(provider, model_id, model):
+            continue
+        public.append(row)
+    return public
+
+
+def _result_stats(records: list[dict[str, Any]]) -> dict[str, int]:
+    failed = sum(1 for record in records if record.get("error"))
+    total = len(records)
+    return {
+        "total": total,
+        "successful": total - failed,
+        "failed": failed,
+    }
+
+
+def _leaderboard_stats(rows: list[dict[str, Any]]) -> dict[str, int]:
+    return {
+        "rows": len(rows),
+        "tasks": len({row.get("task_id") for row in rows if row.get("task_id")}),
+        "providers": len({row.get("provider") for row in rows if row.get("provider")}),
+    }
+
+
+def _write_dataset_card(
+    path: Path,
+    *,
+    catalog: BenchmarkCatalog,
+    public_models: list,
+    result_stats: dict[str, int],
+    leaderboard_stats: dict[str, int],
+    include_data: bool,
+) -> None:
+    task_rows = []
+    for task in sorted(catalog.tasks.values(), key=lambda item: item.id):
+        note = TASK_NOTES.get(task.id, {})
+        task_rows.append(
+            "| {id} | {name} | {metric} | {summary} |".format(
+                id=task.id,
+                name=note.get("label") or task.display_name,
+                metric=task.primary_metric or "",
+                summary=note.get("summary") or task.description,
+            )
+        )
+
+    result_note = (
+        f"{result_stats['total']} records, {result_stats['successful']} successful, "
+        f"{result_stats['failed']} failed"
+        if result_stats["total"]
+        else "No result file bundled yet."
+    )
+    data_note = "Bundled JSONL benchmark inputs are included." if include_data else "Benchmark inputs are not bundled."
     path.write_text(
         f"""---
 license: mit
@@ -63,8 +211,17 @@ pretty_name: Modern Embedding Bench
 
 # Modern Embedding Bench
 
-This dataset repository contains benchmark metadata and published result
-artifacts for `modern-embedding-bench`.
+Modern Embedding Bench evaluates embedding models on practical retrieval tasks
+that show up in current AI systems but are often under-covered by broad
+leaderboards. The focus is on agent memory, tool and document retrieval,
+long-context RAG, cross-lingual technical retrieval, coding-oriented retrieval,
+and multimodal search rather than a single aggregate score.
+
+The companion leaderboard Space is available at:
+https://huggingface.co/spaces/zc277584121/modern-embedding-bench-leaderboard
+
+The source code is available at:
+https://github.com/zc277584121/modern-embedding-bench
 
 ## Contents
 
@@ -75,22 +232,66 @@ artifacts for `modern-embedding-bench`.
 - `leaderboards/latest.csv`: flat leaderboard table derived from result records
 - `benchmark_data/`: optional benchmark input data exported from the local repo
 
-## Scope
+## Current Public Export
 
-This benchmark focuses on retrieval scenarios that broad public leaderboards do
-not fully cover: MRL compression, cross-lingual retrieval, long-document needle
-retrieval, text-image hard negatives, and agent-oriented retrieval tracks.
+- Public model specs: {len(public_models)}
+- Task specs: {len(catalog.tasks)}
+- Result records: {result_note}
+- Leaderboard rows: {leaderboard_stats["rows"]}
+- Tasks with leaderboard rows: {leaderboard_stats["tasks"]}
+- Providers with leaderboard rows: {leaderboard_stats["providers"]}
+- Data: {data_note}
 
-## Current Registry
+## Tasks
 
-- Models: {len(catalog.models)}
-- Tasks: {len(catalog.tasks)}
-- Results: {result_note}
+| ID | Name | Primary metric | What it probes |
+| --- | --- | --- | --- |
+{chr(10).join(task_rows)}
+
+## Result Format
+
+Each line in `results/latest.jsonl` is one model-task run. Important fields:
+
+- `run`: run id, description, metadata, and git sha when available
+- `model`: model id, display name, provider, modalities, dimensions, and tags
+- `task`: task id, dataset version, primary metric, and task kwargs
+- `metrics`: task-specific metric dictionary
+- `details`: diagnostic details for deeper analysis
+- `error`: error text for failed runs, otherwise `null`
 
 ## Usage
 
-The companion Space can read `leaderboards/latest.csv` and render task-specific
-views. The source runner and schemas live in the GitHub repository.
+Install and inspect the registry:
+
+```bash
+uv sync
+uv run modern-embed-bench benchmark models
+uv run modern-embed-bench benchmark tasks
+```
+
+Run a small OpenAI smoke benchmark:
+
+```bash
+uv run modern-embed-bench benchmark run \\
+  --manifest benchmark/runs/openai-smoke.yaml \\
+  --output results/openai-smoke.jsonl \\
+  --overwrite
+
+uv run modern-embed-bench benchmark leaderboard \\
+  --results results/openai-smoke.jsonl \\
+  --output results/openai-smoke-leaderboard.csv
+```
+
+## Notes and Limitations
+
+- Rows imported from legacy runs are published for continuity and should be read
+  as historical baseline evidence, not as a fully normalized one-shot run.
+- Scores are task-specific. Avoid comparing scores across tasks as if they were
+  one global ranking.
+- Some preview or private-in-progress model results are intentionally excluded
+  from the public export until they are ready for publication.
+- Image binaries are not bundled by default; `cross_modal` metadata is included
+  separately from the source image files.
 """,
         encoding="utf-8",
     )
@@ -122,8 +323,12 @@ def export_dataset_repo(
     _reset_dir(output, clean=clean)
     catalog = load_catalog(benchmark_root)
 
-    _write_dataset_card(output / "README.md", catalog, Path(results_path) if results_path else None)
-    _write_jsonl(output / "models.jsonl", [asdict(model) for model in catalog.models.values()])
+    public_models = [model for model in catalog.models.values() if _is_public_model(model)]
+    private_model_ids = {model.id for model in catalog.models.values() if not _is_public_model(model)}
+    public_records: list[dict[str, Any]] = []
+    leaderboard_rows: list[dict[str, Any]] = []
+
+    _write_jsonl(output / "models.jsonl", [asdict(model) for model in public_models])
     _write_jsonl(output / "tasks.jsonl", [asdict(task) for task in catalog.tasks.values()])
 
     run_dir = catalog.root / "runs"
@@ -133,13 +338,17 @@ def export_dataset_repo(
 
     if results_path:
         result_src = Path(results_path)
-        _copy_if_exists(result_src, output / "results" / "latest.jsonl")
-        _write_jsonl(output / "results" / "latest-successful.jsonl", [r for r in load_jsonl(result_src) if not r.get("error")])
+        public_records = _public_records(load_jsonl(result_src), private_model_ids)
+        _write_jsonl(output / "results" / "latest.jsonl", public_records)
+        _write_jsonl(output / "results" / "latest-successful.jsonl", [r for r in public_records if not r.get("error")])
 
     if leaderboard_path:
-        _copy_if_exists(Path(leaderboard_path), output / "leaderboards" / "latest.csv")
+        rows, fieldnames = _read_leaderboard_csv(Path(leaderboard_path))
+        leaderboard_rows = _public_leaderboard_rows(rows, private_model_ids)
+        _write_leaderboard_csv_rows(output / "leaderboards" / "latest.csv", leaderboard_rows, fieldnames)
     elif results_path:
-        build_from_file(results_path, output / "leaderboards" / "latest.csv", benchmark_root=benchmark_root)
+        leaderboard_rows = build_leaderboard(public_records, catalog)
+        write_leaderboard_csv(leaderboard_rows, output / "leaderboards" / "latest.csv")
 
     if include_data:
         _copy_benchmark_data(Path("data"), output / "benchmark_data", include_images=include_images)
@@ -150,14 +359,24 @@ def export_dataset_repo(
             encoding="utf-8",
         )
 
+    _write_dataset_card(
+        output / "README.md",
+        catalog=catalog,
+        public_models=public_models,
+        result_stats=_result_stats(public_records),
+        leaderboard_stats=_leaderboard_stats(leaderboard_rows),
+        include_data=include_data,
+    )
+
     files = [str(path.relative_to(output)) for path in output.rglob("*") if path.is_file()]
     _write_export_manifest(
         output / "export_manifest.yaml",
         kind="hf_dataset",
         files=files,
         metadata={
-            "models": len(catalog.models),
+            "models": len(public_models),
             "tasks": len(catalog.tasks),
+            "excluded_private_models": len(private_model_ids),
             "include_data": include_data,
             "include_images": include_images,
         },
@@ -221,7 +440,8 @@ def export_space_repo(
     (output / "app.py").write_text(_space_app_source(dataset_repo_id), encoding="utf-8")
 
     if bundled_leaderboard:
-        _copy_if_exists(Path(bundled_leaderboard), output / "leaderboard.csv")
+        rows, fieldnames = _read_leaderboard_csv(Path(bundled_leaderboard))
+        _write_leaderboard_csv_rows(output / "leaderboard.csv", _public_leaderboard_rows(rows, set()), fieldnames)
     else:
         _write_empty_leaderboard(output / "leaderboard.csv")
 
@@ -238,7 +458,7 @@ def export_space_repo(
 def _write_empty_leaderboard(path: Path) -> None:
     with open(path, "w", encoding="utf-8", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(["task_id", "task", "model_id", "model", "provider", "primary_metric", "score", "run_id", "duration_s"])
+        writer.writerow(LEADERBOARD_FIELDNAMES)
 
 
 def _space_readme(dataset_repo_id: str | None) -> str:
@@ -263,7 +483,7 @@ This Gradio Space renders task-specific leaderboard views from a benchmark Datas
 
 def _space_app_source(dataset_repo_id: str | None) -> str:
     default_repo = dataset_repo_id or ""
-    return f'''from __future__ import annotations
+    source = '''from __future__ import annotations
 
 import csv
 import os
@@ -272,8 +492,9 @@ from pathlib import Path
 import gradio as gr
 import pandas as pd
 
-DEFAULT_DATASET_REPO_ID = {default_repo!r}
+DEFAULT_DATASET_REPO_ID = __DATASET_REPO_ID__
 LEADERBOARD_FILE = "leaderboards/latest.csv"
+TASK_DETAILS = __TASK_DETAILS__
 
 
 def load_rows():
@@ -290,7 +511,7 @@ def load_rows():
             )
             local_path = Path(downloaded)
         except Exception as exc:
-            print(f"Could not load leaderboard from {{dataset_repo_id}}: {{exc}}. Falling back to bundled data.")
+            print("Could not load leaderboard from {}: {}. Falling back to bundled data.".format(dataset_repo_id, exc))
     if not local_path.exists():
         return []
     with open(local_path, encoding="utf-8") as f:
@@ -305,18 +526,47 @@ def as_float(value):
 
 
 ROWS = load_rows()
-TASKS = sorted({{row.get("task_id", "") for row in ROWS if row.get("task_id")}})
-PROVIDERS = ["All"] + sorted({{row.get("provider", "") for row in ROWS if row.get("provider")}})
+TASKS = sorted({row.get("task_id", "") for row in ROWS if row.get("task_id")})
+PROVIDERS = ["All"] + sorted({row.get("provider", "") for row in ROWS if row.get("provider")})
 
 
-def render_table(task_id, provider):
+def summary_markdown():
+    tasks = len({row.get("task_id") for row in ROWS if row.get("task_id")})
+    providers = len({row.get("provider") for row in ROWS if row.get("provider")})
+    models = len({row.get("model_id") or row.get("model") for row in ROWS if row.get("model_id") or row.get("model")})
+    return "Rows: **{}** | Tasks: **{}** | Providers: **{}** | Models: **{}**".format(len(ROWS), tasks, providers, models)
+
+
+def task_markdown(task_id):
+    details = TASK_DETAILS.get(task_id or "", {})
+    if not details:
+        return "Scores are task-specific and should not be averaged into a global ranking."
+    return "**{}**  \\n{}  \\nPrimary signal: `{}`".format(
+        details.get("label", task_id),
+        details.get("summary", ""),
+        details.get("metric", ""),
+    )
+
+
+def render_table(task_id, provider, query, top_n):
     filtered = [row.copy() for row in ROWS if row.get("task_id") == task_id]
     if provider != "All":
         filtered = [row for row in filtered if row.get("provider") == provider]
+    query = (query or "").strip().lower()
+    if query:
+        filtered = [
+            row
+            for row in filtered
+            if query in " ".join(
+                str(row.get(key) or "").lower()
+                for key in ("model", "model_id", "provider", "run_id", "primary_metric")
+            )
+        ]
     filtered.sort(
         key=lambda row: as_float(row.get("score")) if as_float(row.get("score")) is not None else float("-inf"),
         reverse=True,
     )
+    filtered = filtered[: int(top_n or 50)]
     for index, row in enumerate(filtered, start=1):
         row["rank"] = index
         score = as_float(row.get("score"))
@@ -325,21 +575,38 @@ def render_table(task_id, provider):
     return pd.DataFrame(filtered, columns=columns)
 
 
+def render(task_id, provider, query, top_n):
+    if not task_id:
+        return "No leaderboard rows are available.", pd.DataFrame()
+    return task_markdown(task_id), render_table(task_id, provider, query, top_n)
+
+
 def main():
     default_task = TASKS[0] if TASKS else None
     with gr.Blocks(title="Modern Embedding Bench") as demo:
         gr.Markdown("# Modern Embedding Bench")
-        gr.Markdown("Task-specific embedding benchmark views. Avoid treating these as a single global score.")
+        gr.Markdown(summary_markdown())
+        task_note = gr.Markdown(task_markdown(default_task) if default_task else "No leaderboard rows are available.")
 
         with gr.Row():
             task = gr.Dropdown(TASKS, value=default_task, label="Task")
             provider = gr.Dropdown(PROVIDERS, value="All", label="Provider")
-        table = gr.Dataframe(value=render_table(default_task, "All") if default_task else pd.DataFrame(), label="Leaderboard")
-        task.change(render_table, inputs=[task, provider], outputs=table)
-        provider.change(render_table, inputs=[task, provider], outputs=table)
+            top_n = gr.Slider(5, 100, value=30, step=5, label="Rows")
+        query = gr.Textbox(label="Search", placeholder="Filter by model, provider, run, or metric")
+        table = gr.Dataframe(
+            value=render_table(default_task, "All", "", 30) if default_task else pd.DataFrame(),
+            label="Leaderboard",
+            interactive=False,
+        )
+        controls = [task, provider, query, top_n]
+        task.change(render, inputs=controls, outputs=[task_note, table])
+        provider.change(render, inputs=controls, outputs=[task_note, table])
+        query.change(render, inputs=controls, outputs=[task_note, table])
+        top_n.change(render, inputs=controls, outputs=[task_note, table])
     demo.launch()
 
 
 if __name__ == "__main__":
     main()
 '''
+    return source.replace("__DATASET_REPO_ID__", repr(default_repo)).replace("__TASK_DETAILS__", repr(TASK_NOTES))

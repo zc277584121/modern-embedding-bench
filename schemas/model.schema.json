@@ -21,6 +21,7 @@
           "access": {"type": "string"},
           "api_key_env": {"type": ["string", "null"]},
           "status": {"type": "string"},
+          "publish": {"type": "boolean"},
           "priority": {"type": "integer"},
           "tags": {"type": "array", "items": {"type": "string"}},
           "source": {"type": ["string", "null"]},
