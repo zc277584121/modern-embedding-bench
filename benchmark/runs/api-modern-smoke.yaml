@@ -1,0 +1,16 @@
+id: api-modern-smoke
+description: Tiny API smoke run for current modern text embedding providers.
+models:
+  - voyage-4-lite
+  - gemini-embedding-2
+  - jina-embeddings-v5-text-nano
+tasks:
+  - id: mrl_stress
+    kwargs:
+      max_samples: 8
+      dimensions: [512, 256, 128]
+metadata:
+  tier: smoke
+  scope: api-modern-text
+  expected_cost: very-low
+  notes: Cohere embed-v4.0 is registered but excluded until the 403 access state is rechecked.
