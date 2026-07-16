@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import csv
 import json
 
 from mm_embed.benchmark.leaderboard import build_leaderboard
@@ -204,6 +205,140 @@ def test_export_hf_dataset_filters_unpublished_models(tmp_path) -> None:
         assert "preview model" not in exported
 
     assert len(load_jsonl(output / "results" / "latest.jsonl")) == 1
+
+
+def test_export_hf_dataset_marks_leaderboard_provenance_and_latest(tmp_path) -> None:
+    results = tmp_path / "results.jsonl"
+    records = [
+        {
+            "run": {
+                "id": "legacy:baseline",
+                "description": "Imported legacy result",
+                "metadata": {"legacy_source": "legacy/results/baseline.json"},
+                "git_sha": None,
+            },
+            "timestamps": {"duration_s": 1.0},
+            "model": {
+                "id": "openai-text-embedding-3-large",
+                "display_name": "OpenAI",
+                "provider": "openai",
+                "access": "legacy",
+                "tags": ["legacy"],
+            },
+            "provider_result": {"provider": "openai", "model_name": "text-embedding-3-large"},
+            "task": {
+                "id": "needle_in_haystack",
+                "display_name": "Needle",
+                "primary_metric": "overall_accuracy",
+                "tags": ["legacy"],
+            },
+            "metrics": {"overall_accuracy": 0.8},
+            "error": None,
+        },
+        {
+            "run": {
+                "id": "openai-smoke",
+                "description": "OpenAI smoke benchmark",
+                "metadata": {},
+                "git_sha": "abc123",
+            },
+            "timestamps": {"duration_s": 0.9},
+            "model": {
+                "id": "openai-text-embedding-3-large",
+                "display_name": "OpenAI",
+                "provider": "openai",
+                "access": "api",
+                "tags": ["smoke"],
+            },
+            "provider_result": {"provider": "openai", "model_name": "text-embedding-3-large"},
+            "task": {
+                "id": "needle_in_haystack",
+                "display_name": "Needle",
+                "primary_metric": "overall_accuracy",
+                "tags": [],
+            },
+            "metrics": {"overall_accuracy": 0.9},
+            "error": None,
+        },
+    ]
+    results.write_text("\n".join(json.dumps(record) for record in records) + "\n", encoding="utf-8")
+
+    leaderboard = tmp_path / "leaderboard.csv"
+    leaderboard.write_text(
+        "\n".join(
+            [
+                "task_id,task,model_id,model,provider,primary_metric,score,run_id,duration_s",
+                ",".join(
+                    [
+                        "needle_in_haystack",
+                        "Needle",
+                        "openai-text-embedding-3-large",
+                        "OpenAI",
+                        "openai",
+                        "overall_accuracy",
+                        "0.8",
+                        "legacy:baseline",
+                        "1.0",
+                    ]
+                ),
+                ",".join(
+                    [
+                        "needle_in_haystack",
+                        "Needle",
+                        "openai-text-embedding-3-large",
+                        "OpenAI",
+                        "openai",
+                        "overall_accuracy",
+                        "0.9",
+                        "openai-smoke",
+                        "0.9",
+                    ]
+                ),
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    output = export_dataset_repo(
+        output_dir=tmp_path / "dataset",
+        results_path=results,
+        leaderboard_path=leaderboard,
+    )
+
+    with open(output / "leaderboards" / "latest.csv", encoding="utf-8", newline="") as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+
+    assert reader.fieldnames[:9] == [
+        "task_id",
+        "task",
+        "model_id",
+        "model",
+        "provider",
+        "primary_metric",
+        "score",
+        "run_id",
+        "duration_s",
+    ]
+    assert reader.fieldnames[9:] == [
+        "evidence_tier",
+        "evidence_source",
+        "task_model_duplicate_count",
+        "task_model_run_rank",
+        "is_latest_for_task_model",
+    ]
+    assert [row["evidence_tier"] for row in rows] == ["legacy", "smoke"]
+    assert rows[0]["evidence_source"] == "legacy/results/baseline.json"
+    assert rows[1]["evidence_source"] == "abc123"
+    assert [row["task_model_duplicate_count"] for row in rows] == ["2", "2"]
+    assert [row["task_model_run_rank"] for row in rows] == ["1", "2"]
+    assert [row["is_latest_for_task_model"] for row in rows] == ["false", "true"]
+
+    manifest_text = (output / "export_manifest.yaml").read_text(encoding="utf-8")
+    assert "duplicate_task_model_repeats: 1" in manifest_text
+    assert "legacy: 1" in manifest_text
+    assert "smoke: 1" in manifest_text
 
 
 def test_export_hf_space_bundles_leaderboard(tmp_path) -> None:

@@ -5,13 +5,14 @@ from __future__ import annotations
 import csv
 import json
 import shutil
+from collections import Counter, defaultdict
 from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
 import yaml
 
-from mm_embed.benchmark.leaderboard import build_leaderboard, write_leaderboard_csv
+from mm_embed.benchmark.leaderboard import build_leaderboard, primary_metric_value
 from mm_embed.benchmark.registry import BenchmarkCatalog, ModelSpec, load_catalog
 from mm_embed.benchmark.results import json_safe, load_jsonl
 
@@ -19,7 +20,7 @@ from mm_embed.benchmark.results import json_safe, load_jsonl
 DEFAULT_EXPORT_ROOT = Path("dist/huggingface")
 PUBLIC_EXCLUDED_PROVIDERS = {"geevec_api", "geevec_lite"}
 PUBLIC_EXCLUDED_MARKERS = ("geevec",)
-LEADERBOARD_FIELDNAMES = [
+LEADERBOARD_BASE_FIELDNAMES = [
     "task_id",
     "task",
     "model_id",
@@ -30,6 +31,14 @@ LEADERBOARD_FIELDNAMES = [
     "run_id",
     "duration_s",
 ]
+LEADERBOARD_PROVENANCE_FIELDNAMES = [
+    "evidence_tier",
+    "evidence_source",
+    "task_model_duplicate_count",
+    "task_model_run_rank",
+    "is_latest_for_task_model",
+]
+LEADERBOARD_FIELDNAMES = LEADERBOARD_BASE_FIELDNAMES + LEADERBOARD_PROVENANCE_FIELDNAMES
 
 TASK_NOTES = {
     "mrl_stress": {
@@ -135,6 +144,14 @@ def _write_leaderboard_csv_rows(path: Path, rows: list[dict[str, Any]], fieldnam
             writer.writerow(row)
 
 
+def _leaderboard_fieldnames_with_provenance(fieldnames: list[str] | None) -> list[str]:
+    fields = list(fieldnames or LEADERBOARD_BASE_FIELDNAMES)
+    for field in LEADERBOARD_PROVENANCE_FIELDNAMES:
+        if field not in fields:
+            fields.append(field)
+    return fields
+
+
 def _public_leaderboard_rows(rows: list[dict[str, Any]], private_model_ids: set[str]) -> list[dict[str, Any]]:
     public = []
     for row in rows:
@@ -151,6 +168,123 @@ def _public_leaderboard_rows(rows: list[dict[str, Any]], private_model_ids: set[
     return public
 
 
+def _leaderboard_row_key(row: dict[str, Any]) -> tuple[str, str, str]:
+    return (
+        str(row.get("task_id") or ""),
+        str(row.get("model_id") or row.get("model") or ""),
+        str(row.get("run_id") or ""),
+    )
+
+
+def _leaderboard_group_key(row: dict[str, Any]) -> tuple[str, str]:
+    task_id, model_id, _ = _leaderboard_row_key(row)
+    return task_id, model_id
+
+
+def _record_leaderboard_key(record: dict[str, Any]) -> tuple[str, str, str]:
+    task = record.get("task") or {}
+    model = record.get("model") or {}
+    run = record.get("run") or {}
+    return (
+        str(task.get("id") or ""),
+        str(model.get("id") or model.get("display_name") or ""),
+        str(run.get("id") or ""),
+    )
+
+
+def _record_evidence_tier(record: dict[str, Any]) -> str:
+    run = record.get("run") or {}
+    model = record.get("model") or {}
+    task = record.get("task") or {}
+    metadata = run.get("metadata") or {}
+    tags = [*(model.get("tags") or []), *(task.get("tags") or [])]
+    text = " ".join(
+        str(value or "").lower()
+        for value in (
+            run.get("id"),
+            run.get("description"),
+            model.get("access"),
+            metadata.get("legacy_source"),
+            *tags,
+        )
+    )
+    if metadata.get("legacy_source") or "legacy" in text:
+        return "legacy"
+    if "smoke" in text:
+        return "smoke"
+    return "benchmark"
+
+
+def _row_evidence_tier(row: dict[str, Any]) -> str:
+    run_id = str(row.get("run_id") or "").lower()
+    if run_id.startswith("legacy:") or "legacy" in run_id:
+        return "legacy"
+    if "smoke" in run_id:
+        return "smoke"
+    return "unknown"
+
+
+def _record_evidence_source(record: dict[str, Any]) -> str:
+    run = record.get("run") or {}
+    metadata = run.get("metadata") or {}
+    for key in ("legacy_source", "source", "results_path"):
+        if metadata.get(key):
+            return str(metadata[key])
+    if run.get("git_sha"):
+        return str(run["git_sha"])
+    return str(run.get("id") or "")
+
+
+def _leaderboard_provenance_by_key(
+    records: list[dict[str, Any]],
+    catalog: BenchmarkCatalog,
+) -> dict[tuple[str, str, str], list[dict[str, Any]]]:
+    provenance: dict[tuple[str, str, str], list[dict[str, Any]]] = defaultdict(list)
+    for index, record in enumerate(records):
+        if record.get("error") or primary_metric_value(record, catalog) is None:
+            continue
+        provenance[_record_leaderboard_key(record)].append(
+            {
+                "_source_index": index,
+                "evidence_tier": _record_evidence_tier(record),
+                "evidence_source": _record_evidence_source(record),
+            }
+        )
+    return provenance
+
+
+def _enrich_leaderboard_rows(
+    rows: list[dict[str, Any]],
+    *,
+    result_records: list[dict[str, Any]],
+    catalog: BenchmarkCatalog,
+) -> list[dict[str, Any]]:
+    enriched = [dict(row) for row in rows]
+    provenance = _leaderboard_provenance_by_key(result_records, catalog) if result_records else {}
+
+    for index, row in enumerate(enriched):
+        matches = provenance.get(_leaderboard_row_key(row)) or []
+        match = matches.pop(0) if matches else {}
+        row["_source_index"] = match.get("_source_index", index)
+        row["evidence_tier"] = match.get("evidence_tier") or row.get("evidence_tier") or _row_evidence_tier(row)
+        row["evidence_source"] = match.get("evidence_source") or row.get("evidence_source") or ""
+
+    groups: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
+    for row in enriched:
+        groups[_leaderboard_group_key(row)].append(row)
+
+    for group_rows in groups.values():
+        group_rows.sort(key=lambda row: int(row.get("_source_index") or 0))
+        group_size = len(group_rows)
+        for rank, row in enumerate(group_rows, start=1):
+            row["task_model_duplicate_count"] = group_size
+            row["task_model_run_rank"] = rank
+            row["is_latest_for_task_model"] = str(rank == group_size).lower()
+            row.pop("_source_index", None)
+
+    return enriched
+
+
 def _result_stats(records: list[dict[str, Any]]) -> dict[str, int]:
     failed = sum(1 for record in records if record.get("error"))
     total = len(records)
@@ -161,12 +295,28 @@ def _result_stats(records: list[dict[str, Any]]) -> dict[str, int]:
     }
 
 
-def _leaderboard_stats(rows: list[dict[str, Any]]) -> dict[str, int]:
+def _leaderboard_stats(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    groups = Counter(
+        _leaderboard_group_key(row)
+        for row in rows
+        if row.get("task_id") and (row.get("model_id") or row.get("model"))
+    )
+    evidence_tiers = Counter(str(row.get("evidence_tier") or "unknown") for row in rows)
     return {
         "rows": len(rows),
         "tasks": len({row.get("task_id") for row in rows if row.get("task_id")}),
         "providers": len({row.get("provider") for row in rows if row.get("provider")}),
+        "task_model_pairs": len(groups),
+        "duplicate_task_model_repeats": sum(count - 1 for count in groups.values() if count > 1),
+        "latest_task_model_rows": sum(1 for row in rows if str(row.get("is_latest_for_task_model")).lower() == "true"),
+        "evidence_tiers": dict(sorted(evidence_tiers.items())),
     }
+
+
+def _format_counts(counts: dict[str, int]) -> str:
+    if not counts:
+        return "none"
+    return ", ".join(f"{key}={value}" for key, value in sorted(counts.items()))
 
 
 def _write_dataset_card(
@@ -174,8 +324,9 @@ def _write_dataset_card(
     *,
     catalog: BenchmarkCatalog,
     public_models: list,
+    excluded_private_models: int,
     result_stats: dict[str, int],
-    leaderboard_stats: dict[str, int],
+    leaderboard_stats: dict[str, Any],
     include_data: bool,
 ) -> None:
     task_rows = []
@@ -197,6 +348,7 @@ def _write_dataset_card(
         else "No result file bundled yet."
     )
     data_note = "Bundled JSONL benchmark inputs are included." if include_data else "Benchmark inputs are not bundled."
+    evidence_note = _format_counts(leaderboard_stats["evidence_tiers"])
     path.write_text(
         f"""---
 license: mit
@@ -234,12 +386,18 @@ https://github.com/zc277584121/modern-embedding-bench
 
 ## Current Public Export
 
-- Public model specs: {len(public_models)}
+- Registry model specs: {len(catalog.models)}
+- Public model specs exported: {len(public_models)}
+- Excluded private or preview model specs: {excluded_private_models}
 - Task specs: {len(catalog.tasks)}
 - Result records: {result_note}
 - Leaderboard rows: {leaderboard_stats["rows"]}
 - Tasks with leaderboard rows: {leaderboard_stats["tasks"]}
 - Providers with leaderboard rows: {leaderboard_stats["providers"]}
+- Unique task/model leaderboard pairs: {leaderboard_stats["task_model_pairs"]}
+- Duplicate task/model repeats kept for inspection: {leaderboard_stats["duplicate_task_model_repeats"]}
+- Latest task/model marker rows: {leaderboard_stats["latest_task_model_rows"]}
+- Evidence tiers: {evidence_note}
 - Data: {data_note}
 
 ## Tasks
@@ -258,6 +416,23 @@ Each line in `results/latest.jsonl` is one model-task run. Important fields:
 - `metrics`: task-specific metric dictionary
 - `details`: diagnostic details for deeper analysis
 - `error`: error text for failed runs, otherwise `null`
+
+## Leaderboard Provenance
+
+`leaderboards/latest.csv` keeps every public row, including historical duplicate
+runs for the same `task_id` and `model_id`. The first columns remain compatible
+with older CSV readers, and provenance columns are appended:
+
+- `evidence_tier`: `legacy`, `smoke`, `benchmark`, or `unknown`
+- `evidence_source`: legacy source file, git sha, or run id when available
+- `task_model_duplicate_count`: rows kept for the same task/model pair
+- `task_model_run_rank`: 1-based order for that task/model pair
+- `is_latest_for_task_model`: `true` for the latest exported row in that pair
+
+Latest markers are computed from the order of `results/latest.jsonl` when result
+records are available, otherwise from CSV row order. Use
+`is_latest_for_task_model=true` to inspect one current row per task/model pair
+without losing the full historical trail.
 
 ## Usage
 
@@ -345,10 +520,20 @@ def export_dataset_repo(
     if leaderboard_path:
         rows, fieldnames = _read_leaderboard_csv(Path(leaderboard_path))
         leaderboard_rows = _public_leaderboard_rows(rows, private_model_ids)
-        _write_leaderboard_csv_rows(output / "leaderboards" / "latest.csv", leaderboard_rows, fieldnames)
+        leaderboard_rows = _enrich_leaderboard_rows(leaderboard_rows, result_records=public_records, catalog=catalog)
+        _write_leaderboard_csv_rows(
+            output / "leaderboards" / "latest.csv",
+            leaderboard_rows,
+            _leaderboard_fieldnames_with_provenance(fieldnames),
+        )
     elif results_path:
         leaderboard_rows = build_leaderboard(public_records, catalog)
-        write_leaderboard_csv(leaderboard_rows, output / "leaderboards" / "latest.csv")
+        leaderboard_rows = _enrich_leaderboard_rows(leaderboard_rows, result_records=public_records, catalog=catalog)
+        _write_leaderboard_csv_rows(
+            output / "leaderboards" / "latest.csv",
+            leaderboard_rows,
+            LEADERBOARD_FIELDNAMES,
+        )
 
     if include_data:
         _copy_benchmark_data(Path("data"), output / "benchmark_data", include_images=include_images)
@@ -363,6 +548,7 @@ def export_dataset_repo(
         output / "README.md",
         catalog=catalog,
         public_models=public_models,
+        excluded_private_models=len(private_model_ids),
         result_stats=_result_stats(public_records),
         leaderboard_stats=_leaderboard_stats(leaderboard_rows),
         include_data=include_data,
@@ -375,10 +561,12 @@ def export_dataset_repo(
         files=files,
         metadata={
             "models": len(public_models),
+            "registry_models": len(catalog.models),
             "tasks": len(catalog.tasks),
             "excluded_private_models": len(private_model_ids),
             "include_data": include_data,
             "include_images": include_images,
+            "leaderboard": _leaderboard_stats(leaderboard_rows),
         },
     )
     return output
@@ -525,16 +713,54 @@ def as_float(value):
         return None
 
 
+def truthy(value):
+    return str(value or "").lower() in {"1", "true", "yes", "y"}
+
+
+def task_model_key(row):
+    return (row.get("task_id") or "", row.get("model_id") or row.get("model") or "")
+
+
+def evidence_summary():
+    tiers = {}
+    for row in ROWS:
+        tier = row.get("evidence_tier") or "unknown"
+        tiers[tier] = tiers.get(tier, 0) + 1
+    if not tiers:
+        return "none"
+    return ", ".join("{}={}".format(key, tiers[key]) for key in sorted(tiers))
+
+
 ROWS = load_rows()
 TASKS = sorted({row.get("task_id", "") for row in ROWS if row.get("task_id")})
 PROVIDERS = ["All"] + sorted({row.get("provider", "") for row in ROWS if row.get("provider")})
+PROVENANCE_COLUMNS = [
+    "evidence_tier",
+    "evidence_source",
+    "task_model_duplicate_count",
+    "task_model_run_rank",
+    "is_latest_for_task_model",
+]
 
 
 def summary_markdown():
     tasks = len({row.get("task_id") for row in ROWS if row.get("task_id")})
     providers = len({row.get("provider") for row in ROWS if row.get("provider")})
     models = len({row.get("model_id") or row.get("model") for row in ROWS if row.get("model_id") or row.get("model")})
-    return "Rows: **{}** | Tasks: **{}** | Providers: **{}** | Models: **{}**".format(len(ROWS), tasks, providers, models)
+    group_counts = {}
+    for row in ROWS:
+        if row.get("task_id"):
+            key = task_model_key(row)
+            group_counts[key] = group_counts.get(key, 0) + 1
+    task_model_pairs = len(group_counts)
+    duplicate_repeats = sum(max(count - 1, 0) for count in group_counts.values())
+    latest_rows = sum(1 for row in ROWS if truthy(row.get("is_latest_for_task_model")))
+    if not latest_rows and ROWS:
+        latest_rows = task_model_pairs
+    return (
+        "Rows: **{}** | Tasks: **{}** | Providers: **{}** | Models: **{}**  \\n"
+        "Task/model pairs: **{}** | Duplicate repeats: **{}** | Latest markers: **{}** | Evidence: **{}**"
+    ).format(len(ROWS), tasks, providers, models, task_model_pairs, duplicate_repeats, latest_rows, evidence_summary())
 
 
 def task_markdown(task_id):
@@ -548,10 +774,12 @@ def task_markdown(task_id):
     )
 
 
-def render_table(task_id, provider, query, top_n):
+def render_table(task_id, provider, query, latest_only, top_n):
     filtered = [row.copy() for row in ROWS if row.get("task_id") == task_id]
     if provider != "All":
         filtered = [row for row in filtered if row.get("provider") == provider]
+    if latest_only and any("is_latest_for_task_model" in row for row in filtered):
+        filtered = [row for row in filtered if truthy(row.get("is_latest_for_task_model"))]
     query = (query or "").strip().lower()
     if query:
         filtered = [
@@ -559,7 +787,15 @@ def render_table(task_id, provider, query, top_n):
             for row in filtered
             if query in " ".join(
                 str(row.get(key) or "").lower()
-                for key in ("model", "model_id", "provider", "run_id", "primary_metric")
+                for key in (
+                    "model",
+                    "model_id",
+                    "provider",
+                    "run_id",
+                    "primary_metric",
+                    "evidence_tier",
+                    "evidence_source",
+                )
             )
         ]
     filtered.sort(
@@ -572,13 +808,14 @@ def render_table(task_id, provider, query, top_n):
         score = as_float(row.get("score"))
         row["score"] = round(score, 6) if score is not None else row.get("score")
     columns = ["rank", "model", "provider", "score", "primary_metric", "run_id", "duration_s"]
+    columns.extend(column for column in PROVENANCE_COLUMNS if any(row.get(column) for row in filtered))
     return pd.DataFrame(filtered, columns=columns)
 
 
-def render(task_id, provider, query, top_n):
+def render(task_id, provider, query, latest_only, top_n):
     if not task_id:
         return "No leaderboard rows are available.", pd.DataFrame()
-    return task_markdown(task_id), render_table(task_id, provider, query, top_n)
+    return task_markdown(task_id), render_table(task_id, provider, query, latest_only, top_n)
 
 
 def main():
@@ -592,16 +829,18 @@ def main():
             task = gr.Dropdown(TASKS, value=default_task, label="Task")
             provider = gr.Dropdown(PROVIDERS, value="All", label="Provider")
             top_n = gr.Slider(5, 100, value=30, step=5, label="Rows")
+        latest_only = gr.Checkbox(value=False, label="Latest row per task/model only")
         query = gr.Textbox(label="Search", placeholder="Filter by model, provider, run, or metric")
         table = gr.Dataframe(
-            value=render_table(default_task, "All", "", 30) if default_task else pd.DataFrame(),
+            value=render_table(default_task, "All", "", False, 30) if default_task else pd.DataFrame(),
             label="Leaderboard",
             interactive=False,
         )
-        controls = [task, provider, query, top_n]
+        controls = [task, provider, query, latest_only, top_n]
         task.change(render, inputs=controls, outputs=[task_note, table])
         provider.change(render, inputs=controls, outputs=[task_note, table])
         query.change(render, inputs=controls, outputs=[task_note, table])
+        latest_only.change(render, inputs=controls, outputs=[task_note, table])
         top_n.change(render, inputs=controls, outputs=[task_note, table])
     demo.launch()
 
