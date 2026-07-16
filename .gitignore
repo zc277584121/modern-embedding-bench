@@ -34,3 +34,4 @@ venv/
 .cc-use/
 .claude/
 .memsearch/
+.perpetuum/

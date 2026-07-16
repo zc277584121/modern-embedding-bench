@@ -32,7 +32,7 @@ class CohereProvider(EmbeddingProvider):
     supported_modalities = {ModalityType.TEXT, ModalityType.IMAGE, ModalityType.DOCUMENT}
     max_text_length = 128000
     default_dimensions = 1024
-    supports_mrl = False  # Cohere SDK v5 does not expose dimension reduction parameter
+    supports_mrl = False
 
     INPUT_TYPE_MAP = {
         "retrieval_query": "search_query",
@@ -49,6 +49,8 @@ class CohereProvider(EmbeddingProvider):
     ):
         super().__init__(api_key=api_key or os.environ.get("COHERE_API_KEY"), **kwargs)
         self.model = model
+        if self._uses_v2_client():
+            self.default_dimensions = 1536
 
     def embed(
         self,
@@ -58,7 +60,7 @@ class CohereProvider(EmbeddingProvider):
     ) -> EmbeddingResult:
         import cohere
 
-        client = cohere.Client(api_key=self.api_key)
+        client = cohere.ClientV2(api_key=self.api_key) if self._uses_v2_client() else cohere.Client(api_key=self.api_key)
         dim = dimensions or self.default_dimensions
 
         # Separate text-only vs image inputs
@@ -68,6 +70,9 @@ class CohereProvider(EmbeddingProvider):
             return self._embed_multimodal(client, inputs, dim, task_type)
         else:
             return self._embed_text(client, inputs, dim, task_type)
+
+    def _uses_v2_client(self) -> bool:
+        return self.model.startswith("embed-v4")
 
     def _embed_text(
         self,
@@ -95,18 +100,24 @@ class CohereProvider(EmbeddingProvider):
                 logger.info("Cohere text batch %d/%d (%d items)...", batch_idx + 1, n_batches, len(batch))
 
             def _call(b=batch):
-                return client.embed(
-                    texts=b,
-                    model=self.model,
-                    input_type=input_type,
-                    embedding_types=["float"],
-                    batching=False,
-                )
+                kwargs: dict[str, Any] = {
+                    "texts": b,
+                    "model": self.model,
+                    "input_type": input_type,
+                    "embedding_types": ["float"],
+                }
+                if self._uses_v2_client():
+                    if dim != self.default_dimensions:
+                        kwargs["output_dimension"] = dim
+                else:
+                    kwargs["batching"] = False
+                return client.embed(**kwargs)
 
             response, latency = self._call_with_retry(_call)
             total_latency += latency
 
-            all_embeddings.extend(response.embeddings.float)
+            vectors = response.embeddings.float_ if self._uses_v2_client() else response.embeddings.float
+            all_embeddings.extend(vectors)
             if response.meta and response.meta.billed_units:
                 total_tokens += response.meta.billed_units.input_tokens or 0
 
@@ -132,8 +143,6 @@ class CohereProvider(EmbeddingProvider):
         task_type: str | None,
     ) -> EmbeddingResult:
         """Cohere v4 multimodal embedding using images parameter."""
-        import cohere
-
         input_type = self.INPUT_TYPE_MAP.get(task_type, "search_document") if task_type else "search_document"
 
         all_embeddings = []
@@ -143,26 +152,34 @@ class CohereProvider(EmbeddingProvider):
         for inp in inputs:
             if inp.modality == ModalityType.TEXT:
                 def _call():
-                    return client.embed(
-                        texts=[inp.content],
-                        model=self.model,
-                        input_type=input_type,
-                        embedding_types=["float"],
-                    )
+                    kwargs: dict[str, Any] = {
+                        "texts": [inp.content],
+                        "model": self.model,
+                        "input_type": input_type,
+                        "embedding_types": ["float"],
+                    }
+                    if self._uses_v2_client() and dim != self.default_dimensions:
+                        kwargs["output_dimension"] = dim
+                    return client.embed(**kwargs)
                 response, latency = self._call_with_retry(_call)
-                emb = response.embeddings.float[0]
+                vectors = response.embeddings.float_ if self._uses_v2_client() else response.embeddings.float
+                emb = vectors[0]
             else:
                 # Image input
                 image_b64 = self._to_base64(inp.content)
                 def _call():
-                    return client.embed(
-                        images=[image_b64],
-                        model=self.model,
-                        input_type=input_type,
-                        embedding_types=["float"],
-                    )
+                    kwargs = {
+                        "images": [image_b64],
+                        "model": self.model,
+                        "input_type": "image" if self._uses_v2_client() else input_type,
+                        "embedding_types": ["float"],
+                    }
+                    if self._uses_v2_client() and dim != self.default_dimensions:
+                        kwargs["output_dimension"] = dim
+                    return client.embed(**kwargs)
                 response, latency = self._call_with_retry(_call)
-                emb = response.embeddings.float[0]
+                vectors = response.embeddings.float_ if self._uses_v2_client() else response.embeddings.float
+                emb = vectors[0]
 
             all_embeddings.append(emb)
             total_latency += latency

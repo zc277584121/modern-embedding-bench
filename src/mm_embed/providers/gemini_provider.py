@@ -1,4 +1,4 @@
-"""Google Gemini provider — Gemini Embedding 2 (gemini-embedding-2-preview)."""
+"""Google Gemini provider — Gemini Embedding 2."""
 
 from __future__ import annotations
 
@@ -20,7 +20,7 @@ class GeminiProvider(EmbeddingProvider):
     """Google Gemini Embedding API.
 
     Models:
-        - gemini-embedding-2-preview: Latest multimodal (text+image+video+audio+PDF)
+        - gemini-embedding-2: Latest multimodal (text+image+video+audio+PDF)
         - text-embedding-004: Text-only, production stable
         - gemini-embedding-001: Text-only, MMTEB 68.4
 
@@ -51,7 +51,7 @@ class GeminiProvider(EmbeddingProvider):
     def __init__(
         self,
         api_key: str | None = None,
-        model: str = "gemini-embedding-2-preview",
+        model: str = "gemini-embedding-2",
         **kwargs: Any,
     ):
         super().__init__(

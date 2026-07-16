@@ -20,6 +20,7 @@ class JinaProvider(EmbeddingProvider):
     """Jina AI embedding API (HTTP-based, no dedicated SDK needed).
 
     Models:
+        - jina-embeddings-v5-text-small: Text-only, modern v5 text model
         - jina-embeddings-v4: Multimodal (text+image+doc), ViDoRe 90.2, CC-BY-NC
         - jina-clip-v2: CLIP-style multimodal (text+image)
         - jina-embeddings-v3: Text-only, multilingual
@@ -46,6 +47,14 @@ class JinaProvider(EmbeddingProvider):
 
     # Models that use CLIP-style format (no task/LoRA support)
     CLIP_MODELS = {"jina-clip-v2", "jina-clip-v1"}
+    DEFAULT_DIMENSIONS = {
+        "jina-embeddings-v5-text-nano": 768,
+        "jina-embeddings-v5-text-small": 1024,
+        "jina-embeddings-v3": 1024,
+        "jina-clip-v2": 1024,
+        "jina-clip-v1": 1024,
+        "jina-embeddings-v4": 2048,
+    }
 
     def __init__(
         self,
@@ -57,9 +66,9 @@ class JinaProvider(EmbeddingProvider):
         super().__init__(api_key=api_key or os.environ.get("JINA_API_KEY"), **kwargs)
         self.model = model
         self.late_interaction = late_interaction
+        self.default_dimensions = self.DEFAULT_DIMENSIONS.get(model, self.default_dimensions)
         # CLIP models have different default dimensions
         if model in self.CLIP_MODELS:
-            self.default_dimensions = 1024
             self.supports_mrl = False
             self.supports_multi_vector = False
 
@@ -71,7 +80,7 @@ class JinaProvider(EmbeddingProvider):
     ) -> EmbeddingResult:
         import httpx
 
-        dim = dimensions or self.default_dimensions
+        dim = dimensions
 
         # Separate text and non-text inputs for batching
         text_indices = [i for i, inp in enumerate(inputs) if inp.modality == ModalityType.TEXT]
@@ -135,7 +144,7 @@ class JinaProvider(EmbeddingProvider):
 
         return EmbeddingResult(
             embeddings=embeddings,
-            dimensions=dim,
+            dimensions=embeddings.shape[1] if embeddings.ndim == 2 else (dim or self.default_dimensions),
             model_name=self.model,
             provider=self.name,
             latency_ms=total_latency,
@@ -145,7 +154,7 @@ class JinaProvider(EmbeddingProvider):
     def _send_batch(
         self,
         jina_inputs: list[dict[str, Any]],
-        dim: int,
+        dim: int | None,
         task_type: str | None,
         httpx_module: Any,
     ) -> tuple[dict, float]:
@@ -158,11 +167,12 @@ class JinaProvider(EmbeddingProvider):
         body: dict[str, Any] = {
             "model": self.model,
             "input": jina_inputs,
-            "dimensions": dim,
         }
+        if dim is not None:
+            body["dimensions"] = dim
 
         # Set task for LoRA adapter selection (not for CLIP models)
-        if self.model not in self.CLIP_MODELS:
+        if self.model.startswith("jina-embeddings-v4"):
             if task_type and task_type in self.TASK_LORA_MAP:
                 body["task"] = self.TASK_LORA_MAP[task_type]
 
