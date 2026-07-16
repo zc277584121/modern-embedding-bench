@@ -82,6 +82,23 @@ models:
     source: https://docs.voyageai.com/docs/embeddings
     notes: Supports 256, 512, 1024, and 2048 output dimensions.
 
+  - id: voyage-multimodal-3.5
+    display_name: Voyage Multimodal 3.5
+    provider: voyage
+    provider_kwargs:
+      model: voyage-multimodal-3.5
+    modalities: [text, image, document]
+    dimensions: 1024
+    max_text_length: 32000
+    supports_mrl: true
+    access: api
+    api_key_env: VOYAGE_API_KEY
+    status: active
+    priority: 18
+    tags: [api, modern, multimodal, text, image, document, mrl, voyage]
+    source: https://docs.voyageai.com/docs/embeddings
+    notes: Current provider path covers text, image, and document inputs; video support needs provider work before benchmark inclusion.
+
   - id: gemini-embedding-2
     display_name: Gemini Embedding 2
     provider: gemini
@@ -133,6 +150,23 @@ models:
     source: https://jina.ai/models/jina-embeddings-v5-text-nano/
     notes: Smallest v5 text API candidate for cheap smoke runs.
 
+  - id: jina-embeddings-v4
+    display_name: Jina Embeddings v4
+    provider: jina
+    provider_kwargs:
+      model: jina-embeddings-v4
+    modalities: [text, image, document]
+    dimensions: 2048
+    max_text_length: 32768
+    supports_mrl: true
+    access: api
+    api_key_env: JINA_API_KEY
+    status: active
+    priority: 19
+    tags: [api, modern, multimodal, multilingual, text, image, document, mrl, jina]
+    source: https://jina.ai/models/jina-embeddings-v4/
+    notes: Supports task-specific LoRA adapters and multimodal embeddings.
+
   - id: cohere-embed-v4
     display_name: Cohere Embed v4.0
     provider: cohere
@@ -149,6 +183,91 @@ models:
     tags: [api, modern, multimodal, multilingual, text, image, document, mrl, cohere]
     source: https://docs.cohere.com/docs/cohere-embed
     notes: Local loop snapshot reports recent 403 access errors; keep out of default smoke runs until rechecked.
+
+  - id: cohere-embed-multilingual-v3
+    display_name: Cohere Embed Multilingual v3.0
+    provider: cohere
+    provider_kwargs:
+      model: embed-multilingual-v3.0
+    modalities: [text]
+    dimensions: 1024
+    max_text_length: 512
+    supports_mrl: false
+    access: api
+    api_key_env: COHERE_API_KEY
+    status: access_recheck
+    priority: 21
+    tags: [api, multilingual, text, cohere]
+    source: https://docs.cohere.com/docs/cohere-embed
+    notes: Text-only fallback candidate; keep in access recheck until Cohere account/API path is verified.
+
+  - id: dashscope-text-embedding-v4
+    display_name: DashScope text-embedding-v4
+    provider: dashscope
+    provider_kwargs:
+      model: text-embedding-v4
+    modalities: [text]
+    dimensions: 1024
+    max_text_length: 8192
+    supports_mrl: true
+    access: api
+    api_key_env: DASHSCOPE_API_KEY
+    status: active
+    priority: 22
+    tags: [api, modern, multilingual, text, mrl, dashscope, qwen]
+    source: https://www.alibabacloud.com/help/en/model-studio/embedding
+    notes: Qwen3-Embedding API model; registry uses the provider's 1024-dim default smoke setting.
+
+  - id: dashscope-qwen3-vl-embedding
+    display_name: DashScope Qwen3-VL-Embedding
+    provider: dashscope
+    provider_kwargs:
+      model: qwen3-vl-embedding
+    modalities: [text, image, video]
+    dimensions: 1024
+    max_text_length: 8192
+    supports_mrl: true
+    access: api
+    api_key_env: DASHSCOPE_API_KEY
+    status: active
+    priority: 23
+    tags: [api, modern, multimodal, multilingual, text, image, video, mrl, dashscope, qwen]
+    source: https://www.alibabacloud.com/help/en/model-studio/embedding
+    notes: Provider routes single text, image, or video items through MultiModalEmbedding; fused multi-item inputs are not covered by this smoke path.
+
+  - id: ark-doubao-embedding-large-text-250515
+    display_name: ARK Doubao Embedding Large Text 250515
+    provider: ark
+    provider_kwargs:
+      model: doubao-embedding-large-text-250515
+    modalities: [text]
+    dimensions: 2048
+    max_text_length: 8192
+    supports_mrl: false
+    access: api
+    api_key_env: ARK_API_KEY
+    status: active
+    priority: 24
+    tags: [api, modern, multilingual, text, ark, doubao, volcengine]
+    source: https://www.volcengine.com/docs/82379/1330310
+    notes: Text embedding model available through the Volcengine ARK OpenAI-compatible endpoint.
+
+  - id: volcengine-doubao-embedding-vision-251215
+    display_name: Volcengine Doubao Embedding Vision 251215
+    provider: volcengine
+    provider_kwargs:
+      model: doubao-embedding-vision-251215
+    modalities: [text, image, video]
+    dimensions: 1024
+    max_text_length: 32768
+    supports_mrl: false
+    access: api
+    api_key_env: ARK_API_KEY
+    status: access_recheck
+    priority: 25
+    tags: [api, modern, multimodal, multilingual, text, image, video, volcengine, doubao]
+    source: https://www.volcengine.com/docs/82379/1409291
+    notes: Registered for follow-up only; endpoint/deployment compatibility and MRL dimension behavior still need validation.
 
   - id: bge-m3-local
     display_name: BAAI/bge-m3

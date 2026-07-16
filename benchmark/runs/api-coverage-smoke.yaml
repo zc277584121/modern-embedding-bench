@@ -1,0 +1,20 @@
+id: api-coverage-smoke
+description: Tiny API smoke run covering active MRL-capable API provider families.
+models:
+  - openai-text-embedding-3-small
+  - voyage-4-lite
+  - gemini-embedding-2
+  - jina-embeddings-v5-text-nano
+  - jina-embeddings-v4
+  - dashscope-text-embedding-v4
+  - dashscope-qwen3-vl-embedding
+tasks:
+  - id: mrl_stress
+    kwargs:
+      max_samples: 6
+      dimensions: [512, 256, 128]
+metadata:
+  tier: smoke
+  scope: api-coverage-text
+  expected_cost: low
+  notes: Cohere and Volcengine entries are excluded until access/endpoint state is rechecked; ARK text is registered but excluded because it does not advertise MRL support.

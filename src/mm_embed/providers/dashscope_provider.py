@@ -20,28 +20,29 @@ class DashScopeProvider(EmbeddingProvider):
     """Alibaba DashScope API for embedding models.
 
     Models:
-        - text-embedding-v3: Text-only, latest (1024 dims, supports MRL)
-        - text-embedding-v2: Text-only, previous generation
-        - multimodal-embedding-v1: Multimodal (text+image)
+        - text-embedding-v4: Text-only, Qwen3-Embedding series
+        - text-embedding-v3: Text-only, previous generation
+        - qwen3-vl-embedding: Multimodal fused embeddings (text+image+video)
+        - multimodal-embedding-v1: Previous-generation multimodal embeddings
 
     Pricing: ~0.0007 RMB / 1K tokens (text), ~0.0007 RMB / image
     Access: China mainland direct, no VPN needed.
     """
 
     name = "dashscope"
-    supported_modalities = {ModalityType.TEXT, ModalityType.IMAGE}
+    supported_modalities = {ModalityType.TEXT, ModalityType.IMAGE, ModalityType.VIDEO}
     max_text_length = 32768
     default_dimensions = 1024
     supports_mrl = True
 
     # Available models
-    TEXT_MODELS = ["text-embedding-v3", "text-embedding-v2", "text-embedding-v1"]
-    VL_MODELS = ["multimodal-embedding-v1"]
+    TEXT_MODELS = ["text-embedding-v4", "text-embedding-v3", "text-embedding-v2", "text-embedding-v1"]
+    VL_MODELS = ["qwen3-vl-embedding", "qwen2.5-vl-embedding", "multimodal-embedding-v1"]
 
     def __init__(
         self,
         api_key: str | None = None,
-        model: str = "text-embedding-v3",
+        model: str = "text-embedding-v4",
         **kwargs: Any,
     ):
         super().__init__(api_key=api_key or os.environ.get("DASHSCOPE_API_KEY"), **kwargs)

@@ -26,6 +26,7 @@ def test_default_catalog_and_run_manifests_load() -> None:
     assert catalog.models["geevec-api-general"].publish is False
 
     for path in (
+        "benchmark/runs/api-coverage-smoke.yaml",
         "benchmark/runs/api-modern-smoke.yaml",
         "benchmark/runs/openai-smoke.yaml",
         "benchmark/runs/local-smoke.yaml",

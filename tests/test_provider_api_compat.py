@@ -5,6 +5,7 @@ from types import SimpleNamespace
 
 from mm_embed.providers.base import EmbeddingInput, ModalityType
 from mm_embed.providers.cohere_provider import CohereProvider
+from mm_embed.providers.dashscope_provider import DashScopeProvider
 from mm_embed.providers.gemini_provider import GeminiProvider
 from mm_embed.providers.jina_provider import JinaProvider
 from mm_embed.providers.voyage_provider import VoyageProvider
@@ -93,3 +94,38 @@ def test_gemini_default_model_is_formal_embedding_2() -> None:
     provider = GeminiProvider(api_key="test")
 
     assert provider.model == "gemini-embedding-2"
+
+
+def test_dashscope_qwen3_vl_uses_multimodal_endpoint(monkeypatch) -> None:
+    calls: list[dict] = []
+
+    class FakeTextEmbedding:
+        @staticmethod
+        def call(**kwargs):
+            raise AssertionError(f"Unexpected text embedding call: {kwargs}")
+
+    class FakeMultiModalEmbedding:
+        @staticmethod
+        def call(**kwargs):
+            calls.append(kwargs)
+            return SimpleNamespace(
+                output={"embeddings": [{"embedding": [0.0] * 1024}]},
+                usage={"total_tokens": 3},
+            )
+
+    monkeypatch.setitem(
+        sys.modules,
+        "dashscope",
+        SimpleNamespace(
+            api_key=None,
+            TextEmbedding=FakeTextEmbedding,
+            MultiModalEmbedding=FakeMultiModalEmbedding,
+        ),
+    )
+
+    provider = DashScopeProvider(api_key="test", model="qwen3-vl-embedding")
+    result = provider.embed([EmbeddingInput(ModalityType.TEXT, "hello")])
+
+    assert result.embeddings.shape == (1, 1024)
+    assert calls[0]["model"] == "qwen3-vl-embedding"
+    assert calls[0]["input"] == [{"text": "hello"}]
