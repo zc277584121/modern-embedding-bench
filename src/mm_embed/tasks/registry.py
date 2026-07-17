@@ -14,6 +14,10 @@ TASK_REGISTRY: dict[str, tuple[str, str]] = {
     "crosslingual_retrieval": ("mm_embed.tasks.crosslingual_retrieval", "CrossLingualRetrievalTask"),
     "autonomous_driving": ("mm_embed.tasks.autonomous_driving", "AutonomousDrivingTask"),
     "chinese_multimodal": ("mm_embed.tasks.chinese_multimodal", "ChineseMultimodalTask"),
+    "agent_procedural_tool_memory": (
+        "mm_embed.tasks.agent_procedural_tool_memory",
+        "AgentProceduralToolMemoryTask",
+    ),
 }
 
 

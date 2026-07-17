@@ -74,3 +74,17 @@ tasks:
     metric_direction: higher
     dataset_version: chinese-multimodal-v0
     tags: [chinese, multimodal, retrieval]
+
+  - id: agent_procedural_tool_memory
+    display_name: Agent procedural tool memory
+    task: agent_procedural_tool_memory
+    description: Query-to-tool-document retrieval for procedural memory in agent systems.
+    default_kwargs:
+      use_mock: false
+      max_queries: 200
+      hard_mode: true
+    required_modalities: [text]
+    primary_metric: hard_mrr
+    metric_direction: higher
+    dataset_version: agent-procedural-tool-memory-v0
+    tags: [agentic, memory, tool-retrieval, hard-negative, text]
