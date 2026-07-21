@@ -13,7 +13,7 @@ from typing import Any
 import yaml
 
 from mm_embed.benchmark.leaderboard import build_leaderboard, primary_metric_value
-from mm_embed.benchmark.registry import BenchmarkCatalog, ModelSpec, load_catalog
+from mm_embed.benchmark.registry import BenchmarkCatalog, ModelSpec, load_catalog, load_run_manifest
 from mm_embed.benchmark.results import json_safe, load_jsonl
 
 
@@ -104,16 +104,23 @@ def _contains_excluded_marker(*values: Any) -> bool:
     return False
 
 
-def _public_records(records: list[dict[str, Any]], private_model_ids: set[str]) -> list[dict[str, Any]]:
+def _public_records(
+    records: list[dict[str, Any]],
+    private_model_ids: set[str],
+    private_task_ids: set[str],
+) -> list[dict[str, Any]]:
     public = []
     for record in records:
         model = record.get("model") or {}
         provider_result = record.get("provider_result") or {}
+        task = record.get("task") or {}
         providers = {str(model.get("provider") or ""), str(provider_result.get("provider") or "")}
         model_ids = {str(model.get("id") or ""), str(provider_result.get("model_name") or "")}
         if private_model_ids.intersection(model_ids):
             continue
         if PUBLIC_EXCLUDED_PROVIDERS.intersection(providers):
+            continue
+        if str(task.get("id") or "") in private_task_ids or task.get("publish") is False:
             continue
         if _contains_excluded_marker(
             model.get("id"),
@@ -152,15 +159,22 @@ def _leaderboard_fieldnames_with_provenance(fieldnames: list[str] | None) -> lis
     return fields
 
 
-def _public_leaderboard_rows(rows: list[dict[str, Any]], private_model_ids: set[str]) -> list[dict[str, Any]]:
+def _public_leaderboard_rows(
+    rows: list[dict[str, Any]],
+    private_model_ids: set[str],
+    private_task_ids: set[str],
+) -> list[dict[str, Any]]:
     public = []
     for row in rows:
         provider = str(row.get("provider") or "")
         model_id = str(row.get("model_id") or "")
         model = str(row.get("model") or "")
+        task_id = str(row.get("task_id") or "")
         if provider in PUBLIC_EXCLUDED_PROVIDERS:
             continue
         if model_id in private_model_ids:
+            continue
+        if task_id in private_task_ids:
             continue
         if _contains_excluded_marker(provider, model_id, model):
             continue
@@ -500,26 +514,30 @@ def export_dataset_repo(
 
     public_models = [model for model in catalog.models.values() if _is_public_model(model)]
     private_model_ids = {model.id for model in catalog.models.values() if not _is_public_model(model)}
+    public_tasks = [task for task in catalog.tasks.values() if task.publish]
+    private_task_ids = {task.id for task in catalog.tasks.values() if not task.publish}
     public_records: list[dict[str, Any]] = []
     leaderboard_rows: list[dict[str, Any]] = []
 
     _write_jsonl(output / "models.jsonl", [asdict(model) for model in public_models])
-    _write_jsonl(output / "tasks.jsonl", [asdict(task) for task in catalog.tasks.values()])
+    _write_jsonl(output / "tasks.jsonl", [asdict(task) for task in public_tasks])
 
     run_dir = catalog.root / "runs"
     if run_dir.exists():
         for run_file in sorted(run_dir.glob("*.yaml")):
-            _copy_if_exists(run_file, output / "runs" / run_file.name)
+            run_manifest = load_run_manifest(run_file)
+            if run_manifest.publish and all(run_task.id not in private_task_ids for run_task in run_manifest.tasks):
+                _copy_if_exists(run_file, output / "runs" / run_file.name)
 
     if results_path:
         result_src = Path(results_path)
-        public_records = _public_records(load_jsonl(result_src), private_model_ids)
+        public_records = _public_records(load_jsonl(result_src), private_model_ids, private_task_ids)
         _write_jsonl(output / "results" / "latest.jsonl", public_records)
         _write_jsonl(output / "results" / "latest-successful.jsonl", [r for r in public_records if not r.get("error")])
 
     if leaderboard_path:
         rows, fieldnames = _read_leaderboard_csv(Path(leaderboard_path))
-        leaderboard_rows = _public_leaderboard_rows(rows, private_model_ids)
+        leaderboard_rows = _public_leaderboard_rows(rows, private_model_ids, private_task_ids)
         leaderboard_rows = _enrich_leaderboard_rows(leaderboard_rows, result_records=public_records, catalog=catalog)
         _write_leaderboard_csv_rows(
             output / "leaderboards" / "latest.csv",
@@ -629,7 +647,10 @@ def export_space_repo(
 
     if bundled_leaderboard:
         rows, fieldnames = _read_leaderboard_csv(Path(bundled_leaderboard))
-        _write_leaderboard_csv_rows(output / "leaderboard.csv", _public_leaderboard_rows(rows, set()), fieldnames)
+        catalog = load_catalog()
+        private_task_ids = {task.id for task in catalog.tasks.values() if not task.publish}
+        public_rows = _public_leaderboard_rows(rows, set(), private_task_ids)
+        _write_leaderboard_csv_rows(output / "leaderboard.csv", public_rows, fieldnames)
     else:
         _write_empty_leaderboard(output / "leaderboard.csv")
 

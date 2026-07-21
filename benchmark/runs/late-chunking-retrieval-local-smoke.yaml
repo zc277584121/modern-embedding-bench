@@ -1,0 +1,36 @@
+id: late-chunking-retrieval-local-smoke
+description: Deterministic zero-network grouped-chunk contract fixture; no model or provider run.
+publish: false
+models: []
+tasks:
+  - id: late_chunking_retrieval
+metadata:
+  tier: fixture_only
+  dataset_version: late-chunking-retrieval-fixture-v0
+  not_for_publication: true
+  leaderboard_publish: false
+  network: forbidden
+  provider_api_calls: 0
+  model_downloads: 0
+  hugging_face_operations: 0
+  documents: 8
+  queries: 16
+  failure_families: 4
+  required_context_queries: 12
+  irrelevant_context_controls: 4
+  strategies:
+    - deterministic_independent_stub
+    - deterministic_contextual_stub
+  layouts:
+    fixed_192_v1:
+      chunks: 32
+      positive_qrels: 16
+      hard_negative_links: 48
+    fixed_192_overlap_48_v1:
+      chunks: 40
+      positive_qrels: 24
+      hard_negative_links: 48
+    structure_adaptive_fixture_v1:
+      chunks: 32
+      positive_qrels: 16
+      hard_negative_links: 48

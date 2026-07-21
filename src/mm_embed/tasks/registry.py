@@ -18,6 +18,10 @@ TASK_REGISTRY: dict[str, tuple[str, str]] = {
         "mm_embed.tasks.agent_procedural_tool_memory",
         "AgentProceduralToolMemoryTask",
     ),
+    "late_chunking_retrieval": (
+        "mm_embed.tasks.late_chunking_retrieval",
+        "LateChunkingRetrievalTask",
+    ),
 }
 
 

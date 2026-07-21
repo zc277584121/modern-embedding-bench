@@ -88,3 +88,17 @@ tasks:
     metric_direction: higher
     dataset_version: agent-procedural-tool-memory-v0
     tags: [agentic, memory, tool-retrieval, hard-negative, text]
+
+  - id: late_chunking_retrieval
+    display_name: Context-aware chunk retrieval fixture
+    task: late_chunking_retrieval
+    description: Deterministic grouped-chunk retrieval contract smoke using self-created fixture data.
+    default_kwargs:
+      dataset_version: late-chunking-retrieval-fixture-v0
+      fixture_only: true
+    required_modalities: [text]
+    primary_metric: chunk_ndcg@10
+    metric_direction: higher
+    dataset_version: late-chunking-retrieval-fixture-v0
+    publish: false
+    tags: [rag, long-context, chunking, contextual, hard-negative, text, fixture-only, no-publish]

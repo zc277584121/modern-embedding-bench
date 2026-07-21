@@ -85,6 +85,7 @@ class TaskSpec:
     primary_metric: str | None = None
     metric_direction: str = "higher"
     dataset_version: str = "unknown"
+    publish: bool = True
     tags: list[str] = field(default_factory=list)
 
     @classmethod
@@ -103,6 +104,7 @@ class TaskSpec:
             primary_metric=data.get("primary_metric"),
             metric_direction=str(data.get("metric_direction", "higher")),
             dataset_version=str(data.get("dataset_version", "unknown")),
+            publish=bool(data.get("publish", True)),
             tags=list(data.get("tags") or []),
         )
 
@@ -135,6 +137,7 @@ class RunManifest:
     model_ids: list[str] = field(default_factory=list)
     tasks: list[RunTask] = field(default_factory=list)
     metadata: dict[str, Any] = field(default_factory=dict)
+    publish: bool = True
 
 
 @dataclass(frozen=True)
@@ -197,4 +200,5 @@ def load_run_manifest(path: str | Path) -> RunManifest:
         model_ids=[str(item) for item in data.get("models", [])],
         tasks=[RunTask.from_value(item) for item in data.get("tasks", [])],
         metadata=dict(data.get("metadata") or {}),
+        publish=bool(data.get("publish", True)),
     )

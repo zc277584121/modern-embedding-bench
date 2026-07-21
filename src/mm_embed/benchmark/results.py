@@ -108,6 +108,7 @@ def make_result_record(
             "dataset_version": task.dataset_version,
             "primary_metric": task.primary_metric,
             "metric_direction": task.metric_direction,
+            "publish": task.publish,
             "kwargs": run_task.kwargs,
             "tags": task.tags,
         },

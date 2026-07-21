@@ -32,6 +32,7 @@ def test_default_catalog_and_run_manifests_load() -> None:
         "benchmark/runs/openai-smoke.yaml",
         "benchmark/runs/local-smoke.yaml",
         "benchmark/runs/core-text-standard.yaml",
+        "benchmark/runs/late-chunking-retrieval-local-smoke.yaml",
     ):
         manifest = load_run_manifest(path)
         for model_id in manifest.model_ids:
@@ -68,6 +69,50 @@ def test_leaderboard_backfills_primary_metric_from_catalog() -> None:
             "duration_s": 1.2,
         }
     ]
+
+
+def test_unpublished_fixture_task_is_excluded_from_public_outputs(tmp_path) -> None:
+    catalog = load_catalog()
+    record = {
+        "run": {"id": "late-chunking-retrieval-local-smoke"},
+        "timestamps": {"duration_s": 0.0},
+        "model": {
+            "id": "openai-text-embedding-3-large",
+            "display_name": "OpenAI",
+            "provider": "openai",
+        },
+        "provider_result": {"provider": "deterministic-grouped-local", "model_name": "fixture-label-test-double"},
+        "task": {
+            "id": "late_chunking_retrieval",
+            "display_name": "Context-aware chunk retrieval fixture",
+            "primary_metric": "chunk_ndcg@10",
+            "publish": False,
+        },
+        "metrics": {"chunk_ndcg@10": 1.0},
+        "error": None,
+    }
+
+    assert build_leaderboard([record], catalog) == []
+
+    results = tmp_path / "results.jsonl"
+    results.write_text(json.dumps(record) + "\n", encoding="utf-8")
+    leaderboard = tmp_path / "leaderboard.csv"
+    leaderboard.write_text(
+        "task_id,task,model_id,model,provider,primary_metric,score,run_id,duration_s\n"
+        "late_chunking_retrieval,Fixture,openai-text-embedding-3-large,OpenAI,openai,chunk_ndcg@10,1.0,fixture,0.0\n",
+        encoding="utf-8",
+    )
+
+    output = export_dataset_repo(
+        output_dir=tmp_path / "dataset",
+        results_path=results,
+        leaderboard_path=leaderboard,
+    )
+
+    assert "late_chunking_retrieval" not in (output / "tasks.jsonl").read_text(encoding="utf-8")
+    assert (output / "results" / "latest.jsonl").read_text(encoding="utf-8") == ""
+    assert "late_chunking_retrieval" not in (output / "leaderboards" / "latest.csv").read_text(encoding="utf-8")
+    assert not (output / "runs" / "late-chunking-retrieval-local-smoke.yaml").exists()
 
 
 def test_import_legacy_results_to_jsonl(tmp_path) -> None:
@@ -343,7 +388,12 @@ def test_export_hf_dataset_marks_leaderboard_provenance_and_latest(tmp_path) -> 
 
 def test_export_hf_space_bundles_leaderboard(tmp_path) -> None:
     leaderboard = tmp_path / "leaderboard.csv"
-    leaderboard.write_text("task_id,model,score\nmrl,model-a,1.0\n", encoding="utf-8")
+    leaderboard.write_text(
+        "task_id,model,score\n"
+        "mrl,model-a,1.0\n"
+        "late_chunking_retrieval,fixture-model,1.0\n",
+        encoding="utf-8",
+    )
 
     output = export_space_repo(output_dir=tmp_path / "space", bundled_leaderboard=leaderboard)
 
@@ -351,3 +401,4 @@ def test_export_hf_space_bundles_leaderboard(tmp_path) -> None:
     assert (output / "app.py").exists()
     compile((output / "app.py").read_text(encoding="utf-8"), str(output / "app.py"), "exec")
     assert (output / "leaderboard.csv").read_text(encoding="utf-8").startswith("task_id,model,score")
+    assert "late_chunking_retrieval" not in (output / "leaderboard.csv").read_text(encoding="utf-8")
