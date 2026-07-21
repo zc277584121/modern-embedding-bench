@@ -190,16 +190,18 @@ class SentenceTransformersProvider(EmbeddingProvider):
             "normalize_embeddings": True,
         }
 
-        # Some models support prompt/task_type — skip if not supported
-        # (the TypeError fallback below handles models that don't support prompt_name)
+        encode_method = self._st_model.encode
+        if task_type == "retrieval_query":
+            specialized_method = getattr(self._st_model, "encode_query", None)
+            if callable(specialized_method):
+                encode_method = specialized_method
+        elif task_type == "retrieval_document":
+            specialized_method = getattr(self._st_model, "encode_document", None)
+            if callable(specialized_method):
+                encode_method = specialized_method
 
         start = time.perf_counter()
-        try:
-            embeddings = self._st_model.encode(texts, **encode_kwargs)
-        except TypeError:
-            # Model doesn't support prompt_name
-            encode_kwargs.pop("prompt_name", None)
-            embeddings = self._st_model.encode(texts, **encode_kwargs)
+        embeddings = encode_method(texts, **encode_kwargs)
 
         latency_ms = (time.perf_counter() - start) * 1000
 

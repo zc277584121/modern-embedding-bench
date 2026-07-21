@@ -3,12 +3,121 @@ from __future__ import annotations
 import sys
 from types import SimpleNamespace
 
+import numpy as np
+import pytest
+
 from mm_embed.providers.base import EmbeddingInput, ModalityType
 from mm_embed.providers.cohere_provider import CohereProvider
 from mm_embed.providers.dashscope_provider import DashScopeProvider
 from mm_embed.providers.gemini_provider import GeminiProvider
 from mm_embed.providers.jina_provider import JinaProvider
+from mm_embed.providers.sentence_transformers_provider import SentenceTransformersProvider
 from mm_embed.providers.voyage_provider import VoyageProvider
+
+
+class FakeSentenceTransformer:
+    def __init__(self) -> None:
+        self.calls: list[tuple[str, list[str], dict]] = []
+
+    def _record(self, method: str, texts: list[str], kwargs: dict) -> np.ndarray:
+        self.calls.append((method, texts, kwargs))
+        return np.array([[3.0, 4.0, 0.0, 12.0] for _ in texts])
+
+    def encode(self, texts: list[str], **kwargs) -> np.ndarray:
+        return self._record("encode", texts, kwargs)
+
+    def encode_query(self, texts: list[str], **kwargs) -> np.ndarray:
+        return self._record("encode_query", texts, kwargs)
+
+    def encode_document(self, texts: list[str], **kwargs) -> np.ndarray:
+        return self._record("encode_document", texts, kwargs)
+
+
+def make_sentence_transformers_provider(model) -> SentenceTransformersProvider:
+    provider = SentenceTransformersProvider(model="fake-model", device="cpu")
+    provider._st_model = model
+    provider._native_dim = 4
+    provider.default_dimensions = 4
+    return provider
+
+
+def test_sentence_transformers_retrieval_query_uses_encode_query() -> None:
+    model = FakeSentenceTransformer()
+    provider = make_sentence_transformers_provider(model)
+
+    provider.embed_text(["query"], task_type="retrieval_query")
+
+    method, texts, kwargs = model.calls[0]
+    assert method == "encode_query"
+    assert texts == ["query"]
+    assert kwargs == {
+        "show_progress_bar": False,
+        "batch_size": 64,
+        "normalize_embeddings": True,
+    }
+
+
+def test_sentence_transformers_retrieval_document_uses_encode_document() -> None:
+    model = FakeSentenceTransformer()
+    provider = make_sentence_transformers_provider(model)
+
+    provider.embed_text(["document"], task_type="retrieval_document")
+
+    assert model.calls[0][0] == "encode_document"
+
+
+def test_sentence_transformers_unspecified_task_uses_generic_encode() -> None:
+    model = FakeSentenceTransformer()
+    provider = make_sentence_transformers_provider(model)
+
+    provider.embed_text(["text"])
+
+    assert model.calls[0][0] == "encode"
+
+
+def test_sentence_transformers_missing_specialized_method_falls_back_to_encode() -> None:
+    class GenericModel:
+        def __init__(self) -> None:
+            self.calls: list[tuple[list[str], dict]] = []
+
+        def encode(self, texts: list[str], **kwargs) -> np.ndarray:
+            self.calls.append((texts, kwargs))
+            return np.array([[1.0, 0.0, 0.0, 0.0] for _ in texts])
+
+    model = GenericModel()
+    provider = make_sentence_transformers_provider(model)
+
+    provider.embed_text(["query"], task_type="retrieval_query")
+
+    assert len(model.calls) == 1
+    assert model.calls[0][0] == ["query"]
+
+
+def test_sentence_transformers_does_not_mask_specialized_method_type_error() -> None:
+    class InvalidQueryModel:
+        def encode(self, texts: list[str], **kwargs) -> np.ndarray:
+            raise AssertionError("Generic encode must not be used as an error fallback")
+
+        def encode_query(self, texts: list[str], **kwargs) -> np.ndarray:
+            raise TypeError("query encoding failed")
+
+    provider = make_sentence_transformers_provider(InvalidQueryModel())
+
+    with pytest.raises(TypeError, match="query encoding failed"):
+        provider.embed_text(["query"], task_type="retrieval_query")
+
+
+def test_sentence_transformers_retrieval_truncation_preserves_normalization_and_metadata() -> None:
+    model = FakeSentenceTransformer()
+    provider = make_sentence_transformers_provider(model)
+
+    result = provider.embed_text(["query"], task_type="retrieval_query", dimensions=2)
+
+    np.testing.assert_allclose(result.embeddings, [[0.6, 0.8]])
+    assert result.dimensions == 2
+    assert result.model_name == "fake-model"
+    assert result.provider == "sentence_transformers"
+    assert result.latency_ms >= 0.0
 
 
 def test_voyage_text_models_use_text_embedding_endpoint(monkeypatch) -> None:
