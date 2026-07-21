@@ -89,6 +89,34 @@ tasks:
     dataset_version: agent-procedural-tool-memory-v0
     tags: [agentic, memory, tool-retrieval, hard-negative, text]
 
+  - id: agent_skill_compatible_set_retrieval
+    display_name: Agent skill compatible-set retrieval fixture
+    task: agent_skill_compatible_set_retrieval
+    description: Deterministic invented fixture for multi-positive compatible-set routing diagnostics.
+    default_kwargs:
+      dataset_version: agent-skill-routing-fixture-v0
+      fixture_only: true
+    required_modalities: [text]
+    primary_metric: set_compat
+    metric_direction: higher
+    dataset_version: agent-skill-routing-fixture-v0
+    publish: false
+    tags: [agentic, skill-routing, compatible-set, text, fixture-only, no-publish]
+
+  - id: agent_skill_same_capability_risk
+    display_name: Agent skill same-capability risk fixture
+    task: agent_skill_same_capability_risk
+    description: Deterministic invented fixture for helpful retrieval and risky-sibling exposure diagnostics.
+    default_kwargs:
+      dataset_version: agent-skill-routing-fixture-v0
+      fixture_only: true
+    required_modalities: [text]
+    primary_metric: safe_helpful@3
+    metric_direction: higher
+    dataset_version: agent-skill-routing-fixture-v0
+    publish: false
+    tags: [agentic, skill-routing, same-capability, risk-exposure, text, fixture-only, no-publish]
+
   - id: late_chunking_retrieval
     display_name: Context-aware chunk retrieval fixture
     task: late_chunking_retrieval
