@@ -130,3 +130,17 @@ tasks:
     dataset_version: late-chunking-retrieval-fixture-v0
     publish: false
     tags: [rag, long-context, chunking, contextual, hard-negative, text, fixture-only, no-publish]
+
+  - id: code_edit_chunk_localization
+    display_name: Issue-to-edit chunk localization fixture
+    task: code_edit_chunk_localization
+    description: Deterministic invented full-repository fixture for issue-to-edit chunk localization.
+    default_kwargs:
+      dataset_version: code-edit-chunk-localization-fixture-v0
+      fixture_only: true
+    required_modalities: [text]
+    primary_metric: edit_chunk_ndcg@10
+    metric_direction: higher
+    dataset_version: code-edit-chunk-localization-fixture-v0
+    publish: false
+    tags: [code, localization, hard-negative, text, fixture-only, no-publish]
