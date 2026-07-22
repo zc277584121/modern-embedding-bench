@@ -1,5 +1,6 @@
 id: local-smoke
 description: Small local smoke run for validating benchmark v2 without API keys.
+evidence_tier: smoke
 models:
   - bge-m3-local
 tasks:

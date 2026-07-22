@@ -1,5 +1,6 @@
 id: core-text-standard
 description: Standard text benchmark pass for active text embedding models.
+evidence_tier: benchmark
 models:
   - openai-text-embedding-3-large
   - openai-text-embedding-3-small

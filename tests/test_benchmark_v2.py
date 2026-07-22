@@ -26,19 +26,24 @@ def test_default_catalog_and_run_manifests_load() -> None:
     assert catalog.models["geevec-lite-general"].publish is False
     assert catalog.models["geevec-api-general"].publish is False
 
-    for path in (
-        "benchmark/runs/api-coverage-smoke.yaml",
-        "benchmark/runs/api-modern-smoke.yaml",
-        "benchmark/runs/openai-smoke.yaml",
-        "benchmark/runs/local-smoke.yaml",
-        "benchmark/runs/core-text-standard.yaml",
-        "benchmark/runs/late-chunking-retrieval-local-smoke.yaml",
-    ):
+    expected_tiers = {
+        "benchmark/runs/api-coverage-smoke.yaml": "smoke",
+        "benchmark/runs/api-modern-smoke.yaml": "smoke",
+        "benchmark/runs/openai-smoke.yaml": "smoke",
+        "benchmark/runs/local-smoke.yaml": "smoke",
+        "benchmark/runs/core-text-standard.yaml": "benchmark",
+        "benchmark/runs/late-chunking-retrieval-local-smoke.yaml": "fixture",
+    }
+    for path, expected_tier in expected_tiers.items():
         manifest = load_run_manifest(path)
+        assert manifest.evidence_tier == expected_tier
         for model_id in manifest.model_ids:
             catalog.require_model(model_id)
         for run_task in manifest.tasks:
             catalog.require_task(run_task.id)
+
+    fixture_manifest = load_run_manifest("benchmark/runs/late-chunking-retrieval-local-smoke.yaml")
+    assert fixture_manifest.publish is False
 
 
 def test_leaderboard_backfills_primary_metric_from_catalog() -> None:
@@ -69,6 +74,29 @@ def test_leaderboard_backfills_primary_metric_from_catalog() -> None:
             "duration_s": 1.2,
         }
     ]
+
+
+def test_leaderboard_excludes_explicitly_unpublished_runs_but_keeps_historical_defaults() -> None:
+    catalog = load_catalog()
+    base_record = {
+        "timestamps": {"duration_s": 1.2},
+        "model": {"id": "model-a", "display_name": "Model A", "provider": "provider-a"},
+        "task": {
+            "id": "crosslingual_retrieval",
+            "display_name": "Crosslingual",
+            "primary_metric": "hard_avg_recall@1",
+        },
+        "metrics": {"hard_avg_recall@1": 0.75},
+        "error": None,
+    }
+    records = [
+        {**base_record, "run": {"id": "historical-default"}},
+        {**base_record, "run": {"id": "private-run", "publish": False}},
+    ]
+
+    rows = build_leaderboard(records, catalog)
+
+    assert [row["run_id"] for row in rows] == ["historical-default"]
 
 
 def test_unpublished_fixture_task_is_excluded_from_public_outputs(tmp_path) -> None:
@@ -141,6 +169,8 @@ def test_import_legacy_results_to_jsonl(tmp_path) -> None:
     assert count == 1
     assert records[0]["schema_version"] == "2.0"
     assert records[0]["run"]["id"] == "legacy:legacy"
+    assert records[0]["run"]["publish"] is True
+    assert records[0]["run"]["evidence_tier"] == "legacy"
     assert records[0]["model"]["id"] == "text-embedding-3-large"
     assert records[0]["task"]["id"] == "needle_in_haystack"
     assert records[0]["metrics"]["overall_accuracy"] == 1.0
@@ -174,7 +204,14 @@ def test_runner_overwrite_replaces_existing_jsonl(tmp_path) -> None:
             )
         },
     )
-    manifest = RunManifest(id="overwrite-test", model_ids=["inactive-model"], tasks=[RunTask(id="dummy_task")])
+    manifest = RunManifest(
+        id="overwrite-test",
+        model_ids=["inactive-model"],
+        tasks=[RunTask(id="dummy_task")],
+        metadata={"scope": "contract-test"},
+        publish=False,
+        evidence_tier="smoke",
+    )
 
     records = BenchmarkRunner(catalog=catalog, output=output, overwrite=True).run_manifest(manifest)
     written = load_jsonl(output)
@@ -183,6 +220,10 @@ def test_runner_overwrite_replaces_existing_jsonl(tmp_path) -> None:
     assert len(written) == 1
     assert "stale" not in written[0]
     assert written[0]["error"] == "model status is disabled"
+    assert written[0]["run"]["publish"] is False
+    assert written[0]["run"]["evidence_tier"] == "smoke"
+    assert written[0]["run"]["metadata"] == {"scope": "contract-test"}
+    assert "scope" not in written[0]
 
 
 def test_export_hf_dataset_skips_cache_artifacts(tmp_path) -> None:
@@ -250,6 +291,153 @@ def test_export_hf_dataset_filters_unpublished_models(tmp_path) -> None:
         assert "preview model" not in exported
 
     assert len(load_jsonl(output / "results" / "latest.jsonl")) == 1
+
+
+def test_export_hf_dataset_filters_unpublished_runs_in_both_leaderboard_paths(tmp_path) -> None:
+    results = tmp_path / "results.jsonl"
+    records = [
+        {
+            "run": {"id": "public-smoke", "evidence_tier": "smoke"},
+            "timestamps": {"duration_s": 1.0},
+            "model": {"id": "model-public", "display_name": "Public", "provider": "openai"},
+            "provider_result": {"provider": "openai", "model_name": "model-public"},
+            "task": {
+                "id": "needle_in_haystack",
+                "display_name": "Needle",
+                "primary_metric": "overall_accuracy",
+            },
+            "metrics": {"overall_accuracy": 0.9},
+            "error": None,
+        },
+        {
+            "run": {"id": "private-fixture", "publish": False, "evidence_tier": "fixture"},
+            "timestamps": {"duration_s": 0.5},
+            "model": {"id": "model-private-run", "display_name": "Private Run", "provider": "openai"},
+            "provider_result": {"provider": "openai", "model_name": "model-private-run"},
+            "task": {
+                "id": "needle_in_haystack",
+                "display_name": "Needle",
+                "primary_metric": "overall_accuracy",
+            },
+            "metrics": {"overall_accuracy": 1.0},
+            "error": None,
+        },
+        {
+            "run": {"id": "public-failed", "publish": True, "evidence_tier": "benchmark"},
+            "timestamps": {"duration_s": 0.2},
+            "model": {"id": "model-failed", "display_name": "Failed", "provider": "openai"},
+            "provider_result": {"provider": "openai", "model_name": "model-failed"},
+            "task": {
+                "id": "needle_in_haystack",
+                "display_name": "Needle",
+                "primary_metric": "overall_accuracy",
+            },
+            "metrics": {},
+            "error": "provider timeout",
+        },
+    ]
+    results.write_text("\n".join(json.dumps(record) for record in records) + "\n", encoding="utf-8")
+
+    leaderboard = tmp_path / "leaderboard.csv"
+    leaderboard.write_text(
+        "task_id,task,model_id,model,provider,primary_metric,score,run_id,duration_s\n"
+        "needle_in_haystack,Needle,model-public,Public,openai,overall_accuracy,0.9,public-smoke,1.0\n"
+        "needle_in_haystack,Needle,model-private-run,Private Run,openai,overall_accuracy,1.0,private-fixture,0.5\n",
+        encoding="utf-8",
+    )
+
+    for name, leaderboard_path in (("precomputed", leaderboard), ("results-only", None)):
+        output = export_dataset_repo(
+            output_dir=tmp_path / name,
+            results_path=results,
+            leaderboard_path=leaderboard_path,
+        )
+        exported_records = load_jsonl(output / "results" / "latest.jsonl")
+        successful_records = load_jsonl(output / "results" / "latest-successful.jsonl")
+        with open(output / "leaderboards" / "latest.csv", encoding="utf-8", newline="") as f:
+            rows = list(csv.DictReader(f))
+
+        assert [record["run"]["id"] for record in exported_records] == ["public-smoke", "public-failed"]
+        assert [record["run"]["id"] for record in successful_records] == ["public-smoke"]
+        assert [row["run_id"] for row in rows] == ["public-smoke"]
+        assert rows[0]["evidence_tier"] == "smoke"
+
+
+def test_explicit_evidence_metadata_wins_over_text_and_row_inference(tmp_path) -> None:
+    results = tmp_path / "results.jsonl"
+    records = [
+        {
+            "run": {
+                "id": "legacy-smoke-name",
+                "description": "Smoke legacy wording",
+                "metadata": {"legacy_source": "legacy/conflict.json"},
+                "evidence_tier": "benchmark",
+            },
+            "timestamps": {"duration_s": 1.0},
+            "model": {
+                "id": "model-explicit",
+                "display_name": "Explicit",
+                "provider": "openai",
+                "access": "legacy",
+                "tags": ["smoke"],
+            },
+            "provider_result": {"provider": "openai", "model_name": "model-explicit"},
+            "task": {
+                "id": "needle_in_haystack",
+                "display_name": "Needle",
+                "primary_metric": "overall_accuracy",
+                "tags": ["legacy"],
+            },
+            "metrics": {"overall_accuracy": 0.9},
+            "error": None,
+        },
+        {
+            "run": {"id": "smoke-inferred"},
+            "timestamps": {"duration_s": 1.0},
+            "model": {"id": "model-row", "display_name": "Row", "provider": "openai", "tags": ["smoke"]},
+            "provider_result": {"provider": "openai", "model_name": "model-row"},
+            "task": {
+                "id": "needle_in_haystack",
+                "display_name": "Needle",
+                "primary_metric": "overall_accuracy",
+            },
+            "metrics": {"overall_accuracy": 0.8},
+            "error": None,
+        },
+        {
+            "run": {"id": "legacy:historical", "metadata": {"legacy_source": "legacy/old.json"}},
+            "timestamps": {"duration_s": 1.0},
+            "model": {"id": "model-legacy", "display_name": "Legacy", "provider": "openai"},
+            "provider_result": {"provider": "openai", "model_name": "model-legacy"},
+            "task": {
+                "id": "needle_in_haystack",
+                "display_name": "Needle",
+                "primary_metric": "overall_accuracy",
+            },
+            "metrics": {"overall_accuracy": 0.7},
+            "error": None,
+        },
+    ]
+    results.write_text("\n".join(json.dumps(record) for record in records) + "\n", encoding="utf-8")
+
+    leaderboard = tmp_path / "leaderboard.csv"
+    leaderboard.write_text(
+        "task_id,task,model_id,model,provider,primary_metric,score,run_id,duration_s,evidence_tier\n"
+        "needle_in_haystack,Needle,model-explicit,Explicit,openai,overall_accuracy,0.9,legacy-smoke-name,1.0,fixture\n"
+        "needle_in_haystack,Needle,model-row,Row,openai,overall_accuracy,0.8,smoke-inferred,1.0,fixture\n"
+        "needle_in_haystack,Needle,model-legacy,Legacy,openai,overall_accuracy,0.7,legacy:historical,1.0,\n",
+        encoding="utf-8",
+    )
+
+    output = export_dataset_repo(
+        output_dir=tmp_path / "dataset",
+        results_path=results,
+        leaderboard_path=leaderboard,
+    )
+    with open(output / "leaderboards" / "latest.csv", encoding="utf-8", newline="") as f:
+        rows = list(csv.DictReader(f))
+
+    assert [row["evidence_tier"] for row in rows] == ["benchmark", "fixture", "legacy"]
 
 
 def test_export_hf_dataset_marks_leaderboard_provenance_and_latest(tmp_path) -> None:

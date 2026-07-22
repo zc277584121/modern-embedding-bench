@@ -102,7 +102,7 @@ uv run python scripts/build_leaderboard.py --results results/benchmark-v2.jsonl
 Each evaluation writes one JSONL record per model-task pair. Records include:
 
 - schema version
-- run id and metadata
+- run id, metadata, publication intent, and normalized evidence tier
 - git sha
 - model spec id and provider kwargs without secrets
 - task spec id and task kwargs
@@ -115,6 +115,12 @@ Legacy JSON result files can be converted:
 uv run python scripts/import_legacy_results.py legacy/results/eval_rerun_bugfix_20260315.json \
   --output results/legacy-import.jsonl
 ```
+
+New result records store `run.publish` and `run.evidence_tier` (`legacy`,
+`smoke`, `benchmark`, `fixture`, or `unknown`). Explicit `publish: false`
+records are kept out of public result and leaderboard exports. Historical v2
+records without `run.publish` remain public by default, and older evidence
+metadata continues to use compatibility classification.
 
 ## Hugging Face Publishing
 

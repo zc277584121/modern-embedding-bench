@@ -46,6 +46,8 @@ def build_leaderboard(records: list[dict[str, Any]], catalog: BenchmarkCatalog |
     for record in records:
         if record.get("error"):
             continue
+        if (record.get("run") or {}).get("publish") is False:
+            continue
         task_info = record.get("task") or {}
         task_id = task_info.get("id")
         if task_info.get("publish") is False:

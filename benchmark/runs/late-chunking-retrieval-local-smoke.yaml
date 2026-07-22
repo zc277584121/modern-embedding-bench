@@ -1,6 +1,7 @@
 id: late-chunking-retrieval-local-smoke
 description: Deterministic zero-network grouped-chunk contract fixture; no model or provider run.
 publish: false
+evidence_tier: fixture
 models: []
 tasks:
   - id: late_chunking_retrieval

@@ -15,6 +15,15 @@ import yaml
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_BENCHMARK_ROOT = REPO_ROOT / "benchmark"
+EVIDENCE_TIER_ALIASES = {
+    "benchmark": "benchmark",
+    "fixture": "fixture",
+    "fixture_only": "fixture",
+    "legacy": "legacy",
+    "smoke": "smoke",
+    "standard": "benchmark",
+    "unknown": "unknown",
+}
 
 
 def _read_yaml(path: Path) -> dict[str, Any]:
@@ -23,6 +32,14 @@ def _read_yaml(path: Path) -> dict[str, Any]:
     if not isinstance(data, dict):
         raise ValueError(f"Expected mapping in {path}")
     return data
+
+
+def normalize_evidence_tier(value: Any, *, default: str = "unknown") -> str:
+    """Normalize manifest and historical evidence labels for publication."""
+    if value is None or not str(value).strip():
+        return default
+    key = str(value).strip().lower().replace("-", "_").replace(" ", "_")
+    return EVIDENCE_TIER_ALIASES.get(key, default)
 
 
 @dataclass(frozen=True)
@@ -138,6 +155,7 @@ class RunManifest:
     tasks: list[RunTask] = field(default_factory=list)
     metadata: dict[str, Any] = field(default_factory=dict)
     publish: bool = True
+    evidence_tier: str = "benchmark"
 
 
 @dataclass(frozen=True)
@@ -194,11 +212,23 @@ def load_run_manifest(path: str | Path) -> RunManifest:
     data = _read_yaml(run_path)
     if "id" not in data:
         raise ValueError(f"Run manifest {run_path} is missing id")
+    metadata = dict(data.get("metadata") or {})
+    explicit_evidence_tier = data.get("evidence_tier")
+    if explicit_evidence_tier is not None:
+        evidence_tier = normalize_evidence_tier(explicit_evidence_tier)
+        if evidence_tier == "unknown" and str(explicit_evidence_tier).strip().lower() != "unknown":
+            raise ValueError(f"Run manifest {run_path} has unsupported evidence_tier: {explicit_evidence_tier}")
+    else:
+        evidence_tier = normalize_evidence_tier(
+            metadata.get("evidence_tier", metadata.get("tier")),
+            default="benchmark",
+        )
     return RunManifest(
         id=str(data["id"]),
         description=str(data.get("description", "")),
         model_ids=[str(item) for item in data.get("models", [])],
         tasks=[RunTask.from_value(item) for item in data.get("tasks", [])],
-        metadata=dict(data.get("metadata") or {}),
+        metadata=metadata,
         publish=bool(data.get("publish", True)),
+        evidence_tier=evidence_tier,
     )

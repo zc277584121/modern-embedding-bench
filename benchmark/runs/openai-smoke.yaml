@@ -1,5 +1,6 @@
 id: openai-smoke
 description: Small OpenAI smoke run for validating benchmark v2 plumbing.
+evidence_tier: smoke
 models:
   - openai-text-embedding-3-large
 tasks:

@@ -13,7 +13,13 @@ from typing import Any
 import yaml
 
 from mm_embed.benchmark.leaderboard import build_leaderboard, primary_metric_value
-from mm_embed.benchmark.registry import BenchmarkCatalog, ModelSpec, load_catalog, load_run_manifest
+from mm_embed.benchmark.registry import (
+    BenchmarkCatalog,
+    ModelSpec,
+    load_catalog,
+    load_run_manifest,
+    normalize_evidence_tier,
+)
 from mm_embed.benchmark.results import json_safe, load_jsonl
 
 
@@ -111,11 +117,14 @@ def _public_records(
 ) -> list[dict[str, Any]]:
     public = []
     for record in records:
+        run = record.get("run") or {}
         model = record.get("model") or {}
         provider_result = record.get("provider_result") or {}
         task = record.get("task") or {}
         providers = {str(model.get("provider") or ""), str(provider_result.get("provider") or "")}
         model_ids = {str(model.get("id") or ""), str(provider_result.get("model_name") or "")}
+        if run.get("publish") is False:
+            continue
         if private_model_ids.intersection(model_ids):
             continue
         if PUBLIC_EXCLUDED_PROVIDERS.intersection(providers):
@@ -163,13 +172,21 @@ def _public_leaderboard_rows(
     rows: list[dict[str, Any]],
     private_model_ids: set[str],
     private_task_ids: set[str],
+    result_records: list[dict[str, Any]] | None = None,
 ) -> list[dict[str, Any]]:
+    unpublished_run_keys = {
+        _record_leaderboard_key(record)
+        for record in result_records or []
+        if (record.get("run") or {}).get("publish") is False
+    }
     public = []
     for row in rows:
         provider = str(row.get("provider") or "")
         model_id = str(row.get("model_id") or "")
         model = str(row.get("model") or "")
         task_id = str(row.get("task_id") or "")
+        if _leaderboard_row_key(row) in unpublished_run_keys:
+            continue
         if provider in PUBLIC_EXCLUDED_PROVIDERS:
             continue
         if model_id in private_model_ids:
@@ -206,7 +223,25 @@ def _record_leaderboard_key(record: dict[str, Any]) -> tuple[str, str, str]:
     )
 
 
+def _explicit_record_evidence_tier(record: dict[str, Any]) -> str | None:
+    run = record.get("run") or {}
+    metadata = run.get("metadata") or {}
+    for value in (
+        run.get("evidence_tier"),
+        record.get("evidence_tier"),
+        metadata.get("evidence_tier"),
+        metadata.get("tier"),
+    ):
+        if value is not None and str(value).strip():
+            return normalize_evidence_tier(value)
+    return None
+
+
 def _record_evidence_tier(record: dict[str, Any]) -> str:
+    explicit_tier = _explicit_record_evidence_tier(record)
+    if explicit_tier is not None:
+        return explicit_tier
+
     run = record.get("run") or {}
     model = record.get("model") or {}
     task = record.get("task") or {}
@@ -230,6 +265,8 @@ def _record_evidence_tier(record: dict[str, Any]) -> str:
 
 
 def _row_evidence_tier(row: dict[str, Any]) -> str:
+    if row.get("evidence_tier") is not None and str(row["evidence_tier"]).strip():
+        return normalize_evidence_tier(row["evidence_tier"])
     run_id = str(row.get("run_id") or "").lower()
     if run_id.startswith("legacy:") or "legacy" in run_id:
         return "legacy"
@@ -257,10 +294,12 @@ def _leaderboard_provenance_by_key(
     for index, record in enumerate(records):
         if record.get("error") or primary_metric_value(record, catalog) is None:
             continue
+        explicit_tier = _explicit_record_evidence_tier(record)
         provenance[_record_leaderboard_key(record)].append(
             {
                 "_source_index": index,
                 "evidence_tier": _record_evidence_tier(record),
+                "evidence_tier_explicit": explicit_tier is not None,
                 "evidence_source": _record_evidence_source(record),
             }
         )
@@ -280,7 +319,17 @@ def _enrich_leaderboard_rows(
         matches = provenance.get(_leaderboard_row_key(row)) or []
         match = matches.pop(0) if matches else {}
         row["_source_index"] = match.get("_source_index", index)
-        row["evidence_tier"] = match.get("evidence_tier") or row.get("evidence_tier") or _row_evidence_tier(row)
+        explicit_row_tier = (
+            normalize_evidence_tier(row["evidence_tier"])
+            if row.get("evidence_tier") is not None and str(row["evidence_tier"]).strip()
+            else None
+        )
+        if match.get("evidence_tier_explicit"):
+            row["evidence_tier"] = match["evidence_tier"]
+        elif explicit_row_tier is not None:
+            row["evidence_tier"] = explicit_row_tier
+        else:
+            row["evidence_tier"] = match.get("evidence_tier") or _row_evidence_tier(row)
         row["evidence_source"] = match.get("evidence_source") or row.get("evidence_source") or ""
 
     groups: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
@@ -424,7 +473,7 @@ https://github.com/zc277584121/modern-embedding-bench
 
 Each line in `results/latest.jsonl` is one model-task run. Important fields:
 
-- `run`: run id, description, metadata, and git sha when available
+- `run`: run id, description, metadata, publication intent, normalized evidence tier, and git sha when available
 - `model`: model id, display name, provider, modalities, dimensions, and tags
 - `task`: task id, dataset version, primary metric, and task kwargs
 - `metrics`: task-specific metric dictionary
@@ -437,7 +486,7 @@ Each line in `results/latest.jsonl` is one model-task run. Important fields:
 runs for the same `task_id` and `model_id`. The first columns remain compatible
 with older CSV readers, and provenance columns are appended:
 
-- `evidence_tier`: `legacy`, `smoke`, `benchmark`, or `unknown`
+- `evidence_tier`: `legacy`, `smoke`, `benchmark`, `fixture`, or `unknown`
 - `evidence_source`: legacy source file, git sha, or run id when available
 - `task_model_duplicate_count`: rows kept for the same task/model pair
 - `task_model_run_rank`: 1-based order for that task/model pair
@@ -475,6 +524,8 @@ uv run modern-embed-bench benchmark leaderboard \\
 
 - Rows imported from legacy runs are published for continuity and should be read
   as historical baseline evidence, not as a fully normalized one-shot run.
+- Explicitly unpublished runs are excluded from public result and leaderboard
+  artifacts; historical records without a publication field remain public.
 - Scores are task-specific. Avoid comparing scores across tasks as if they were
   one global ranking.
 - Some preview or private-in-progress model results are intentionally excluded
@@ -516,6 +567,7 @@ def export_dataset_repo(
     private_model_ids = {model.id for model in catalog.models.values() if not _is_public_model(model)}
     public_tasks = [task for task in catalog.tasks.values() if task.publish]
     private_task_ids = {task.id for task in catalog.tasks.values() if not task.publish}
+    result_records: list[dict[str, Any]] = []
     public_records: list[dict[str, Any]] = []
     leaderboard_rows: list[dict[str, Any]] = []
 
@@ -531,13 +583,19 @@ def export_dataset_repo(
 
     if results_path:
         result_src = Path(results_path)
-        public_records = _public_records(load_jsonl(result_src), private_model_ids, private_task_ids)
+        result_records = load_jsonl(result_src)
+        public_records = _public_records(result_records, private_model_ids, private_task_ids)
         _write_jsonl(output / "results" / "latest.jsonl", public_records)
         _write_jsonl(output / "results" / "latest-successful.jsonl", [r for r in public_records if not r.get("error")])
 
     if leaderboard_path:
         rows, fieldnames = _read_leaderboard_csv(Path(leaderboard_path))
-        leaderboard_rows = _public_leaderboard_rows(rows, private_model_ids, private_task_ids)
+        leaderboard_rows = _public_leaderboard_rows(
+            rows,
+            private_model_ids,
+            private_task_ids,
+            result_records=result_records,
+        )
         leaderboard_rows = _enrich_leaderboard_rows(leaderboard_rows, result_records=public_records, catalog=catalog)
         _write_leaderboard_csv_rows(
             output / "leaderboards" / "latest.csv",

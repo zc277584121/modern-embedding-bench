@@ -6,6 +6,11 @@
   "properties": {
     "id": {"type": "string"},
     "description": {"type": "string"},
+    "publish": {"type": "boolean", "default": true},
+    "evidence_tier": {
+      "type": "string",
+      "enum": ["legacy", "smoke", "benchmark", "fixture", "unknown"]
+    },
     "models": {"type": "array", "items": {"type": "string"}},
     "tasks": {
       "type": "array",

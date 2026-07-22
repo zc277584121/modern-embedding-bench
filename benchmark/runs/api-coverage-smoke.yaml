@@ -1,5 +1,6 @@
 id: api-coverage-smoke
 description: Tiny API smoke run covering active MRL-capable API provider families.
+evidence_tier: smoke
 models:
   - openai-text-embedding-3-small
   - voyage-4-lite

@@ -81,6 +81,8 @@ def make_result_record(
             "id": run.id,
             "description": run.description,
             "metadata": run.metadata,
+            "publish": run.publish,
+            "evidence_tier": run.evidence_tier,
             "git_sha": current_git_sha(),
         },
         "timestamps": {
@@ -156,6 +158,8 @@ def import_legacy_result_file(path: str | Path, output: str | Path) -> int:
                 "id": f"legacy:{input_path.stem}",
                 "description": "Imported legacy result",
                 "metadata": {"legacy_source": str(input_path)},
+                "publish": True,
+                "evidence_tier": "legacy",
                 "git_sha": None,
             },
             "timestamps": {

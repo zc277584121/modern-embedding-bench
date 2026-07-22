@@ -5,7 +5,21 @@
   "required": ["schema_version", "run", "timestamps", "model", "task", "provider_result", "metrics", "details", "error"],
   "properties": {
     "schema_version": {"type": "string"},
-    "run": {"type": "object"},
+    "run": {
+      "type": "object",
+      "properties": {
+        "id": {"type": "string"},
+        "description": {"type": "string"},
+        "metadata": {"type": "object"},
+        "publish": {"type": "boolean", "default": true},
+        "evidence_tier": {
+          "type": "string",
+          "enum": ["legacy", "smoke", "benchmark", "fixture", "unknown"]
+        },
+        "git_sha": {"type": ["string", "null"]}
+      },
+      "additionalProperties": true
+    },
     "timestamps": {"type": "object"},
     "model": {"type": "object"},
     "task": {"type": "object"},
