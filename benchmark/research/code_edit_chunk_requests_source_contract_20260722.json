@@ -1,0 +1,45 @@
+{
+  "contract_version": "requests-1920-source-contract-v0",
+  "repository_id": "psf/requests",
+  "issue_number": 1920,
+  "pr_number": 1921,
+  "base_commit": "3c88e520da24ae6f736929a750876e7654accc3d",
+  "tree_sha": "cf441cdcaa76806a078893bffa79922351a92b0a",
+  "pr_head_sha": "d2f647cee45fd05cc1977cc3faf4b095b5047b29",
+  "expected_changed_paths": [
+    "requests/sessions.py",
+    "test_requests.py"
+  ],
+  "license_path": "LICENSE",
+  "license_blob_sha": "8c5e758401020484b74d00c0aa75debfc7b65155",
+  "license_sha256": "89478f1915fbb6b6585a685d071bf006ba5649d2615fab787f66e9693c622ae4",
+  "query_text_sha256": "7477e0b63d5762a786126ed6441fe849d391b3adcaa56ae56b1229a796b61ee0",
+  "source_sha256": {
+    "archive": "0f6375a24b3322b74234f1a6c12d7759c304e9c4c4739ad059d30072deda8269",
+    "patch": "aa2328cd30a6815cdaf612ccc4dcb7a2626870368948bfe4c96225b4216abfaf"
+  },
+  "caps": {
+    "archive_bytes": 10000000,
+    "extracted_regular_file_bytes": 25000000,
+    "stage_a_candidate_bytes": 2000000,
+    "eligible_normalized_text_bytes": 5000000,
+    "tracked_files": 500,
+    "chunks": 1000,
+    "target_rss_bytes": 268435456,
+    "wall_seconds": 1800
+  },
+  "chunking": {
+    "definition_window_lines": 120,
+    "definition_overlap_lines": 20,
+    "fallback_window_lines": 80,
+    "fallback_overlap_lines": 10
+  },
+  "publish": false,
+  "evidence_tier": "smoke",
+  "query_review": {
+    "answer_leak_review": "pass",
+    "privacy_review": "pass",
+    "prompt_injection_review": "pass",
+    "secret_review": "pass"
+  }
+}

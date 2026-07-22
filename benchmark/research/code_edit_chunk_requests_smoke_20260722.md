@@ -198,11 +198,57 @@ git diff --check
 The transient bounded runner was 1,123 lines with SHA-256
 `49110ef86d28418d49fa08c5fdb30b8c03f972068524ab4b6cd302b3761834ce`.
 It was removed after evidence capture and is not an intended repository
-artifact. Because the transient runner was not retained, the recorded inputs,
-hashes, parameters, commands, checks, and outcomes make this evidence
-auditable, but this note is not a one-command exact rerun artifact. A
-one-command exact rerun requires a separately selected and accepted tracked
-materializer.
+artifact. The separately selected follow-up now provides a tracked,
+project-owned materializer and pinned source contract:
+
+```bash
+uv run --no-sync python scripts/materialize_code_edit_source.py \
+  --config benchmark/research/code_edit_chunk_requests_source_contract_20260722.json
+```
+
+The reusable path keeps the same source identities, Stage A/Stage B policy,
+120/20 definition windows, 80/10 fallback windows, patch mapping rules, caps,
+no-publish state, and cleanup contract. It emits a small source-free canonical
+summary instead of retaining the archive, checkout, corpus, chunks, or qrels.
+Its versioned manifest serialization is new and therefore is not byte-identical
+to the removed transient runner's unpublished manifest serialization.
+The configured deadline is enforced inside Python, and `SIGTERM` is handled as
+a cleanup-safe BLOCKED result instead of relying on an external timeout to
+terminate the process.
+
+### Reusable materializer verification
+
+A live run of the reusable materialization, chunking, and mapping algorithm
+passed with the same 121 tracked blobs, 99 eligible files, 865,106 normalized
+bytes, 974 chunks, exact chunk-family counts, two grade-2 qrels, and
+`candidate_coverage: 1.0`. The versioned reusable manifests were:
+
+- file-audit manifest:
+  `943673526ebed864f05e691af93814e14814470b63ebed995428554a6457156e`;
+- corpus manifest:
+  `bef2193442b191020319beea3bade489da01cbe1351c0ec449f7eda85a84930b`;
+- chunk manifest:
+  `b2ef8ac1a36639b9553d50097c849a57ad3732350ae71aaf50975f4e4f258d7e`;
+  and
+- qrel manifest:
+  `52961413251a57c480d3a44d53fb339e537fbc5998503d0aee52b50be1184642`.
+
+That PASS used 62,021,632 peak RSS bytes, completed in 8.585 seconds, and
+removed `/tmp/meb-code-edit-source-rlja99r9`. A final repeat after adding only
+observed-byte fields to the summary was BLOCKED at the first GitHub API request
+by the anonymous rate limit; it completed in 0.801 seconds and removed
+`/tmp/meb-code-edit-source-nm_irex5`. The reusable zero-network tests and full
+repository test suite passed after that summary-only change. No source gate was
+weakened to bypass the external rate limit.
+
+Before acceptance, the reusable runner's wall-clock boundary was tightened so
+the configured deadline interrupts blocked work instead of being checked only
+after materialization. The same guard converts `SIGTERM` into a controlled
+BLOCKED result, disables the alarm and ignores repeated TERM while removing the
+dedicated path, then restores the prior signal handlers. Zero-network tests use
+a five-second blocking fetch to verify a one-second deadline and send a real
+SIGTERM to verify cleanup. The final focused materializer suite passed 16 tests,
+and the full repository suite passed 88 tests.
 
 There were three non-source-gate corrections before the authoritative run:
 

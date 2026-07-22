@@ -97,6 +97,33 @@ uv run python scripts/run_benchmark.py --manifest benchmark/runs/openai-smoke.ya
 uv run python scripts/build_leaderboard.py --results results/benchmark-v2.jsonl
 ```
 
+## Reproduce The Pinned Code-Source Contract Smoke
+
+The accepted `psf/requests` issue-to-edit source contract can be materialized
+locally without model scoring or publication. The command verifies pinned
+GitHub metadata and payload hashes, applies the Stage A/Stage B eligibility
+policy, builds deterministic chunks and patch-derived qrels under explicit
+caps, prints a source-free evidence summary, and removes its dedicated
+temporary path on PASS, FAILED, or BLOCKED:
+
+```bash
+uv run --no-sync python scripts/materialize_code_edit_source.py \
+  --config benchmark/research/code_edit_chunk_requests_source_contract_20260722.json
+```
+
+The configured `wall_seconds` deadline is enforced inside the Python process,
+including while a source request is blocked. `SIGTERM` is converted into a
+controlled stop, the deadline is disabled while the dedicated path is removed,
+and the prior process signal handlers are restored afterward. An external
+`timeout` wrapper is therefore not required for the 30-minute bound.
+
+This path uses one repository and one issue, caps the archive at 10 MB,
+extracted regular files at 25 MB, each Stage A candidate at 2 MB, eligible
+normalized text at 5 MB, tracked files at 500, chunks at 1,000, target RSS at
+256 MiB, and wall time at 30 minutes. It does not call provider APIs, download
+models or datasets, retain third-party source, register a public task or score,
+or perform any Hugging Face operation.
+
 ## Result Shape
 
 Each evaluation writes one JSONL record per model-task pair. Records include:
