@@ -111,6 +111,7 @@ def make_result_record(
             "primary_metric": task.primary_metric,
             "metric_direction": task.metric_direction,
             "publish": task.publish,
+            "leaderboard_publish": task.leaderboard_publish,
             "kwargs": run_task.kwargs,
             "tags": task.tags,
         },

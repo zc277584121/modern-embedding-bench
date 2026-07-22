@@ -1,0 +1,32 @@
+id: composed-media-retrieval-local-smoke
+description: Deterministic zero-network composed-media contract fixture; no model or provider run.
+publish: false
+evidence_tier: fixture
+models: []
+tasks:
+  - id: composed_media_retrieval
+metadata:
+  tier: fixture_only
+  dataset_version: composed-media-retrieval-fixture-v0
+  fixture_only: true
+  not_for_publication: true
+  leaderboard_publish: false
+  network: forbidden
+  provider_api_calls: 0
+  model_downloads: 0
+  dataset_downloads: 0
+  hugging_face_operations: 0
+  queries: 12
+  corpus_items: 12
+  video_manifests: 6
+  frames_per_video: 16
+  still_references: 6
+  audio_clips: 6
+  positive_qrels: 16
+  hard_negatives_per_query: 3
+  hard_negative_families: 7
+  labels:
+    provider_valid: provider_valid_embedding
+    system_fusion: benchmark_system_fusion
+    reranker: reranker_system_only
+    fixture: contract_fixture_only

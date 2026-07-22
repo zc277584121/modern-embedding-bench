@@ -131,6 +131,21 @@ tasks:
     publish: false
     tags: [rag, long-context, chunking, contextual, hard-negative, text, fixture-only, no-publish]
 
+  - id: composed_media_retrieval
+    display_name: Composed-media retrieval fixture
+    task: composed_media_retrieval
+    description: Deterministic ordered heterogeneous-item contract and retrieval metric fixture.
+    default_kwargs:
+      dataset_version: composed-media-retrieval-fixture-v0
+      fixture_only: true
+    required_modalities: [text, image, video, audio]
+    primary_metric: composed_ndcg@10
+    metric_direction: higher
+    dataset_version: composed-media-retrieval-fixture-v0
+    publish: false
+    leaderboard_publish: false
+    tags: [multimodal, composed-media, hard-negative, fixture-only, no-publish]
+
   - id: code_edit_chunk_localization
     display_name: Issue-to-edit chunk localization fixture
     task: code_edit_chunk_localization

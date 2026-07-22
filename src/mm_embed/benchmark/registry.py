@@ -103,6 +103,7 @@ class TaskSpec:
     metric_direction: str = "higher"
     dataset_version: str = "unknown"
     publish: bool = True
+    leaderboard_publish: bool = True
     tags: list[str] = field(default_factory=list)
 
     @classmethod
@@ -122,6 +123,7 @@ class TaskSpec:
             metric_direction=str(data.get("metric_direction", "higher")),
             dataset_version=str(data.get("dataset_version", "unknown")),
             publish=bool(data.get("publish", True)),
+            leaderboard_publish=bool(data.get("leaderboard_publish", data.get("publish", True))),
             tags=list(data.get("tags") or []),
         )
 

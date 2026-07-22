@@ -387,13 +387,14 @@ def _write_dataset_card(
     *,
     catalog: BenchmarkCatalog,
     public_models: list,
+    public_tasks: list,
     excluded_private_models: int,
     result_stats: dict[str, int],
     leaderboard_stats: dict[str, Any],
     include_data: bool,
 ) -> None:
     task_rows = []
-    for task in sorted(catalog.tasks.values(), key=lambda item: item.id):
+    for task in sorted(public_tasks, key=lambda item: item.id):
         note = TASK_NOTES.get(task.id, {})
         task_rows.append(
             "| {id} | {name} | {metric} | {summary} |".format(
@@ -452,7 +453,7 @@ https://github.com/zc277584121/modern-embedding-bench
 - Registry model specs: {len(catalog.models)}
 - Public model specs exported: {len(public_models)}
 - Excluded private or preview model specs: {excluded_private_models}
-- Task specs: {len(catalog.tasks)}
+- Public task specs exported: {len(public_tasks)}
 - Result records: {result_note}
 - Leaderboard rows: {leaderboard_stats["rows"]}
 - Tasks with leaderboard rows: {leaderboard_stats["tasks"]}
@@ -565,8 +566,10 @@ def export_dataset_repo(
 
     public_models = [model for model in catalog.models.values() if _is_public_model(model)]
     private_model_ids = {model.id for model in catalog.models.values() if not _is_public_model(model)}
-    public_tasks = [task for task in catalog.tasks.values() if task.publish]
-    private_task_ids = {task.id for task in catalog.tasks.values() if not task.publish}
+    public_tasks = [task for task in catalog.tasks.values() if task.publish and task.leaderboard_publish]
+    private_task_ids = {
+        task.id for task in catalog.tasks.values() if not task.publish or not task.leaderboard_publish
+    }
     result_records: list[dict[str, Any]] = []
     public_records: list[dict[str, Any]] = []
     leaderboard_rows: list[dict[str, Any]] = []
@@ -624,6 +627,7 @@ def export_dataset_repo(
         output / "README.md",
         catalog=catalog,
         public_models=public_models,
+        public_tasks=public_tasks,
         excluded_private_models=len(private_model_ids),
         result_stats=_result_stats(public_records),
         leaderboard_stats=_leaderboard_stats(leaderboard_rows),
@@ -706,7 +710,9 @@ def export_space_repo(
     if bundled_leaderboard:
         rows, fieldnames = _read_leaderboard_csv(Path(bundled_leaderboard))
         catalog = load_catalog()
-        private_task_ids = {task.id for task in catalog.tasks.values() if not task.publish}
+        private_task_ids = {
+            task.id for task in catalog.tasks.values() if not task.publish or not task.leaderboard_publish
+        }
         public_rows = _public_leaderboard_rows(rows, set(), private_task_ids)
         _write_leaderboard_csv_rows(output / "leaderboard.csv", public_rows, fieldnames)
     else:

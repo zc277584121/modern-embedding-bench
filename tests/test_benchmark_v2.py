@@ -33,6 +33,7 @@ def test_default_catalog_and_run_manifests_load() -> None:
         "benchmark/runs/local-smoke.yaml": "smoke",
         "benchmark/runs/core-text-standard.yaml": "benchmark",
         "benchmark/runs/late-chunking-retrieval-local-smoke.yaml": "fixture",
+        "benchmark/runs/composed-media-retrieval-local-smoke.yaml": "fixture",
     }
     for path, expected_tier in expected_tiers.items():
         manifest = load_run_manifest(path)

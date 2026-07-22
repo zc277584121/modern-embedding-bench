@@ -52,7 +52,11 @@ def build_leaderboard(records: list[dict[str, Any]], catalog: BenchmarkCatalog |
         task_id = task_info.get("id")
         if task_info.get("publish") is False:
             continue
+        if task_info.get("leaderboard_publish") is False:
+            continue
         if catalog and task_id in catalog.tasks and not catalog.tasks[task_id].publish:
+            continue
+        if catalog and task_id in catalog.tasks and not catalog.tasks[task_id].leaderboard_publish:
             continue
         value = primary_metric_value(record, catalog)
         if value is None:

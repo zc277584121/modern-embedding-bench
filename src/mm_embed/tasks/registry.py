@@ -30,6 +30,10 @@ TASK_REGISTRY: dict[str, tuple[str, str]] = {
         "mm_embed.tasks.late_chunking_retrieval",
         "LateChunkingRetrievalTask",
     ),
+    "composed_media_retrieval": (
+        "mm_embed.tasks.composed_media_retrieval",
+        "ComposedMediaRetrievalTask",
+    ),
     "code_edit_chunk_localization": (
         "mm_embed.tasks.code_edit_chunk_localization",
         "CodeEditChunkLocalizationTask",
