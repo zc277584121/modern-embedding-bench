@@ -386,12 +386,51 @@ def test_export_hf_dataset_marks_leaderboard_provenance_and_latest(tmp_path) -> 
     assert "smoke: 1" in manifest_text
 
 
-def test_export_hf_space_bundles_leaderboard(tmp_path) -> None:
+def _load_generated_space_app(output, monkeypatch):
+    import sys
+    import types
+
+    class DataFrame:
+        def __init__(self, rows=None, columns=None):
+            source_rows = list(rows or [])
+            self._rows = (
+                [{column: row.get(column) for column in columns} for row in source_rows]
+                if columns is not None
+                else source_rows
+            )
+            self.index = range(len(self._rows))
+
+        @property
+        def empty(self):
+            return not self._rows
+
+        def to_dict(self, orient):
+            assert orient == "records"
+            return [dict(row) for row in self._rows]
+
+    pandas = types.ModuleType("pandas")
+    pandas.DataFrame = DataFrame
+    monkeypatch.setitem(sys.modules, "pandas", pandas)
+    monkeypatch.setitem(sys.modules, "gradio", types.ModuleType("gradio"))
+    namespace = {"__name__": "generated_space_app"}
+    monkeypatch.chdir(output)
+    app_path = output / "app.py"
+    exec(compile(app_path.read_text(encoding="utf-8"), str(app_path), "exec"), namespace)
+    return namespace
+
+
+def test_export_hf_space_bundles_current_evidence_view(tmp_path, monkeypatch) -> None:
     leaderboard = tmp_path / "leaderboard.csv"
     leaderboard.write_text(
-        "task_id,model,score\n"
-        "mrl,model-a,1.0\n"
-        "late_chunking_retrieval,fixture-model,1.0\n",
+        "task_id,task,model_id,model,provider,primary_metric,score,run_id,duration_s,evidence_tier,"
+        "evidence_source,task_model_duplicate_count,task_model_run_rank,is_latest_for_task_model\n"
+        "needle_in_haystack,Needle,model-a,Model A,openai,overall_accuracy,0.4,legacy:a,1.0,legacy,old,2,1,false\n"
+        "needle_in_haystack,Needle,model-a,Model A,openai,overall_accuracy,0.8,benchmark:a,0.8,benchmark,new,2,2,true\n"
+        "needle_in_haystack,Needle,model-b,Model B,openai,overall_accuracy,0.7,benchmark:b,0.7,,new,1,1,true\n"
+        "needle_in_haystack,Needle,model-c,Model C,local,overall_accuracy,0.9,legacy:c,0.6,legacy,new,1,1,true\n"
+        "mrl_stress,MRL,model-a,Model A,openai,spearman,0.6,smoke:mrl,0.5,smoke,new,1,1,true\n"
+        "late_chunking_retrieval,Fixture,fixture-model,Fixture Model,local,chunk_ndcg@10,1.0,fixture,0.0,"
+        "smoke,fixture,1,1,true\n",
         encoding="utf-8",
     )
 
@@ -400,5 +439,61 @@ def test_export_hf_space_bundles_leaderboard(tmp_path) -> None:
     assert (output / "README.md").exists()
     assert (output / "app.py").exists()
     compile((output / "app.py").read_text(encoding="utf-8"), str(output / "app.py"), "exec")
-    assert (output / "leaderboard.csv").read_text(encoding="utf-8").startswith("task_id,model,score")
-    assert "late_chunking_retrieval" not in (output / "leaderboard.csv").read_text(encoding="utf-8")
+    bundled_text = (output / "leaderboard.csv").read_text(encoding="utf-8")
+    assert "legacy:a" in bundled_text
+    assert "benchmark:a" in bundled_text
+    assert "late_chunking_retrieval" not in bundled_text
+
+    app = _load_generated_space_app(output, monkeypatch)
+    assert app["LATEST_MARKERS_AVAILABLE"] is True
+    assert app["DEFAULT_LATEST_ONLY"] is True
+    assert app["EVIDENCE_TIERS"] == ["All evidence tiers", "benchmark", "legacy", "smoke", "unknown"]
+
+    current_rows = app["filtered_rows"](
+        "needle_in_haystack", "All providers", "All evidence tiers", "", app["DEFAULT_LATEST_ONLY"]
+    )
+    current_keys = [app["task_model_key"](row) for row in current_rows]
+    assert len(current_keys) == len(set(current_keys))
+    current = app["table_from_rows"](current_rows, 30).to_dict("records")
+    assert len(current) == 3
+    assert all(row["is_latest_for_task_model"] == "true" for row in current)
+
+    history = app["render_table"](
+        "needle_in_haystack", "All providers", "All evidence tiers", "", False, 30
+    ).to_dict("records")
+    assert len(history) == 4
+    assert [row["run_id"] for row in history if row["model"] == "Model A"] == ["benchmark:a", "legacy:a"]
+
+    legacy = app["render_table"](
+        "needle_in_haystack", "All providers", "legacy", "", False, 30
+    ).to_dict("records")
+    assert {row["run_id"] for row in legacy} == {"legacy:a", "legacy:c"}
+    assert all(row["evidence_tier"] == "legacy" for row in legacy)
+
+    top_openai_legacy = app["render_table"](
+        "needle_in_haystack", "openai", "legacy", "model", False, 1
+    ).to_dict("records")
+    assert [row["run_id"] for row in top_openai_legacy] == ["legacy:a"]
+    assert top_openai_legacy[0]["rank"] == 1
+
+    empty_note, empty_table = app["render"](
+        "needle_in_haystack", "All providers", "smoke", "", False, 30
+    )
+    assert empty_table.empty
+    assert "No rows match the selected filters." in empty_note
+    assert "all historical rows" in empty_note
+
+
+def test_export_hf_space_single_evidence_tier_ui_is_neutral(tmp_path, monkeypatch) -> None:
+    leaderboard = tmp_path / "leaderboard.csv"
+    leaderboard.write_text(
+        "task_id,model_id,model,provider,score,evidence_tier,is_latest_for_task_model\n"
+        "needle_in_haystack,model-a,Model A,openai,0.8,legacy,true\n",
+        encoding="utf-8",
+    )
+
+    output = export_space_repo(output_dir=tmp_path / "space", bundled_leaderboard=leaderboard)
+    app = _load_generated_space_app(output, monkeypatch)
+
+    assert app["EVIDENCE_TIERS"] == ["All evidence tiers", "legacy"]
+    assert app["evidence_summary"]() == "legacy=1"

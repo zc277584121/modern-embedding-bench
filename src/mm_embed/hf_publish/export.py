@@ -742,10 +742,14 @@ def task_model_key(row):
     return (row.get("task_id") or "", row.get("model_id") or row.get("model") or "")
 
 
+def evidence_tier_value(row):
+    return str(row.get("evidence_tier") or "").strip() or "unknown"
+
+
 def evidence_summary():
     tiers = {}
     for row in ROWS:
-        tier = row.get("evidence_tier") or "unknown"
+        tier = evidence_tier_value(row)
         tiers[tier] = tiers.get(tier, 0) + 1
     if not tiers:
         return "none"
@@ -753,8 +757,13 @@ def evidence_summary():
 
 
 ROWS = load_rows()
+ALL_PROVIDERS = "All providers"
+ALL_EVIDENCE_TIERS = "All evidence tiers"
 TASKS = sorted({row.get("task_id", "") for row in ROWS if row.get("task_id")})
-PROVIDERS = ["All"] + sorted({row.get("provider", "") for row in ROWS if row.get("provider")})
+PROVIDERS = [ALL_PROVIDERS] + sorted({row.get("provider", "") for row in ROWS if row.get("provider")})
+EVIDENCE_TIERS = [ALL_EVIDENCE_TIERS] + sorted({evidence_tier_value(row) for row in ROWS})
+LATEST_MARKERS_AVAILABLE = any(str(row.get("is_latest_for_task_model") or "").strip() for row in ROWS)
+DEFAULT_LATEST_ONLY = LATEST_MARKERS_AVAILABLE
 PROVENANCE_COLUMNS = [
     "evidence_tier",
     "evidence_source",
@@ -776,12 +785,11 @@ def summary_markdown():
     task_model_pairs = len(group_counts)
     duplicate_repeats = sum(max(count - 1, 0) for count in group_counts.values())
     latest_rows = sum(1 for row in ROWS if truthy(row.get("is_latest_for_task_model")))
-    if not latest_rows and ROWS:
-        latest_rows = task_model_pairs
+    latest_note = str(latest_rows) if LATEST_MARKERS_AVAILABLE else "unavailable"
     return (
         "Rows: **{}** | Tasks: **{}** | Providers: **{}** | Models: **{}**  \\n"
         "Task/model pairs: **{}** | Duplicate repeats: **{}** | Latest markers: **{}** | Evidence: **{}**"
-    ).format(len(ROWS), tasks, providers, models, task_model_pairs, duplicate_repeats, latest_rows, evidence_summary())
+    ).format(len(ROWS), tasks, providers, models, task_model_pairs, duplicate_repeats, latest_note, evidence_summary())
 
 
 def task_markdown(task_id):
@@ -795,11 +803,19 @@ def task_markdown(task_id):
     )
 
 
-def render_table(task_id, provider, query, latest_only, top_n):
-    filtered = [row.copy() for row in ROWS if row.get("task_id") == task_id]
-    if provider != "All":
+def filtered_rows(task_id, provider, evidence_tier, query, latest_only):
+    filtered = []
+    for source_row in ROWS:
+        if source_row.get("task_id") != task_id:
+            continue
+        row = source_row.copy()
+        row["evidence_tier"] = evidence_tier_value(row)
+        filtered.append(row)
+    if provider != ALL_PROVIDERS:
         filtered = [row for row in filtered if row.get("provider") == provider]
-    if latest_only and any("is_latest_for_task_model" in row for row in filtered):
+    if evidence_tier != ALL_EVIDENCE_TIERS:
+        filtered = [row for row in filtered if row.get("evidence_tier") == evidence_tier]
+    if latest_only and LATEST_MARKERS_AVAILABLE:
         filtered = [row for row in filtered if truthy(row.get("is_latest_for_task_model"))]
     query = (query or "").strip().lower()
     if query:
@@ -823,6 +839,10 @@ def render_table(task_id, provider, query, latest_only, top_n):
         key=lambda row: as_float(row.get("score")) if as_float(row.get("score")) is not None else float("-inf"),
         reverse=True,
     )
+    return filtered
+
+
+def table_from_rows(filtered, top_n):
     filtered = filtered[: int(top_n or 50)]
     for index, row in enumerate(filtered, start=1):
         row["rank"] = index
@@ -833,33 +853,80 @@ def render_table(task_id, provider, query, latest_only, top_n):
     return pd.DataFrame(filtered, columns=columns)
 
 
-def render(task_id, provider, query, latest_only, top_n):
+def render_table(task_id, provider, evidence_tier, query, latest_only, top_n):
+    return table_from_rows(filtered_rows(task_id, provider, evidence_tier, query, latest_only), top_n)
+
+
+def view_markdown(provider, evidence_tier, query, latest_only, matching_count, shown_count):
+    if latest_only and LATEST_MARKERS_AVAILABLE:
+        history_state = "current marked rows only"
+        history_hint = "Uncheck the current-row filter to inspect all historical rows."
+    elif latest_only:
+        history_state = "all historical rows; latest markers unavailable"
+        history_hint = "This snapshot does not provide current-row markers."
+    else:
+        history_state = "all historical rows"
+        history_hint = "Enable the current-row filter to return to one marked row per task/model pair."
+    filters = [history_state]
+    if provider != ALL_PROVIDERS:
+        filters.append("provider={}".format(provider))
+    if evidence_tier != ALL_EVIDENCE_TIERS:
+        filters.append("evidence={}".format(evidence_tier))
+    if (query or "").strip():
+        filters.append('search="{}"'.format((query or "").strip()))
+    if matching_count:
+        status = "Showing **{}** of **{}** matching rows.".format(shown_count, matching_count)
+    else:
+        status = "No rows match the selected filters."
+    return "{}  \\nView: **{}**  \\n{}".format(status, " | ".join(filters), history_hint)
+
+
+def render(task_id, provider, evidence_tier, query, latest_only, top_n):
     if not task_id:
         return "No leaderboard rows are available.", pd.DataFrame()
-    return task_markdown(task_id), render_table(task_id, provider, query, latest_only, top_n)
+    filtered = filtered_rows(task_id, provider, evidence_tier, query, latest_only)
+    table = table_from_rows(filtered, top_n)
+    note = view_markdown(provider, evidence_tier, query, latest_only, len(filtered), len(table.index))
+    return "{}\\n\\n{}".format(task_markdown(task_id), note), table
 
 
 def main():
     default_task = TASKS[0] if TASKS else None
+    default_evidence_tier = ALL_EVIDENCE_TIERS
+    initial_note, initial_table = (
+        render(default_task, ALL_PROVIDERS, default_evidence_tier, "", DEFAULT_LATEST_ONLY, 30)
+        if default_task
+        else ("No leaderboard rows are available.", pd.DataFrame())
+    )
     with gr.Blocks(title="Modern Embedding Bench") as demo:
         gr.Markdown("# Modern Embedding Bench")
         gr.Markdown(summary_markdown())
-        task_note = gr.Markdown(task_markdown(default_task) if default_task else "No leaderboard rows are available.")
+        task_note = gr.Markdown(initial_note)
 
         with gr.Row():
-            task = gr.Dropdown(TASKS, value=default_task, label="Task")
-            provider = gr.Dropdown(PROVIDERS, value="All", label="Provider")
+            task = gr.Dropdown(choices=TASKS, value=default_task, label="Task")
+            provider = gr.Dropdown(choices=PROVIDERS, value=ALL_PROVIDERS, label="Provider")
+            evidence_tier = gr.Dropdown(
+                choices=EVIDENCE_TIERS,
+                value=default_evidence_tier,
+                label="Evidence tier available in this snapshot",
+            )
             top_n = gr.Slider(5, 100, value=30, step=5, label="Rows")
-        latest_only = gr.Checkbox(value=False, label="Latest row per task/model only")
+        latest_only = gr.Checkbox(
+            value=DEFAULT_LATEST_ONLY,
+            label="Current marked row per task/model only",
+            interactive=LATEST_MARKERS_AVAILABLE,
+        )
         query = gr.Textbox(label="Search", placeholder="Filter by model, provider, run, or metric")
         table = gr.Dataframe(
-            value=render_table(default_task, "All", "", False, 30) if default_task else pd.DataFrame(),
+            value=initial_table,
             label="Leaderboard",
             interactive=False,
         )
-        controls = [task, provider, query, latest_only, top_n]
+        controls = [task, provider, evidence_tier, query, latest_only, top_n]
         task.change(render, inputs=controls, outputs=[task_note, table])
         provider.change(render, inputs=controls, outputs=[task_note, table])
+        evidence_tier.change(render, inputs=controls, outputs=[task_note, table])
         query.change(render, inputs=controls, outputs=[task_note, table])
         latest_only.change(render, inputs=controls, outputs=[task_note, table])
         top_n.change(render, inputs=controls, outputs=[task_note, table])
