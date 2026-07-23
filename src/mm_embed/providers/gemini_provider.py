@@ -15,6 +15,14 @@ from mm_embed.providers.base import EmbeddingInput, EmbeddingProvider, Embedding
 
 logger = logging.getLogger(__name__)
 
+GEMINI_EMBEDDING_2_MODEL = "gemini-embedding-2"
+GEMINI_EMBEDDING_2_TEXT_PREFIXES = {
+    "retrieval_query": "task: search result | query: {text}",
+    "similarity": "task: sentence similarity | query: {text}",
+    "classification": "task: classification | query: {text}",
+    "clustering": "task: clustering | query: {text}",
+}
+
 
 class GeminiProvider(EmbeddingProvider):
     """Google Gemini Embedding API.
@@ -67,12 +75,14 @@ class GeminiProvider(EmbeddingProvider):
         task_type: str | None = None,
     ) -> EmbeddingResult:
         from google import genai
+        from google.genai import types
 
         client = genai.Client(api_key=self.api_key)
         dim = dimensions or self.default_dimensions
+        is_gemini_embedding_2 = self.model.removeprefix("models/") == GEMINI_EMBEDDING_2_MODEL
 
         gemini_task_type = None
-        if task_type and task_type in self.TASK_TYPE_MAP:
+        if not is_gemini_embedding_2 and task_type and task_type in self.TASK_TYPE_MAP:
             gemini_task_type = self.TASK_TYPE_MAP[task_type]
 
         # Separate text inputs (batchable) from non-text inputs
@@ -84,14 +94,24 @@ class GeminiProvider(EmbeddingProvider):
 
         # Batch text inputs
         if text_indices:
-            text_contents = [inputs[i].content for i in text_indices]
+            text_inputs = [inputs[i] for i in text_indices]
             batch_size = self.default_batch_size
-            n_batches = (len(text_contents) + batch_size - 1) // batch_size
+            n_batches = (len(text_inputs) + batch_size - 1) // batch_size
 
             for batch_idx in range(n_batches):
                 start = batch_idx * batch_size
-                end = min(start + batch_size, len(text_contents))
-                batch = text_contents[start:end]
+                end = min(start + batch_size, len(text_inputs))
+                batch_inputs = text_inputs[start:end]
+
+                if is_gemini_embedding_2:
+                    batch = [
+                        types.Content(
+                            parts=[types.Part.from_text(text=self._format_gemini_embedding_2_text(inp, task_type))]
+                        )
+                        for inp in batch_inputs
+                    ]
+                else:
+                    batch = [inp.content for inp in batch_inputs]
 
                 if n_batches > 1:
                     logger.info("Embedding text batch %d/%d (%d items)...", batch_idx + 1, n_batches, len(batch))
@@ -112,7 +132,8 @@ class GeminiProvider(EmbeddingProvider):
                 response, latency = self._call_with_retry(_call)
                 total_latency += latency
 
-                for j, emb_obj in enumerate(response.embeddings):
+                response_embeddings = self._validated_response_embeddings(response, len(batch), "text batch")
+                for j, emb_obj in enumerate(response_embeddings):
                     all_embeddings.append((text_indices[start + j], emb_obj.values))
 
                 # Pause between batches to respect rate limits
@@ -142,7 +163,8 @@ class GeminiProvider(EmbeddingProvider):
 
             response, latency = self._call_with_retry(_call)
             total_latency += latency
-            all_embeddings.append((i, response.embeddings[0].values))
+            response_embeddings = self._validated_response_embeddings(response, 1, "non-text input")
+            all_embeddings.append((i, response_embeddings[0].values))
 
         # Reassemble in original order
         all_embeddings.sort(key=lambda x: x[0])
@@ -155,6 +177,33 @@ class GeminiProvider(EmbeddingProvider):
             provider=self.name,
             latency_ms=total_latency,
         )
+
+    def _format_gemini_embedding_2_text(self, inp: EmbeddingInput, task_type: str | None) -> str:
+        """Apply the official Gemini Embedding 2 text instruction format."""
+        text = str(inp.content)
+        if task_type == "retrieval_document":
+            title = inp.metadata.get("title") or "none"
+            return f"title: {title} | text: {text}"
+        if task_type in GEMINI_EMBEDDING_2_TEXT_PREFIXES:
+            return GEMINI_EMBEDDING_2_TEXT_PREFIXES[task_type].format(text=text)
+        return text
+
+    def _cache_content_for_input(self, inp: EmbeddingInput, task_type: str | None) -> Any:
+        """Version Gemini 2 text cache entries by their effective request content."""
+        if self.model.removeprefix("models/") == GEMINI_EMBEDDING_2_MODEL and inp.modality == ModalityType.TEXT:
+            formatted_text = self._format_gemini_embedding_2_text(inp, task_type)
+            return f"gemini-embedding-2-flat-content-v1\0{formatted_text}"
+        return super()._cache_content_for_input(inp, task_type)
+
+    def _validated_response_embeddings(self, response: Any, expected_count: int, request_kind: str) -> list[Any]:
+        """Reject aggregated or missing rows before they can corrupt input alignment."""
+        embeddings = list(response.embeddings or [])
+        if len(embeddings) != expected_count:
+            raise ValueError(
+                f"Gemini model {self.model} returned {len(embeddings)} embeddings for "
+                f"{expected_count} logical inputs in {request_kind}"
+            )
+        return embeddings
 
     def _build_content(self, inp: EmbeddingInput) -> list[Any]:
         """Build content parts for Gemini API."""

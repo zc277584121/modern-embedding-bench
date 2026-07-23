@@ -93,7 +93,7 @@ class EmbeddingProvider(ABC):
         model_name = getattr(self, "model", self.name)
         cache_key = make_cache_key(
             model_name=model_name,
-            inputs_content=[inp.content for inp in inputs],
+            inputs_content=[self._cache_content_for_input(inp, task_type) for inp in inputs],
             modalities=[inp.modality.value for inp in inputs],
             dimensions=dimensions,
             task_type=task_type,
@@ -101,18 +101,30 @@ class EmbeddingProvider(ABC):
 
         cached = cache_get(self.name, model_name, cache_key)
         if cached is not None:
-            return EmbeddingResult(
-                embeddings=cached,
-                dimensions=cached.shape[1] if cached.ndim == 2 else 0,
-                model_name=model_name,
-                provider=self.name,
-                latency_ms=0.0,
-                metadata={"cache_hit": True},
+            if cached.ndim >= 2 and cached.shape[0] == len(inputs):
+                return EmbeddingResult(
+                    embeddings=cached,
+                    dimensions=cached.shape[1] if cached.ndim == 2 else 0,
+                    model_name=model_name,
+                    provider=self.name,
+                    latency_ms=0.0,
+                    metadata={"cache_hit": True},
+                )
+            logger.warning(
+                "Ignoring malformed cache entry for %s/%s: expected %d rows, got shape=%s",
+                self.name,
+                model_name,
+                len(inputs),
+                cached.shape,
             )
 
         result = self.embed(inputs, dimensions=dimensions, task_type=task_type)
         cache_put(self.name, model_name, cache_key, result.embeddings)
         return result
+
+    def _cache_content_for_input(self, inp: EmbeddingInput, task_type: str | None) -> Any:
+        """Return the effective input representation used to isolate cache entries."""
+        return inp.content
 
     def embed_text(self, texts: list[str], **kwargs: Any) -> EmbeddingResult:
         """Convenience: embed a list of text strings (with cache)."""
@@ -141,7 +153,13 @@ class EmbeddingProvider(ABC):
             except Exception as e:
                 err_str = str(e)
                 is_rate_limit = "429" in err_str or "rate" in err_str.lower() or "quota" in err_str.lower()
-                is_server_error = "500" in err_str or "502" in err_str or "503" in err_str or "UNAVAILABLE" in err_str or "INTERNAL" in err_str
+                is_server_error = (
+                    "500" in err_str
+                    or "502" in err_str
+                    or "503" in err_str
+                    or "UNAVAILABLE" in err_str
+                    or "INTERNAL" in err_str
+                )
                 is_retryable = is_rate_limit or is_server_error
                 if not is_retryable or attempt == max_retries:
                     raise

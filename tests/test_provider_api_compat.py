@@ -5,7 +5,10 @@ from types import SimpleNamespace
 
 import numpy as np
 import pytest
+from google import genai
+from google.genai import types
 
+from mm_embed import cache
 from mm_embed.providers.base import EmbeddingInput, ModalityType
 from mm_embed.providers.cohere_provider import CohereProvider
 from mm_embed.providers.dashscope_provider import DashScopeProvider
@@ -203,6 +206,202 @@ def test_gemini_default_model_is_formal_embedding_2() -> None:
     provider = GeminiProvider(api_key="test")
 
     assert provider.model == "gemini-embedding-2"
+
+
+def test_gemini_embedding_2_wraps_flat_inputs_and_preserves_order(monkeypatch) -> None:
+    calls: list[dict] = []
+    vector_by_text = {
+        "alpha": [1.0, 0.0],
+        "beta": [0.0, 1.0],
+        "gamma": [1.0, 1.0],
+    }
+
+    class FakeModels:
+        @staticmethod
+        def embed_content(**kwargs):
+            calls.append(kwargs)
+            texts = [content.parts[0].text for content in kwargs["contents"]]
+            return SimpleNamespace(
+                embeddings=[SimpleNamespace(values=vector_by_text[text]) for text in texts],
+            )
+
+    monkeypatch.setattr(genai, "Client", lambda api_key=None: SimpleNamespace(models=FakeModels()))
+    monkeypatch.setattr("mm_embed.providers.gemini_provider.time.sleep", lambda _: None)
+
+    provider = GeminiProvider(api_key="test", model="gemini-embedding-2")
+    provider.default_batch_size = 2
+    result = provider.embed(
+        [
+            EmbeddingInput(ModalityType.TEXT, "alpha"),
+            EmbeddingInput(ModalityType.TEXT, "beta"),
+            EmbeddingInput(ModalityType.TEXT, "gamma"),
+        ],
+        dimensions=2,
+    )
+
+    assert [[content.parts[0].text for content in call["contents"]] for call in calls] == [
+        ["alpha", "beta"],
+        ["gamma"],
+    ]
+    assert all(isinstance(content, types.Content) for call in calls for content in call["contents"])
+    assert all("task_type" not in call["config"] for call in calls)
+    np.testing.assert_allclose(result.embeddings, [[1.0, 0.0], [0.0, 1.0], [1.0, 1.0]])
+
+
+@pytest.mark.parametrize(
+    ("task_type", "embedding_input", "expected_text"),
+    [
+        (
+            "retrieval_query",
+            EmbeddingInput(ModalityType.TEXT, "where is the document?"),
+            "task: search result | query: where is the document?",
+        ),
+        (
+            "retrieval_document",
+            EmbeddingInput(ModalityType.TEXT, "document body", metadata={"title": "Example"}),
+            "title: Example | text: document body",
+        ),
+        (
+            "retrieval_document",
+            EmbeddingInput(ModalityType.TEXT, "untitled body"),
+            "title: none | text: untitled body",
+        ),
+    ],
+)
+def test_gemini_embedding_2_uses_official_retrieval_text_format(
+    monkeypatch,
+    task_type: str,
+    embedding_input: EmbeddingInput,
+    expected_text: str,
+) -> None:
+    calls: list[dict] = []
+
+    class FakeModels:
+        @staticmethod
+        def embed_content(**kwargs):
+            calls.append(kwargs)
+            return SimpleNamespace(embeddings=[SimpleNamespace(values=[1.0, 0.0])])
+
+    monkeypatch.setattr(genai, "Client", lambda api_key=None: SimpleNamespace(models=FakeModels()))
+
+    provider = GeminiProvider(api_key="test", model="gemini-embedding-2")
+    provider.embed([embedding_input], dimensions=2, task_type=task_type)
+
+    assert calls[0]["contents"][0].parts[0].text == expected_text
+    assert calls[0]["config"] == {"output_dimensionality": 2}
+
+
+def test_gemini_legacy_model_preserves_list_and_task_type_routing(monkeypatch) -> None:
+    calls: list[dict] = []
+
+    class FakeModels:
+        @staticmethod
+        def embed_content(**kwargs):
+            calls.append(kwargs)
+            return SimpleNamespace(
+                embeddings=[SimpleNamespace(values=[float(index), 0.0]) for index, _ in enumerate(kwargs["contents"])],
+            )
+
+    monkeypatch.setattr(genai, "Client", lambda api_key=None: SimpleNamespace(models=FakeModels()))
+
+    provider = GeminiProvider(api_key="test", model="gemini-embedding-001")
+    result = provider.embed(
+        [EmbeddingInput(ModalityType.TEXT, "alpha"), EmbeddingInput(ModalityType.TEXT, "beta")],
+        dimensions=2,
+        task_type="retrieval_query",
+    )
+
+    assert calls[0]["contents"] == ["alpha", "beta"]
+    assert calls[0]["config"] == {
+        "output_dimensionality": 2,
+        "task_type": "RETRIEVAL_QUERY",
+    }
+    np.testing.assert_allclose(result.embeddings, [[0.0, 0.0], [1.0, 0.0]])
+
+
+def test_gemini_rejects_malformed_embedding_cardinality(monkeypatch) -> None:
+    class FakeModels:
+        @staticmethod
+        def embed_content(**kwargs):
+            return SimpleNamespace(embeddings=[SimpleNamespace(values=[1.0, 0.0])])
+
+    monkeypatch.setattr(genai, "Client", lambda api_key=None: SimpleNamespace(models=FakeModels()))
+
+    provider = GeminiProvider(api_key="test", model="gemini-embedding-2")
+
+    with pytest.raises(ValueError, match="returned 1 embeddings for 2 logical inputs"):
+        provider.embed(
+            [EmbeddingInput(ModalityType.TEXT, "alpha"), EmbeddingInput(ModalityType.TEXT, "beta")],
+            dimensions=2,
+        )
+
+
+def test_gemini_cache_uses_effective_text_and_ignores_malformed_rows(monkeypatch) -> None:
+    captured_cache_inputs: list[str] = []
+    api_calls: list[dict] = []
+
+    def fake_make_cache_key(**kwargs):
+        captured_cache_inputs.extend(kwargs["inputs_content"])
+        return "test-cache-key"
+
+    class FakeModels:
+        @staticmethod
+        def embed_content(**kwargs):
+            api_calls.append(kwargs)
+            return SimpleNamespace(
+                embeddings=[SimpleNamespace(values=[float(index), 1.0]) for index, _ in enumerate(kwargs["contents"])],
+            )
+
+    monkeypatch.setattr(cache, "make_cache_key", fake_make_cache_key)
+    monkeypatch.setattr(cache, "cache_get", lambda *args: np.array([[99.0, 99.0]]))
+    monkeypatch.setattr(cache, "cache_put", lambda *args: None)
+    monkeypatch.setattr(genai, "Client", lambda api_key=None: SimpleNamespace(models=FakeModels()))
+
+    provider = GeminiProvider(api_key="test", model="gemini-embedding-2")
+    result = provider.embed_with_cache(
+        [
+            EmbeddingInput(ModalityType.TEXT, "query one"),
+            EmbeddingInput(ModalityType.TEXT, "query two"),
+        ],
+        dimensions=2,
+        task_type="retrieval_query",
+    )
+
+    assert captured_cache_inputs == [
+        "gemini-embedding-2-flat-content-v1\0task: search result | query: query one",
+        "gemini-embedding-2-flat-content-v1\0task: search result | query: query two",
+    ]
+    assert len(api_calls) == 1
+    np.testing.assert_allclose(result.embeddings, [[0.0, 1.0], [1.0, 1.0]])
+
+
+def test_gemini_cache_ignores_one_dimensional_array_when_length_matches(monkeypatch) -> None:
+    api_calls: list[dict] = []
+
+    class FakeModels:
+        @staticmethod
+        def embed_content(**kwargs):
+            api_calls.append(kwargs)
+            return SimpleNamespace(
+                embeddings=[SimpleNamespace(values=[float(index), 1.0]) for index, _ in enumerate(kwargs["contents"])],
+            )
+
+    monkeypatch.setattr(cache, "cache_get", lambda *args: np.array([99.0, 99.0]))
+    monkeypatch.setattr(cache, "cache_put", lambda *args: None)
+    monkeypatch.setattr(genai, "Client", lambda api_key=None: SimpleNamespace(models=FakeModels()))
+
+    provider = GeminiProvider(api_key="test", model="gemini-embedding-2")
+    result = provider.embed_with_cache(
+        [
+            EmbeddingInput(ModalityType.TEXT, "alpha"),
+            EmbeddingInput(ModalityType.TEXT, "beta"),
+        ],
+        dimensions=2,
+    )
+
+    assert len(api_calls) == 1
+    assert result.metadata.get("cache_hit") is not True
+    np.testing.assert_allclose(result.embeddings, [[0.0, 1.0], [1.0, 1.0]])
 
 
 def test_dashscope_qwen3_vl_uses_multimodal_endpoint(monkeypatch) -> None:
