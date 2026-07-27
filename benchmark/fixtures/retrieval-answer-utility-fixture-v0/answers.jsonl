@@ -1,0 +1,6 @@
+{"accepted_answers":["POLICY-SEVEN"],"answer_type":"entity_id","canonical_answer":"POLICY-SEVEN","normalizer":"casefold_trim_v0","numeric_abs_tolerance":null,"numeric_rel_tolerance":null,"query_id":"q_amber_policy"}
+{"accepted_answers":[42.0],"answer_type":"number","canonical_answer":42.0,"normalizer":"numeric_v0","numeric_abs_tolerance":0.0,"numeric_rel_tolerance":0.0,"query_id":"q_bronze_capacity"}
+{"accepted_answers":[true],"answer_type":"boolean","canonical_answer":true,"normalizer":"boolean_v0","numeric_abs_tolerance":null,"numeric_rel_tolerance":null,"query_id":"q_cobalt_flag"}
+{"accepted_answers":[["SERVICE-NORTH","SERVICE-SOUTH"]],"answer_type":"entity_id_set","canonical_answer":["SERVICE-NORTH","SERVICE-SOUTH"],"normalizer":"casefold_trim_set_v0","numeric_abs_tolerance":null,"numeric_rel_tolerance":null,"query_id":"q_indigo_services"}
+{"accepted_answers":["ARTIFACT-Q17"],"answer_type":"entity_id","canonical_answer":"ARTIFACT-Q17","normalizer":"casefold_trim_v0","numeric_abs_tolerance":null,"numeric_rel_tolerance":null,"query_id":"q_quartz_artifact"}
+{"accepted_answers":[4],"answer_type":"integer","canonical_answer":4,"normalizer":"integer_v0","numeric_abs_tolerance":null,"numeric_rel_tolerance":null,"query_id":"q_spruce_fields"}

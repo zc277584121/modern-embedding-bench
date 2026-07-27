@@ -1,0 +1,8 @@
+{"doc_id":"doc_amber_policy","query_id":"q_amber_policy","relevance":1,"required_for_complete_support":true,"support_kind":"direct"}
+{"doc_id":"doc_bronze_primary","query_id":"q_bronze_capacity","relevance":1,"required_for_complete_support":true,"support_kind":"partial"}
+{"doc_id":"doc_bronze_reserve","query_id":"q_bronze_capacity","relevance":1,"required_for_complete_support":true,"support_kind":"partial"}
+{"doc_id":"doc_cobalt_flag","query_id":"q_cobalt_flag","relevance":1,"required_for_complete_support":true,"support_kind":"direct"}
+{"doc_id":"doc_indigo_north","query_id":"q_indigo_services","relevance":1,"required_for_complete_support":true,"support_kind":"partial"}
+{"doc_id":"doc_indigo_south","query_id":"q_indigo_services","relevance":1,"required_for_complete_support":true,"support_kind":"partial"}
+{"doc_id":"doc_quartz_artifact","query_id":"q_quartz_artifact","relevance":1,"required_for_complete_support":true,"support_kind":"direct"}
+{"doc_id":"doc_spruce_fields","query_id":"q_spruce_fields","relevance":1,"required_for_complete_support":true,"support_kind":"direct"}
