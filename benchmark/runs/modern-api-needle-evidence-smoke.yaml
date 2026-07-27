@@ -1,0 +1,19 @@
+id: modern-api-needle-evidence-smoke
+description: Fresh needle-in-haystack smoke evidence for current OpenAI and Voyage text models.
+evidence_tier: smoke
+models:
+  - openai-text-embedding-3-small
+  - voyage-4-lite
+tasks:
+  - id: needle_in_haystack
+    kwargs:
+      haystack_lengths: [1000, 4000, 8000]
+      needle_positions: [0.0, 0.5, 1.0]
+      use_cache: false
+metadata:
+  tier: smoke
+  scope: modern-api-needle-evidence
+  expected_case_count_per_model: 90
+  expected_provider_calls_per_model: 3
+  expected_input_count_per_model: 109
+  expected_cost: below-usd-1

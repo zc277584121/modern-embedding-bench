@@ -18,7 +18,7 @@ import numpy as np
 
 from mm_embed.data.mock import get_needle_haystack_data
 from mm_embed.data.real_data import load_needle_haystack_real_data
-from mm_embed.providers.base import EmbeddingInput, EmbeddingProvider, ModalityType
+from mm_embed.providers.base import EmbeddingInput, EmbeddingProvider, EmbeddingResult, ModalityType
 from mm_embed.tasks.base import EvalResult, EvalTask
 from mm_embed.utils.metrics import cosine_similarity
 
@@ -44,11 +44,13 @@ class NeedleInHaystackTask(EvalTask):
         haystack_lengths: list[int] | None = None,
         needle_positions: list[float] | None = None,
         use_mock: bool = False,
+        use_cache: bool = True,
         **kwargs: Any,
     ):
         self.haystack_lengths = haystack_lengths or [4000, 8000, 16000, 32000]
         self.needle_positions = needle_positions or [0.0, 0.25, 0.5, 0.75, 1.0]
         self.use_mock = use_mock
+        self.use_cache = use_cache
 
     def run(self, provider: EmbeddingProvider, **kwargs: Any) -> EvalResult:
         model_name = getattr(provider, "model", "unknown")
@@ -116,13 +118,32 @@ class NeedleInHaystackTask(EvalTask):
 
             # Batch embed
             logger.info("Embedding queries...")
-            query_result = provider.embed_text(query_list, task_type="retrieval_query")
+            query_result = self._embed_texts(provider, query_list, task_type="retrieval_query")
+            query_evidence = self._call_evidence("queries", query_list, query_result, "retrieval_query")
 
             logger.info("Embedding documents (with needle)...")
-            doc_with_result = provider.embed_text(doc_with_list, task_type="retrieval_document")
+            doc_with_result = self._embed_texts(provider, doc_with_list, task_type="retrieval_document")
+            doc_with_evidence = self._call_evidence(
+                "documents_with_needle",
+                doc_with_list,
+                doc_with_result,
+                "retrieval_document",
+            )
 
             logger.info("Embedding documents (without needle)...")
-            doc_without_result = provider.embed_text(doc_without_list, task_type="retrieval_document")
+            doc_without_result = self._embed_texts(provider, doc_without_list, task_type="retrieval_document")
+            doc_without_evidence = self._call_evidence(
+                "documents_without_needle",
+                doc_without_list,
+                doc_without_result,
+                "retrieval_document",
+            )
+
+            call_evidence = [
+                query_evidence,
+                doc_with_evidence,
+                doc_without_evidence,
+            ]
 
             # Compute results
             results_by_length: dict[int, list[bool]] = defaultdict(list)
@@ -186,6 +207,32 @@ class NeedleInHaystackTask(EvalTask):
                 "n_skipped": len(test_cases) - len(valid_cases),
                 "max_provider_context": provider.max_text_length,
                 "heatmap": heatmap,
+                "cache_enabled": self.use_cache,
+                "fresh_provider_calls": not self.use_cache,
+                "input_cardinality": {
+                    "queries": len(query_list),
+                    "documents_with_needle": len(doc_with_list),
+                    "documents_without_needle": len(doc_without_list),
+                    "total": sum(item["input_count"] for item in call_evidence),
+                },
+                "response_cardinality": {
+                    "queries": call_evidence[0]["response_count"],
+                    "documents_with_needle": call_evidence[1]["response_count"],
+                    "documents_without_needle": call_evidence[2]["response_count"],
+                    "total": sum(item["response_count"] for item in call_evidence),
+                },
+                "input_character_count": sum(item["input_character_count"] for item in call_evidence),
+                "embedding_dimensions": sorted({item["dimensions"] for item in call_evidence}),
+                "provider_latency_ms": sum(item["latency_ms"] for item in call_evidence),
+                "token_usage": self._sum_optional(call_evidence, "token_usage"),
+                "cost_usd": self._sum_optional(call_evidence, "cost_usd"),
+                "all_embeddings_finite": all(item["all_finite"] for item in call_evidence),
+                "all_embeddings_unit_norm": all(item["all_unit_norm"] for item in call_evidence),
+                "norm_range": {
+                    "min": min(item["norm_min"] for item in call_evidence),
+                    "max": max(item["norm_max"] for item in call_evidence),
+                },
+                "embedding_calls": call_evidence,
             }
 
             return EvalResult(
@@ -204,3 +251,70 @@ class NeedleInHaystackTask(EvalTask):
                 metrics={},
                 error=str(e),
             )
+
+    def _embed_texts(
+        self,
+        provider: EmbeddingProvider,
+        texts: list[str],
+        *,
+        task_type: str,
+    ) -> EmbeddingResult:
+        if self.use_cache:
+            return provider.embed_text(texts, task_type=task_type)
+        inputs = [EmbeddingInput(modality=ModalityType.TEXT, content=text) for text in texts]
+        return provider.embed(inputs, task_type=task_type)
+
+    @staticmethod
+    def _call_evidence(
+        label: str,
+        texts: list[str],
+        result: EmbeddingResult,
+        task_type: str,
+    ) -> dict[str, Any]:
+        embeddings = np.asarray(result.embeddings, dtype=float)
+        if embeddings.ndim != 2:
+            raise ValueError(f"{label} response must be a 2D embedding matrix, got shape={embeddings.shape}")
+        if embeddings.shape[0] != len(texts):
+            raise ValueError(
+                f"{label} response cardinality mismatch: expected {len(texts)}, got {embeddings.shape[0]}"
+            )
+        if embeddings.shape[1] != result.dimensions:
+            raise ValueError(
+                f"{label} response dimension mismatch: metadata={result.dimensions}, matrix={embeddings.shape[1]}"
+            )
+
+        all_finite = bool(np.isfinite(embeddings).all())
+        if not all_finite:
+            raise ValueError(f"{label} response contains non-finite embedding values")
+
+        norms = np.linalg.norm(embeddings, axis=1)
+        unit_norm_tolerance = 1e-3
+        return {
+            "label": label,
+            "task_type": task_type,
+            "input_count": len(texts),
+            "input_character_count": sum(len(text) for text in texts),
+            "response_count": int(embeddings.shape[0]),
+            "dimensions": int(embeddings.shape[1]),
+            "latency_ms": float(result.latency_ms),
+            "token_usage": result.token_usage,
+            "cost_usd": result.cost_usd,
+            "cache_hit": bool(result.metadata.get("cache_hit", False)),
+            "all_finite": all_finite,
+            "unit_norm_tolerance": unit_norm_tolerance,
+            "all_unit_norm": bool(np.all(np.abs(norms - 1.0) <= unit_norm_tolerance)),
+            "norm_min": float(norms.min()),
+            "norm_max": float(norms.max()),
+        }
+
+    @staticmethod
+    def _sum_optional(call_evidence: list[dict[str, Any]], key: str) -> float | int | None:
+        if not call_evidence:
+            return None
+        total: float | int = 0
+        for item in call_evidence:
+            value = item.get(key)
+            if value is None:
+                return None
+            total += value
+        return total
