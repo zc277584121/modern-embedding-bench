@@ -144,6 +144,57 @@ def test_unpublished_fixture_task_is_excluded_from_public_outputs(tmp_path) -> N
     assert not (output / "runs" / "late-chunking-retrieval-local-smoke.yaml").exists()
 
 
+def test_public_task_catalog_excludes_invented_and_mock_only_contracts(tmp_path) -> None:
+    catalog = load_catalog()
+    expected_private_contracts = {
+        "agent_procedural_tool_memory": {
+            "required_modalities": ["text"],
+            "primary_metric": "hard_mrr",
+            "dataset_version": "agent-procedural-tool-memory-fixture-v0",
+            "classification_tag": "fixture-only",
+        },
+        "autonomous_driving": {
+            "required_modalities": ["text", "image"],
+            "primary_metric": "overall_t2i_precision@3",
+            "dataset_version": "autonomous-driving-mock-fixture-v0",
+            "classification_tag": "blocked-real-source",
+        },
+        "chinese_multimodal": {
+            "required_modalities": ["text", "image"],
+            "primary_metric": "zh_t2i_recall@1",
+            "dataset_version": "chinese-multimodal-mock-fixture-v0",
+            "classification_tag": "blocked-real-source",
+        },
+    }
+
+    for task_id, expected in expected_private_contracts.items():
+        spec = catalog.require_task(task_id)
+        assert spec.publish is False
+        assert spec.leaderboard_publish is False
+        assert spec.required_modalities == expected["required_modalities"]
+        assert spec.primary_metric == expected["primary_metric"]
+        assert spec.dataset_version == expected["dataset_version"]
+        assert {expected["classification_tag"], "no-publish"}.issubset(spec.tags)
+
+    dataset_output = export_dataset_repo(output_dir=tmp_path / "dataset")
+    space_output = export_space_repo(output_dir=tmp_path / "space")
+    public_dataset_tasks = {
+        row["id"] for row in load_jsonl(dataset_output / "tasks.jsonl")
+    }
+    public_space_tasks = {
+        row["id"] for row in load_jsonl(space_output / "tasks.jsonl")
+    }
+
+    assert public_dataset_tasks == public_space_tasks
+    assert public_dataset_tasks == {
+        "cross_modal_retrieval",
+        "crosslingual_retrieval",
+        "mrl_stress",
+        "needle_in_haystack",
+    }
+    assert public_dataset_tasks.isdisjoint(expected_private_contracts)
+
+
 def test_import_legacy_results_to_jsonl(tmp_path) -> None:
     legacy_path = tmp_path / "legacy.json"
     output_path = tmp_path / "imported.jsonl"
@@ -645,9 +696,6 @@ def test_export_hf_space_bundles_current_evidence_view(tmp_path, monkeypatch) ->
     task_specs = [json.loads(line) for line in (output / "tasks.jsonl").read_text(encoding="utf-8").splitlines()]
     declared_tasks = sorted(task["id"] for task in task_specs)
     assert declared_tasks == [
-        "agent_procedural_tool_memory",
-        "autonomous_driving",
-        "chinese_multimodal",
         "cross_modal_retrieval",
         "crosslingual_retrieval",
         "mrl_stress",
@@ -681,7 +729,7 @@ def test_export_hf_space_bundles_current_evidence_view(tmp_path, monkeypatch) ->
     assert app["LATEST_MARKERS_AVAILABLE"] is True
     assert app["DEFAULT_LATEST_ONLY"] is True
     assert app["EVIDENCE_TIERS"] == ["All evidence tiers", "benchmark", "legacy", "smoke", "unknown"]
-    assert "Declared public tasks: **7**" in app["summary_markdown"]()
+    assert "Declared public tasks: **4**" in app["summary_markdown"]()
     assert "Tasks with score rows: **4**" in app["summary_markdown"]()
 
     current_rows = app["filtered_rows"](
@@ -735,11 +783,6 @@ def test_export_hf_space_bundles_current_evidence_view(tmp_path, monkeypatch) ->
     assert model_b["mrl_stress"] == "not evaluated"
     assert model_b["crosslingual_retrieval"] == "not evaluated"
     assert model_b["cross_modal_retrieval"] == "not evaluated"
-    for row in coverage:
-        assert row["agent_procedural_tool_memory"] == "not evaluated"
-        assert row["autonomous_driving"] == "not evaluated"
-        assert row["chinese_multimodal"] == "not evaluated"
-
     smoke_coverage = app["coverage_table"]("All providers", "smoke", "").to_dict("records")
     assert [row["model"] for row in smoke_coverage] == ["Model A"]
     assert smoke_coverage[0]["covered_tasks"] == 4
@@ -760,7 +803,7 @@ def test_export_hf_space_bundles_current_evidence_view(tmp_path, monkeypatch) ->
 
     manifest_text = (output / "export_manifest.yaml").read_text(encoding="utf-8")
     assert "tasks.jsonl" in manifest_text
-    assert "declared_public_tasks: 7" in manifest_text
+    assert "declared_public_tasks: 4" in manifest_text
 
 
 def test_export_hf_space_loads_remote_public_task_catalog(tmp_path, monkeypatch) -> None:

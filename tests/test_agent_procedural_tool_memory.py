@@ -90,7 +90,18 @@ def test_agent_procedural_tool_memory_catalog_and_registry() -> None:
     spec = catalog.tasks["agent_procedural_tool_memory"]
     assert spec.primary_metric == "hard_mrr"
     assert spec.required_modalities == ["text"]
-    assert {"agentic", "memory", "tool-retrieval", "hard-negative", "text"}.issubset(spec.tags)
+    assert spec.dataset_version == "agent-procedural-tool-memory-fixture-v0"
+    assert spec.publish is False
+    assert spec.leaderboard_publish is False
+    assert {
+        "agentic",
+        "memory",
+        "tool-retrieval",
+        "hard-negative",
+        "text",
+        "fixture-only",
+        "no-publish",
+    }.issubset(spec.tags)
 
     task = get_task("agent_procedural_tool_memory")
     assert task.name == "agent_procedural_tool_memory"
