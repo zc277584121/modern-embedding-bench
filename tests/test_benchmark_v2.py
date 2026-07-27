@@ -618,6 +618,10 @@ def test_export_hf_space_bundles_current_evidence_view(tmp_path, monkeypatch) ->
         "needle_in_haystack,Needle,model-b,Model B,openai,overall_accuracy,0.7,benchmark:b,0.7,,new,1,1,true\n"
         "needle_in_haystack,Needle,model-c,Model C,local,overall_accuracy,0.9,legacy:c,0.6,legacy,new,1,1,true\n"
         "mrl_stress,MRL,model-a,Model A,openai,spearman,0.6,smoke:mrl,0.5,smoke,new,1,1,true\n"
+        "crosslingual_retrieval,Crosslingual,model-a,Model A,openai,hard_avg_recall@1,0.5,benchmark:cross,"
+        "0.4,benchmark,new,1,1,true\n"
+        "cross_modal_retrieval,Cross-modal,model-a,Model A,openai,hard_avg_recall@1,0.3,legacy:modal,0.3,"
+        "legacy,new,1,1,true\n"
         "late_chunking_retrieval,Fixture,fixture-model,Fixture Model,local,chunk_ndcg@10,1.0,fixture,0.0,"
         "smoke,fixture,1,1,true\n",
         encoding="utf-8",
@@ -671,6 +675,41 @@ def test_export_hf_space_bundles_current_evidence_view(tmp_path, monkeypatch) ->
     assert empty_table.empty
     assert "No rows match the selected filters." in empty_note
     assert "all historical rows" in empty_note
+
+    coverage = app["coverage_table"]("All providers", "All evidence tiers", "").to_dict("records")
+    assert [(row["model"], row["covered_tasks"]) for row in coverage] == [
+        ("Model A", 4),
+        ("Model B", 1),
+        ("Model C", 1),
+    ]
+    assert "score" not in coverage[0]
+    model_a = coverage[0]
+    assert model_a["needle_in_haystack"] == "evaluated (benchmark)"
+    assert model_a["mrl_stress"] == "evaluated (smoke)"
+    assert model_a["crosslingual_retrieval"] == "evaluated (benchmark)"
+    assert model_a["cross_modal_retrieval"] == "evaluated (legacy)"
+    model_b = next(row for row in coverage if row["model"] == "Model B")
+    assert model_b["needle_in_haystack"] == "evaluated (unknown)"
+    assert model_b["mrl_stress"] == "not evaluated"
+    assert model_b["crosslingual_retrieval"] == "not evaluated"
+    assert model_b["cross_modal_retrieval"] == "not evaluated"
+
+    smoke_coverage = app["coverage_table"]("All providers", "smoke", "").to_dict("records")
+    assert [row["model"] for row in smoke_coverage] == ["Model A"]
+    assert smoke_coverage[0]["covered_tasks"] == 4
+    assert smoke_coverage[0]["needle_in_haystack"] == "evaluated (benchmark)"
+
+    openai_coverage = app["coverage_table"]("openai", "All evidence tiers", "").to_dict("records")
+    assert [row["model"] for row in openai_coverage] == ["Model A", "Model B"]
+    crosslingual_coverage = app["coverage_table"](
+        "All providers", "All evidence tiers", "crosslingual"
+    ).to_dict("records")
+    assert [row["model"] for row in crosslingual_coverage] == ["Model A"]
+
+    coverage_note, _ = app["render_coverage"]("All providers", "smoke", "")
+    assert "scores are neither compared nor averaged across tasks" in coverage_note
+    assert "not model quality" in coverage_note
+    assert "not evaluated" in coverage_note
 
 
 def test_export_hf_space_single_evidence_tier_ui_is_neutral(tmp_path, monkeypatch) -> None:

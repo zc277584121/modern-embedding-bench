@@ -808,6 +808,10 @@ def task_model_key(row):
     return (row.get("task_id") or "", row.get("model_id") or row.get("model") or "")
 
 
+def coverage_model_key(row):
+    return (row.get("model_id") or row.get("model") or "", row.get("provider") or "")
+
+
 def evidence_tier_value(row):
     return str(row.get("evidence_tier") or "").strip() or "unknown"
 
@@ -825,6 +829,7 @@ def evidence_summary():
 ROWS = load_rows()
 ALL_PROVIDERS = "All providers"
 ALL_EVIDENCE_TIERS = "All evidence tiers"
+NOT_EVALUATED = "not evaluated"
 TASKS = sorted({row.get("task_id", "") for row in ROWS if row.get("task_id")})
 PROVIDERS = [ALL_PROVIDERS] + sorted({row.get("provider", "") for row in ROWS if row.get("provider")})
 EVIDENCE_TIERS = [ALL_EVIDENCE_TIERS] + sorted({evidence_tier_value(row) for row in ROWS})
@@ -908,6 +913,101 @@ def filtered_rows(task_id, provider, evidence_tier, query, latest_only):
     return filtered
 
 
+def coverage_source_rows():
+    candidates = [row for row in ROWS if not LATEST_MARKERS_AVAILABLE or truthy(row.get("is_latest_for_task_model"))]
+    selected = {}
+    for source_row in candidates:
+        task_id, model_id = task_model_key(source_row)
+        if not task_id or not model_id:
+            continue
+        row = source_row.copy()
+        row["evidence_tier"] = evidence_tier_value(row)
+        selected[(task_id,) + coverage_model_key(row)] = row
+    return list(selected.values())
+
+
+COVERAGE_SOURCE_ROWS = coverage_source_rows()
+COVERAGE_EVIDENCE_TIERS = [ALL_EVIDENCE_TIERS] + sorted(
+    {evidence_tier_value(row) for row in COVERAGE_SOURCE_ROWS}
+)
+
+
+def coverage_model_rows():
+    grouped = {}
+    for row in COVERAGE_SOURCE_ROWS:
+        model_id, provider = coverage_model_key(row)
+        key = (model_id, provider)
+        if key not in grouped:
+            grouped[key] = {
+                "model": row.get("model") or model_id,
+                "model_id": model_id,
+                "provider": provider,
+                "tasks": {},
+            }
+        grouped[key]["tasks"][row.get("task_id")] = evidence_tier_value(row)
+    return list(grouped.values())
+
+
+def filtered_coverage_rows(provider, evidence_tier, query):
+    filtered = []
+    query = (query or "").strip().lower()
+    for group in coverage_model_rows():
+        if provider != ALL_PROVIDERS and group["provider"] != provider:
+            continue
+        tiers = set(group["tasks"].values())
+        if evidence_tier != ALL_EVIDENCE_TIERS and evidence_tier not in tiers:
+            continue
+        search_values = [group["model"], group["model_id"], group["provider"]]
+        search_values.extend(
+            "{} {}".format(task_id, tier) for task_id, tier in sorted(group["tasks"].items())
+        )
+        if query and query not in " ".join(str(value or "").lower() for value in search_values):
+            continue
+        visible = {
+            "model": group["model"],
+            "provider": group["provider"],
+            "covered_tasks": len(group["tasks"]),
+        }
+        for task_id in TASKS:
+            tier = group["tasks"].get(task_id)
+            visible[task_id] = "evaluated ({})".format(tier) if tier else NOT_EVALUATED
+        filtered.append(visible)
+    filtered.sort(key=lambda row: (row["model"].lower(), row["provider"].lower()))
+    return filtered
+
+
+def coverage_table(provider, evidence_tier, query):
+    columns = ["model", "provider", "covered_tasks"] + TASKS
+    return pd.DataFrame(filtered_coverage_rows(provider, evidence_tier, query), columns=columns)
+
+
+def coverage_markdown(provider, evidence_tier, query, matching_count):
+    source_note = (
+        "current task/model markers"
+        if LATEST_MARKERS_AVAILABLE
+        else "the last available row per task/model because current markers are unavailable"
+    )
+    filters = []
+    if provider != ALL_PROVIDERS:
+        filters.append("provider={}".format(provider))
+    if evidence_tier != ALL_EVIDENCE_TIERS:
+        filters.append("at least one current cell with evidence={}".format(evidence_tier))
+    if (query or "").strip():
+        filters.append('search="{}"'.format((query or "").strip()))
+    filter_note = " | ".join(filters) if filters else "no provider, evidence, or search filter"
+    return (
+        "Coverage is derived from **{}** and reports evaluation presence only; scores are neither compared nor "
+        "averaged across tasks. Missing cells are labeled **{}**. Evidence tiers describe the evidence behind a "
+        "present cell, not model quality. Rows are alphabetized by model, not ranked by coverage or performance.  \\n"
+        "Showing **{}** model/provider rows | View: **{}**"
+    ).format(source_note, NOT_EVALUATED, matching_count, filter_note)
+
+
+def render_coverage(provider, evidence_tier, query):
+    table = coverage_table(provider, evidence_tier, query)
+    return coverage_markdown(provider, evidence_tier, query, len(table.index)), table
+
+
 def table_from_rows(filtered, top_n):
     filtered = filtered[: int(top_n or 50)]
     for index, row in enumerate(filtered, start=1):
@@ -964,38 +1064,65 @@ def main():
         if default_task
         else ("No leaderboard rows are available.", pd.DataFrame())
     )
+    initial_coverage_note, initial_coverage_table = render_coverage(
+        ALL_PROVIDERS, default_evidence_tier, ""
+    )
     with gr.Blocks(title="Modern Embedding Bench") as demo:
         gr.Markdown("# Modern Embedding Bench")
         gr.Markdown(summary_markdown())
-        task_note = gr.Markdown(initial_note)
+        with gr.Tab("Task leaderboard"):
+            task_note = gr.Markdown(initial_note)
 
-        with gr.Row():
-            task = gr.Dropdown(choices=TASKS, value=default_task, label="Task")
-            provider = gr.Dropdown(choices=PROVIDERS, value=ALL_PROVIDERS, label="Provider")
-            evidence_tier = gr.Dropdown(
-                choices=EVIDENCE_TIERS,
-                value=default_evidence_tier,
-                label="Evidence tier available in this snapshot",
+            with gr.Row():
+                task = gr.Dropdown(choices=TASKS, value=default_task, label="Task")
+                provider = gr.Dropdown(choices=PROVIDERS, value=ALL_PROVIDERS, label="Provider")
+                evidence_tier = gr.Dropdown(
+                    choices=EVIDENCE_TIERS,
+                    value=default_evidence_tier,
+                    label="Evidence tier available in this snapshot",
+                )
+                top_n = gr.Slider(5, 100, value=30, step=5, label="Rows")
+            latest_only = gr.Checkbox(
+                value=DEFAULT_LATEST_ONLY,
+                label="Current marked row per task/model only",
+                interactive=LATEST_MARKERS_AVAILABLE,
             )
-            top_n = gr.Slider(5, 100, value=30, step=5, label="Rows")
-        latest_only = gr.Checkbox(
-            value=DEFAULT_LATEST_ONLY,
-            label="Current marked row per task/model only",
-            interactive=LATEST_MARKERS_AVAILABLE,
-        )
-        query = gr.Textbox(label="Search", placeholder="Filter by model, provider, run, or metric")
-        table = gr.Dataframe(
-            value=initial_table,
-            label="Leaderboard",
-            interactive=False,
-        )
-        controls = [task, provider, evidence_tier, query, latest_only, top_n]
-        task.change(render, inputs=controls, outputs=[task_note, table])
-        provider.change(render, inputs=controls, outputs=[task_note, table])
-        evidence_tier.change(render, inputs=controls, outputs=[task_note, table])
-        query.change(render, inputs=controls, outputs=[task_note, table])
-        latest_only.change(render, inputs=controls, outputs=[task_note, table])
-        top_n.change(render, inputs=controls, outputs=[task_note, table])
+            query = gr.Textbox(label="Search", placeholder="Filter by model, provider, run, or metric")
+            table = gr.Dataframe(
+                value=initial_table,
+                label="Leaderboard",
+                interactive=False,
+            )
+            controls = [task, provider, evidence_tier, query, latest_only, top_n]
+            task.change(render, inputs=controls, outputs=[task_note, table])
+            provider.change(render, inputs=controls, outputs=[task_note, table])
+            evidence_tier.change(render, inputs=controls, outputs=[task_note, table])
+            query.change(render, inputs=controls, outputs=[task_note, table])
+            latest_only.change(render, inputs=controls, outputs=[task_note, table])
+            top_n.change(render, inputs=controls, outputs=[task_note, table])
+
+        with gr.Tab("Coverage"):
+            coverage_note = gr.Markdown(initial_coverage_note)
+            with gr.Row():
+                coverage_provider = gr.Dropdown(choices=PROVIDERS, value=ALL_PROVIDERS, label="Provider")
+                coverage_evidence = gr.Dropdown(
+                    choices=COVERAGE_EVIDENCE_TIERS,
+                    value=default_evidence_tier,
+                    label="Has at least one cell with evidence tier",
+                )
+            coverage_query = gr.Textbox(
+                label="Search",
+                placeholder="Filter by model, provider, evaluated task, or evidence tier",
+            )
+            coverage = gr.Dataframe(
+                value=initial_coverage_table,
+                label="Current model/task coverage",
+                interactive=False,
+            )
+            coverage_controls = [coverage_provider, coverage_evidence, coverage_query]
+            coverage_provider.change(render_coverage, inputs=coverage_controls, outputs=[coverage_note, coverage])
+            coverage_evidence.change(render_coverage, inputs=coverage_controls, outputs=[coverage_note, coverage])
+            coverage_query.change(render_coverage, inputs=coverage_controls, outputs=[coverage_note, coverage])
     demo.launch()
 
 
