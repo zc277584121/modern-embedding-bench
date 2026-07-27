@@ -627,20 +627,62 @@ def test_export_hf_space_bundles_current_evidence_view(tmp_path, monkeypatch) ->
         encoding="utf-8",
     )
 
-    output = export_space_repo(output_dir=tmp_path / "space", bundled_leaderboard=leaderboard)
+    output = export_space_repo(
+        output_dir=tmp_path / "space",
+        dataset_repo_id="example/modern-embedding-bench",
+        bundled_leaderboard=leaderboard,
+    )
 
     assert (output / "README.md").exists()
     assert (output / "app.py").exists()
+    assert (output / "tasks.jsonl").exists()
     compile((output / "app.py").read_text(encoding="utf-8"), str(output / "app.py"), "exec")
     bundled_text = (output / "leaderboard.csv").read_text(encoding="utf-8")
     assert "legacy:a" in bundled_text
     assert "benchmark:a" in bundled_text
     assert "late_chunking_retrieval" not in bundled_text
 
+    task_specs = [json.loads(line) for line in (output / "tasks.jsonl").read_text(encoding="utf-8").splitlines()]
+    declared_tasks = sorted(task["id"] for task in task_specs)
+    assert declared_tasks == [
+        "agent_procedural_tool_memory",
+        "autonomous_driving",
+        "chinese_multimodal",
+        "cross_modal_retrieval",
+        "crosslingual_retrieval",
+        "mrl_stress",
+        "needle_in_haystack",
+    ]
+    assert all(task["publish"] is True and task["leaderboard_publish"] is True for task in task_specs)
+    assert all("default_kwargs" not in task and "task" not in task and "tags" not in task for task in task_specs)
+
+    import sys
+    import types
+
+    download_attempts = []
+    huggingface_hub = types.ModuleType("huggingface_hub")
+
+    def unavailable_download(*, repo_id, repo_type, filename):
+        download_attempts.append((repo_id, repo_type, filename))
+        raise RuntimeError("offline test")
+
+    huggingface_hub.hf_hub_download = unavailable_download
+    monkeypatch.setitem(sys.modules, "huggingface_hub", huggingface_hub)
+
     app = _load_generated_space_app(output, monkeypatch)
+    assert [attempt[2] for attempt in download_attempts] == ["tasks.jsonl", "leaderboards/latest.csv"]
+    assert app["TASKS"] == [
+        "cross_modal_retrieval",
+        "crosslingual_retrieval",
+        "mrl_stress",
+        "needle_in_haystack",
+    ]
+    assert app["DECLARED_TASKS"] == declared_tasks
     assert app["LATEST_MARKERS_AVAILABLE"] is True
     assert app["DEFAULT_LATEST_ONLY"] is True
     assert app["EVIDENCE_TIERS"] == ["All evidence tiers", "benchmark", "legacy", "smoke", "unknown"]
+    assert "Declared public tasks: **7**" in app["summary_markdown"]()
+    assert "Tasks with score rows: **4**" in app["summary_markdown"]()
 
     current_rows = app["filtered_rows"](
         "needle_in_haystack", "All providers", "All evidence tiers", "", app["DEFAULT_LATEST_ONLY"]
@@ -693,6 +735,10 @@ def test_export_hf_space_bundles_current_evidence_view(tmp_path, monkeypatch) ->
     assert model_b["mrl_stress"] == "not evaluated"
     assert model_b["crosslingual_retrieval"] == "not evaluated"
     assert model_b["cross_modal_retrieval"] == "not evaluated"
+    for row in coverage:
+        assert row["agent_procedural_tool_memory"] == "not evaluated"
+        assert row["autonomous_driving"] == "not evaluated"
+        assert row["chinese_multimodal"] == "not evaluated"
 
     smoke_coverage = app["coverage_table"]("All providers", "smoke", "").to_dict("records")
     assert [row["model"] for row in smoke_coverage] == ["Model A"]
@@ -707,9 +753,100 @@ def test_export_hf_space_bundles_current_evidence_view(tmp_path, monkeypatch) ->
     assert [row["model"] for row in crosslingual_coverage] == ["Model A"]
 
     coverage_note, _ = app["render_coverage"]("All providers", "smoke", "")
+    assert "task declaration alone is not evaluation evidence" in coverage_note
     assert "scores are neither compared nor averaged across tasks" in coverage_note
     assert "not model quality" in coverage_note
     assert "not evaluated" in coverage_note
+
+    manifest_text = (output / "export_manifest.yaml").read_text(encoding="utf-8")
+    assert "tasks.jsonl" in manifest_text
+    assert "declared_public_tasks: 7" in manifest_text
+
+
+def test_export_hf_space_loads_remote_public_task_catalog(tmp_path, monkeypatch) -> None:
+    local_leaderboard = tmp_path / "local-leaderboard.csv"
+    local_leaderboard.write_text(
+        "task_id,model_id,model,provider,score,evidence_tier,is_latest_for_task_model\n"
+        "mrl_stress,local-model,Local Model,local,0.5,smoke,true\n",
+        encoding="utf-8",
+    )
+    output = export_space_repo(
+        output_dir=tmp_path / "space",
+        dataset_repo_id="example/remote-dataset",
+        bundled_leaderboard=local_leaderboard,
+    )
+
+    remote_leaderboard = tmp_path / "remote-leaderboard.csv"
+    remote_leaderboard.write_text(
+        "task_id,model_id,model,provider,score,evidence_tier,is_latest_for_task_model\n"
+        "needle_in_haystack,remote-model,Remote Model,remote,0.8,benchmark,true\n"
+        "late_chunking_retrieval,fixture-model,Fixture Model,local,1.0,fixture,true\n",
+        encoding="utf-8",
+    )
+    remote_tasks = tmp_path / "remote-tasks.jsonl"
+    remote_tasks.write_text(
+        "\n".join(
+            json.dumps(task)
+            for task in [
+                {
+                    "id": "needle_in_haystack",
+                    "display_name": "Remote Needle",
+                    "description": "Remote scored task.",
+                    "primary_metric": "overall_accuracy",
+                    "publish": True,
+                    "leaderboard_publish": True,
+                },
+                {
+                    "id": "autonomous_driving",
+                    "display_name": "Remote Driving",
+                    "description": "Remote declared task without rows.",
+                    "primary_metric": "avg_recall@1",
+                    "publish": True,
+                    "leaderboard_publish": True,
+                },
+                {
+                    "id": "late_chunking_retrieval",
+                    "display_name": "Fixture",
+                    "description": "Private fixture.",
+                    "primary_metric": "chunk_ndcg@10",
+                    "publish": False,
+                    "leaderboard_publish": False,
+                },
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    import sys
+    import types
+
+    huggingface_hub = types.ModuleType("huggingface_hub")
+
+    def local_download(*, repo_id, repo_type, filename):
+        assert repo_id == "example/remote-dataset"
+        assert repo_type == "dataset"
+        return str(remote_tasks if filename == "tasks.jsonl" else remote_leaderboard)
+
+    huggingface_hub.hf_hub_download = local_download
+    monkeypatch.setitem(sys.modules, "huggingface_hub", huggingface_hub)
+
+    app = _load_generated_space_app(output, monkeypatch)
+
+    assert app["TASKS"] == ["needle_in_haystack"]
+    assert app["DECLARED_TASKS"] == ["autonomous_driving", "needle_in_haystack"]
+    assert len(app["ROWS"]) == 1
+    assert app["ROWS"][0]["model"] == "Remote Model"
+    coverage = app["coverage_table"]("All providers", "All evidence tiers", "").to_dict("records")
+    assert coverage == [
+        {
+            "model": "Remote Model",
+            "provider": "remote",
+            "covered_tasks": 1,
+            "autonomous_driving": "not evaluated",
+            "needle_in_haystack": "evaluated (benchmark)",
+        }
+    ]
 
 
 def test_export_hf_space_single_evidence_tier_ui_is_neutral(tmp_path, monkeypatch) -> None:

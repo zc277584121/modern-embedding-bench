@@ -16,6 +16,7 @@ from mm_embed.benchmark.leaderboard import build_leaderboard, primary_metric_val
 from mm_embed.benchmark.registry import (
     BenchmarkCatalog,
     ModelSpec,
+    TaskSpec,
     load_catalog,
     load_run_manifest,
     normalize_evidence_tier,
@@ -100,6 +101,31 @@ def _write_yaml(path: Path, data: dict[str, Any]) -> None:
 
 def _is_public_model(model: ModelSpec) -> bool:
     return model.publish and model.provider not in PUBLIC_EXCLUDED_PROVIDERS
+
+
+def _is_public_task(task: TaskSpec) -> bool:
+    return task.publish and task.leaderboard_publish
+
+
+def _space_task_catalog_rows(catalog: BenchmarkCatalog) -> list[dict[str, Any]]:
+    rows = []
+    for task in sorted(catalog.tasks.values(), key=lambda item: item.id):
+        if not _is_public_task(task):
+            continue
+        rows.append(
+            {
+                "id": task.id,
+                "display_name": task.display_name,
+                "description": task.description,
+                "primary_metric": task.primary_metric,
+                "metric_direction": task.metric_direction,
+                "dataset_version": task.dataset_version,
+                "required_modalities": task.required_modalities,
+                "publish": True,
+                "leaderboard_publish": True,
+            }
+        )
+    return rows
 
 
 def _contains_excluded_marker(*values: Any) -> bool:
@@ -568,7 +594,7 @@ def export_dataset_repo(
 
     public_models = [model for model in catalog.models.values() if _is_public_model(model)]
     private_model_ids = {model.id for model in catalog.models.values() if not _is_public_model(model)}
-    public_tasks = [task for task in catalog.tasks.values() if task.publish and task.leaderboard_publish]
+    public_tasks = [task for task in catalog.tasks.values() if _is_public_task(task)]
     private_task_ids = {
         task.id for task in catalog.tasks.values() if not task.publish or not task.leaderboard_publish
     }
@@ -704,16 +730,18 @@ def export_space_repo(
     """Create a Hugging Face Gradio Space folder."""
     output = Path(output_dir)
     _reset_dir(output, clean=clean)
+    catalog = load_catalog()
+    public_task_rows = _space_task_catalog_rows(catalog)
 
     (output / "README.md").write_text(_space_readme(dataset_repo_id), encoding="utf-8")
     (output / "requirements.txt").write_text("gradio>=5.0\npandas>=2.0\nhuggingface_hub>=0.30\n", encoding="utf-8")
     (output / "app.py").write_text(_space_app_source(dataset_repo_id), encoding="utf-8")
+    _write_jsonl(output / "tasks.jsonl", public_task_rows)
 
     if bundled_leaderboard:
         rows, fieldnames = _read_leaderboard_csv(Path(bundled_leaderboard))
-        catalog = load_catalog()
         private_task_ids = {
-            task.id for task in catalog.tasks.values() if not task.publish or not task.leaderboard_publish
+            task.id for task in catalog.tasks.values() if not _is_public_task(task)
         }
         public_rows = _public_leaderboard_rows(rows, set(), private_task_ids)
         _write_leaderboard_csv_rows(output / "leaderboard.csv", public_rows, fieldnames)
@@ -725,7 +753,7 @@ def export_space_repo(
         output / "export_manifest.yaml",
         kind="hf_space",
         files=files,
-        metadata={"dataset_repo_id": dataset_repo_id},
+        metadata={"dataset_repo_id": dataset_repo_id, "declared_public_tasks": len(public_task_rows)},
     )
     return output
 
@@ -761,6 +789,7 @@ def _space_app_source(dataset_repo_id: str | None) -> str:
     source = '''from __future__ import annotations
 
 import csv
+import json
 import os
 from pathlib import Path
 
@@ -769,12 +798,13 @@ import pandas as pd
 
 DEFAULT_DATASET_REPO_ID = __DATASET_REPO_ID__
 LEADERBOARD_FILE = "leaderboards/latest.csv"
-TASK_DETAILS = __TASK_DETAILS__
+TASK_CATALOG_FILE = "tasks.jsonl"
+STATIC_TASK_DETAILS = __TASK_DETAILS__
 
 
-def load_rows():
+def dataset_file(filename, bundled_filename, label):
     dataset_repo_id = os.environ.get("DATASET_REPO_ID") or DEFAULT_DATASET_REPO_ID
-    local_path = Path("leaderboard.csv")
+    local_path = Path(bundled_filename)
     if dataset_repo_id:
         try:
             from huggingface_hub import hf_hub_download
@@ -782,15 +812,53 @@ def load_rows():
             downloaded = hf_hub_download(
                 repo_id=dataset_repo_id,
                 repo_type="dataset",
-                filename=LEADERBOARD_FILE,
+                filename=filename,
             )
             local_path = Path(downloaded)
         except Exception as exc:
-            print("Could not load leaderboard from {}: {}. Falling back to bundled data.".format(dataset_repo_id, exc))
+            print("Could not load {} from {}: {}. Falling back to bundled data.".format(label, dataset_repo_id, exc))
     if not local_path.exists():
+        return None
+    return local_path
+
+
+def load_rows():
+    local_path = dataset_file(LEADERBOARD_FILE, "leaderboard.csv", "leaderboard")
+    if local_path is None:
         return []
     with open(local_path, encoding="utf-8") as f:
         return list(csv.DictReader(f))
+
+
+def enabled(value, default=True):
+    if value is None:
+        return default
+    if isinstance(value, bool):
+        return value
+    return str(value).strip().lower() in {"1", "true", "yes", "y"}
+
+
+def load_task_specs():
+    local_path = dataset_file(TASK_CATALOG_FILE, "tasks.jsonl", "task catalog")
+    if local_path is None:
+        return []
+    tasks = []
+    with open(local_path, encoding="utf-8") as f:
+        for line in f:
+            if not line.strip():
+                continue
+            try:
+                task = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if not isinstance(task, dict) or not task.get("id"):
+                continue
+            if not enabled(task.get("publish"), True):
+                continue
+            if not enabled(task.get("leaderboard_publish"), enabled(task.get("publish"), True)):
+                continue
+            tasks.append(task)
+    return tasks
 
 
 def as_float(value):
@@ -826,11 +894,21 @@ def evidence_summary():
     return ", ".join("{}={}".format(key, tiers[key]) for key in sorted(tiers))
 
 
-ROWS = load_rows()
+TASK_SPECS = load_task_specs()
+PUBLIC_TASK_IDS = {str(task.get("id") or "") for task in TASK_SPECS if task.get("id")}
+RAW_ROWS = load_rows()
+ROWS = [row for row in RAW_ROWS if row.get("task_id") in PUBLIC_TASK_IDS] if PUBLIC_TASK_IDS else RAW_ROWS
 ALL_PROVIDERS = "All providers"
 ALL_EVIDENCE_TIERS = "All evidence tiers"
 NOT_EVALUATED = "not evaluated"
-TASKS = sorted({row.get("task_id", "") for row in ROWS if row.get("task_id")})
+TASKS = sorted(
+    {
+        row.get("task_id", "")
+        for row in ROWS
+        if row.get("task_id") and as_float(row.get("score")) is not None
+    }
+)
+DECLARED_TASKS = sorted(PUBLIC_TASK_IDS) if PUBLIC_TASK_IDS else TASKS
 PROVIDERS = [ALL_PROVIDERS] + sorted({row.get("provider", "") for row in ROWS if row.get("provider")})
 EVIDENCE_TIERS = [ALL_EVIDENCE_TIERS] + sorted({evidence_tier_value(row) for row in ROWS})
 LATEST_MARKERS_AVAILABLE = any(str(row.get("is_latest_for_task_model") or "").strip() for row in ROWS)
@@ -844,8 +922,27 @@ PROVENANCE_COLUMNS = [
 ]
 
 
+def build_task_details():
+    details = {}
+    for task in TASK_SPECS:
+        task_id = str(task.get("id") or "")
+        if not task_id:
+            continue
+        details[task_id] = {
+            "label": task.get("display_name") or task_id,
+            "summary": task.get("description") or "",
+            "metric": task.get("primary_metric") or "",
+        }
+    for task_id, static_details in STATIC_TASK_DETAILS.items():
+        if task_id in details or task_id in TASKS:
+            details.setdefault(task_id, {}).update(static_details)
+    return details
+
+
+TASK_DETAILS = build_task_details()
+
+
 def summary_markdown():
-    tasks = len({row.get("task_id") for row in ROWS if row.get("task_id")})
     providers = len({row.get("provider") for row in ROWS if row.get("provider")})
     models = len({row.get("model_id") or row.get("model") for row in ROWS if row.get("model_id") or row.get("model")})
     group_counts = {}
@@ -858,9 +955,19 @@ def summary_markdown():
     latest_rows = sum(1 for row in ROWS if truthy(row.get("is_latest_for_task_model")))
     latest_note = str(latest_rows) if LATEST_MARKERS_AVAILABLE else "unavailable"
     return (
-        "Rows: **{}** | Tasks: **{}** | Providers: **{}** | Models: **{}**  \\n"
+        "Rows: **{}** | Declared public tasks: **{}** | Tasks with score rows: **{}** | Providers: **{}** | Models: **{}**  \\n"
         "Task/model pairs: **{}** | Duplicate repeats: **{}** | Latest markers: **{}** | Evidence: **{}**"
-    ).format(len(ROWS), tasks, providers, models, task_model_pairs, duplicate_repeats, latest_note, evidence_summary())
+    ).format(
+        len(ROWS),
+        len(DECLARED_TASKS),
+        len(TASKS),
+        providers,
+        models,
+        task_model_pairs,
+        duplicate_repeats,
+        latest_note,
+        evidence_summary(),
+    )
 
 
 def task_markdown(task_id):
@@ -914,7 +1021,12 @@ def filtered_rows(task_id, provider, evidence_tier, query, latest_only):
 
 
 def coverage_source_rows():
-    candidates = [row for row in ROWS if not LATEST_MARKERS_AVAILABLE or truthy(row.get("is_latest_for_task_model"))]
+    candidates = [
+        row
+        for row in ROWS
+        if as_float(row.get("score")) is not None
+        and (not LATEST_MARKERS_AVAILABLE or truthy(row.get("is_latest_for_task_model")))
+    ]
     selected = {}
     for source_row in candidates:
         task_id, model_id = task_model_key(source_row)
@@ -968,7 +1080,7 @@ def filtered_coverage_rows(provider, evidence_tier, query):
             "provider": group["provider"],
             "covered_tasks": len(group["tasks"]),
         }
-        for task_id in TASKS:
+        for task_id in DECLARED_TASKS:
             tier = group["tasks"].get(task_id)
             visible[task_id] = "evaluated ({})".format(tier) if tier else NOT_EVALUATED
         filtered.append(visible)
@@ -977,7 +1089,7 @@ def filtered_coverage_rows(provider, evidence_tier, query):
 
 
 def coverage_table(provider, evidence_tier, query):
-    columns = ["model", "provider", "covered_tasks"] + TASKS
+    columns = ["model", "provider", "covered_tasks"] + DECLARED_TASKS
     return pd.DataFrame(filtered_coverage_rows(provider, evidence_tier, query), columns=columns)
 
 
@@ -996,9 +1108,10 @@ def coverage_markdown(provider, evidence_tier, query, matching_count):
         filters.append('search="{}"'.format((query or "").strip()))
     filter_note = " | ".join(filters) if filters else "no provider, evidence, or search filter"
     return (
-        "Coverage is derived from **{}** and reports evaluation presence only; scores are neither compared nor "
-        "averaged across tasks. Missing cells are labeled **{}**. Evidence tiers describe the evidence behind a "
-        "present cell, not model quality. Rows are alphabetized by model, not ranked by coverage or performance.  \\n"
+        "Coverage columns come from the public task catalog, while cell status is derived only from **{}**; "
+        "task declaration alone is not evaluation evidence, and scores are neither compared nor averaged across tasks. "
+        "Missing cells are labeled **{}**. Evidence tiers describe the evidence behind a present cell, not model "
+        "quality. Rows are alphabetized by model, not ranked by coverage or performance.  \\n"
         "Showing **{}** model/provider rows | View: **{}**"
     ).format(source_note, NOT_EVALUATED, matching_count, filter_note)
 
