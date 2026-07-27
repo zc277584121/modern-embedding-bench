@@ -936,7 +936,7 @@ def _median(values: Sequence[float]) -> float:
     return (ordered[midpoint - 1] + ordered[midpoint]) / 2.0
 
 
-def _aggregate(
+def aggregate_system_metrics(
     outputs: Sequence[SystemOutput],
     judgments: Sequence[JudgeResult],
     fixture: RetrievalAnswerUtilityFixture,
@@ -1022,7 +1022,7 @@ def evaluate_system(
         )
     outputs = tuple(system.answer(query, fixture) for query in fixture.queries)
     judgments = tuple(judge_output(output, fixture) for output in outputs)
-    metrics = _aggregate(outputs, judgments, fixture)
+    metrics = aggregate_system_metrics(outputs, judgments, fixture)
     manifest_payload = _manifest_to_dict(manifest)
     manifest_sha256 = _sha256_text(_canonical_json(manifest_payload))
     return {

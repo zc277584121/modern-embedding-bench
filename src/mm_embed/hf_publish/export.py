@@ -20,7 +20,7 @@ from mm_embed.benchmark.registry import (
     load_run_manifest,
     normalize_evidence_tier,
 )
-from mm_embed.benchmark.results import json_safe, load_jsonl
+from mm_embed.benchmark.results import is_embedding_result_record, json_safe, load_jsonl
 
 
 DEFAULT_EXPORT_ROOT = Path("dist/huggingface")
@@ -117,6 +117,8 @@ def _public_records(
 ) -> list[dict[str, Any]]:
     public = []
     for record in records:
+        if not is_embedding_result_record(record):
+            continue
         run = record.get("run") or {}
         model = record.get("model") or {}
         provider_result = record.get("provider_result") or {}

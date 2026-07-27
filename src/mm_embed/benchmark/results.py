@@ -50,6 +50,31 @@ def json_safe(value: Any) -> Any:
     return value
 
 
+def is_embedding_result_record(record: dict[str, Any]) -> bool:
+    """Return whether a record belongs to the embedding v2 result surface."""
+    schema_version = record.get("schema_version")
+    evaluation = record.get("evaluation") or {}
+    subject = record.get("subject") or {}
+    if schema_version not in (None, RESULT_SCHEMA_VERSION):
+        return False
+    if record.get("evaluation_level") not in (None, "embedding"):
+        return False
+    if evaluation.get("level") not in (None, "embedding"):
+        return False
+    if evaluation.get("mode") not in (None, "ranking"):
+        return False
+    if evaluation.get("leaderboard_surface") not in (None, "embedding"):
+        return False
+    if subject.get("kind") not in (None, "embedding_model"):
+        return False
+    return (
+        isinstance(record.get("run"), dict)
+        and isinstance(record.get("model"), dict)
+        and isinstance(record.get("task"), dict)
+        and (record.get("provider_result") is None or isinstance(record.get("provider_result"), dict))
+    )
+
+
 def sanitized_provider_kwargs(model: ModelSpec) -> dict[str, Any]:
     """Keep model identity fields while avoiding accidental secret leakage."""
     hidden = {"api_key", "token", "password", "secret"}

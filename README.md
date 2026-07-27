@@ -149,6 +149,24 @@ records are kept out of public result and leaderboard exports. Historical v2
 records without `run.publish` remain public by default, and older evidence
 metadata continues to use compatibility classification.
 
+System-level retrieval-answer fixture results use the separate
+`schemas/system_result.schema.json` contract and never enter the embedding v2
+Dataset, leaderboard, or Space path. Export the three deterministic local runs
+to an explicitly fixture-only directory with no provider or publication call:
+
+```bash
+uv run --no-sync python scripts/export_system_fixture.py \
+  --output-dir dist/system-evaluation/retrieval-answer-utility-fixture-v0
+```
+
+The directory contains only
+`retrieval-answer-utility.system-results.fixture-only.jsonl` and
+`retrieval-answer-utility.system-export.fixture-only.json`. Every record is
+validated before writing and retains `publish: false`, `fixture_only: true`,
+and `evaluation.leaderboard_surface: system`. The export directory must be
+empty or contain only those two owned regular files; unexpected entries cause
+the export to fail without deleting or overwriting existing content.
+
 ## Hugging Face Publishing
 
 Export a Dataset repo folder:

@@ -1,0 +1,316 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Retrieval Answer Utility System Fixture Result",
+  "description": "Fixture-only, no-publish system evaluation result kept separate from embedding v2 records.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "evaluation",
+    "subject",
+    "run",
+    "timestamps",
+    "task",
+    "metrics",
+    "resource_usage",
+    "details",
+    "error"
+  ],
+  "properties": {
+    "schema_version": {"const": "retrieval-answer-utility-system-fixture-v0"},
+    "evaluation": {
+      "type": "object",
+      "required": ["family", "level", "mode", "leaderboard_surface"],
+      "properties": {
+        "family": {"const": "retrieval_answer_utility"},
+        "level": {"const": "system"},
+        "mode": {"const": "answer_utility"},
+        "leaderboard_surface": {"const": "system"}
+      },
+      "additionalProperties": false
+    },
+    "subject": {
+      "type": "object",
+      "required": ["kind", "id", "manifest_sha256", "manifest"],
+      "properties": {
+        "kind": {"const": "retrieval_answer_system"},
+        "id": {"type": "string", "minLength": 1},
+        "manifest_sha256": {"$ref": "#/$defs/sha256"},
+        "manifest": {
+          "type": "object",
+          "required": [
+            "system_id",
+            "system_revision",
+            "bracket",
+            "evaluation_level",
+            "mode",
+            "subject_kind",
+            "components",
+            "execution"
+          ],
+          "properties": {
+            "system_id": {"type": "string", "minLength": 1},
+            "system_revision": {"type": "string", "minLength": 1},
+            "bracket": {"type": "string", "minLength": 1},
+            "evaluation_level": {"const": "system"},
+            "mode": {"const": "answer_utility"},
+            "subject_kind": {"const": "retrieval_answer_system"},
+            "components": {"type": "object"},
+            "execution": {
+              "type": "object",
+              "required": ["concurrency", "timeout_s", "max_retries", "cache_policy", "network"],
+              "properties": {
+                "concurrency": {"$ref": "#/$defs/nonNegativeInteger"},
+                "timeout_s": {"$ref": "#/$defs/nonNegativeNumber"},
+                "max_retries": {"$ref": "#/$defs/nonNegativeInteger"},
+                "cache_policy": {"type": "string"},
+                "network": {"const": "forbidden"}
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "run": {
+      "type": "object",
+      "required": ["id", "publish", "evidence_tier"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "publish": {"const": false},
+        "evidence_tier": {"const": "fixture"}
+      },
+      "additionalProperties": false
+    },
+    "timestamps": {
+      "type": "object",
+      "required": ["started_at", "completed_at", "duration_s"],
+      "properties": {
+        "started_at": {"type": "string", "minLength": 1},
+        "completed_at": {"type": "string", "minLength": 1},
+        "duration_s": {"$ref": "#/$defs/nonNegativeNumber"}
+      },
+      "additionalProperties": false
+    },
+    "task": {
+      "type": "object",
+      "required": ["id", "display_name", "primary_metric", "publish", "evidence_tier"],
+      "properties": {
+        "id": {"const": "retrieval-answer-utility-fixture-v0"},
+        "display_name": {"const": "Retrieval answer utility fixture"},
+        "primary_metric": {"const": "answer_accuracy"},
+        "publish": {"const": false},
+        "evidence_tier": {"const": "fixture"}
+      },
+      "additionalProperties": false
+    },
+    "metrics": {
+      "type": "object",
+      "required": [
+        "attempted_count",
+        "ok_count",
+        "failure_count",
+        "answer_correct_count",
+        "answer_accuracy",
+        "citation_precision",
+        "required_citation_recall",
+        "citation_f1",
+        "required_citation_complete_count",
+        "missing_required_citation_count",
+        "valid_answer_count",
+        "valid_answer_rate",
+        "trace_complete_count",
+        "trace_missing_count",
+        "trace_complete_rate",
+        "cost_known_count",
+        "cost_missing_count",
+        "cost_complete_count",
+        "cost_complete_rate",
+        "known_online_cost_usd_total",
+        "known_online_cost_usd_per_attempted_query",
+        "total_online_cost_usd",
+        "mean_online_cost_usd",
+        "cost_comparison_eligible",
+        "online_latency_ms_mean",
+        "online_latency_ms_median",
+        "online_latency_ms_p95",
+        "timeout_rate",
+        "error_rate",
+        "judge_cost_usd"
+      ],
+      "properties": {
+        "attempted_count": {"const": 6},
+        "cost_known_count": {"const": 6},
+        "cost_missing_count": {"const": 0},
+        "cost_complete_count": {"const": 6},
+        "cost_complete_rate": {"const": 1.0},
+        "known_online_cost_usd_total": {"const": 0.0},
+        "known_online_cost_usd_per_attempted_query": {"const": 0.0},
+        "total_online_cost_usd": {"const": 0.0},
+        "mean_online_cost_usd": {"const": 0.0},
+        "cost_comparison_eligible": {"const": true},
+        "judge_cost_usd": {"const": 0.0}
+      },
+      "additionalProperties": {
+        "type": ["number", "integer", "boolean", "null"]
+      }
+    },
+    "resource_usage": {
+      "type": "object",
+      "required": [
+        "online_system_cost_usd",
+        "known_online_system_cost_usd",
+        "cost_known_count",
+        "cost_missing_count",
+        "cost_complete_rate",
+        "judge_cost_usd"
+      ],
+      "properties": {
+        "online_system_cost_usd": {"type": ["number", "null"]},
+        "known_online_system_cost_usd": {"$ref": "#/$defs/nonNegativeNumber"},
+        "cost_known_count": {"$ref": "#/$defs/nonNegativeInteger"},
+        "cost_missing_count": {"$ref": "#/$defs/nonNegativeInteger"},
+        "cost_complete_rate": {"$ref": "#/$defs/nonNegativeNumber"},
+        "judge_cost_usd": {"const": 0.0}
+      },
+      "additionalProperties": false
+    },
+    "details": {
+      "type": "object",
+      "required": [
+        "fixture_only",
+        "publish",
+        "evidence_tier",
+        "network",
+        "provider_api_calls",
+        "model_inference_calls",
+        "model_downloads",
+        "fixture_bundle_sha256",
+        "judge_revision",
+        "outputs",
+        "per_query"
+      ],
+      "properties": {
+        "fixture_only": {"const": true},
+        "publish": {"const": false},
+        "evidence_tier": {"const": "fixture"},
+        "network": {"const": "forbidden"},
+        "provider_api_calls": {"const": 0},
+        "model_inference_calls": {"const": 0},
+        "model_downloads": {"const": 0},
+        "fixture_bundle_sha256": {"$ref": "#/$defs/sha256"},
+        "judge_revision": {"const": "deterministic-typed-answer-judge-v0"},
+        "outputs": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 6,
+          "items": {"$ref": "#/$defs/output"}
+        },
+        "per_query": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 6,
+          "items": {"$ref": "#/$defs/judgment"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "error": {"type": "null"}
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "nonNegativeInteger": {"type": "integer", "minimum": 0},
+    "nonNegativeNumber": {"type": "number", "minimum": 0},
+    "usage": {
+      "type": "object",
+      "required": ["prompt_tokens", "completion_tokens", "llm_calls", "online_cost_usd", "cost_complete"],
+      "properties": {
+        "prompt_tokens": {"const": 0},
+        "completion_tokens": {"const": 0},
+        "llm_calls": {"const": 0},
+        "online_cost_usd": {"const": 0.0},
+        "cost_complete": {"const": true}
+      },
+      "additionalProperties": false
+    },
+    "traceEvent": {
+      "type": "object",
+      "required": ["event", "component", "start_ms", "end_ms"],
+      "properties": {
+        "event": {"type": "string", "minLength": 1},
+        "component": {"type": "string", "minLength": 1},
+        "start_ms": {"$ref": "#/$defs/nonNegativeNumber"},
+        "end_ms": {"$ref": "#/$defs/nonNegativeNumber"}
+      },
+      "additionalProperties": false
+    },
+    "retrievedDocument": {
+      "type": "object",
+      "required": ["doc_id", "rank", "score"],
+      "properties": {
+        "doc_id": {"type": "string", "minLength": 1},
+        "rank": {"type": "integer", "minimum": 1},
+        "score": {"type": "number"}
+      },
+      "additionalProperties": false
+    },
+    "output": {
+      "type": "object",
+      "required": [
+        "query_id",
+        "answer",
+        "answer_type",
+        "cited_doc_ids",
+        "retrieved",
+        "context_doc_ids",
+        "usage",
+        "trace",
+        "online_latency_ms",
+        "status",
+        "error"
+      ],
+      "properties": {
+        "query_id": {"type": "string", "minLength": 1},
+        "answer": {},
+        "answer_type": {"enum": ["entity_id", "entity_id_set", "boolean", "integer", "number"]},
+        "cited_doc_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "retrieved": {"type": "array", "items": {"$ref": "#/$defs/retrievedDocument"}},
+        "context_doc_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "usage": {"$ref": "#/$defs/usage"},
+        "trace": {"type": "array", "items": {"$ref": "#/$defs/traceEvent"}},
+        "online_latency_ms": {"$ref": "#/$defs/nonNegativeNumber"},
+        "status": {"enum": ["ok", "invalid_answer", "timeout", "error", "refused"]},
+        "error": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "judgment": {
+      "type": "object",
+      "required": [
+        "query_id",
+        "reason_code",
+        "answer_valid",
+        "answer_correct",
+        "citation_precision",
+        "required_citation_recall",
+        "citation_f1",
+        "trace_complete",
+        "cost_complete"
+      ],
+      "properties": {
+        "query_id": {"type": "string", "minLength": 1},
+        "reason_code": {"type": "string", "minLength": 1},
+        "answer_valid": {"type": "boolean"},
+        "answer_correct": {"type": "boolean"},
+        "citation_precision": {"type": "number"},
+        "required_citation_recall": {"type": "number"},
+        "citation_f1": {"type": "number"},
+        "trace_complete": {"type": "boolean"},
+        "cost_complete": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    }
+  }
+}

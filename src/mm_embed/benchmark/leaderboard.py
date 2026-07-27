@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from mm_embed.benchmark.registry import BenchmarkCatalog, load_catalog
-from mm_embed.benchmark.results import load_jsonl
+from mm_embed.benchmark.results import is_embedding_result_record, load_jsonl
 
 
 def primary_metric_value(record: dict[str, Any], catalog: BenchmarkCatalog | None = None) -> float | None:
@@ -44,17 +44,7 @@ def build_leaderboard(records: list[dict[str, Any]], catalog: BenchmarkCatalog |
     """Build a flat leaderboard table, one row per successful model-task result."""
     rows = []
     for record in records:
-        evaluation = record.get("evaluation") or {}
-        subject = record.get("subject") or {}
-        if record.get("evaluation_level") not in (None, "embedding"):
-            continue
-        if evaluation.get("level") not in (None, "embedding"):
-            continue
-        if evaluation.get("mode") not in (None, "ranking"):
-            continue
-        if evaluation.get("leaderboard_surface") not in (None, "embedding"):
-            continue
-        if subject.get("kind") not in (None, "embedding_model"):
+        if not is_embedding_result_record(record):
             continue
         if record.get("error"):
             continue
