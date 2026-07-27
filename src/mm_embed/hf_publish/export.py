@@ -100,7 +100,11 @@ def _write_yaml(path: Path, data: dict[str, Any]) -> None:
 
 
 def _is_public_model(model: ModelSpec) -> bool:
-    return model.publish and model.provider not in PUBLIC_EXCLUDED_PROVIDERS
+    return (
+        model.publish
+        and model.provider.lower() not in PUBLIC_EXCLUDED_PROVIDERS
+        and not _contains_excluded_marker(model.id, model.display_name, model.provider)
+    )
 
 
 def _is_public_task(task: TaskSpec) -> bool:
@@ -134,6 +138,29 @@ def _contains_excluded_marker(*values: Any) -> bool:
         if any(marker in text for marker in PUBLIC_EXCLUDED_MARKERS):
             return True
     return False
+
+
+def _space_model_catalog_rows(catalog: BenchmarkCatalog) -> list[dict[str, Any]]:
+    rows = []
+    for model in catalog.models.values():
+        if not _is_public_model(model):
+            continue
+        rows.append(
+            {
+                "id": model.id,
+                "display_name": model.display_name,
+                "provider": model.provider,
+                "modalities": model.modalities,
+                "dimensions": model.dimensions,
+                "max_text_length": model.max_text_length,
+                "supports_mrl": model.supports_mrl,
+                "access": model.access,
+                "status": model.status,
+                "source": model.source,
+            }
+        )
+    rows.sort(key=lambda row: (row["display_name"].lower(), row["provider"].lower(), row["id"].lower()))
+    return rows
 
 
 def _public_records(
@@ -731,11 +758,13 @@ def export_space_repo(
     output = Path(output_dir)
     _reset_dir(output, clean=clean)
     catalog = load_catalog()
+    public_model_rows = _space_model_catalog_rows(catalog)
     public_task_rows = _space_task_catalog_rows(catalog)
 
     (output / "README.md").write_text(_space_readme(dataset_repo_id), encoding="utf-8")
     (output / "requirements.txt").write_text("gradio>=5.0\npandas>=2.0\nhuggingface_hub>=0.30\n", encoding="utf-8")
     (output / "app.py").write_text(_space_app_source(dataset_repo_id), encoding="utf-8")
+    _write_jsonl(output / "models.jsonl", public_model_rows)
     _write_jsonl(output / "tasks.jsonl", public_task_rows)
 
     if bundled_leaderboard:
@@ -753,7 +782,11 @@ def export_space_repo(
         output / "export_manifest.yaml",
         kind="hf_space",
         files=files,
-        metadata={"dataset_repo_id": dataset_repo_id, "declared_public_tasks": len(public_task_rows)},
+        metadata={
+            "dataset_repo_id": dataset_repo_id,
+            "declared_public_models": len(public_model_rows),
+            "declared_public_tasks": len(public_task_rows),
+        },
     )
     return output
 
@@ -798,8 +831,11 @@ import pandas as pd
 
 DEFAULT_DATASET_REPO_ID = __DATASET_REPO_ID__
 LEADERBOARD_FILE = "leaderboards/latest.csv"
+MODEL_CATALOG_FILE = "models.jsonl"
 TASK_CATALOG_FILE = "tasks.jsonl"
 STATIC_TASK_DETAILS = __TASK_DETAILS__
+PUBLIC_EXCLUDED_PROVIDERS = {"geevec_api", "geevec_lite"}
+PUBLIC_EXCLUDED_MARKERS = ("geevec",)
 
 
 def dataset_file(filename, bundled_filename, label):
@@ -836,6 +872,55 @@ def enabled(value, default=True):
     if isinstance(value, bool):
         return value
     return str(value).strip().lower() in {"1", "true", "yes", "y"}
+
+
+def contains_excluded_marker(*values):
+    for value in values:
+        text = str(value or "").lower()
+        if any(marker in text for marker in PUBLIC_EXCLUDED_MARKERS):
+            return True
+    return False
+
+
+def load_model_specs():
+    local_path = dataset_file(MODEL_CATALOG_FILE, "models.jsonl", "model catalog")
+    if local_path is None:
+        return []
+    models = {}
+    with open(local_path, encoding="utf-8") as f:
+        for line in f:
+            if not line.strip():
+                continue
+            try:
+                model = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if not isinstance(model, dict) or not model.get("id"):
+                continue
+            provider = str(model.get("provider") or "")
+            if not enabled(model.get("publish"), True):
+                continue
+            if provider.lower() in PUBLIC_EXCLUDED_PROVIDERS:
+                continue
+            if contains_excluded_marker(model.get("id"), model.get("display_name"), provider):
+                continue
+            modalities = model.get("modalities") or []
+            if not isinstance(modalities, list):
+                modalities = []
+            model_id = str(model["id"])
+            models[model_id] = {
+                "id": model_id,
+                "display_name": str(model.get("display_name") or model_id),
+                "provider": provider,
+                "modalities": [str(value) for value in modalities if str(value).strip()],
+                "dimensions": model.get("dimensions"),
+                "max_text_length": model.get("max_text_length"),
+                "supports_mrl": enabled(model.get("supports_mrl"), False),
+                "access": str(model.get("access") or "unknown"),
+                "status": str(model.get("status") or "unknown"),
+                "source": str(model.get("source") or ""),
+            }
+    return list(models.values())
 
 
 def load_task_specs():
@@ -895,10 +980,12 @@ def evidence_summary():
 
 
 TASK_SPECS = load_task_specs()
+MODEL_SPECS = load_model_specs()
 PUBLIC_TASK_IDS = {str(task.get("id") or "") for task in TASK_SPECS if task.get("id")}
 RAW_ROWS = load_rows()
 ROWS = [row for row in RAW_ROWS if row.get("task_id") in PUBLIC_TASK_IDS] if PUBLIC_TASK_IDS else RAW_ROWS
 ALL_PROVIDERS = "All providers"
+ALL_MODEL_PROVIDERS = "All catalog providers"
 ALL_EVIDENCE_TIERS = "All evidence tiers"
 NOT_EVALUATED = "not evaluated"
 TASKS = sorted(
@@ -910,6 +997,9 @@ TASKS = sorted(
 )
 DECLARED_TASKS = sorted(PUBLIC_TASK_IDS) if PUBLIC_TASK_IDS else TASKS
 PROVIDERS = [ALL_PROVIDERS] + sorted({row.get("provider", "") for row in ROWS if row.get("provider")})
+MODEL_PROVIDERS = [ALL_MODEL_PROVIDERS] + sorted(
+    {model.get("provider", "") for model in MODEL_SPECS if model.get("provider")}
+)
 EVIDENCE_TIERS = [ALL_EVIDENCE_TIERS] + sorted({evidence_tier_value(row) for row in ROWS})
 LATEST_MARKERS_AVAILABLE = any(str(row.get("is_latest_for_task_model") or "").strip() for row in ROWS)
 DEFAULT_LATEST_ONLY = LATEST_MARKERS_AVAILABLE
@@ -955,14 +1045,16 @@ def summary_markdown():
     latest_rows = sum(1 for row in ROWS if truthy(row.get("is_latest_for_task_model")))
     latest_note = str(latest_rows) if LATEST_MARKERS_AVAILABLE else "unavailable"
     return (
-        "Rows: **{}** | Declared public tasks: **{}** | Tasks with score rows: **{}** | Providers: **{}** | Models: **{}**  \\n"
+        "Rows: **{}** | Declared public models: **{}** | Model identities with score rows: **{}** | "
+        "Declared public tasks: **{}** | Tasks with score rows: **{}** | Providers with score rows: **{}**  \\n"
         "Task/model pairs: **{}** | Duplicate repeats: **{}** | Latest markers: **{}** | Evidence: **{}**"
     ).format(
         len(ROWS),
+        len(MODEL_SPECS),
+        models,
         len(DECLARED_TASKS),
         len(TASKS),
         providers,
-        models,
         task_model_pairs,
         duplicate_repeats,
         latest_note,
@@ -1121,6 +1213,84 @@ def render_coverage(provider, evidence_tier, query):
     return coverage_markdown(provider, evidence_tier, query, len(table.index)), table
 
 
+def model_ids_with_score_rows():
+    return {
+        str(row.get("model_id") or "")
+        for row in ROWS
+        if row.get("model_id") and as_float(row.get("score")) is not None
+    }
+
+
+def filtered_model_catalog_rows(provider, query):
+    evaluated_model_ids = model_ids_with_score_rows()
+    query = (query or "").strip().lower()
+    filtered = []
+    for source_model in MODEL_SPECS:
+        if provider != ALL_MODEL_PROVIDERS and source_model.get("provider") != provider:
+            continue
+        model = source_model.copy()
+        model["modalities"] = ", ".join(model.get("modalities") or [])
+        model["supports_mrl"] = "yes" if model.get("supports_mrl") else "no"
+        model["declaration"] = "declared in public model catalog"
+        model["evaluation_evidence"] = (
+            "public score rows available"
+            if model.get("id") in evaluated_model_ids
+            else "declared only - no public score rows"
+        )
+        if query and query not in " ".join(str(value or "").lower() for value in model.values()):
+            continue
+        filtered.append(model)
+    filtered.sort(
+        key=lambda model: (
+            str(model.get("display_name") or "").lower(),
+            str(model.get("provider") or "").lower(),
+            str(model.get("id") or "").lower(),
+        )
+    )
+    return filtered
+
+
+def model_catalog_table(provider, query):
+    columns = [
+        "display_name",
+        "id",
+        "provider",
+        "modalities",
+        "dimensions",
+        "max_text_length",
+        "supports_mrl",
+        "access",
+        "status",
+        "declaration",
+        "evaluation_evidence",
+        "source",
+    ]
+    return pd.DataFrame(filtered_model_catalog_rows(provider, query), columns=columns)
+
+
+def model_catalog_markdown(provider, query, matching_count):
+    filters = []
+    if provider != ALL_MODEL_PROVIDERS:
+        filters.append("provider={}".format(provider))
+    if (query or "").strip():
+        filters.append('search="{}"'.format((query or "").strip()))
+    filter_note = " | ".join(filters) if filters else "no provider or search filter"
+    return (
+        "This is an alphabetical catalog of public registry declarations, **not a model ranking**. "
+        "`public score rows available` means at least one numeric public leaderboard row has the same declared "
+        "model id; it does not imply quality, complete task coverage, recency, or account availability. Registry "
+        "status, dimensions, maximum text length, MRL support, and access are declared metadata only. Score-only "
+        "legacy identities remain available in the Task leaderboard and Coverage views and are not promoted to "
+        "registry declarations here.  \\n"
+        "Showing **{}** declared models | View: **{}**"
+    ).format(matching_count, filter_note)
+
+
+def render_model_catalog(provider, query):
+    table = model_catalog_table(provider, query)
+    return model_catalog_markdown(provider, query, len(table.index)), table
+
+
 def table_from_rows(filtered, top_n):
     filtered = filtered[: int(top_n or 50)]
     for index, row in enumerate(filtered, start=1):
@@ -1180,6 +1350,7 @@ def main():
     initial_coverage_note, initial_coverage_table = render_coverage(
         ALL_PROVIDERS, default_evidence_tier, ""
     )
+    initial_model_note, initial_model_table = render_model_catalog(ALL_MODEL_PROVIDERS, "")
     with gr.Blocks(title="Modern Embedding Bench") as demo:
         gr.Markdown("# Modern Embedding Bench")
         gr.Markdown(summary_markdown())
@@ -1213,6 +1384,34 @@ def main():
             query.change(render, inputs=controls, outputs=[task_note, table])
             latest_only.change(render, inputs=controls, outputs=[task_note, table])
             top_n.change(render, inputs=controls, outputs=[task_note, table])
+
+        with gr.Tab("Model catalog"):
+            model_note = gr.Markdown(initial_model_note)
+            model_provider = gr.Dropdown(
+                choices=MODEL_PROVIDERS,
+                value=ALL_MODEL_PROVIDERS,
+                label="Declared provider",
+            )
+            model_query = gr.Textbox(
+                label="Search",
+                placeholder="Filter declared model metadata",
+            )
+            model_table = gr.Dataframe(
+                value=initial_model_table,
+                label="Declared model catalog (unranked)",
+                interactive=False,
+            )
+            model_controls = [model_provider, model_query]
+            model_provider.change(
+                render_model_catalog,
+                inputs=model_controls,
+                outputs=[model_note, model_table],
+            )
+            model_query.change(
+                render_model_catalog,
+                inputs=model_controls,
+                outputs=[model_note, model_table],
+            )
 
         with gr.Tab("Coverage"):
             coverage_note = gr.Markdown(initial_coverage_note)

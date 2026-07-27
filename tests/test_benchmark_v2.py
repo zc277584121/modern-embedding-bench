@@ -686,6 +686,7 @@ def test_export_hf_space_bundles_current_evidence_view(tmp_path, monkeypatch) ->
 
     assert (output / "README.md").exists()
     assert (output / "app.py").exists()
+    assert (output / "models.jsonl").exists()
     assert (output / "tasks.jsonl").exists()
     compile((output / "app.py").read_text(encoding="utf-8"), str(output / "app.py"), "exec")
     bundled_text = (output / "leaderboard.csv").read_text(encoding="utf-8")
@@ -704,6 +705,25 @@ def test_export_hf_space_bundles_current_evidence_view(tmp_path, monkeypatch) ->
     assert all(task["publish"] is True and task["leaderboard_publish"] is True for task in task_specs)
     assert all("default_kwargs" not in task and "task" not in task and "tags" not in task for task in task_specs)
 
+    model_specs = [json.loads(line) for line in (output / "models.jsonl").read_text(encoding="utf-8").splitlines()]
+    allowed_model_fields = {
+        "access",
+        "dimensions",
+        "display_name",
+        "id",
+        "max_text_length",
+        "modalities",
+        "provider",
+        "source",
+        "status",
+        "supports_mrl",
+    }
+    assert model_specs
+    assert all(set(model) == allowed_model_fields for model in model_specs)
+    assert all(model["provider"] not in {"geevec_api", "geevec_lite"} for model in model_specs)
+    assert all("geevec" not in " ".join(str(value).lower() for value in model.values()) for model in model_specs)
+    assert all("provider_kwargs" not in model and "api_key_env" not in model for model in model_specs)
+
     import sys
     import types
 
@@ -718,7 +738,11 @@ def test_export_hf_space_bundles_current_evidence_view(tmp_path, monkeypatch) ->
     monkeypatch.setitem(sys.modules, "huggingface_hub", huggingface_hub)
 
     app = _load_generated_space_app(output, monkeypatch)
-    assert [attempt[2] for attempt in download_attempts] == ["tasks.jsonl", "leaderboards/latest.csv"]
+    assert [attempt[2] for attempt in download_attempts] == [
+        "tasks.jsonl",
+        "models.jsonl",
+        "leaderboards/latest.csv",
+    ]
     assert app["TASKS"] == [
         "cross_modal_retrieval",
         "crosslingual_retrieval",
@@ -731,6 +755,19 @@ def test_export_hf_space_bundles_current_evidence_view(tmp_path, monkeypatch) ->
     assert app["EVIDENCE_TIERS"] == ["All evidence tiers", "benchmark", "legacy", "smoke", "unknown"]
     assert "Declared public tasks: **4**" in app["summary_markdown"]()
     assert "Tasks with score rows: **4**" in app["summary_markdown"]()
+    assert "Declared public models: **{}**".format(len(model_specs)) in app["summary_markdown"]()
+
+    model_catalog = app["model_catalog_table"]("All catalog providers", "").to_dict("records")
+    assert [row["display_name"] for row in model_catalog] == sorted(
+        (row["display_name"] for row in model_catalog), key=str.lower
+    )
+    assert all(row["declaration"] == "declared in public model catalog" for row in model_catalog)
+    assert all(row["evaluation_evidence"] == "declared only - no public score rows" for row in model_catalog)
+    assert "model-a" not in {row["id"] for row in model_catalog}
+    model_note, _ = app["render_model_catalog"]("All catalog providers", "")
+    assert "not a model ranking" in model_note
+    assert "does not imply quality" in model_note
+    assert "Score-only legacy identities remain available" in model_note
 
     current_rows = app["filtered_rows"](
         "needle_in_haystack", "All providers", "All evidence tiers", "", app["DEFAULT_LATEST_ONLY"]
@@ -802,7 +839,9 @@ def test_export_hf_space_bundles_current_evidence_view(tmp_path, monkeypatch) ->
     assert "not evaluated" in coverage_note
 
     manifest_text = (output / "export_manifest.yaml").read_text(encoding="utf-8")
+    assert "models.jsonl" in manifest_text
     assert "tasks.jsonl" in manifest_text
+    assert "declared_public_models:" in manifest_text
     assert "declared_public_tasks: 4" in manifest_text
 
 
@@ -823,7 +862,66 @@ def test_export_hf_space_loads_remote_public_task_catalog(tmp_path, monkeypatch)
     remote_leaderboard.write_text(
         "task_id,model_id,model,provider,score,evidence_tier,is_latest_for_task_model\n"
         "needle_in_haystack,remote-model,Remote Model,remote,0.8,benchmark,true\n"
+        "needle_in_haystack,legacy-only,Legacy Only,legacy,0.6,legacy,true\n"
         "late_chunking_retrieval,fixture-model,Fixture Model,local,1.0,fixture,true\n",
+        encoding="utf-8",
+    )
+    remote_models = tmp_path / "remote-models.jsonl"
+    remote_models.write_text(
+        "\n".join(
+            json.dumps(model)
+            for model in [
+                {
+                    "id": "remote-model",
+                    "display_name": "Remote Model",
+                    "provider": "remote",
+                    "modalities": ["text"],
+                    "dimensions": 768,
+                    "max_text_length": 8192,
+                    "supports_mrl": True,
+                    "access": "api",
+                    "status": "active",
+                    "source": "https://example.invalid/remote-model",
+                    "publish": True,
+                    "provider_kwargs": {"token": "must-not-leak"},
+                    "api_key_env": "REMOTE_API_KEY",
+                    "notes": "internal note",
+                    "priority": 1,
+                },
+                {
+                    "id": "declared-only",
+                    "display_name": "Declared Only",
+                    "provider": "remote",
+                    "modalities": ["text", "image"],
+                    "dimensions": 1024,
+                    "max_text_length": 4096,
+                    "supports_mrl": False,
+                    "access": "weights",
+                    "status": "active",
+                    "source": "https://example.invalid/declared-only",
+                    "publish": True,
+                },
+                {
+                    "id": "private-model",
+                    "display_name": "Private Model",
+                    "provider": "remote",
+                    "publish": False,
+                },
+                {
+                    "id": "third-party-geevec-copy",
+                    "display_name": "Third-party Copy",
+                    "provider": "remote",
+                    "publish": True,
+                },
+                {
+                    "id": "hidden-provider-model",
+                    "display_name": "Hidden Provider Model",
+                    "provider": "geevec_lite",
+                    "publish": True,
+                },
+            ]
+        )
+        + "\n",
         encoding="utf-8",
     )
     remote_tasks = tmp_path / "remote-tasks.jsonl"
@@ -869,7 +967,11 @@ def test_export_hf_space_loads_remote_public_task_catalog(tmp_path, monkeypatch)
     def local_download(*, repo_id, repo_type, filename):
         assert repo_id == "example/remote-dataset"
         assert repo_type == "dataset"
-        return str(remote_tasks if filename == "tasks.jsonl" else remote_leaderboard)
+        if filename == "tasks.jsonl":
+            return str(remote_tasks)
+        if filename == "models.jsonl":
+            return str(remote_models)
+        return str(remote_leaderboard)
 
     huggingface_hub.hf_hub_download = local_download
     monkeypatch.setitem(sys.modules, "huggingface_hub", huggingface_hub)
@@ -878,10 +980,39 @@ def test_export_hf_space_loads_remote_public_task_catalog(tmp_path, monkeypatch)
 
     assert app["TASKS"] == ["needle_in_haystack"]
     assert app["DECLARED_TASKS"] == ["autonomous_driving", "needle_in_haystack"]
-    assert len(app["ROWS"]) == 1
-    assert app["ROWS"][0]["model"] == "Remote Model"
+    assert [row["model"] for row in app["ROWS"]] == ["Remote Model", "Legacy Only"]
+    assert [model["id"] for model in app["MODEL_SPECS"]] == ["remote-model", "declared-only"]
+    assert all(
+        set(model)
+        == {
+            "access",
+            "dimensions",
+            "display_name",
+            "id",
+            "max_text_length",
+            "modalities",
+            "provider",
+            "source",
+            "status",
+            "supports_mrl",
+        }
+        for model in app["MODEL_SPECS"]
+    )
+    remote_catalog = app["model_catalog_table"]("All catalog providers", "").to_dict("records")
+    assert [(row["id"], row["evaluation_evidence"]) for row in remote_catalog] == [
+        ("declared-only", "declared only - no public score rows"),
+        ("remote-model", "public score rows available"),
+    ]
+    assert "legacy-only" not in {row["id"] for row in remote_catalog}
     coverage = app["coverage_table"]("All providers", "All evidence tiers", "").to_dict("records")
     assert coverage == [
+        {
+            "model": "Legacy Only",
+            "provider": "legacy",
+            "covered_tasks": 1,
+            "autonomous_driving": "not evaluated",
+            "needle_in_haystack": "evaluated (legacy)",
+        },
         {
             "model": "Remote Model",
             "provider": "remote",
