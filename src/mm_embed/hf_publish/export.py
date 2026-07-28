@@ -1209,6 +1209,8 @@ TRAINING_OVERLAP_WARNING = __TRAINING_OVERLAP_WARNING__
 ALL_DATA_OVERLAP_STATUSES = "All data-overlap statuses"
 ALL_TASK_TRAINING_STATUSES = "All task-training statuses"
 REVIEWED_ZERO_SHOT_ONLY = "Reviewed zero-shot only"
+ALL_TASK_SOURCE_DISCLOSURES = "All evaluation-source disclosures"
+ALL_CATALOG_REVIEW_STATES = "All catalog review states"
 OVERLAP_STATUS_LABELS = {
     "exact": "Known exact training overlap",
     "adapted": "Known adapted training overlap",
@@ -1253,6 +1255,32 @@ def enabled(value, default=True):
     if isinstance(value, bool):
         return value
     return str(value).strip().lower() in {"1", "true", "yes", "y"}
+
+
+def normalized_catalog_status(value, allowed, default):
+    status = str(value or "").strip().lower()
+    return status if status in allowed else default
+
+
+def bounded_unique_count(values, key=None, limit=100):
+    if not isinstance(values, list):
+        return 0
+    unique = set()
+    for value in values:
+        if key is not None:
+            value = value.get(key) if isinstance(value, dict) else None
+        text = str(value or "").strip()
+        if not text:
+            continue
+        unique.add(text)
+        if len(unique) > limit:
+            return "{}+".format(limit)
+    return len(unique)
+
+
+def catalog_text(value, default="unknown"):
+    text = str(value or "").strip()
+    return text or default
 
 
 def contains_excluded_marker(*values):
@@ -1302,14 +1330,20 @@ def load_model_specs():
                 "status": str(model.get("status") or "unknown"),
                 "source": str(model.get("source") or ""),
                 "training_data": {
-                    "disclosure": str(training.get("disclosure") or "unknown"),
-                    "lineage_disclosure": str(training.get("lineage_disclosure") or "unknown"),
-                    "model_revision": training.get("model_revision"),
+                    "disclosure": normalized_catalog_status(
+                        training.get("disclosure"), {"unknown", "partial", "complete"}, "unknown"
+                    ),
+                    "lineage_disclosure": normalized_catalog_status(
+                        training.get("lineage_disclosure"), {"unknown", "complete"}, "unknown"
+                    ),
+                    "model_revision": catalog_text(training.get("model_revision")),
                     "source_ids": [str(value) for value in training.get("source_ids") or []],
                     "adapted_from": [str(value) for value in training.get("adapted_from") or []],
                     "evidence_revision": training.get("evidence_revision"),
                     "evidence_urls": [str(value) for value in training.get("evidence_urls") or []],
-                    "review_state": str(training.get("review_state") or "pending"),
+                    "review_state": normalized_catalog_status(
+                        training.get("review_state"), {"pending", "approved", "rejected"}, "pending"
+                    ),
                 },
             }
     return list(models.values())
@@ -1335,17 +1369,25 @@ def load_task_specs():
             if not enabled(task.get("leaderboard_publish"), enabled(task.get("publish"), True)):
                 continue
             evaluation = task.get("evaluation_sources") if isinstance(task.get("evaluation_sources"), dict) else {}
+            required_modalities = task.get("required_modalities") or []
+            if not isinstance(required_modalities, list):
+                required_modalities = []
             tasks.append({
                 "id": str(task["id"]),
                 "display_name": str(task.get("display_name") or task["id"]),
                 "description": str(task.get("description") or ""),
+                "required_modalities": [
+                    str(value) for value in required_modalities if str(value).strip()
+                ],
                 "primary_metric": str(task.get("primary_metric") or ""),
                 "metric_direction": str(task.get("metric_direction") or "higher"),
                 "dataset_version": str(task.get("dataset_version") or "unknown"),
                 "publish": True,
                 "leaderboard_publish": True,
                 "evaluation_sources": {
-                    "disclosure": str(evaluation.get("disclosure") or "unknown"),
+                    "disclosure": normalized_catalog_status(
+                        evaluation.get("disclosure"), {"unknown", "complete"}, "unknown"
+                    ),
                     "sources": [
                         {
                             "source_id": str(source.get("source_id") or ""),
@@ -1359,7 +1401,9 @@ def load_task_specs():
                     ],
                     "evidence_revision": evaluation.get("evidence_revision"),
                     "evidence_urls": [str(value) for value in evaluation.get("evidence_urls") or []],
-                    "review_state": str(evaluation.get("review_state") or "pending"),
+                    "review_state": normalized_catalog_status(
+                        evaluation.get("review_state"), {"pending", "approved", "rejected"}, "pending"
+                    ),
                 },
             })
     return tasks
@@ -1418,6 +1462,18 @@ DECLARED_TASKS = sorted(PUBLIC_TASK_IDS) if PUBLIC_TASK_IDS else TASKS
 PROVIDERS = [ALL_PROVIDERS] + sorted({row.get("provider", "") for row in ROWS if row.get("provider")})
 MODEL_PROVIDERS = [ALL_MODEL_PROVIDERS] + sorted(
     {model.get("provider", "") for model in MODEL_SPECS if model.get("provider")}
+)
+TASK_SOURCE_DISCLOSURES = [ALL_TASK_SOURCE_DISCLOSURES] + sorted(
+    {
+        task.get("evaluation_sources", {}).get("disclosure", "unknown")
+        for task in TASK_SPECS
+    }
+)
+CATALOG_REVIEW_STATES = [ALL_CATALOG_REVIEW_STATES] + sorted(
+    {
+        task.get("evaluation_sources", {}).get("review_state", "pending")
+        for task in TASK_SPECS
+    }
 )
 EVIDENCE_TIERS = [ALL_EVIDENCE_TIERS] + sorted({evidence_tier_value(row) for row in ROWS})
 DATA_OVERLAP_STATUSES = [ALL_DATA_OVERLAP_STATUSES] + sorted(
@@ -1705,6 +1761,100 @@ def model_ids_with_score_rows():
     }
 
 
+def task_ids_with_score_rows():
+    return {
+        str(row.get("task_id") or "")
+        for row in ROWS
+        if row.get("task_id") and as_float(row.get("score")) is not None
+    }
+
+
+def filtered_task_catalog_rows(source_disclosure, review_state, query):
+    evaluated_task_ids = task_ids_with_score_rows()
+    query = (query or "").strip().lower()
+    filtered = []
+    for source_task in TASK_SPECS:
+        evaluation = source_task.get("evaluation_sources") or {}
+        if (
+            source_disclosure != ALL_TASK_SOURCE_DISCLOSURES
+            and evaluation.get("disclosure") != source_disclosure
+        ):
+            continue
+        if review_state != ALL_CATALOG_REVIEW_STATES and evaluation.get("review_state") != review_state:
+            continue
+        task = {
+            "display_name": source_task.get("display_name"),
+            "id": source_task.get("id"),
+            "description": source_task.get("description"),
+            "required_modalities": ", ".join(source_task.get("required_modalities") or []),
+            "primary_metric": source_task.get("primary_metric"),
+            "metric_direction": source_task.get("metric_direction"),
+            "dataset_version": source_task.get("dataset_version"),
+            "evaluation_source_disclosure": evaluation.get("disclosure", "unknown"),
+            "review_state": evaluation.get("review_state", "pending"),
+            "source_count": bounded_unique_count(evaluation.get("sources"), key="source_id"),
+            "declaration": "declared in public task catalog",
+            "evaluation_evidence": (
+                "public score rows available"
+                if source_task.get("id") in evaluated_task_ids
+                else "declared only - no public score rows"
+            ),
+        }
+        if query and query not in " ".join(str(value or "").lower() for value in task.values()):
+            continue
+        filtered.append(task)
+    filtered.sort(
+        key=lambda task: (
+            str(task.get("display_name") or "").lower(),
+            str(task.get("id") or "").lower(),
+        )
+    )
+    return filtered
+
+
+def task_catalog_table(source_disclosure, review_state, query):
+    columns = [
+        "display_name",
+        "id",
+        "description",
+        "required_modalities",
+        "primary_metric",
+        "metric_direction",
+        "dataset_version",
+        "evaluation_source_disclosure",
+        "review_state",
+        "source_count",
+        "declaration",
+        "evaluation_evidence",
+    ]
+    return pd.DataFrame(filtered_task_catalog_rows(source_disclosure, review_state, query), columns=columns)
+
+
+def task_catalog_markdown(source_disclosure, review_state, query, matching_count):
+    filters = []
+    if source_disclosure != ALL_TASK_SOURCE_DISCLOSURES:
+        filters.append("evaluation source disclosure={}".format(source_disclosure))
+    if review_state != ALL_CATALOG_REVIEW_STATES:
+        filters.append("review state={}".format(review_state))
+    if (query or "").strip():
+        filters.append('search="{}"'.format((query or "").strip()))
+    filter_note = " | ".join(filters) if filters else "no disclosure, review, or search filter"
+    return (
+        "This is an alphabetical catalog of public task registry declarations, **not a task ranking**. "
+        "`public score rows available` means at least one numeric public leaderboard row has the same declared "
+        "task id; it does not imply task quality, a global ranking, current coverage, reviewed source completeness, "
+        "zero-shot status, or absence of training overlap. Evaluation-source disclosure, review state, and bounded "
+        "source count are declared metadata only. Unknown or pending means evidence may be missing, empty, "
+        "incomplete, unresolved, or stale; it is not a reviewed negative claim.  \\n"
+        "Showing **{}** declared tasks | View: **{}**"
+    ).format(matching_count, filter_note)
+
+
+def render_task_catalog(source_disclosure, review_state, query):
+    table = task_catalog_table(source_disclosure, review_state, query)
+    return task_catalog_markdown(source_disclosure, review_state, query, len(table.index)), table
+
+
 def filtered_model_catalog_rows(provider, query):
     evaluated_model_ids = model_ids_with_score_rows()
     query = (query or "").strip().lower()
@@ -1715,6 +1865,13 @@ def filtered_model_catalog_rows(provider, query):
         model = source_model.copy()
         model["modalities"] = ", ".join(model.get("modalities") or [])
         model["supports_mrl"] = "yes" if model.get("supports_mrl") else "no"
+        training = model.pop("training_data", {})
+        model["training_disclosure"] = training.get("disclosure", "unknown")
+        model["lineage_disclosure"] = training.get("lineage_disclosure", "unknown")
+        model["review_state"] = training.get("review_state", "pending")
+        model["model_revision"] = catalog_text(training.get("model_revision"))
+        model["training_source_count"] = bounded_unique_count(training.get("source_ids"))
+        model["lineage_parent_count"] = bounded_unique_count(training.get("adapted_from"))
         model["declaration"] = "declared in public model catalog"
         model["evaluation_evidence"] = (
             "public score rows available"
@@ -1745,6 +1902,12 @@ def model_catalog_table(provider, query):
         "supports_mrl",
         "access",
         "status",
+        "training_disclosure",
+        "lineage_disclosure",
+        "review_state",
+        "model_revision",
+        "training_source_count",
+        "lineage_parent_count",
         "declaration",
         "evaluation_evidence",
         "source",
@@ -1763,7 +1926,10 @@ def model_catalog_markdown(provider, query, matching_count):
         "This is an alphabetical catalog of public registry declarations, **not a model ranking**. "
         "`public score rows available` means at least one numeric public leaderboard row has the same declared "
         "model id; it does not imply quality, complete task coverage, recency, or account availability. Registry "
-        "status, dimensions, maximum text length, MRL support, and access are declared metadata only. Score-only "
+        "status, dimensions, maximum text length, MRL support, access, training disclosure, lineage disclosure, "
+        "review state, revision, and bounded counts are declared metadata only. Complete or approved declarations "
+        "do not imply zero-shot evaluation or absence of training overlap. Unknown or pending means evidence may be "
+        "missing, empty, incomplete, unresolved, or stale; it is not a reviewed negative claim. Score-only "
         "legacy identities remain available in the Task leaderboard and Coverage views and are not promoted to "
         "registry declarations here.  \\n"
         "Showing **{}** declared models | View: **{}**"
@@ -1992,6 +2158,9 @@ def main():
     initial_coverage_note, initial_coverage_table = render_coverage(
         ALL_PROVIDERS, default_evidence_tier, ""
     )
+    initial_task_catalog_note, initial_task_catalog_table = render_task_catalog(
+        ALL_TASK_SOURCE_DISCLOSURES, ALL_CATALOG_REVIEW_STATES, ""
+    )
     initial_model_note, initial_model_table = render_model_catalog(ALL_MODEL_PROVIDERS, "")
     initial_operational_note, initial_operational_table = render_operational(
         ALL_PROVIDERS, default_evidence_tier, "", False, 50
@@ -2117,6 +2286,45 @@ def main():
                 render_operational,
                 inputs=operational_controls,
                 outputs=[operational_note, operational_table_view],
+            )
+
+        with gr.Tab("Task catalog"):
+            task_catalog_note = gr.Markdown(initial_task_catalog_note)
+            with gr.Row():
+                task_source_disclosure = gr.Dropdown(
+                    choices=TASK_SOURCE_DISCLOSURES,
+                    value=ALL_TASK_SOURCE_DISCLOSURES,
+                    label="Evaluation-source disclosure",
+                )
+                task_review_state = gr.Dropdown(
+                    choices=CATALOG_REVIEW_STATES,
+                    value=ALL_CATALOG_REVIEW_STATES,
+                    label="Review state",
+                )
+            task_catalog_query = gr.Textbox(
+                label="Search",
+                placeholder="Filter declared task metadata",
+            )
+            task_catalog = gr.Dataframe(
+                value=initial_task_catalog_table,
+                label="Declared task catalog (unranked)",
+                interactive=False,
+            )
+            task_catalog_controls = [task_source_disclosure, task_review_state, task_catalog_query]
+            task_source_disclosure.change(
+                render_task_catalog,
+                inputs=task_catalog_controls,
+                outputs=[task_catalog_note, task_catalog],
+            )
+            task_review_state.change(
+                render_task_catalog,
+                inputs=task_catalog_controls,
+                outputs=[task_catalog_note, task_catalog],
+            )
+            task_catalog_query.change(
+                render_task_catalog,
+                inputs=task_catalog_controls,
+                outputs=[task_catalog_note, task_catalog],
             )
 
         with gr.Tab("Model catalog"):

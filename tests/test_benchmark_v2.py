@@ -854,11 +854,55 @@ def test_export_hf_space_bundles_current_evidence_view(tmp_path, monkeypatch) ->
     )
     assert all(row["declaration"] == "declared in public model catalog" for row in model_catalog)
     assert all(row["evaluation_evidence"] == "declared only - no public score rows" for row in model_catalog)
+    assert all(row["training_disclosure"] == "unknown" for row in model_catalog)
+    assert all(row["lineage_disclosure"] == "unknown" for row in model_catalog)
+    assert all(row["review_state"] == "pending" for row in model_catalog)
+    assert all(row["model_revision"] == "unknown" for row in model_catalog)
+    assert all(row["training_source_count"] == 0 for row in model_catalog)
+    assert all(row["lineage_parent_count"] == 0 for row in model_catalog)
     assert "model-a" not in {row["id"] for row in model_catalog}
     model_note, _ = app["render_model_catalog"]("All catalog providers", "")
     assert "not a model ranking" in model_note
     assert "does not imply quality" in model_note
+    assert "do not imply zero-shot evaluation or absence of training overlap" in model_note
+    assert "missing, empty, incomplete, unresolved, or stale" in model_note
     assert "Score-only legacy identities remain available" in model_note
+
+    task_catalog = app["task_catalog_table"](
+        "All evaluation-source disclosures", "All catalog review states", ""
+    ).to_dict("records")
+    assert [row["display_name"] for row in task_catalog] == sorted(
+        (row["display_name"] for row in task_catalog), key=str.lower
+    )
+    assert all(row["declaration"] == "declared in public task catalog" for row in task_catalog)
+    assert all(row["evaluation_evidence"] == "public score rows available" for row in task_catalog)
+    assert all(row["evaluation_source_disclosure"] == "unknown" for row in task_catalog)
+    assert all(row["review_state"] == "pending" for row in task_catalog)
+    assert all(row["source_count"] == 0 for row in task_catalog)
+    assert next(row for row in task_catalog if row["id"] == "cross_modal_retrieval") == {
+        "display_name": "Text-image retrieval",
+        "id": "cross_modal_retrieval",
+        "description": "Bidirectional COCO text-image retrieval with hard negative captions.",
+        "required_modalities": "text, image",
+        "primary_metric": "hard_avg_recall@1",
+        "metric_direction": "higher",
+        "dataset_version": "cross-modal-coco-hard-v1",
+        "evaluation_source_disclosure": "unknown",
+        "review_state": "pending",
+        "source_count": 0,
+        "declaration": "declared in public task catalog",
+        "evaluation_evidence": "public score rows available",
+    }
+    assert [row["id"] for row in app["task_catalog_table"](
+        "unknown", "pending", "needle"
+    ).to_dict("records")] == ["needle_in_haystack"]
+    task_note, _ = app["render_task_catalog"](
+        "All evaluation-source disclosures", "All catalog review states", ""
+    )
+    assert "not a task ranking" in task_note
+    assert "does not imply task quality, a global ranking" in task_note
+    assert "zero-shot status, or absence of training overlap" in task_note
+    assert "missing, empty, incomplete, unresolved, or stale" in task_note
 
     current_rows = app["filtered_rows"](
         "needle_in_haystack", "All providers", "All evidence tiers", "", app["DEFAULT_LATEST_ONLY"]
@@ -974,6 +1018,15 @@ def test_export_hf_space_loads_remote_public_task_catalog(tmp_path, monkeypatch)
                     "status": "active",
                     "source": "https://example.invalid/remote-model",
                     "publish": True,
+                    "training_data": {
+                        "disclosure": "complete",
+                        "lineage_disclosure": "complete",
+                        "model_revision": "remote-revision-1",
+                        "source_ids": ["training-source-b", "training-source-a"],
+                        "adapted_from": ["base-model"],
+                        "review_state": "approved",
+                        "private_notes": "must-not-leak",
+                    },
                     "provider_kwargs": {"token": "must-not-leak"},
                     "api_key_env": "REMOTE_API_KEY",
                     "notes": "internal note",
@@ -991,6 +1044,14 @@ def test_export_hf_space_loads_remote_public_task_catalog(tmp_path, monkeypatch)
                     "status": "active",
                     "source": "https://example.invalid/declared-only",
                     "publish": True,
+                    "training_data": {
+                        "disclosure": "",
+                        "lineage_disclosure": "stale",
+                        "model_revision": "",
+                        "source_ids": [],
+                        "adapted_from": [],
+                        "review_state": "unresolved",
+                    },
                 },
                 {
                     "id": "private-model",
@@ -1024,17 +1085,43 @@ def test_export_hf_space_loads_remote_public_task_catalog(tmp_path, monkeypatch)
                     "id": "needle_in_haystack",
                     "display_name": "Remote Needle",
                     "description": "Remote scored task.",
+                    "required_modalities": ["text"],
                     "primary_metric": "overall_accuracy",
+                    "metric_direction": "higher",
+                    "dataset_version": "remote-needle-v1",
                     "publish": True,
                     "leaderboard_publish": True,
+                    "evaluation_sources": {
+                        "disclosure": "complete",
+                        "sources": [
+                            {
+                                "source_id": "remote-evaluation-source",
+                                "source_revision": "source-revision-1",
+                                "config": "public",
+                                "split": "test",
+                                "transformation_id": "transform-1",
+                                "private_notes": "must-not-leak",
+                            }
+                        ],
+                        "review_state": "approved",
+                        "private_notes": "must-not-leak",
+                    },
                 },
                 {
                     "id": "autonomous_driving",
                     "display_name": "Remote Driving",
                     "description": "Remote declared task without rows.",
+                    "required_modalities": ["text", "image"],
                     "primary_metric": "avg_recall@1",
+                    "metric_direction": "higher",
+                    "dataset_version": "remote-driving-v1",
                     "publish": True,
                     "leaderboard_publish": True,
+                    "evaluation_sources": {
+                        "disclosure": "stale",
+                        "sources": [],
+                        "review_state": "unresolved",
+                    },
                 },
                 {
                     "id": "late_chunking_retrieval",
@@ -1095,7 +1182,56 @@ def test_export_hf_space_loads_remote_public_task_catalog(tmp_path, monkeypatch)
         ("declared-only", "declared only - no public score rows"),
         ("remote-model", "public score rows available"),
     ]
+    assert next(row for row in remote_catalog if row["id"] == "remote-model") == {
+        "display_name": "Remote Model",
+        "id": "remote-model",
+        "provider": "remote",
+        "modalities": "text",
+        "dimensions": 768,
+        "max_text_length": 8192,
+        "supports_mrl": "yes",
+        "access": "api",
+        "status": "active",
+        "training_disclosure": "complete",
+        "lineage_disclosure": "complete",
+        "review_state": "approved",
+        "model_revision": "remote-revision-1",
+        "training_source_count": 2,
+        "lineage_parent_count": 1,
+        "declaration": "declared in public model catalog",
+        "evaluation_evidence": "public score rows available",
+        "source": "https://example.invalid/remote-model",
+    }
+    declared_only_model = next(row for row in remote_catalog if row["id"] == "declared-only")
+    assert declared_only_model["training_disclosure"] == "unknown"
+    assert declared_only_model["lineage_disclosure"] == "unknown"
+    assert declared_only_model["review_state"] == "pending"
+    assert declared_only_model["model_revision"] == "unknown"
+    assert "must-not-leak" not in json.dumps(remote_catalog)
     assert "legacy-only" not in {row["id"] for row in remote_catalog}
+
+    remote_task_catalog = app["task_catalog_table"](
+        "All evaluation-source disclosures", "All catalog review states", ""
+    ).to_dict("records")
+    assert [(row["id"], row["evaluation_evidence"]) for row in remote_task_catalog] == [
+        ("autonomous_driving", "declared only - no public score rows"),
+        ("needle_in_haystack", "public score rows available"),
+    ]
+    remote_task = next(row for row in remote_task_catalog if row["id"] == "needle_in_haystack")
+    assert remote_task["required_modalities"] == "text"
+    assert remote_task["metric_direction"] == "higher"
+    assert remote_task["dataset_version"] == "remote-needle-v1"
+    assert remote_task["evaluation_source_disclosure"] == "complete"
+    assert remote_task["review_state"] == "approved"
+    assert remote_task["source_count"] == 1
+    declared_only_task = next(row for row in remote_task_catalog if row["id"] == "autonomous_driving")
+    assert declared_only_task["evaluation_source_disclosure"] == "unknown"
+    assert declared_only_task["review_state"] == "pending"
+    assert declared_only_task["source_count"] == 0
+    assert "must-not-leak" not in json.dumps(remote_task_catalog)
+    assert [row["id"] for row in app["task_catalog_table"](
+        "complete", "approved", "remote"
+    ).to_dict("records")] == ["needle_in_haystack"]
     coverage = app["coverage_table"]("All providers", "All evidence tiers", "").to_dict("records")
     assert coverage == [
         {
