@@ -12,6 +12,13 @@ from typing import Any
 
 import numpy as np
 
+from mm_embed.benchmark.materialization import (
+    DATA_SOURCE_CONTRACT_VERSION,
+    PUBLIC_MATERIALIZATION_TASK_IDS,
+    invalid_data_source_snapshot,
+    normalize_data_mode,
+    validate_data_source_snapshot,
+)
 from mm_embed.benchmark.registry import BenchmarkCatalog, ModelSpec, RunManifest, RunTask, TaskSpec
 from mm_embed.benchmark.training_overlap import (
     RelationshipRegistry,
@@ -106,6 +113,7 @@ def make_result_record(
     error: str | None = None,
     catalog: BenchmarkCatalog | None = None,
     relationship_registry: RelationshipRegistry | None = None,
+    data_source_contract: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Build the canonical JSONL record for a model-task evaluation."""
     assessment_catalog = catalog or BenchmarkCatalog(root=Path("."), models={model.id: model}, tasks={task.id: task})
@@ -119,7 +127,7 @@ def make_result_record(
         relationship_registry=relationship_registry,
         assessed_at=finished_at,
     )
-    return json_safe({
+    record = {
         "schema_version": RESULT_SCHEMA_VERSION,
         "training_overlap_contract_version": TRAINING_OVERLAP_CONTRACT_VERSION,
         "training_overlap": overlap,
@@ -168,7 +176,30 @@ def make_result_record(
         "metrics": result.metrics,
         "details": result.details,
         "error": error if error is not None else result.error,
-    })
+    }
+    if task.id in PUBLIC_MATERIALIZATION_TASK_IDS:
+        if data_source_contract is None:
+            data_source_contract = invalid_data_source_snapshot(
+                task,
+                data_mode="unknown",
+                reason_code="missing_runtime_binding",
+            )
+        validate_data_source_snapshot(data_source_contract)
+        if (
+            data_source_contract["task_id"] != task.id
+            or data_source_contract["dataset_version"] != task.dataset_version
+        ):
+            raise ValueError("data_source_contract does not match the result task identity")
+        if data_source_contract["validation_status"] in {"validated", "fixture"}:
+            declared_mode = normalize_data_mode(
+                run_task.kwargs.get("data_mode"),
+                run_task.kwargs.get("use_mock"),
+            )
+            if declared_mode != data_source_contract["data_mode"]:
+                raise ValueError("Result task data mode does not match data_source_contract")
+        record["data_source_contract_version"] = DATA_SOURCE_CONTRACT_VERSION
+        record["data_source_contract"] = data_source_contract
+    return json_safe(record)
 
 
 def append_jsonl(path: str | Path, record: dict[str, Any]) -> None:

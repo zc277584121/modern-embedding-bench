@@ -19,6 +19,11 @@ from typing import Any
 import numpy as np
 from scipy import stats
 
+from mm_embed.benchmark.materialization import (
+    MaterializationAuthorization,
+    normalize_data_mode,
+    require_task_materialization_binding,
+)
 from mm_embed.data.mock import get_mrl_test_data
 from mm_embed.data.real_data import load_mrl_continuous_data
 from mm_embed.providers.base import EmbeddingProvider, ModalityType
@@ -47,13 +52,16 @@ class MRLStressTask(EvalTask):
     def __init__(
         self,
         dimensions: list[int] | None = None,
-        use_mock: bool = False,
+        data_mode: str | None = None,
+        use_mock: bool | None = None,
+        materialization_binding: MaterializationAuthorization | None = None,
         max_samples: int | None = 150,
         hard_mode: bool = True,
         **kwargs: Any,
     ):
         self.test_dims = dimensions or self.DEFAULT_DIMS
-        self.use_mock = use_mock
+        self.data_mode = normalize_data_mode(data_mode, use_mock)
+        self.materialization_binding = materialization_binding
         self.max_samples = max_samples
         self.hard_mode = hard_mode
 
@@ -70,16 +78,19 @@ class MRLStressTask(EvalTask):
             )
 
         try:
-            if self.use_mock:
+            materialization = require_task_materialization_binding(
+                self.name,
+                self.data_mode,
+                self.materialization_binding,
+            )
+            if self.data_mode == "fixture":
                 # Mock data returns binary labels; convert to continuous-like
                 mock_data = get_mrl_test_data()
                 test_data = [(a, b, 5.0 if sim else 0.0) for a, b, sim in mock_data]
             else:
-                try:
-                    test_data = load_mrl_continuous_data()
-                except FileNotFoundError:
-                    mock_data = get_mrl_test_data()
-                    test_data = [(a, b, 5.0 if sim else 0.0) for a, b, sim in mock_data]
+                if materialization is None:
+                    raise ValueError("Real MRL data requires a materialization authorization")
+                test_data = load_mrl_continuous_data(materialization)
 
             # Subsample if max_samples is set
             if self.max_samples and len(test_data) > self.max_samples:
@@ -154,6 +165,7 @@ class MRLStressTask(EvalTask):
                 "n_unique_sentences": float(len(unique_texts)),
             }
             dim_details: dict[str, Any] = {
+                "data_mode": self.data_mode,
                 "full_dim": full_dim,
                 "full_spearman": full_spearman,
                 "per_dim": {},

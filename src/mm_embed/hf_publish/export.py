@@ -14,6 +14,10 @@ from typing import Any
 import yaml
 
 from mm_embed.benchmark.leaderboard import TRAINING_OVERLAP_FIELDNAMES, build_leaderboard, primary_metric_value
+from mm_embed.benchmark.materialization import (
+    public_data_source_contract_for_record,
+    validate_public_data_source_record,
+)
 from mm_embed.benchmark.registry import (
     BenchmarkCatalog,
     ModelSpec,
@@ -64,10 +68,17 @@ LEADERBOARD_OPERATIONAL_FIELDNAMES = [
     "fresh_provider_calls",
     "cache_enabled",
 ]
+DATA_SOURCE_FIELDNAMES = [
+    "data_mode",
+    "data_source_status",
+    "data_source_reason_codes",
+    "data_manifest_revision",
+]
 LEADERBOARD_FIELDNAMES = (
     LEADERBOARD_BASE_FIELDNAMES
     + LEADERBOARD_PROVENANCE_FIELDNAMES
     + LEADERBOARD_OPERATIONAL_FIELDNAMES
+    + DATA_SOURCE_FIELDNAMES
     + TRAINING_OVERLAP_FIELDNAMES
 )
 
@@ -299,6 +310,7 @@ def _public_records(
             provider_result.get("model_name"),
         ):
             continue
+        validate_public_data_source_record(record)
         public.append(_public_result_record(record))
     return public
 
@@ -347,6 +359,7 @@ def _dataset_task_catalog_rows(catalog: BenchmarkCatalog) -> list[dict[str, Any]
 def _public_result_record(record: dict[str, Any]) -> dict[str, Any]:
     """Preserve existing public evidence while recursively removing unsafe values."""
     overlap = public_assessment_for_record(record)
+    data_source_contract = public_data_source_contract_for_record(record)
     source_record = {key: value for key, value in record.items() if key != "training_overlap"}
     sanitized = _sanitize_public_result_value(source_record)
     if not isinstance(sanitized, dict):
@@ -356,6 +369,7 @@ def _public_result_record(record: dict[str, Any]) -> dict[str, Any]:
         key: overlap.get(key)
         for key in PUBLIC_TRAINING_OVERLAP_FIELDS
     }
+    public_record["data_source_contract"] = data_source_contract
     original_error = record.get("error")
     if original_error and not isinstance(public_record.get("error"), str):
         public_record["error"] = "Evaluation failed"
@@ -454,9 +468,17 @@ def _read_leaderboard_csv(path: Path) -> tuple[list[dict[str, str]], list[str]]:
 def _write_leaderboard_csv_rows(path: Path, rows: list[dict[str, Any]], fieldnames: list[str] | None = None) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     requested_fields = list(fieldnames or LEADERBOARD_FIELDNAMES)
-    ordered_fields = [field for field in requested_fields if field not in TRAINING_OVERLAP_FIELDNAMES]
-    extras = sorted({key for row in rows for key in row if key not in requested_fields})
-    final_fields = ordered_fields + extras + TRAINING_OVERLAP_FIELDNAMES
+    contract_fields = DATA_SOURCE_FIELDNAMES + TRAINING_OVERLAP_FIELDNAMES
+    ordered_fields = [field for field in requested_fields if field not in contract_fields]
+    extras = sorted(
+        {
+            key
+            for row in rows
+            for key in row
+            if key not in requested_fields and key not in contract_fields
+        }
+    )
+    final_fields = ordered_fields + extras + DATA_SOURCE_FIELDNAMES + TRAINING_OVERLAP_FIELDNAMES
     with open(path, "w", encoding="utf-8", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=final_fields)
         writer.writeheader()
@@ -470,7 +492,12 @@ def _leaderboard_fieldnames_with_provenance(fieldnames: list[str] | None) -> lis
         for field in (fieldnames or LEADERBOARD_BASE_FIELDNAMES)
         if field not in TRAINING_OVERLAP_FIELDNAMES
     ]
-    for field in LEADERBOARD_PROVENANCE_FIELDNAMES + LEADERBOARD_OPERATIONAL_FIELDNAMES + TRAINING_OVERLAP_FIELDNAMES:
+    for field in (
+        LEADERBOARD_PROVENANCE_FIELDNAMES
+        + LEADERBOARD_OPERATIONAL_FIELDNAMES
+        + DATA_SOURCE_FIELDNAMES
+        + TRAINING_OVERLAP_FIELDNAMES
+    ):
         if field not in fields:
             fields.append(field)
     return fields
@@ -482,6 +509,13 @@ def _normalize_overlap_row(row: dict[str, Any]) -> None:
     row.setdefault("zero_shot_status", "unknown")
     row.setdefault("overlap_reason_codes", "legacy_missing_contract")
     row.setdefault("overlap_relationship_registry_revision", "legacy")
+
+
+def _normalize_data_source_row(row: dict[str, Any]) -> None:
+    row.setdefault("data_mode", "unknown")
+    row.setdefault("data_source_status", "unknown")
+    row.setdefault("data_source_reason_codes", "legacy_missing_source_contract")
+    row.setdefault("data_manifest_revision", "")
 
 
 def _public_leaderboard_rows(
@@ -511,6 +545,11 @@ def _public_leaderboard_rows(
             continue
         if _contains_excluded_marker(provider, model_id, model):
             continue
+        if str(row.get("data_mode") or "").strip() == "fixture":
+            raise ValueError("Public leaderboard row uses fixture data")
+        if str(row.get("data_source_status") or "").strip() in {"invalid", "partial"}:
+            raise ValueError("Public leaderboard row has an invalid data-source binding")
+        _normalize_data_source_row(row)
         _normalize_overlap_row(row)
         public.append(row)
     return public
@@ -674,6 +713,7 @@ def _leaderboard_provenance_by_key(
                 "evidence_tier_explicit": explicit_tier is not None,
                 "evidence_source": _record_evidence_source(record),
                 **_record_operational_evidence(record),
+                **_record_data_source_evidence(record),
                 **_record_overlap_evidence(record),
             }
         )
@@ -693,7 +733,7 @@ def _enrich_leaderboard_rows(
         matches = provenance.get(_leaderboard_row_key(row)) or []
         match = matches.pop(0) if matches else {}
         if result_records:
-            for field in LEADERBOARD_OPERATIONAL_FIELDNAMES:
+            for field in LEADERBOARD_OPERATIONAL_FIELDNAMES + DATA_SOURCE_FIELDNAMES:
                 row.pop(field, None)
         row["_source_index"] = match.get("_source_index", index)
         explicit_row_tier = (
@@ -711,10 +751,14 @@ def _enrich_leaderboard_rows(
         for field in LEADERBOARD_OPERATIONAL_FIELDNAMES:
             if field in match:
                 row[field] = match[field]
+        for field in DATA_SOURCE_FIELDNAMES:
+            if field in match:
+                row[field] = match[field]
         for field in TRAINING_OVERLAP_FIELDNAMES:
             if field in match:
                 row[field] = match[field]
         _normalize_overlap_row(row)
+        _normalize_data_source_row(row)
 
     groups: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
     for row in enriched:
@@ -740,6 +784,16 @@ def _record_overlap_evidence(record: dict[str, Any]) -> dict[str, Any]:
         "zero_shot_status": overlap["zero_shot_status"],
         "overlap_reason_codes": ";".join(overlap["reason_codes"]),
         "overlap_relationship_registry_revision": overlap["relationship_registry_revision"],
+    }
+
+
+def _record_data_source_evidence(record: dict[str, Any]) -> dict[str, Any]:
+    snapshot = public_data_source_contract_for_record(record)
+    return {
+        "data_mode": snapshot["data_mode"],
+        "data_source_status": snapshot["validation_status"],
+        "data_source_reason_codes": ";".join(snapshot["reason_codes"]),
+        "data_manifest_revision": snapshot["manifest_revision"] or "",
     }
 
 
@@ -872,6 +926,7 @@ Each line in `results/latest.jsonl` is one model-task run. Important fields:
 - `run`: run id, description, metadata, publication intent, normalized evidence tier, and git sha when available
 - `model`: model id, display name, provider, modalities, dimensions, and tags
 - `task`: task id, dataset version, primary metric, and task kwargs
+- `data_source_contract`: frozen real, fixture, invalid, or legacy-unknown materialization identity
 - `metrics`: task-specific metric dictionary
 - `details`: diagnostic details for deeper analysis
 - `error`: error text for failed runs, otherwise `null`
@@ -903,6 +958,11 @@ result fields: `run_started_at`, `run_finished_at`, `dataset_version`,
 `input_count_total`, `token_usage`, `provider_latency_ms`, `cost_usd`,
 `fresh_provider_calls`, and `cache_enabled`. Missing values remain blank; in
 particular, missing cost is not converted to zero or estimated.
+
+Data-source columns expose the frozen result snapshot: `data_mode`,
+`data_source_status`, `data_source_reason_codes`, and `data_manifest_revision`.
+Pre-contract rows remain `unknown` with `legacy_missing_source_contract`; their
+scores and evidence tiers are not recomputed or relabeled.
 
 Latest markers are computed from the order of `results/latest.jsonl` when result
 records are available, otherwise from CSV row order. Use

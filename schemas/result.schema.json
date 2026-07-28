@@ -37,6 +37,38 @@
         "assessed_at": {"type": ["string", "null"]}
       },
       "additionalProperties": false
+    },
+    "dataSourceContract": {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "task_id",
+        "dataset_version",
+        "manifest_revision",
+        "manifest_sha256",
+        "data_mode",
+        "validation_status",
+        "source_ids",
+        "transformation_id",
+        "row_count",
+        "asset_count",
+        "reason_codes"
+      ],
+      "properties": {
+        "schema_version": {"const": "1"},
+        "task_id": {"type": "string", "minLength": 1},
+        "dataset_version": {"type": "string", "minLength": 1},
+        "manifest_revision": {"type": ["string", "null"]},
+        "manifest_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+        "data_mode": {"type": "string", "enum": ["real", "fixture", "unknown"]},
+        "validation_status": {"type": "string", "enum": ["validated", "fixture", "invalid", "unknown"]},
+        "source_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "transformation_id": {"type": ["string", "null"]},
+        "row_count": {"type": ["integer", "null"], "minimum": 0},
+        "asset_count": {"type": ["integer", "null"], "minimum": 0},
+        "reason_codes": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+      },
+      "additionalProperties": false
     }
   },
   "type": "object",
@@ -45,6 +77,8 @@
     "schema_version": {"type": "string"},
     "training_overlap_contract_version": {"type": "string", "enum": ["1"]},
     "training_overlap": {"$ref": "#/$defs/trainingOverlap"},
+    "data_source_contract_version": {"type": "string", "enum": ["1"]},
+    "data_source_contract": {"$ref": "#/$defs/dataSourceContract"},
     "run": {
       "type": "object",
       "properties": {
@@ -75,6 +109,13 @@
         "required": ["training_overlap_contract_version"]
       },
       "then": {"required": ["training_overlap"]}
+    },
+    {
+      "if": {
+        "properties": {"data_source_contract_version": {"const": "1"}},
+        "required": ["data_source_contract_version"]
+      },
+      "then": {"required": ["data_source_contract"]}
     }
   ],
   "additionalProperties": true

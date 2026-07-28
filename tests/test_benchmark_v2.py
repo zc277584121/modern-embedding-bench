@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 
 from mm_embed.benchmark.leaderboard import build_leaderboard
+from mm_embed.benchmark.materialization import legacy_unknown_data_source_contract
 from mm_embed.benchmark.registry import (
     BenchmarkCatalog,
     EvaluationSourceClaim,
@@ -683,6 +684,10 @@ def test_export_hf_dataset_marks_leaderboard_provenance_and_latest(tmp_path) -> 
         "cost_usd",
         "fresh_provider_calls",
         "cache_enabled",
+        "data_mode",
+        "data_source_status",
+        "data_source_reason_codes",
+        "data_manifest_revision",
         "data_overlap_status",
         "task_training_status",
         "zero_shot_status",
@@ -1982,6 +1987,7 @@ def test_public_result_sanitizer_preserves_safe_baseline_evidence(tmp_path) -> N
 
     expected = json.loads(json.dumps(safe_record))
     expected["training_overlap"] = legacy_unknown_assessment()
+    expected["data_source_contract"] = legacy_unknown_data_source_contract(safe_record)
     assert exported == [expected]
     assert exported[0]["model"]["provider_kwargs"] == safe_record["model"]["provider_kwargs"]
     assert exported[0]["task"]["kwargs"] == safe_record["task"]["kwargs"]

@@ -44,6 +44,13 @@
         "review": {"$ref": "#/$defs/review"}
       },
       "additionalProperties": false
+    },
+    "materialization": {
+      "type": "object",
+      "properties": {
+        "transformation_parameters": {"type": "object"}
+      },
+      "additionalProperties": false
     }
   },
   "type": "object",
@@ -67,7 +74,8 @@
           "publish": {"type": "boolean"},
           "leaderboard_publish": {"type": "boolean"},
           "tags": {"type": "array", "items": {"type": "string"}},
-          "evaluation_sources": {"$ref": "#/$defs/evaluationSources"}
+          "evaluation_sources": {"$ref": "#/$defs/evaluationSources"},
+          "materialization": {"$ref": "#/$defs/materialization"}
         },
         "additionalProperties": true
       }

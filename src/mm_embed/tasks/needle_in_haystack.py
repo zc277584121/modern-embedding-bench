@@ -16,6 +16,11 @@ from typing import Any
 
 import numpy as np
 
+from mm_embed.benchmark.materialization import (
+    MaterializationAuthorization,
+    normalize_data_mode,
+    require_task_materialization_binding,
+)
 from mm_embed.data.mock import get_needle_haystack_data
 from mm_embed.data.real_data import load_needle_haystack_real_data
 from mm_embed.providers.base import EmbeddingInput, EmbeddingProvider, EmbeddingResult, ModalityType
@@ -43,35 +48,40 @@ class NeedleInHaystackTask(EvalTask):
         self,
         haystack_lengths: list[int] | None = None,
         needle_positions: list[float] | None = None,
-        use_mock: bool = False,
+        data_mode: str | None = None,
+        use_mock: bool | None = None,
+        materialization_binding: MaterializationAuthorization | None = None,
         use_cache: bool = True,
         **kwargs: Any,
     ):
         self.haystack_lengths = haystack_lengths or [4000, 8000, 16000, 32000]
         self.needle_positions = needle_positions or [0.0, 0.25, 0.5, 0.75, 1.0]
-        self.use_mock = use_mock
+        self.data_mode = normalize_data_mode(data_mode, use_mock)
+        self.materialization_binding = materialization_binding
         self.use_cache = use_cache
 
     def run(self, provider: EmbeddingProvider, **kwargs: Any) -> EvalResult:
         model_name = getattr(provider, "model", "unknown")
 
         try:
-            if self.use_mock:
+            materialization = require_task_materialization_binding(
+                self.name,
+                self.data_mode,
+                self.materialization_binding,
+            )
+            if self.data_mode == "fixture":
                 test_cases = get_needle_haystack_data(
                     haystack_lengths=self.haystack_lengths,
                     needle_positions=self.needle_positions,
                 )
             else:
-                try:
-                    test_cases = load_needle_haystack_real_data(
-                        haystack_lengths=self.haystack_lengths,
-                        needle_positions=self.needle_positions,
-                    )
-                except FileNotFoundError:
-                    test_cases = get_needle_haystack_data(
-                        haystack_lengths=self.haystack_lengths,
-                        needle_positions=self.needle_positions,
-                    )
+                if materialization is None:
+                    raise ValueError("Real needle data requires a materialization authorization")
+                test_cases = load_needle_haystack_real_data(
+                    materialization,
+                    haystack_lengths=self.haystack_lengths,
+                    needle_positions=self.needle_positions,
+                )
 
             # Filter test cases to documents within provider's max context
             max_chars = provider.max_text_length * 4  # rough tokens-to-chars ratio
@@ -203,6 +213,7 @@ class NeedleInHaystackTask(EvalTask):
                 heatmap[len_key][pos_key] = sum(hits) / len(hits) if hits else 0.0
 
             details = {
+                "data_mode": self.data_mode,
                 "n_test_cases": len(valid_cases),
                 "n_skipped": len(test_cases) - len(valid_cases),
                 "max_provider_context": provider.max_text_length,

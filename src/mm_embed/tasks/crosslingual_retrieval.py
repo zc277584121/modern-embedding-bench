@@ -19,6 +19,12 @@ from typing import Any
 
 import numpy as np
 
+from mm_embed.benchmark.materialization import (
+    MaterializationAuthorization,
+    normalize_data_mode,
+    require_task_materialization_binding,
+)
+from mm_embed.data.mock import get_crosslingual_data
 from mm_embed.data.real_data import load_crosslingual_data
 from mm_embed.providers.base import EmbeddingProvider, ModalityType
 from mm_embed.tasks.base import EvalResult, EvalTask
@@ -46,14 +52,31 @@ class CrossLingualRetrievalTask(EvalTask):
     description = "Cross-lingual retrieval (Chinese <-> English)"
     required_modalities = {ModalityType.TEXT}
 
-    def __init__(self, use_mock: bool = False, **kwargs: Any):
-        self.use_mock = use_mock
+    def __init__(
+        self,
+        data_mode: str | None = None,
+        use_mock: bool | None = None,
+        materialization_binding: MaterializationAuthorization | None = None,
+        **kwargs: Any,
+    ):
+        self.data_mode = normalize_data_mode(data_mode, use_mock)
+        self.materialization_binding = materialization_binding
 
     def run(self, provider: EmbeddingProvider, **kwargs: Any) -> EvalResult:
         model_name = getattr(provider, "model", "unknown")
 
         try:
-            data = load_crosslingual_data()
+            materialization = require_task_materialization_binding(
+                self.name,
+                self.data_mode,
+                self.materialization_binding,
+            )
+            if self.data_mode == "fixture":
+                data = get_crosslingual_data()
+            else:
+                if materialization is None:
+                    raise ValueError("Real cross-lingual data requires a materialization authorization")
+                data = load_crosslingual_data(materialization)
             n = len(data)
             logger.info("Cross-lingual retrieval: %d parallel pairs", n)
 
@@ -179,6 +202,7 @@ class CrossLingualRetrievalTask(EvalTask):
                 ) / 2
 
             details = {
+                "data_mode": self.data_mode,
                 "n_pairs": n,
                 "n_hard_negatives_en": len(hard_neg_en),
                 "n_hard_negatives_zh": len(hard_neg_zh),

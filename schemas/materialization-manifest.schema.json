@@ -1,0 +1,200 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://modern-embedding-bench.invalid/schemas/materialization-manifest-v1.json",
+  "title": "Public benchmark materialization manifest v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "task_id",
+    "dataset_version",
+    "manifest_revision",
+    "created_at",
+    "sources",
+    "transformation",
+    "materialization",
+    "validation",
+    "review"
+  ],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "task_id": {"type": "string", "minLength": 1},
+    "dataset_version": {"type": "string", "minLength": 1},
+    "manifest_revision": {"type": "string", "minLength": 1},
+    "created_at": {"type": "string", "format": "date-time"},
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "required": [
+          "source_id",
+          "source_revision",
+          "config",
+          "split",
+          "role",
+          "provenance_urls",
+          "license_id",
+          "authorship",
+          "attribution",
+          "redistribution",
+          "privacy_review",
+          "publication_status"
+        ],
+        "properties": {
+          "source_id": {"type": "string", "minLength": 1},
+          "source_revision": {"type": "string", "minLength": 1},
+          "config": {"type": ["string", "null"]},
+          "split": {"type": ["string", "null"]},
+          "role": {"type": "string", "minLength": 1},
+          "provenance_urls": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+          "license_id": {"type": "string", "minLength": 1},
+          "authorship": {"type": "string", "minLength": 1},
+          "attribution": {"type": "string", "minLength": 1},
+          "redistribution": {"type": "string", "enum": ["allowed", "restricted", "not_reviewed"]},
+          "privacy_review": {"type": "string", "enum": ["approved", "restricted", "not_recorded"]},
+          "publication_status": {"type": "string", "enum": ["public", "private", "unknown"]}
+        },
+        "additionalProperties": false
+      }
+    },
+    "transformation": {
+      "type": "object",
+      "required": [
+        "transformation_id",
+        "code_commit",
+        "code_path",
+        "code_sha256",
+        "parameters",
+        "seed",
+        "determinism",
+        "generator"
+      ],
+      "properties": {
+        "transformation_id": {"type": "string", "minLength": 1},
+        "code_commit": {"type": "string", "minLength": 1},
+        "code_path": {"type": "string", "minLength": 1},
+        "code_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "parameters": {"type": "object"},
+        "seed": {"type": ["integer", "null"]},
+        "determinism": {"type": "string", "enum": ["deterministic", "generator_logged", "non_reproducible"]},
+        "generator": {
+          "oneOf": [
+            {"type": "null"},
+            {
+              "type": "object",
+              "required": [
+                "provider",
+                "model_revision",
+                "model_revision_unavailable_reason",
+                "model_alias",
+                "prompt_sha256",
+                "parameters",
+                "requested_seed",
+                "nondeterminism_reason",
+                "request_ids",
+                "response_ids",
+                "generation_timestamps",
+                "ordered_output_sha256"
+              ],
+              "properties": {
+                "provider": {"type": "string", "minLength": 1},
+                "model_revision": {"type": ["string", "null"]},
+                "model_revision_unavailable_reason": {"type": ["string", "null"]},
+                "model_alias": {"type": "string", "minLength": 1},
+                "prompt_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+                "parameters": {"type": "object", "minProperties": 1},
+                "requested_seed": {"type": ["integer", "null"]},
+                "nondeterminism_reason": {"type": ["string", "null"]},
+                "request_ids": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+                "response_ids": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+                "generation_timestamps": {"type": "array", "minItems": 1, "items": {"type": "string", "format": "date-time"}},
+                "ordered_output_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+              },
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "materialization": {
+      "type": "object",
+      "required": [
+        "row_identity_scheme",
+        "row_count",
+        "ordered_row_manifest_sha256",
+        "asset_count",
+        "asset_manifest_sha256",
+        "files",
+        "assets"
+      ],
+      "properties": {
+        "row_identity_scheme": {"type": "string", "minLength": 1},
+        "row_count": {"type": "integer", "minimum": 0},
+        "ordered_row_manifest_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "asset_count": {"type": "integer", "minimum": 0},
+        "asset_manifest_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+        "files": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["role", "path", "bytes", "rows", "sha256"],
+            "properties": {
+              "role": {"type": "string", "minLength": 1},
+              "path": {"type": "string", "pattern": "^data/"},
+              "bytes": {"type": "integer", "minimum": 0},
+              "rows": {"type": "integer", "minimum": 0},
+              "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+            },
+            "additionalProperties": false
+          }
+        },
+        "assets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["path", "bytes", "sha256"],
+            "properties": {
+              "path": {"type": "string", "pattern": "^data/"},
+              "bytes": {"type": "integer", "minimum": 0},
+              "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "validation": {
+      "type": "object",
+      "required": [
+        "required_files_complete",
+        "missing_assets",
+        "orphan_assets",
+        "exact_duplicate_rows",
+        "source_binding_complete"
+      ],
+      "properties": {
+        "required_files_complete": {"const": true},
+        "missing_assets": {"const": 0},
+        "orphan_assets": {"const": 0},
+        "exact_duplicate_rows": {"type": "integer", "minimum": 0},
+        "source_binding_complete": {"const": true}
+      },
+      "additionalProperties": false
+    },
+    "review": {
+      "type": "object",
+      "required": ["state", "reviewed_at", "reviewed_by"],
+      "properties": {
+        "state": {"const": "approved"},
+        "reviewed_at": {"type": "string", "format": "date-time"},
+        "reviewed_by": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

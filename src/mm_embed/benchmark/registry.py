@@ -198,6 +198,18 @@ class EvaluationSourcesSpec:
         )
 
 
+@dataclass(frozen=True)
+class MaterializationSpec:
+    """Registry-owned expectations for a task materialization transform."""
+
+    transformation_parameters: dict[str, Any] = field(default_factory=dict)
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any] | None) -> "MaterializationSpec":
+        values = dict(data or {})
+        return cls(transformation_parameters=dict(values.get("transformation_parameters") or {}))
+
+
 def _optional_string(value: Any) -> str | None:
     if value is None:
         return None
@@ -287,6 +299,7 @@ class TaskSpec:
     leaderboard_publish: bool = True
     tags: list[str] = field(default_factory=list)
     evaluation_sources: EvaluationSourcesSpec = field(default_factory=EvaluationSourcesSpec)
+    materialization: MaterializationSpec = field(default_factory=MaterializationSpec)
 
     @classmethod
     def from_dict(cls, data: dict[str, Any], source_file: Path) -> "TaskSpec":
@@ -308,6 +321,7 @@ class TaskSpec:
             leaderboard_publish=bool(data.get("leaderboard_publish", data.get("publish", True))),
             tags=list(data.get("tags") or []),
             evaluation_sources=EvaluationSourcesSpec.from_dict(data.get("evaluation_sources")),
+            materialization=MaterializationSpec.from_dict(data.get("materialization")),
         )
 
 

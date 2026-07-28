@@ -14,6 +14,11 @@ from typing import Any
 
 import numpy as np
 
+from mm_embed.benchmark.materialization import (
+    MaterializationAuthorization,
+    normalize_data_mode,
+    require_task_materialization_binding,
+)
 from mm_embed.data.mock import get_cross_modal_data
 from mm_embed.data.real_data import load_cross_modal_real_data
 from mm_embed.providers.base import EmbeddingInput, EmbeddingProvider, ModalityType
@@ -41,8 +46,16 @@ class CrossModalRetrievalTask(EvalTask):
     description = "Cross-modal symmetric retrieval (text <-> image)"
     required_modalities = {ModalityType.TEXT, ModalityType.IMAGE}
 
-    def __init__(self, use_mock: bool = False, max_samples: int | None = None, **kwargs: Any):
-        self.use_mock = use_mock
+    def __init__(
+        self,
+        data_mode: str | None = None,
+        use_mock: bool | None = None,
+        materialization_binding: MaterializationAuthorization | None = None,
+        max_samples: int | None = None,
+        **kwargs: Any,
+    ):
+        self.data_mode = normalize_data_mode(data_mode, use_mock)
+        self.materialization_binding = materialization_binding
         self.max_samples = max_samples
 
     def run(self, provider: EmbeddingProvider, **kwargs: Any) -> EvalResult:
@@ -56,13 +69,17 @@ class CrossModalRetrievalTask(EvalTask):
             )
 
         try:
-            if self.use_mock:
+            materialization = require_task_materialization_binding(
+                self.name,
+                self.data_mode,
+                self.materialization_binding,
+            )
+            if self.data_mode == "fixture":
                 data = get_cross_modal_data()
             else:
-                try:
-                    data = load_cross_modal_real_data()
-                except FileNotFoundError:
-                    data = get_cross_modal_data()
+                if materialization is None:
+                    raise ValueError("Real cross-modal data requires a materialization authorization")
+                data = load_cross_modal_real_data(materialization)
 
             if self.max_samples and len(data) > self.max_samples:
                 import random
@@ -154,6 +171,7 @@ class CrossModalRetrievalTask(EvalTask):
                 metrics["hard_avg_recall@1"] = (t2i_r1 + i2t_hard_r1) / 2
 
             details = {
+                "data_mode": self.data_mode,
                 "n_pairs": n,
                 "n_hard_negatives": len(hard_neg_texts),
                 "text_latency_ms": text_result.latency_ms,

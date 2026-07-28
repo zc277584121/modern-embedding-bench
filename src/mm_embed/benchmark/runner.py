@@ -8,6 +8,7 @@ import time
 from pathlib import Path
 from typing import Iterable
 
+from mm_embed.benchmark.materialization import prepare_data_source_contract
 from mm_embed.benchmark.registry import BenchmarkCatalog, RunManifest, RunTask, load_catalog, load_run_manifest
 from mm_embed.benchmark.results import append_jsonl, make_result_record, utc_now_iso
 from mm_embed.providers import get_provider
@@ -50,24 +51,42 @@ class BenchmarkRunner:
         records: list[dict] = []
         completed = 0
 
+        task_plans = []
+        for run_task in manifest.tasks:
+            task = self.catalog.require_task(run_task.id)
+            task_kwargs = self._merged_task_kwargs(task.default_kwargs, run_task)
+            prepared_source = prepare_data_source_contract(task, task_kwargs, self.catalog.root)
+            task_plans.append((task, task_kwargs, prepared_source))
+
+        requires_provider = any(
+            prepared_source is None or prepared_source.error is None
+            for _, _, prepared_source in task_plans
+        )
+
         for model_id in manifest.model_ids:
             model = self.catalog.require_model(model_id)
             provider = None
-            provider_error = self._provider_preflight_error(model)
-            if provider_error is None:
+            provider_error = self._provider_preflight_error(model) if requires_provider else None
+            if requires_provider and provider_error is None:
                 try:
                     provider = get_provider(model.provider, **model.provider_kwargs)
                 except Exception as exc:
                     provider_error = f"provider init failed: {exc}"
 
-            for run_task in manifest.tasks:
-                task = self.catalog.require_task(run_task.id)
-                task_kwargs = self._merged_task_kwargs(task.default_kwargs, run_task)
-                effective_run_task = RunTask(id=run_task.id, kwargs=task_kwargs)
+            for task, task_kwargs, prepared_source in task_plans:
+                effective_run_task = RunTask(id=task.id, kwargs=task_kwargs)
                 started_at = utc_now_iso()
                 start = time.perf_counter()
 
-                if provider_error:
+                if prepared_source is not None and prepared_source.error:
+                    result = EvalResult(
+                        task_name=task.task,
+                        provider_name=model.provider,
+                        model_name=model.provider_kwargs.get("model", model.id),
+                        metrics={},
+                        error=f"data source contract validation failed: {prepared_source.error}",
+                    )
+                elif provider_error:
                     result = EvalResult(
                         task_name=task.task,
                         provider_name=model.provider,
@@ -76,7 +95,10 @@ class BenchmarkRunner:
                         error=provider_error,
                     )
                 else:
-                    result = self._run_one(provider, task.task, task_kwargs)
+                    execution_kwargs = dict(task_kwargs)
+                    if prepared_source is not None:
+                        execution_kwargs["materialization_binding"] = prepared_source.authorization
+                    result = self._run_one(provider, task.task, execution_kwargs)
 
                 finished_at = utc_now_iso()
                 record = make_result_record(
@@ -89,6 +111,7 @@ class BenchmarkRunner:
                     finished_at=finished_at,
                     duration_s=time.perf_counter() - start,
                     catalog=self.catalog,
+                    data_source_contract=(prepared_source.snapshot if prepared_source is not None else None),
                 )
                 append_jsonl(self.output, record)
                 records.append(record)

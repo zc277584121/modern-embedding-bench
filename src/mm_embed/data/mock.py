@@ -37,6 +37,18 @@ class MockDrivingScene:
     objects: list[str]
 
 
+@dataclass
+class MockCrossLingualPair:
+    """An invented bilingual fixture pair."""
+
+    zh: str
+    en: str
+    difficulty: str
+    category: str
+    hard_negatives_en: list[str]
+    hard_negatives_zh: list[str]
+
+
 def generate_random_image(width: int = 224, height: int = 224, seed: int | None = None) -> bytes:
     """Generate a random RGB image as PNG bytes."""
     rng = np.random.RandomState(seed)
@@ -115,6 +127,34 @@ def get_cross_modal_data() -> list[MockTextImagePair]:
             category=cat,
         )
         for text, color, cat in CROSS_MODAL_CATEGORIES
+    ]
+
+
+# =============================================================================
+# Cross-Lingual Retrieval Mock Data
+# =============================================================================
+
+
+def get_crosslingual_data() -> list[MockCrossLingualPair]:
+    """Return a small repository-owned bilingual fixture."""
+    rows = [
+        ("今天天气很好。", "The weather is pleasant today.", "easy", "weather"),
+        ("请把窗户关上。", "Please close the window.", "easy", "instruction"),
+        ("这个方案仍有改进空间。", "This proposal still has room for improvement.", "medium", "work"),
+        ("他的话让我哭笑不得。", "His remark left me unsure whether to laugh or cry.", "hard", "idiom"),
+    ]
+    english = [row[1] for row in rows]
+    chinese = [row[0] for row in rows]
+    return [
+        MockCrossLingualPair(
+            zh=zh,
+            en=en,
+            difficulty=difficulty,
+            category=category,
+            hard_negatives_en=[english[(index + 1) % len(english)]],
+            hard_negatives_zh=[chinese[(index + 1) % len(chinese)]],
+        )
+        for index, (zh, en, difficulty, category) in enumerate(rows)
     ]
 
 
