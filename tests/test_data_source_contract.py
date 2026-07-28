@@ -5,9 +5,11 @@ import json
 from pathlib import Path
 
 import pytest
+from click.testing import CliRunner
 
 from mm_embed.benchmark.materialization import (
     DATA_SOURCE_CONTRACT_VERSION,
+    PUBLIC_MATERIALIZATION_TASK_IDS,
     MaterializationContractError,
     asset_manifest_sha256,
     legacy_unknown_data_source_contract,
@@ -21,6 +23,7 @@ from mm_embed.benchmark.registry import BenchmarkCatalog, RunManifest, RunTask, 
 from mm_embed.benchmark.results import make_result_record
 from mm_embed.benchmark.runner import BenchmarkRunner
 from mm_embed.benchmark.training_overlap import load_relationship_registry
+from mm_embed.cli import main
 from mm_embed.data import real_data
 from mm_embed.hf_publish.export import export_dataset_repo
 from mm_embed.providers.base import ModalityType
@@ -352,6 +355,257 @@ def _validated_snapshot() -> dict:
     }
     validate_data_source_snapshot(snapshot)
     return snapshot
+
+
+def _preflight_catalog(monkeypatch, task: TaskSpec, benchmark_root: Path) -> BenchmarkCatalog:
+    catalog = BenchmarkCatalog(root=benchmark_root, models={}, tasks={task.id: task})
+    monkeypatch.setattr("mm_embed.benchmark.registry.load_catalog", lambda root=None: catalog)
+    return catalog
+
+
+def _preflight_record(snapshot: dict) -> dict:
+    return {
+        "task_id": snapshot["task_id"],
+        "dataset_version": snapshot["dataset_version"],
+        "validation_status": "validated",
+        "reason_code": None,
+        "message": "Materialization contract validated.",
+        "manifest_revision": snapshot["manifest_revision"],
+        "manifest_sha256": snapshot["manifest_sha256"],
+        "source_ids": snapshot["source_ids"],
+        "transformation_id": snapshot["transformation_id"],
+        "row_count": snapshot["row_count"],
+        "asset_count": snapshot["asset_count"],
+    }
+
+
+def _write_mrl_preflight_fixture(tmp_path: Path) -> tuple[TaskSpec, Path, Path, Path]:
+    task, benchmark_root, manifest_path, payload_paths, _asset_paths = _write_public_loader_manifest(
+        tmp_path,
+        task_id="mrl_stress",
+        dataset_version="invented-mrl-v1",
+        transformation_id="invented-mrl-transform-v1",
+        payloads=[
+            (
+                "mrl_stsb_pairs",
+                "data/invented_mrl/rows.jsonl",
+                [{"id": "row-1", "text": "alpha"}, {"id": "row-2", "text": "beta"}],
+            )
+        ],
+    )
+    return task, benchmark_root, manifest_path, payload_paths["mrl_stsb_pairs"]
+
+
+def test_source_contract_preflight_selected_json_is_exact_read_only_and_execution_free(tmp_path, monkeypatch) -> None:
+    task, benchmark_root, _manifest_path, _payload_path = _write_mrl_preflight_fixture(tmp_path)
+    _preflight_catalog(monkeypatch, task, benchmark_root)
+    snapshot = validate_materialization_manifest(task, benchmark_root=benchmark_root)
+    before = {
+        path.relative_to(tmp_path).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
+        for path in tmp_path.rglob("*")
+        if path.is_file()
+    }
+
+    monkeypatch.setattr("mm_embed.cli.get_provider", lambda *args, **kwargs: pytest.fail("provider initialized"))
+    monkeypatch.setattr("mm_embed.cli.get_task", lambda *args, **kwargs: pytest.fail("task initialized"))
+    result = CliRunner().invoke(
+        main,
+        [
+            "benchmark",
+            "source-contract-preflight",
+            "--task",
+            task.id,
+            "--root",
+            str(benchmark_root),
+            "--json",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert json.loads(result.output) == [_preflight_record(snapshot)]
+    assert str(tmp_path) not in result.output
+    assert "alpha" not in result.output
+    assert not (tmp_path / "results").exists()
+    after = {
+        path.relative_to(tmp_path).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
+        for path in tmp_path.rglob("*")
+        if path.is_file()
+    }
+    assert after == before
+
+
+def test_source_contract_preflight_all_public_tasks_is_deterministic(tmp_path, monkeypatch) -> None:
+    benchmark_root = tmp_path / "benchmark"
+    benchmark_root.mkdir()
+    tasks = {
+        task_id: TaskSpec.from_dict(
+            {
+                "id": task_id,
+                "display_name": f"Invented {task_id}",
+                "task": task_id,
+                "description": "Invented deterministic preflight task.",
+                "dataset_version": f"{task_id}-v1",
+            },
+            Path(f"{task_id}.yaml"),
+        )
+        for task_id in PUBLIC_MATERIALIZATION_TASK_IDS
+    }
+    catalog = BenchmarkCatalog(root=benchmark_root, models={}, tasks=tasks)
+    monkeypatch.setattr("mm_embed.benchmark.registry.load_catalog", lambda root=None: catalog)
+    calls: list[str] = []
+
+    def validate(task, *, benchmark_root):
+        calls.append(task.id)
+        return {
+            "task_id": task.id,
+            "dataset_version": task.dataset_version,
+            "validation_status": "validated",
+            "manifest_revision": "invented.1",
+            "manifest_sha256": "a" * 64,
+            "source_ids": [f"invented:{task.id}"],
+            "transformation_id": f"invented-{task.id}-transform",
+            "row_count": 1,
+            "asset_count": 0,
+        }
+
+    monkeypatch.setattr("mm_embed.benchmark.materialization.validate_materialization_manifest", validate)
+    runner = CliRunner()
+    json_result = runner.invoke(main, ["benchmark", "source-contract-preflight", "--json"])
+    text_result = runner.invoke(main, ["benchmark", "source-contract-preflight"])
+
+    expected_order = sorted(PUBLIC_MATERIALIZATION_TASK_IDS)
+    assert json_result.exit_code == 0, json_result.output
+    assert text_result.exit_code == 0, text_result.output
+    assert [record["task_id"] for record in json.loads(json_result.output)] == expected_order
+    text_task_ids = [
+        json.loads(line.split("task_id=", 1)[1].split(" ", 1)[0]) for line in text_result.output.splitlines()
+    ]
+    assert text_task_ids == expected_order
+    assert calls == expected_order + expected_order
+
+
+def test_source_contract_preflight_reports_missing_manifest(tmp_path, monkeypatch) -> None:
+    task, benchmark_root, manifest_path, _payload_path = _write_mrl_preflight_fixture(tmp_path)
+    manifest_path.unlink()
+    _preflight_catalog(monkeypatch, task, benchmark_root)
+
+    result = CliRunner().invoke(
+        main,
+        ["benchmark", "source-contract-preflight", "--task", task.id, "--json"],
+    )
+
+    assert result.exit_code == 1
+    assert json.loads(result.output)[0]["reason_code"] == "missing_manifest"
+
+
+def test_source_contract_preflight_reports_incomplete_source_declaration(tmp_path, monkeypatch) -> None:
+    task, benchmark_root, _manifest_path, _payload_path = _write_mrl_preflight_fixture(tmp_path)
+    incomplete_task = TaskSpec.from_dict(
+        {
+            "id": task.id,
+            "display_name": task.display_name,
+            "task": task.task,
+            "description": task.description,
+            "dataset_version": task.dataset_version,
+        },
+        Path("invented-incomplete-task.yaml"),
+    )
+    _preflight_catalog(monkeypatch, incomplete_task, benchmark_root)
+
+    result = CliRunner().invoke(
+        main,
+        ["benchmark", "source-contract-preflight", "--task", task.id, "--json"],
+    )
+
+    assert result.exit_code == 1
+    assert json.loads(result.output)[0]["reason_code"] == "task_source_declaration_incomplete"
+
+
+def test_source_contract_preflight_reports_identity_mismatch_without_payload_content(tmp_path, monkeypatch) -> None:
+    task, benchmark_root, _manifest_path, payload_path = _write_mrl_preflight_fixture(tmp_path)
+    payload_path.write_bytes(payload_path.read_bytes().replace(b"alpha", b"omega"))
+    _preflight_catalog(monkeypatch, task, benchmark_root)
+
+    result = CliRunner().invoke(
+        main,
+        ["benchmark", "source-contract-preflight", "--task", task.id, "--json"],
+    )
+
+    assert result.exit_code == 1
+    record = json.loads(result.output)[0]
+    assert record["reason_code"] == "payload_hash_mismatch"
+    assert "alpha" not in result.output
+    assert "omega" not in result.output
+    assert str(tmp_path) not in result.output
+
+
+def test_source_contract_preflight_unknown_task_is_public_safe(tmp_path, monkeypatch) -> None:
+    benchmark_root = tmp_path / "benchmark"
+    benchmark_root.mkdir()
+    catalog = BenchmarkCatalog(root=benchmark_root, models={}, tasks={})
+    monkeypatch.setattr("mm_embed.benchmark.registry.load_catalog", lambda root=None: catalog)
+
+    result = CliRunner().invoke(
+        main,
+        ["benchmark", "source-contract-preflight", "--task", "invented_unknown", "--json"],
+    )
+
+    assert result.exit_code == 2
+    assert json.loads(result.output) == [
+        {
+            "task_id": "invented_unknown",
+            "dataset_version": None,
+            "validation_status": "invalid",
+            "reason_code": "unknown_task",
+            "message": "Task is not registered.",
+            "manifest_revision": None,
+            "manifest_sha256": None,
+            "source_ids": [],
+            "transformation_id": None,
+            "row_count": None,
+            "asset_count": None,
+        }
+    ]
+
+
+def test_source_contract_preflight_registered_non_public_task_is_public_safe(tmp_path, monkeypatch) -> None:
+    benchmark_root = tmp_path / "benchmark"
+    benchmark_root.mkdir()
+    task = TaskSpec.from_dict(
+        {
+            "id": "invented_private",
+            "display_name": "Invented private task",
+            "task": "invented_private",
+            "description": "Invented registered task outside the public materialization set.",
+            "dataset_version": "invented-private-v1",
+            "publish": False,
+        },
+        Path("invented-private-task.yaml"),
+    )
+    catalog = BenchmarkCatalog(root=benchmark_root, models={}, tasks={task.id: task})
+    monkeypatch.setattr("mm_embed.benchmark.registry.load_catalog", lambda root=None: catalog)
+
+    result = CliRunner().invoke(
+        main,
+        ["benchmark", "source-contract-preflight", "--task", task.id, "--json"],
+    )
+
+    assert result.exit_code == 2
+    assert json.loads(result.output) == [
+        {
+            "task_id": "invented_private",
+            "dataset_version": "invented-private-v1",
+            "validation_status": "invalid",
+            "reason_code": "not_public_materialization_task",
+            "message": "Task is not a public materialization task.",
+            "manifest_revision": None,
+            "manifest_sha256": None,
+            "source_ids": [],
+            "transformation_id": None,
+            "row_count": None,
+            "asset_count": None,
+        }
+    ]
 
 
 def test_materialization_manifest_schema_and_valid_binding(tmp_path) -> None:

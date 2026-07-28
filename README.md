@@ -77,6 +77,24 @@ Model and task definitions live in `benchmark/models/*.yaml` and
 `benchmark/tasks/*.yaml`. Adding a new model should usually start as a YAML
 change before any new provider code is written.
 
+## Preflight Public Data Contracts
+
+Inspect one public task's materialization contract, or all four public tasks in
+deterministic task-ID order, without initializing providers or benchmark tasks
+and without writing result files:
+
+```bash
+uv run modern-embed-bench benchmark source-contract-preflight --task mrl_stress
+uv run modern-embed-bench benchmark source-contract-preflight --json
+```
+
+The command exits `0` only when every selected contract validates, `1` when a
+known public task fails closed, and `2` for an unknown or non-public task ID.
+The current repository intentionally has no approved real-source
+materialization manifests, so the all-task command is expected to exit `1`
+with `missing_manifest`; this check does not approve, download, or materialize
+any real source.
+
 ## Run A Smoke Benchmark
 
 ```bash

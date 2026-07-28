@@ -226,6 +226,124 @@ def benchmark_tasks(root: str | None):
     console.print(table)
 
 
+_SOURCE_CONTRACT_OUTPUT_FIELDS = (
+    "task_id",
+    "dataset_version",
+    "validation_status",
+    "reason_code",
+    "message",
+    "manifest_revision",
+    "manifest_sha256",
+    "source_ids",
+    "transformation_id",
+    "row_count",
+    "asset_count",
+)
+_SOURCE_CONTRACT_SELECTION_ERRORS = frozenset({"unknown_task", "not_public_materialization_task"})
+_SOURCE_CONTRACT_MESSAGES = {
+    "missing_manifest": "Materialization manifest is missing.",
+    "task_source_declaration_incomplete": "Task source declaration is incomplete or unapproved.",
+    "payload_hash_mismatch": "Payload hash does not match the materialization manifest.",
+    "asset_hash_mismatch": "Asset hash does not match the materialization manifest.",
+    "transformation_hash_mismatch": "Transformation code hash does not match the materialization manifest.",
+    "row_identity_mismatch": "Row identity does not match the materialization manifest.",
+    "asset_identity_mismatch": "Asset identity does not match the materialization manifest.",
+    "source_mismatch": "Manifest sources do not match the task registry.",
+    "transformation_mismatch": "Manifest transformation does not match the task registry.",
+    "parameters_mismatch": "Manifest transformation parameters do not match the task registry.",
+    "dataset_version_mismatch": "Manifest dataset version does not match the task registry.",
+    "task_mismatch": "Manifest task ID does not match the task registry.",
+    "unknown_task": "Task is not registered.",
+    "not_public_materialization_task": "Task is not a public materialization task.",
+}
+
+
+def _source_contract_failure_record(task_id: str, dataset_version: str | None, reason_code: str) -> dict[str, Any]:
+    return {
+        "task_id": task_id,
+        "dataset_version": dataset_version,
+        "validation_status": "invalid",
+        "reason_code": reason_code,
+        "message": _SOURCE_CONTRACT_MESSAGES.get(reason_code, "Materialization contract validation failed."),
+        "manifest_revision": None,
+        "manifest_sha256": None,
+        "source_ids": [],
+        "transformation_id": None,
+        "row_count": None,
+        "asset_count": None,
+    }
+
+
+def _source_contract_valid_record(snapshot: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "task_id": snapshot["task_id"],
+        "dataset_version": snapshot["dataset_version"],
+        "validation_status": snapshot["validation_status"],
+        "reason_code": None,
+        "message": "Materialization contract validated.",
+        "manifest_revision": snapshot["manifest_revision"],
+        "manifest_sha256": snapshot["manifest_sha256"],
+        "source_ids": list(snapshot["source_ids"]),
+        "transformation_id": snapshot["transformation_id"],
+        "row_count": snapshot["row_count"],
+        "asset_count": snapshot["asset_count"],
+    }
+
+
+def _format_source_contract_record(record: dict[str, Any]) -> str:
+    return " ".join(
+        f"{field}={json.dumps(record[field], ensure_ascii=True, separators=(',', ':'))}"
+        for field in _SOURCE_CONTRACT_OUTPUT_FIELDS
+    )
+
+
+@benchmark.command("source-contract-preflight")
+@click.option("--task", "task_id", default=None, help="Check one public materialization task ID")
+@click.option("--root", type=click.Path(exists=True), default=None, help="Benchmark registry root")
+@click.option("--json", "json_output", is_flag=True, help="Emit deterministic machine-readable JSON")
+def benchmark_source_contract_preflight(task_id: str | None, root: str | None, json_output: bool):
+    """Validate public-task materialization contracts without running a benchmark."""
+    from mm_embed.benchmark.materialization import (
+        PUBLIC_MATERIALIZATION_TASK_IDS,
+        MaterializationContractError,
+        validate_materialization_manifest,
+    )
+    from mm_embed.benchmark.registry import load_catalog
+
+    catalog = load_catalog(root)
+    selected_ids = [task_id] if task_id is not None else sorted(PUBLIC_MATERIALIZATION_TASK_IDS)
+    records: list[dict[str, Any]] = []
+
+    for selected_id in selected_ids:
+        task = catalog.tasks.get(selected_id)
+        if task is None:
+            records.append(_source_contract_failure_record(selected_id, None, "unknown_task"))
+            continue
+        if selected_id not in PUBLIC_MATERIALIZATION_TASK_IDS:
+            records.append(
+                _source_contract_failure_record(selected_id, task.dataset_version, "not_public_materialization_task")
+            )
+            continue
+        try:
+            snapshot = validate_materialization_manifest(task, benchmark_root=catalog.root)
+        except MaterializationContractError as exc:
+            records.append(_source_contract_failure_record(task.id, task.dataset_version, exc.code))
+        else:
+            records.append(_source_contract_valid_record(snapshot))
+
+    if json_output:
+        click.echo(json.dumps(records, indent=2, sort_keys=True, ensure_ascii=True))
+    else:
+        for record in records:
+            click.echo(_format_source_contract_record(record))
+
+    reason_codes = {record["reason_code"] for record in records}
+    if reason_codes.intersection(_SOURCE_CONTRACT_SELECTION_ERRORS):
+        raise click.exceptions.Exit(2)
+    if any(record["validation_status"] != "validated" for record in records):
+        raise click.exceptions.Exit(1)
+
+
 @benchmark.command("run")
 @click.option("--manifest", "-m", "manifest_path", type=click.Path(exists=True), required=True)
 @click.option("--root", type=click.Path(exists=True), default=None, help="Benchmark registry root")
