@@ -8,6 +8,16 @@ from typing import Any
 
 from mm_embed.benchmark.registry import BenchmarkCatalog, load_catalog
 from mm_embed.benchmark.results import is_embedding_result_record, load_jsonl
+from mm_embed.benchmark.training_overlap import public_assessment_for_record
+
+
+TRAINING_OVERLAP_FIELDNAMES = [
+    "data_overlap_status",
+    "task_training_status",
+    "zero_shot_status",
+    "overlap_reason_codes",
+    "overlap_relationship_registry_revision",
+]
 
 
 def primary_metric_value(record: dict[str, Any], catalog: BenchmarkCatalog | None = None) -> float | None:
@@ -68,6 +78,7 @@ def build_leaderboard(records: list[dict[str, Any]], catalog: BenchmarkCatalog |
         metric = task.get("primary_metric")
         if not metric and catalog and task.get("id") in catalog.tasks:
             metric = catalog.tasks[task["id"]].primary_metric
+        overlap = public_assessment_for_record(record)
         rows.append({
             "task_id": task.get("id"),
             "task": task.get("display_name") or task.get("id"),
@@ -78,6 +89,11 @@ def build_leaderboard(records: list[dict[str, Any]], catalog: BenchmarkCatalog |
             "score": value,
             "run_id": (record.get("run") or {}).get("id"),
             "duration_s": (record.get("timestamps") or {}).get("duration_s"),
+            "data_overlap_status": overlap["data_overlap_status"],
+            "task_training_status": overlap["task_training_status"],
+            "zero_shot_status": overlap["zero_shot_status"],
+            "overlap_reason_codes": ";".join(overlap["reason_codes"]),
+            "overlap_relationship_registry_revision": overlap["relationship_registry_revision"],
         })
     rows.sort(key=lambda row: (row["task_id"] or "", -float(row["score"])))
     return rows
@@ -86,7 +102,18 @@ def build_leaderboard(records: list[dict[str, Any]], catalog: BenchmarkCatalog |
 def write_leaderboard_csv(rows: list[dict[str, Any]], output: str | Path) -> None:
     output_path = Path(output)
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    fieldnames = ["task_id", "task", "model_id", "model", "provider", "primary_metric", "score", "run_id", "duration_s"]
+    fieldnames = [
+        "task_id",
+        "task",
+        "model_id",
+        "model",
+        "provider",
+        "primary_metric",
+        "score",
+        "run_id",
+        "duration_s",
+        *TRAINING_OVERLAP_FIELDNAMES,
+    ]
     with open(output_path, "w", encoding="utf-8", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()

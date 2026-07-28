@@ -1,6 +1,62 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Benchmark Model Registry",
+  "$defs": {
+    "publicProvenance": {
+      "type": "object",
+      "properties": {
+        "urls": {"type": "array", "items": {"type": "string"}},
+        "evidence_revision": {"type": ["string", "null"]},
+        "reviewed_at": {"type": ["string", "null"]},
+        "reviewed_by": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "review": {
+      "type": "object",
+      "properties": {
+        "state": {"type": "string", "enum": ["pending", "approved", "rejected"]},
+        "private_notes": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "sourceClaim": {
+      "type": "object",
+      "required": ["source_id"],
+      "properties": {
+        "source_id": {"type": "string", "minLength": 1},
+        "relation": {"type": "string", "enum": ["trained_on"]},
+        "scope": {"type": "string", "enum": ["material_samples"]},
+        "source_revision": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "negativeClaim": {
+      "type": "object",
+      "required": ["source_id"],
+      "properties": {
+        "source_id": {"type": "string", "minLength": 1, "not": {"const": "*"}},
+        "relation": {"type": "string", "enum": ["not_trained_on"]},
+        "scope": {"type": "string", "enum": ["material_samples"]},
+        "source_revision": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "trainingData": {
+      "type": "object",
+      "properties": {
+        "disclosure": {"type": "string", "enum": ["unknown", "partial", "complete"]},
+        "source_claims": {"type": "array", "items": {"$ref": "#/$defs/sourceClaim"}},
+        "negative_claims": {"type": "array", "items": {"$ref": "#/$defs/negativeClaim"}},
+        "adapted_from": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "lineage_disclosure": {"type": "string", "enum": ["unknown", "complete"]},
+        "model_revision": {"type": ["string", "null"]},
+        "public_provenance": {"$ref": "#/$defs/publicProvenance"},
+        "review": {"$ref": "#/$defs/review"}
+      },
+      "additionalProperties": false
+    }
+  },
   "type": "object",
   "required": ["models"],
   "properties": {
@@ -25,7 +81,8 @@
           "priority": {"type": "integer"},
           "tags": {"type": "array", "items": {"type": "string"}},
           "source": {"type": ["string", "null"]},
-          "notes": {"type": ["string", "null"]}
+          "notes": {"type": ["string", "null"]},
+          "training_data": {"$ref": "#/$defs/trainingData"}
         },
         "additionalProperties": true
       }

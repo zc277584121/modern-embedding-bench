@@ -88,6 +88,7 @@ class BenchmarkRunner:
                     started_at=started_at,
                     finished_at=finished_at,
                     duration_s=time.perf_counter() - start,
+                    catalog=self.catalog,
                 )
                 append_jsonl(self.output, record)
                 records.append(record)

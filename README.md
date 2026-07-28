@@ -149,6 +149,27 @@ records are kept out of public result and leaderboard exports. Historical v2
 records without `run.publish` remain public by default, and older evidence
 metadata continues to use compatibility classification.
 
+New result records also snapshot a versioned training-overlap assessment from
+exact, reviewed registry identities. The public leaderboard appends these
+fields after every existing score, provenance, and operational field:
+
+- `data_overlap_status`
+- `task_training_status`
+- `zero_shot_status`
+- `overlap_reason_codes`
+- `overlap_relationship_registry_revision`
+
+Training-overlap status is interpretation evidence for this model revision,
+task source, and reviewed relationship-table revision. Unknown means
+unreported, incomplete, unresolved, or stale; it does not mean zero-shot.
+Status does not change the task score or ranking. Historical records without a
+snapshot remain valid and export as explicit unknown with
+`legacy_missing_contract`; they are never backfilled from today's registry.
+
+The Space keeps unknown rows visible by default. Its strict filter is labeled
+`Reviewed zero-shot only`, and only rows with `zero_shot_status=reviewed_yes`
+pass it.
+
 System-level retrieval-answer fixture results use the separate
 `schemas/system_result.schema.json` contract and never enter the embedding v2
 Dataset, leaderboard, or Space path. Export the three deterministic local runs

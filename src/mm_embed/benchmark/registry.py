@@ -24,6 +24,185 @@ EVIDENCE_TIER_ALIASES = {
     "standard": "benchmark",
     "unknown": "unknown",
 }
+REVIEW_STATES = {"pending", "approved", "rejected"}
+
+
+@dataclass(frozen=True)
+class PublicProvenanceSpec:
+    """Public, pinned evidence metadata safe to project into artifacts."""
+
+    urls: list[str] = field(default_factory=list)
+    evidence_revision: str | None = None
+    reviewed_at: str | None = None
+    reviewed_by: str | None = None
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any] | None) -> "PublicProvenanceSpec":
+        values = dict(data or {})
+        return cls(
+            urls=[str(value) for value in values.get("urls") or []],
+            evidence_revision=_optional_string(values.get("evidence_revision")),
+            reviewed_at=_optional_string(values.get("reviewed_at")),
+            reviewed_by=_optional_string(values.get("reviewed_by")),
+        )
+
+
+@dataclass(frozen=True)
+class ReviewSpec:
+    """Review state; private notes are retained locally and never projected."""
+
+    state: str = "pending"
+    private_notes: str | None = None
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any] | None) -> "ReviewSpec":
+        values = dict(data or {})
+        state = str(values.get("state", "pending"))
+        if state not in REVIEW_STATES:
+            raise ValueError(f"Unsupported review state '{state}'")
+        return cls(
+            state=state,
+            private_notes=_optional_string(values.get("private_notes")),
+        )
+
+
+@dataclass(frozen=True)
+class TrainingSourceClaim:
+    """A model training-source declaration using an exact registry-owned ID."""
+
+    source_id: str
+    relation: str = "trained_on"
+    scope: str = "material_samples"
+    source_revision: str | None = None
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "TrainingSourceClaim":
+        if not data.get("source_id"):
+            raise ValueError("Training source claim is missing source_id")
+        relation = str(data.get("relation", "trained_on"))
+        scope = str(data.get("scope", "material_samples"))
+        if relation != "trained_on":
+            raise ValueError(f"Unsupported training source relation '{relation}'")
+        if scope != "material_samples":
+            raise ValueError(f"Unsupported training source scope '{scope}'")
+        return cls(
+            source_id=str(data["source_id"]),
+            relation=relation,
+            scope=scope,
+            source_revision=_optional_string(data.get("source_revision")),
+        )
+
+
+@dataclass(frozen=True)
+class NegativeTrainingClaim:
+    """A reviewed source-specific negative training assertion."""
+
+    source_id: str
+    relation: str = "not_trained_on"
+    scope: str = "material_samples"
+    source_revision: str | None = None
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "NegativeTrainingClaim":
+        if not data.get("source_id"):
+            raise ValueError("Negative training claim is missing source_id")
+        if str(data.get("source_id")) == "*":
+            raise ValueError("Wildcard negative training claims are not supported")
+        relation = str(data.get("relation", "not_trained_on"))
+        scope = str(data.get("scope", "material_samples"))
+        if relation != "not_trained_on":
+            raise ValueError(f"Unsupported negative training relation '{relation}'")
+        if scope != "material_samples":
+            raise ValueError(f"Unsupported negative training scope '{scope}'")
+        return cls(
+            source_id=str(data["source_id"]),
+            relation=relation,
+            scope=scope,
+            source_revision=_optional_string(data.get("source_revision")),
+        )
+
+
+@dataclass(frozen=True)
+class TrainingDataSpec:
+    """Structured model training disclosure normalized to fail-closed unknown."""
+
+    disclosure: str = "unknown"
+    source_claims: list[TrainingSourceClaim] = field(default_factory=list)
+    negative_claims: list[NegativeTrainingClaim] = field(default_factory=list)
+    adapted_from: list[str] = field(default_factory=list)
+    lineage_disclosure: str = "unknown"
+    model_revision: str | None = None
+    public_provenance: PublicProvenanceSpec = field(default_factory=PublicProvenanceSpec)
+    review: ReviewSpec = field(default_factory=ReviewSpec)
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any] | None) -> "TrainingDataSpec":
+        values = dict(data or {})
+        return cls(
+            disclosure=str(values.get("disclosure", "unknown")),
+            source_claims=[TrainingSourceClaim.from_dict(item) for item in values.get("source_claims") or []],
+            negative_claims=[NegativeTrainingClaim.from_dict(item) for item in values.get("negative_claims") or []],
+            adapted_from=[str(value) for value in values.get("adapted_from") or []],
+            lineage_disclosure=str(values.get("lineage_disclosure", "unknown")),
+            model_revision=_optional_string(values.get("model_revision")),
+            public_provenance=PublicProvenanceSpec.from_dict(values.get("public_provenance")),
+            review=ReviewSpec.from_dict(values.get("review")),
+        )
+
+
+@dataclass(frozen=True)
+class EvaluationSourceClaim:
+    """An exact, pinned evaluation-source declaration for a task slice."""
+
+    source_id: str
+    usage: str = "evaluation"
+    config: str | None = None
+    split: str | None = None
+    transformation_id: str | None = None
+    source_revision: str | None = None
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "EvaluationSourceClaim":
+        if not data.get("source_id"):
+            raise ValueError("Evaluation source claim is missing source_id")
+        usage = str(data.get("usage", "evaluation"))
+        if usage != "evaluation":
+            raise ValueError(f"Unsupported evaluation source usage '{usage}'")
+        return cls(
+            source_id=str(data["source_id"]),
+            usage=usage,
+            config=_optional_string(data.get("config")),
+            split=_optional_string(data.get("split")),
+            transformation_id=_optional_string(data.get("transformation_id")),
+            source_revision=_optional_string(data.get("source_revision")),
+        )
+
+
+@dataclass(frozen=True)
+class EvaluationSourcesSpec:
+    """Structured task source disclosure normalized to fail-closed unknown."""
+
+    disclosure: str = "unknown"
+    sources: list[EvaluationSourceClaim] = field(default_factory=list)
+    public_provenance: PublicProvenanceSpec = field(default_factory=PublicProvenanceSpec)
+    review: ReviewSpec = field(default_factory=ReviewSpec)
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any] | None) -> "EvaluationSourcesSpec":
+        values = dict(data or {})
+        return cls(
+            disclosure=str(values.get("disclosure", "unknown")),
+            sources=[EvaluationSourceClaim.from_dict(item) for item in values.get("sources") or []],
+            public_provenance=PublicProvenanceSpec.from_dict(values.get("public_provenance")),
+            review=ReviewSpec.from_dict(values.get("review")),
+        )
+
+
+def _optional_string(value: Any) -> str | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    return text or None
 
 
 def _read_yaml(path: Path) -> dict[str, Any]:
@@ -62,6 +241,7 @@ class ModelSpec:
     tags: list[str] = field(default_factory=list)
     source: str | None = None
     notes: str | None = None
+    training_data: TrainingDataSpec = field(default_factory=TrainingDataSpec)
 
     @classmethod
     def from_dict(cls, data: dict[str, Any], source_file: Path) -> "ModelSpec":
@@ -86,6 +266,7 @@ class ModelSpec:
             tags=list(data.get("tags") or []),
             source=data.get("source"),
             notes=data.get("notes"),
+            training_data=TrainingDataSpec.from_dict(data.get("training_data")),
         )
 
 
@@ -105,6 +286,7 @@ class TaskSpec:
     publish: bool = True
     leaderboard_publish: bool = True
     tags: list[str] = field(default_factory=list)
+    evaluation_sources: EvaluationSourcesSpec = field(default_factory=EvaluationSourcesSpec)
 
     @classmethod
     def from_dict(cls, data: dict[str, Any], source_file: Path) -> "TaskSpec":
@@ -125,6 +307,7 @@ class TaskSpec:
             publish=bool(data.get("publish", True)),
             leaderboard_publish=bool(data.get("leaderboard_publish", data.get("publish", True))),
             tags=list(data.get("tags") or []),
+            evaluation_sources=EvaluationSourcesSpec.from_dict(data.get("evaluation_sources")),
         )
 
 
@@ -205,7 +388,17 @@ def load_catalog(root: str | Path | None = None) -> BenchmarkCatalog:
                 raise ValueError(f"Duplicate task id '{spec.id}' in {path}")
             tasks[spec.id] = spec
 
-    return BenchmarkCatalog(root=benchmark_root, models=models, tasks=tasks)
+    catalog = BenchmarkCatalog(root=benchmark_root, models=models, tasks=tasks)
+    relationship_path = benchmark_root / "training_overlap_relationships.yaml"
+    if relationship_path.exists():
+        from mm_embed.benchmark.training_overlap import load_relationship_registry, validate_catalog_contract
+
+        validate_catalog_contract(catalog, load_relationship_registry(relationship_path))
+    elif any(model.training_data.disclosure != "unknown" for model in models.values()) or any(
+        task.evaluation_sources.disclosure != "unknown" for task in tasks.values()
+    ):
+        raise ValueError("Structured training/evaluation declarations require a relationship registry")
+    return catalog
 
 
 def load_run_manifest(path: str | Path) -> RunManifest:

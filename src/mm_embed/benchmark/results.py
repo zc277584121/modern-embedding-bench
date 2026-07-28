@@ -12,7 +12,13 @@ from typing import Any
 
 import numpy as np
 
-from mm_embed.benchmark.registry import ModelSpec, RunManifest, RunTask, TaskSpec
+from mm_embed.benchmark.registry import BenchmarkCatalog, ModelSpec, RunManifest, RunTask, TaskSpec
+from mm_embed.benchmark.training_overlap import (
+    RelationshipRegistry,
+    TRAINING_OVERLAP_CONTRACT_VERSION,
+    assess_training_overlap,
+    load_relationship_registry,
+)
 from mm_embed.tasks.base import EvalResult
 
 RESULT_SCHEMA_VERSION = "2.0"
@@ -98,10 +104,25 @@ def make_result_record(
     finished_at: str,
     duration_s: float,
     error: str | None = None,
+    catalog: BenchmarkCatalog | None = None,
+    relationship_registry: RelationshipRegistry | None = None,
 ) -> dict[str, Any]:
     """Build the canonical JSONL record for a model-task evaluation."""
+    assessment_catalog = catalog or BenchmarkCatalog(root=Path("."), models={model.id: model}, tasks={task.id: task})
+    if relationship_registry is None:
+        relationship_path = catalog.root / "training_overlap_relationships.yaml" if catalog is not None else None
+        relationship_registry = load_relationship_registry(relationship_path)
+    overlap = assess_training_overlap(
+        model=model,
+        task=task,
+        catalog=assessment_catalog,
+        relationship_registry=relationship_registry,
+        assessed_at=finished_at,
+    )
     return json_safe({
         "schema_version": RESULT_SCHEMA_VERSION,
+        "training_overlap_contract_version": TRAINING_OVERLAP_CONTRACT_VERSION,
+        "training_overlap": overlap,
         "run": {
             "id": run.id,
             "description": run.description,

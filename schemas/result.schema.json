@@ -1,10 +1,50 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Benchmark v2 Result Record",
+  "$defs": {
+    "trainingOverlap": {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "relationship_registry_revision",
+        "relationship_registry_sha256",
+        "data_overlap_status",
+        "task_training_status",
+        "zero_shot_status",
+        "matched_model_ids",
+        "matched_training_source_ids",
+        "matched_evaluation_source_ids",
+        "relationship_ids",
+        "reason_codes",
+        "assessed_at"
+      ],
+      "properties": {
+        "schema_version": {"const": "1"},
+        "relationship_registry_revision": {"type": "string"},
+        "relationship_registry_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "model_revision": {"type": ["string", "null"]},
+        "model_training_evidence_revision": {"type": ["string", "null"]},
+        "task_dataset_version": {"type": ["string", "null"]},
+        "task_source_evidence_revision": {"type": ["string", "null"]},
+        "data_overlap_status": {"type": "string", "enum": ["exact", "adapted", "declared_none", "unknown"]},
+        "task_training_status": {"type": "string", "enum": ["same_task", "similar_task", "declared_none", "unknown"]},
+        "zero_shot_status": {"type": "string", "enum": ["no", "reviewed_yes", "unknown"]},
+        "matched_model_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "matched_training_source_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "matched_evaluation_source_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "relationship_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "reason_codes": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "assessed_at": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    }
+  },
   "type": "object",
   "required": ["schema_version", "run", "timestamps", "model", "task", "provider_result", "metrics", "details", "error"],
   "properties": {
     "schema_version": {"type": "string"},
+    "training_overlap_contract_version": {"type": "string", "enum": ["1"]},
+    "training_overlap": {"$ref": "#/$defs/trainingOverlap"},
     "run": {
       "type": "object",
       "properties": {
@@ -28,5 +68,14 @@
     "details": {"type": "object"},
     "error": {"type": ["string", "null"]}
   },
+  "allOf": [
+    {
+      "if": {
+        "properties": {"training_overlap_contract_version": {"const": "1"}},
+        "required": ["training_overlap_contract_version"]
+      },
+      "then": {"required": ["training_overlap"]}
+    }
+  ],
   "additionalProperties": true
 }

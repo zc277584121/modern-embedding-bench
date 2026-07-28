@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Training Overlap Relationship Registry",
+  "type": "object",
+  "required": ["schema_version", "revision", "sources", "relationships"],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "revision": {"type": "string", "minLength": 1},
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "locator", "public_provenance", "review"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "canonical": {"type": "boolean", "default": true},
+          "locator": {"type": "object", "minProperties": 1, "additionalProperties": true},
+          "public_provenance": {
+            "type": "object",
+            "required": ["urls", "reviewed_at", "reviewed_by"],
+            "properties": {
+              "urls": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+              "reviewed_at": {"type": "string", "minLength": 1},
+              "reviewed_by": {"type": "string", "minLength": 1}
+            },
+            "additionalProperties": false
+          },
+          "review": {
+            "type": "object",
+            "required": ["state"],
+            "properties": {
+              "state": {"type": "string", "enum": ["pending", "approved", "rejected"]},
+              "private_notes": {"type": ["string", "null"]}
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "relationships": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id", "subject", "predicate", "object", "effect", "applies_to", "public_provenance", "review"
+        ],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "subject": {"type": "string", "minLength": 1},
+          "predicate": {
+            "type": "string",
+            "enum": [
+              "alias_of", "same_examples_as", "subset_of", "sampled_from", "translated_from",
+              "reformatted_from", "same_task_as", "similar_task_to"
+            ]
+          },
+          "object": {"type": "string", "minLength": 1},
+          "effect": {
+            "type": "object",
+            "required": ["data_overlap", "task_training", "transitive"],
+            "properties": {
+              "data_overlap": {"type": ["string", "null"], "enum": ["exact", "adapted", null]},
+              "task_training": {"type": ["string", "null"], "enum": ["same_task", "similar_task", null]},
+              "transitive": {"type": "boolean"}
+            },
+            "additionalProperties": false
+          },
+          "applies_to": {
+            "type": "object",
+            "required": ["subject_revision", "object_revision"],
+            "properties": {
+              "subject_revision": {"type": "string", "minLength": 1},
+              "object_revision": {"type": "string", "minLength": 1},
+              "model_evidence_revision": {"type": "string", "minLength": 1},
+              "task_evidence_revision": {"type": "string", "minLength": 1},
+              "task_dataset_version": {"type": "string", "minLength": 1}
+            },
+            "additionalProperties": false
+          },
+          "public_provenance": {
+            "type": "object",
+            "required": ["urls", "reviewed_at", "reviewed_by"],
+            "properties": {
+              "urls": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+              "reviewed_at": {"type": "string", "minLength": 1},
+              "reviewed_by": {"type": "string", "minLength": 1}
+            },
+            "additionalProperties": false
+          },
+          "review": {
+            "type": "object",
+            "required": ["state"],
+            "properties": {
+              "state": {"type": "string", "enum": ["pending", "approved", "rejected"]},
+              "private_notes": {"type": ["string", "null"]}
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

@@ -2,20 +2,44 @@ from __future__ import annotations
 
 import csv
 import json
+from dataclasses import replace
+from pathlib import Path
+
+import pytest
 
 from mm_embed.benchmark.leaderboard import build_leaderboard
 from mm_embed.benchmark.registry import (
     BenchmarkCatalog,
+    EvaluationSourceClaim,
     ModelSpec,
+    NegativeTrainingClaim,
+    ReviewSpec,
     RunManifest,
     RunTask,
     TaskSpec,
+    TrainingSourceClaim,
     load_catalog,
     load_run_manifest,
 )
-from mm_embed.benchmark.results import import_legacy_result_file, load_jsonl, normalize_legacy_model_name
+from mm_embed.benchmark.results import (
+    import_legacy_result_file,
+    load_jsonl,
+    make_result_record,
+    normalize_legacy_model_name,
+)
+from mm_embed.benchmark.training_overlap import (
+    RELATIONSHIP_EFFECTS,
+    RelationshipRegistry,
+    assess_training_overlap,
+    legacy_unknown_assessment,
+    load_relationship_registry,
+    validate_assessment_snapshot,
+    validate_assessment_registry_binding,
+    validate_catalog_contract,
+)
 from mm_embed.benchmark.runner import BenchmarkRunner
 from mm_embed.hf_publish.export import export_dataset_repo, export_space_repo
+from mm_embed.tasks.base import EvalResult
 
 
 def test_default_catalog_and_run_manifests_load() -> None:
@@ -25,6 +49,11 @@ def test_default_catalog_and_run_manifests_load() -> None:
     assert "mrl_stress" in catalog.tasks
     assert catalog.models["geevec-lite-general"].publish is False
     assert catalog.models["geevec-api-general"].publish is False
+    assert catalog.models["openai-text-embedding-3-large"].training_data.disclosure == "unknown"
+    assert catalog.tasks["needle_in_haystack"].evaluation_sources.disclosure == "unknown"
+    relationships = load_relationship_registry()
+    assert relationships.sources == {}
+    assert relationships.relationships == ()
 
     expected_tiers = {
         "benchmark/runs/api-coverage-smoke.yaml": "smoke",
@@ -73,6 +102,11 @@ def test_leaderboard_backfills_primary_metric_from_catalog() -> None:
             "score": 0.75,
             "run_id": "legacy:test",
             "duration_s": 1.2,
+            "data_overlap_status": "unknown",
+            "task_training_status": "unknown",
+            "zero_shot_status": "unknown",
+            "overlap_reason_codes": "legacy_missing_contract",
+            "overlap_relationship_registry_revision": "legacy",
         }
     ]
 
@@ -236,6 +270,17 @@ def test_normalize_legacy_model_name_keeps_public_ids() -> None:
 def test_runner_overwrite_replaces_existing_jsonl(tmp_path) -> None:
     output = tmp_path / "results.jsonl"
     output.write_text('{"stale": true}\n', encoding="utf-8")
+    (tmp_path / "training_overlap_relationships.yaml").write_text(
+        json.dumps(
+            {
+                "schema_version": "1",
+                "revision": "runner-test.1",
+                "sources": [],
+                "relationships": [],
+            }
+        ),
+        encoding="utf-8",
+    )
 
     catalog = BenchmarkCatalog(
         root=tmp_path,
@@ -276,6 +321,8 @@ def test_runner_overwrite_replaces_existing_jsonl(tmp_path) -> None:
     assert written[0]["run"]["evidence_tier"] == "smoke"
     assert written[0]["run"]["metadata"] == {"scope": "contract-test"}
     assert "scope" not in written[0]
+    assert written[0]["training_overlap_contract_version"] == "1"
+    assert written[0]["training_overlap"]["zero_shot_status"] == "unknown"
 
 
 def test_export_hf_dataset_skips_cache_artifacts(tmp_path) -> None:
@@ -636,6 +683,11 @@ def test_export_hf_dataset_marks_leaderboard_provenance_and_latest(tmp_path) -> 
         "cost_usd",
         "fresh_provider_calls",
         "cache_enabled",
+        "data_overlap_status",
+        "task_training_status",
+        "zero_shot_status",
+        "overlap_reason_codes",
+        "overlap_relationship_registry_revision",
     ]
     assert [row["evidence_tier"] for row in rows] == ["legacy", "smoke"]
     assert rows[0]["evidence_source"] == "legacy/results/baseline.json"
@@ -755,6 +807,7 @@ def test_export_hf_space_bundles_current_evidence_view(tmp_path, monkeypatch) ->
         "source",
         "status",
         "supports_mrl",
+        "training_data",
     }
     assert model_specs
     assert all(set(model) == allowed_model_fields for model in model_specs)
@@ -1033,6 +1086,7 @@ def test_export_hf_space_loads_remote_public_task_catalog(tmp_path, monkeypatch)
             "source",
             "status",
             "supports_mrl",
+            "training_data",
         }
         for model in app["MODEL_SPECS"]
     )
@@ -1118,3 +1172,1093 @@ def test_export_hf_space_single_evidence_tier_ui_is_neutral(tmp_path, monkeypatc
 
     assert app["EVIDENCE_TIERS"] == ["All evidence tiers", "legacy"]
     assert app["evidence_summary"]() == "legacy=1"
+
+
+def _contract_provenance(evidence_revision: str = "evidence-r1") -> dict:
+    return {
+        "urls": ["https://example.invalid/evidence"],
+        "evidence_revision": evidence_revision,
+        "reviewed_at": "2026-07-28",
+        "reviewed_by": "reviewer",
+    }
+
+
+def _contract_source(
+    source_id: str,
+    *,
+    revision: str = "source-r1",
+    canonical: bool = True,
+    private_notes: str | None = None,
+) -> dict:
+    return {
+        "id": source_id,
+        "canonical": canonical,
+        "locator": {"authority": "local", "revision": revision},
+        "public_provenance": {
+            "urls": [f"https://example.invalid/{source_id}"],
+            "reviewed_at": "2026-07-28",
+            "reviewed_by": "reviewer",
+        },
+        "review": {"state": "approved", "private_notes": private_notes},
+    }
+
+
+def _contract_relationship(
+    relationship_id: str,
+    subject: str,
+    predicate: str,
+    object_: str,
+    *,
+    subject_revision: str = "source-r1",
+    object_revision: str = "source-r1",
+    applies_to: dict | None = None,
+    private_notes: str | None = None,
+) -> dict:
+    data_overlap, task_training, transitive = RELATIONSHIP_EFFECTS[predicate]
+    applicability = {
+        "subject_revision": subject_revision,
+        "object_revision": object_revision,
+        **(applies_to or {}),
+    }
+    return {
+        "id": relationship_id,
+        "subject": subject,
+        "predicate": predicate,
+        "object": object_,
+        "effect": {
+            "data_overlap": data_overlap,
+            "task_training": task_training,
+            "transitive": transitive,
+        },
+        "applies_to": applicability,
+        "public_provenance": {
+            "urls": [f"https://example.invalid/{relationship_id}"],
+            "reviewed_at": "2026-07-28",
+            "reviewed_by": "reviewer",
+        },
+        "review": {"state": "approved", "private_notes": private_notes},
+    }
+
+
+def _contract_registry(
+    sources: list[dict],
+    relationships: list[dict] | None = None,
+    *,
+    revision: str = "test.1",
+) -> RelationshipRegistry:
+    return RelationshipRegistry.from_dict(
+        {
+            "schema_version": "1",
+            "revision": revision,
+            "sources": sources,
+            "relationships": relationships or [],
+        }
+    )
+
+
+def _contract_model(
+    model_id: str,
+    *,
+    source_claims: list[tuple[str, str]] | None = None,
+    negative_claims: list[tuple[str, str]] | None = None,
+    adapted_from: list[str] | None = None,
+    disclosure: str = "partial",
+    lineage_disclosure: str = "complete",
+    reviewed: bool = True,
+    evidence_revision: str = "model-evidence-r1",
+    model_revision: str = "model-r1",
+    private_notes: str | None = None,
+) -> ModelSpec:
+    training_data = {
+        "disclosure": disclosure,
+        "source_claims": [
+            {
+                "source_id": source_id,
+                "relation": "trained_on",
+                "scope": "material_samples",
+                "source_revision": source_revision,
+            }
+            for source_id, source_revision in source_claims or []
+        ],
+        "negative_claims": [
+            {
+                "source_id": source_id,
+                "relation": "not_trained_on",
+                "scope": "material_samples",
+                "source_revision": source_revision,
+            }
+            for source_id, source_revision in negative_claims or []
+        ],
+        "adapted_from": adapted_from or [],
+        "lineage_disclosure": lineage_disclosure,
+        "model_revision": model_revision,
+        "public_provenance": _contract_provenance(evidence_revision),
+        "review": {
+            "state": "approved" if reviewed else "pending",
+            "private_notes": private_notes,
+        },
+    }
+    return ModelSpec.from_dict(
+        {
+            "id": model_id,
+            "display_name": model_id,
+            "provider": "invented",
+            "training_data": training_data,
+        },
+        Path("invented-model.yaml"),
+    )
+
+
+def _contract_task(
+    source_id: str,
+    *,
+    source_revision: str = "source-r1",
+    dataset_version: str = "task-dataset-r1",
+    evidence_revision: str = "task-evidence-r1",
+    private_notes: str | None = None,
+) -> TaskSpec:
+    return TaskSpec.from_dict(
+        {
+            "id": "invented_task",
+            "display_name": "Invented task",
+            "task": "invented_task",
+            "description": "Invented contract fixture.",
+            "dataset_version": dataset_version,
+            "evaluation_sources": {
+                "disclosure": "complete",
+                "sources": [
+                    {
+                        "source_id": source_id,
+                        "usage": "evaluation",
+                        "source_revision": source_revision,
+                        "config": "default",
+                        "split": "test",
+                        "transformation_id": "invented-transform-r1",
+                    }
+                ],
+                "public_provenance": _contract_provenance(evidence_revision),
+                "review": {"state": "approved", "private_notes": private_notes},
+            },
+        },
+        Path("invented-task.yaml"),
+    )
+
+
+def _contract_assessment(
+    model: ModelSpec,
+    task: TaskSpec,
+    registry: RelationshipRegistry,
+    *other_models: ModelSpec,
+) -> tuple[dict, BenchmarkCatalog]:
+    models = {item.id: item for item in (model, *other_models)}
+    catalog = BenchmarkCatalog(root=Path("."), models=models, tasks={task.id: task})
+    assessment = assess_training_overlap(
+        model=model,
+        task=task,
+        catalog=catalog,
+        relationship_registry=registry,
+        assessed_at="2026-07-28T00:00:00Z",
+    )
+    return assessment, catalog
+
+
+def _contract_result(
+    run_id: str,
+    model_id: str,
+    score: float,
+    *,
+    assessment: dict | None = None,
+    contract_version: bool = True,
+    provider: str = "invented",
+) -> dict:
+    record = {
+        "schema_version": "2.0",
+        "run": {"id": run_id, "publish": True, "evidence_tier": "benchmark"},
+        "timestamps": {"duration_s": 1.0},
+        "model": {"id": model_id, "display_name": model_id, "provider": provider},
+        "provider_result": {"provider": provider, "model_name": model_id},
+        "task": {
+            "id": "needle_in_haystack",
+            "display_name": "Needle",
+            "primary_metric": "overall_accuracy",
+            "dataset_version": "needle-v1",
+        },
+        "metrics": {"overall_accuracy": score},
+        "details": {},
+        "error": None,
+    }
+    if contract_version:
+        record["training_overlap_contract_version"] = "1"
+    if assessment is not None:
+        record["training_overlap"] = assessment
+    return record
+
+
+def test_training_overlap_unknown_is_not_zero_shot_and_filter_excludes_it(tmp_path, monkeypatch) -> None:
+    registry = _contract_registry([_contract_source("local:eval")])
+    task = _contract_task("local:eval")
+    model = ModelSpec(id="missing-metadata", display_name="Missing metadata", provider="invented")
+    assessment, _catalog = _contract_assessment(model, task, registry)
+
+    assert assessment["data_overlap_status"] == "unknown"
+    assert assessment["task_training_status"] == "unknown"
+    assert assessment["zero_shot_status"] == "unknown"
+
+    reviewed = dict(legacy_unknown_assessment())
+    reviewed.update(
+        {
+            "relationship_registry_revision": "invented.1",
+            "data_overlap_status": "declared_none",
+            "task_training_status": "declared_none",
+            "zero_shot_status": "reviewed_yes",
+            "reason_codes": ["complete_reviewed_non_overlap"],
+        }
+    )
+    leaderboard = tmp_path / "leaderboard.csv"
+    rows = build_leaderboard(
+        [
+            _contract_result("unknown", "unknown-model", 0.9, assessment=assessment),
+            _contract_result("reviewed", "reviewed-model", 0.8, assessment=reviewed),
+        ]
+    )
+    with open(leaderboard, "w", encoding="utf-8", newline="") as file:
+        writer = csv.DictWriter(file, fieldnames=list(rows[0]))
+        writer.writeheader()
+        writer.writerows(rows)
+    output = export_space_repo(output_dir=tmp_path / "space", bundled_leaderboard=leaderboard)
+    app = _load_generated_space_app(output, monkeypatch)
+    filtered = app["filtered_rows"](
+        "needle_in_haystack",
+        "All providers",
+        "All evidence tiers",
+        "",
+        False,
+        app["ALL_DATA_OVERLAP_STATUSES"],
+        app["ALL_TASK_TRAINING_STATUSES"],
+        True,
+    )
+    assert [row["run_id"] for row in filtered] == ["reviewed"]
+    app_source = (output / "app.py").read_text(encoding="utf-8")
+    assert 'label="Reviewed zero-shot only"' in app_source
+    assert "Unknown means unreported, incomplete, unresolved, or stale" in app_source
+
+
+def test_training_overlap_explicit_empty_requires_complete_review() -> None:
+    registry = _contract_registry([_contract_source("local:eval")])
+    task = _contract_task("local:eval")
+    incomplete = _contract_model("incomplete", source_claims=[], disclosure="complete", reviewed=False)
+    incomplete_catalog = BenchmarkCatalog(
+        root=Path("."), models={incomplete.id: incomplete}, tasks={task.id: task}
+    )
+    with pytest.raises(ValueError, match="unreviewed complete empty"):
+        validate_catalog_contract(incomplete_catalog, registry)
+
+    reviewed = _contract_model("reviewed", source_claims=[], disclosure="complete")
+    assessment, catalog = _contract_assessment(reviewed, task, registry)
+    validate_catalog_contract(catalog, registry)
+    assert assessment["data_overlap_status"] == "declared_none"
+    assert assessment["task_training_status"] == "declared_none"
+    assert assessment["zero_shot_status"] == "reviewed_yes"
+
+
+def test_training_overlap_ambiguous_alias_fails_validation() -> None:
+    sources = [
+        _contract_source("local:alias", canonical=False),
+        _contract_source("local:canonical-a"),
+        _contract_source("local:canonical-b"),
+    ]
+    relationships = [
+        _contract_relationship("alias-a", "local:alias", "alias_of", "local:canonical-a"),
+        _contract_relationship("alias-b", "local:alias", "alias_of", "local:canonical-b"),
+    ]
+    with pytest.raises(ValueError, match="Ambiguous alias component"):
+        _contract_registry(sources, relationships)
+
+
+def test_training_overlap_unresolved_base_lineage_is_unknown() -> None:
+    registry = _contract_registry([_contract_source("local:eval")])
+    task = _contract_task("local:eval")
+    child = _contract_model(
+        "child",
+        source_claims=[],
+        disclosure="complete",
+        adapted_from=["missing-parent"],
+    )
+    assessment, _catalog = _contract_assessment(child, task, registry)
+    assert assessment["zero_shot_status"] == "unknown"
+    assert "unresolved_model_lineage" in assessment["reason_codes"]
+
+
+def test_training_overlap_positive_ancestor_propagates_to_descendant() -> None:
+    registry = _contract_registry(
+        [_contract_source("local:train"), _contract_source("local:eval")],
+        [_contract_relationship("adapted", "local:train", "sampled_from", "local:eval")],
+    )
+    task = _contract_task("local:eval")
+    base = _contract_model("base", source_claims=[("local:train", "source-r1")])
+    child = _contract_model("child", source_claims=[], disclosure="complete", adapted_from=["base"])
+    assessment, _catalog = _contract_assessment(child, task, registry, base)
+    assert assessment["data_overlap_status"] == "adapted"
+    assert assessment["zero_shot_status"] == "no"
+    assert assessment["matched_model_ids"] == ["base"]
+
+
+def test_training_overlap_multi_parent_positive_dominates_and_unresolved_prevents_negative() -> None:
+    registry = _contract_registry([_contract_source("local:eval")])
+    task = _contract_task("local:eval")
+    overlapping = _contract_model("overlapping", source_claims=[("local:eval", "source-r1")])
+    clean = _contract_model("clean", source_claims=[], disclosure="complete")
+    child = _contract_model(
+        "child",
+        source_claims=[],
+        disclosure="complete",
+        adapted_from=["overlapping", "clean"],
+    )
+    positive, _catalog = _contract_assessment(child, task, registry, overlapping, clean)
+    assert positive["data_overlap_status"] == "exact"
+    assert positive["zero_shot_status"] == "no"
+
+    unresolved = _contract_model(
+        "unresolved-child",
+        source_claims=[],
+        disclosure="complete",
+        adapted_from=["clean", "missing-parent"],
+    )
+    unknown, _catalog = _contract_assessment(unresolved, task, registry, clean)
+    assert unknown["zero_shot_status"] == "unknown"
+    assert "unresolved_model_lineage" in unknown["reason_codes"]
+
+
+def test_training_overlap_transitive_material_relationship_detects_adapted_overlap() -> None:
+    registry = _contract_registry(
+        [_contract_source("local:a"), _contract_source("local:b"), _contract_source("local:c")],
+        [
+            _contract_relationship("a-from-b", "local:a", "sampled_from", "local:b"),
+            _contract_relationship("b-from-c", "local:b", "translated_from", "local:c"),
+        ],
+    )
+    model = _contract_model("model", source_claims=[("local:a", "source-r1")])
+    task = _contract_task("local:c")
+    assessment, _catalog = _contract_assessment(model, task, registry)
+    assert assessment["data_overlap_status"] == "adapted"
+    assert assessment["relationship_ids"] == ["a-from-b", "b-from-c"]
+
+
+def test_training_overlap_similar_task_relationship_is_not_transitive() -> None:
+    registry = _contract_registry(
+        [_contract_source("local:a"), _contract_source("local:b"), _contract_source("local:c")],
+        [
+            _contract_relationship("a-sim-b", "local:a", "similar_task_to", "local:b"),
+            _contract_relationship("b-sim-c", "local:b", "similar_task_to", "local:c"),
+        ],
+    )
+    model = _contract_model("model", source_claims=[("local:a", "source-r1")])
+    task = _contract_task("local:c")
+    assessment, _catalog = _contract_assessment(model, task, registry)
+    assert assessment["data_overlap_status"] == "unknown"
+    assert assessment["task_training_status"] == "unknown"
+    assert assessment["zero_shot_status"] == "unknown"
+
+
+def test_training_overlap_stale_mapping_yields_unknown() -> None:
+    registry = _contract_registry(
+        [_contract_source("local:train"), _contract_source("local:eval")],
+        [
+            _contract_relationship(
+                "stale-adaptation",
+                "local:train",
+                "sampled_from",
+                "local:eval",
+                applies_to={"task_dataset_version": "old-task-version"},
+            )
+        ],
+    )
+    model = _contract_model("model", source_claims=[("local:train", "source-r1")])
+    task = _contract_task("local:eval", dataset_version="new-task-version")
+    assessment, _catalog = _contract_assessment(model, task, registry)
+    assert assessment["zero_shot_status"] == "unknown"
+    assert {"stale_relationship", "stale_task_evidence"}.issubset(assessment["reason_codes"])
+
+
+def test_training_overlap_conflicting_claims_fail_validation() -> None:
+    registry = _contract_registry([_contract_source("local:eval")])
+    task = _contract_task("local:eval")
+    model = _contract_model(
+        "conflict",
+        source_claims=[("local:eval", "source-r1")],
+        negative_claims=[("local:eval", "source-r1")],
+    )
+    catalog = BenchmarkCatalog(root=Path("."), models={model.id: model}, tasks={task.id: task})
+    with pytest.raises(ValueError, match="conflicting positive and negative"):
+        validate_catalog_contract(catalog, registry)
+
+
+def test_training_overlap_private_notes_never_enter_public_artifacts(tmp_path) -> None:
+    sentinel = "PRIVATE_OVERLAP_SENTINEL_7B5C2E19"
+    benchmark_root = tmp_path / "benchmark"
+    (benchmark_root / "models").mkdir(parents=True)
+    (benchmark_root / "tasks").mkdir(parents=True)
+    registry_data = {
+        "schema_version": "1",
+        "revision": "private-test.1",
+        "sources": [_contract_source("local:eval", private_notes=sentinel)],
+        "relationships": [],
+    }
+    (benchmark_root / "training_overlap_relationships.yaml").write_text(
+        json.dumps(registry_data), encoding="utf-8"
+    )
+    model = _contract_model(
+        "public-model",
+        source_claims=[("local:eval", "source-r1")],
+        private_notes=sentinel,
+    )
+    task = _contract_task("local:eval", private_notes=sentinel)
+    model_row = {
+        "models": [
+            {
+                "id": model.id,
+                "display_name": model.display_name,
+                "provider": model.provider,
+                "provider_kwargs": {"secret": sentinel},
+                "training_data": {
+                    "disclosure": "partial",
+                    "source_claims": [
+                        {
+                            "source_id": "local:eval",
+                            "source_revision": "source-r1",
+                            "relation": "trained_on",
+                            "scope": "material_samples",
+                        }
+                    ],
+                    "negative_claims": [],
+                    "adapted_from": [],
+                    "lineage_disclosure": "complete",
+                    "model_revision": "model-r1",
+                    "public_provenance": _contract_provenance("model-evidence-r1"),
+                    "review": {"state": "approved", "private_notes": sentinel},
+                },
+            }
+        ]
+    }
+    task_row = {
+        "tasks": [
+            {
+                "id": task.id,
+                "display_name": task.display_name,
+                "task": task.task,
+                "description": task.description,
+                "dataset_version": task.dataset_version,
+                "primary_metric": "overall_accuracy",
+                "evaluation_sources": {
+                    "disclosure": "complete",
+                    "sources": [
+                        {
+                            "source_id": "local:eval",
+                            "source_revision": "source-r1",
+                            "usage": "evaluation",
+                            "config": "default",
+                            "split": "test",
+                            "transformation_id": "invented-transform-r1",
+                        }
+                    ],
+                    "public_provenance": _contract_provenance("task-evidence-r1"),
+                    "review": {"state": "approved", "private_notes": sentinel},
+                },
+            }
+        ]
+    }
+    (benchmark_root / "models" / "core.yaml").write_text(json.dumps(model_row), encoding="utf-8")
+    (benchmark_root / "tasks" / "core.yaml").write_text(json.dumps(task_row), encoding="utf-8")
+    registry = load_relationship_registry(benchmark_root / "training_overlap_relationships.yaml")
+    assessment, _catalog = _contract_assessment(model, task, registry)
+    record = _contract_result("public-run", model.id, 0.5, assessment=assessment)
+    record["model"]["training_data"] = {"review": {"private_notes": sentinel}}
+    record["task"]["evaluation_sources"] = {"review": {"private_notes": sentinel}}
+    record["details"] = {"raw_source_payload": sentinel}
+    results = tmp_path / "results.jsonl"
+    results.write_text(json.dumps(record) + "\n", encoding="utf-8")
+
+    dataset = export_dataset_repo(
+        output_dir=tmp_path / "dataset",
+        benchmark_root=benchmark_root,
+        results_path=results,
+    )
+    space = export_space_repo(
+        output_dir=tmp_path / "space",
+        benchmark_root=benchmark_root,
+        bundled_leaderboard=dataset / "leaderboards" / "latest.csv",
+    )
+    compile((space / "app.py").read_text(encoding="utf-8"), str(space / "app.py"), "exec")
+    for output in (dataset, space):
+        for path in output.rglob("*"):
+            if path.is_file():
+                assert sentinel not in path.read_text(encoding="utf-8")
+
+
+def test_public_result_sanitizer_preserves_safe_baseline_evidence(tmp_path) -> None:
+    safe_record = {
+        "schema_version": "2.0",
+        "evaluation_level": "embedding",
+        "evaluation": {
+            "level": "embedding",
+            "mode": "ranking",
+            "leaderboard_surface": "embedding",
+            "diagnostics": {"folds": ["fold-a", "fold-b"], "complete": True},
+        },
+        "subject": {
+            "kind": "embedding_model",
+            "metadata": {"family": "invented-family", "revision_label": "public-r1"},
+        },
+        "run": {
+            "id": "baseline-safe-run",
+            "description": "Safe baseline compatibility fixture",
+            "metadata": {
+                "suite": "compatibility",
+                "relative_results_path": "results/baseline-safe.jsonl",
+                "nested": {"attempt": 2, "labels": ["safe", "baseline"]},
+            },
+            "publish": True,
+            "evidence_tier": "benchmark",
+            "git_sha": "abc123",
+        },
+        "timestamps": {
+            "started_at": "2026-07-28T00:00:00Z",
+            "finished_at": "2026-07-28T00:00:30Z",
+            "duration_s": 30.0,
+        },
+        "model": {
+            "id": "baseline-safe-model",
+            "display_name": "Baseline Safe Model",
+            "provider": "invented",
+            "provider_kwargs": {
+                "model": "invented-safe-v1",
+                "dimensions": 768,
+                "encoding_format": "float",
+                "endpoint": "https://example.invalid/v1/embeddings",
+                "nested": {"batch_size": 32, "normalize": True},
+            },
+            "modalities": ["text"],
+            "dimensions": 768,
+            "access": "api",
+            "tags": ["baseline", "safe"],
+        },
+        "task": {
+            "id": "needle_in_haystack",
+            "display_name": "Needle",
+            "task": "needle_in_haystack",
+            "dataset_version": "needle-v1",
+            "primary_metric": "overall_accuracy",
+            "metric_direction": "higher",
+            "kwargs": {
+                "haystack_lengths": [4000, 8000],
+                "needle_positions": [0.25, 0.75],
+                "nested": {"diagnostic_mode": "strict", "max_cases": 12},
+            },
+            "tags": ["long-context", "text"],
+        },
+        "provider_result": {
+            "provider": "invented",
+            "model_name": "invented-safe-v1",
+            "request_count": 4,
+            "batch_sizes": [3, 3, 3, 3],
+        },
+        "metrics": {
+            "overall_accuracy": 0.75,
+            "by_length": {"4000": 0.8, "8000": 0.7},
+        },
+        "details": {
+            "input_cardinality": {"queries": 12, "documents": 48, "total": 60},
+            "task_diagnostics": {
+                "per_query": [
+                    {"query_id": "query/1", "correct": True, "rank": 1},
+                    {"query_id": "query/2", "correct": False, "rank": 3},
+                ],
+                "buckets": {"short": {"count": 6, "accuracy": 0.8}},
+            },
+            "cache": {"enabled": False, "hits": 0},
+            "provider_latency_ms": 120.5,
+            "embedding_calls": [
+                {"request_id": "request-1", "batch_size": 3, "latency_ms": 12.5},
+                {"request_id": "request-2", "batch_size": 3, "latency_ms": 11.0},
+            ],
+            "notes": ["safe diagnostic note", "retry not required"],
+        },
+        "error": "provider timeout after 30 seconds",
+        "custom_public_evidence": {
+            "attempts": [
+                {"id": "attempt-1", "status": "timeout"},
+                {"id": "attempt-2", "status": "complete"},
+            ]
+        },
+    }
+    record = json.loads(json.dumps(safe_record))
+    private_sentinel = "PRIVATE_NOTES_SENTINEL_8D81E4"
+    secret_value = "sk-secretvalue1234567890"
+    unsafe_path = "/home/reviewer/private/results.jsonl"
+    record["run"]["metadata"].update(
+        {
+            "api_key_env": "INVENTED_API_KEY",
+            "authorization": "Bearer private-token-123456",
+            "diagnostic_note": "api_key=private-value-123456",
+            "unsafe_path": unsafe_path,
+            "secret_copy": secret_value,
+        }
+    )
+    record["model"]["provider_kwargs"].update(
+        {
+            "api_key": secret_value,
+            "api_key_env": "INVENTED_API_KEY",
+            "credential_copy": secret_value,
+            "local_model_path": "/data2/private/model",
+        }
+    )
+    record["model"]["training_data"] = {
+        "review": {"state": "approved", "private_notes": private_sentinel}
+    }
+    record["task"]["kwargs"].update(
+        {
+            "password": "private-password",
+            "local_cache": unsafe_path,
+            "secret_value_copy": secret_value,
+        }
+    )
+    record["task"]["evaluation_sources"] = {
+        "review": {"state": "approved", "private_notes": private_sentinel}
+    }
+    record["provider_result"]["token"] = secret_value
+    record["details"].update(
+        {
+            "raw_source_payload": private_sentinel,
+            "review": {"private_notes": private_sentinel},
+            "artifact_path": "/data2/private/artifact.json",
+            "credential_note": secret_value,
+        }
+    )
+    record["details"]["embedding_calls"][0].update(
+        {"raw_prompt": private_sentinel, "api_key_env": "INVENTED_API_KEY"}
+    )
+    record["private_notes"] = private_sentinel
+
+    results = tmp_path / "results.jsonl"
+    results.write_text(json.dumps(record) + "\n", encoding="utf-8")
+    output = export_dataset_repo(output_dir=tmp_path / "dataset", results_path=results)
+    exported = load_jsonl(output / "results" / "latest.jsonl")
+
+    expected = json.loads(json.dumps(safe_record))
+    expected["training_overlap"] = legacy_unknown_assessment()
+    assert exported == [expected]
+    assert exported[0]["model"]["provider_kwargs"] == safe_record["model"]["provider_kwargs"]
+    assert exported[0]["task"]["kwargs"] == safe_record["task"]["kwargs"]
+    assert exported[0]["run"]["metadata"] == safe_record["run"]["metadata"]
+    assert exported[0]["details"] == safe_record["details"]
+    assert exported[0]["error"] == safe_record["error"]
+
+    public_text = "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in output.rglob("*")
+        if path.is_file()
+    )
+    for forbidden in (private_sentinel, secret_value, unsafe_path, "INVENTED_API_KEY"):
+        assert forbidden not in public_text
+    public_result_text = json.dumps(exported[0], sort_keys=True)
+    assert "training_data" not in public_result_text
+    assert "evaluation_sources" not in public_result_text
+
+
+def test_training_overlap_legacy_rows_export_unknown_without_recomputation(tmp_path) -> None:
+    records = [
+        _contract_result("legacy-high", "model-high", 0.9, contract_version=False),
+        _contract_result("legacy-low", "model-low", 0.4, contract_version=False),
+    ]
+    rows = build_leaderboard(records)
+    assert [row["score"] for row in rows] == [0.9, 0.4]
+    assert all(row["zero_shot_status"] == "unknown" for row in rows)
+    assert all(row["overlap_reason_codes"] == "legacy_missing_contract" for row in rows)
+
+    results = tmp_path / "results.jsonl"
+    results.write_text("\n".join(json.dumps(record) for record in records) + "\n", encoding="utf-8")
+    output = export_dataset_repo(output_dir=tmp_path / "dataset", results_path=results)
+    exported_records = load_jsonl(output / "results" / "latest.jsonl")
+    assert all(record["training_overlap"]["reason_codes"] == ["legacy_missing_contract"] for record in exported_records)
+    with open(output / "leaderboards" / "latest.csv", encoding="utf-8", newline="") as file:
+        reader = csv.DictReader(file)
+        exported_rows = list(reader)
+    assert reader.fieldnames[-5:] == [
+        "data_overlap_status",
+        "task_training_status",
+        "zero_shot_status",
+        "overlap_reason_codes",
+        "overlap_relationship_registry_revision",
+    ]
+    assert [row["score"] for row in exported_rows] == ["0.9", "0.4"]
+
+
+def test_training_overlap_status_changes_preserve_score_order_and_provenance(tmp_path) -> None:
+    unknown = legacy_unknown_assessment()
+    reviewed = dict(unknown)
+    reviewed.update(
+        {
+            "relationship_registry_revision": "invented.1",
+            "data_overlap_status": "declared_none",
+            "task_training_status": "declared_none",
+            "zero_shot_status": "reviewed_yes",
+            "reason_codes": ["complete_reviewed_non_overlap"],
+        }
+    )
+    exact = dict(unknown)
+    exact.update(
+        {
+            "relationship_registry_revision": "invented.1",
+            "data_overlap_status": "exact",
+            "task_training_status": "same_task",
+            "zero_shot_status": "no",
+            "reason_codes": ["exact_source_match", "same_task_exposure"],
+        }
+    )
+    records_a = [
+        _contract_result("run-low", "same-model", 0.4, assessment=reviewed),
+        _contract_result("run-high", "same-model", 0.9, assessment=exact),
+    ]
+    records_b = [
+        _contract_result("run-low", "same-model", 0.4, assessment=exact),
+        _contract_result("run-high", "same-model", 0.9, assessment=reviewed),
+    ]
+    comparable = []
+    for name, records in (("a", records_a), ("b", records_b)):
+        results = tmp_path / f"{name}.jsonl"
+        results.write_text("\n".join(json.dumps(record) for record in records) + "\n", encoding="utf-8")
+        output = export_dataset_repo(output_dir=tmp_path / name, results_path=results)
+        with open(output / "leaderboards" / "latest.csv", encoding="utf-8", newline="") as file:
+            rows = list(csv.DictReader(file))
+        comparable.append(
+            [
+                {
+                    key: value
+                    for key, value in row.items()
+                    if key
+                    not in {
+                        "data_overlap_status",
+                        "task_training_status",
+                        "zero_shot_status",
+                        "overlap_reason_codes",
+                        "overlap_relationship_registry_revision",
+                    }
+                }
+                for row in rows
+            ]
+        )
+        assert [row["score"] for row in rows] == ["0.9", "0.4"]
+        assert [row["task_model_duplicate_count"] for row in rows] == ["2", "2"]
+        assert {row["task_model_run_rank"] for row in rows} == {"1", "2"}
+        assert {row["is_latest_for_task_model"] for row in rows} == {"false", "true"}
+        assert all(row["evidence_tier"] == "benchmark" for row in rows)
+    assert comparable[0] == comparable[1]
+
+
+def test_training_overlap_does_not_use_heuristic_matching() -> None:
+    registry = _contract_registry(
+        [
+            _contract_source("local:CaseSensitive"),
+            _contract_source("local:casesensitive"),
+            _contract_source("local:path/shared-name"),
+            _contract_source("other:shared-name"),
+        ]
+    )
+    task = _contract_task("local:casesensitive")
+    model = _contract_model("model-local:casesensitive", source_claims=[("local:CaseSensitive", "source-r1")])
+    assessment, _catalog = _contract_assessment(model, task, registry)
+    assert assessment["data_overlap_status"] == "unknown"
+    assert assessment["task_training_status"] == "unknown"
+    assert assessment["matched_training_source_ids"] == []
+
+
+def test_training_overlap_post_contract_publication_requires_assessment(tmp_path) -> None:
+    missing = _contract_result("missing", "model", 0.5, assessment=None)
+    results = tmp_path / "missing.jsonl"
+    results.write_text(json.dumps(missing) + "\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="missing training_overlap"):
+        export_dataset_repo(output_dir=tmp_path / "rejected", results_path=results)
+
+    explicit_unknown = legacy_unknown_assessment()
+    explicit_unknown.update(
+        {
+            "relationship_registry_revision": "invented.1",
+            "reason_codes": ["model_training_disclosure_unknown"],
+        }
+    )
+    allowed = _contract_result("allowed", "model", 0.5, assessment=explicit_unknown)
+    results.write_text(json.dumps(allowed) + "\n", encoding="utf-8")
+    output = export_dataset_repo(output_dir=tmp_path / "allowed", results_path=results)
+    assert load_jsonl(output / "results" / "latest.jsonl")[0]["training_overlap"]["zero_shot_status"] == "unknown"
+
+
+def test_training_overlap_relationship_digest_invalidates_same_revision_snapshot() -> None:
+    sources = [_contract_source("local:a"), _contract_source("local:b")]
+    registry_a = _contract_registry(
+        sources,
+        [_contract_relationship("related", "local:a", "same_task_as", "local:b")],
+        revision="digest-test.1",
+    )
+    registry_b = _contract_registry(
+        sources,
+        [_contract_relationship("related", "local:a", "similar_task_to", "local:b")],
+        revision="digest-test.1",
+    )
+    model = _contract_model("model", source_claims=[("local:a", "source-r1")])
+    task = _contract_task("local:b")
+    assessment, _catalog = _contract_assessment(model, task, registry_a)
+    assert registry_a.sha256 != registry_b.sha256
+    with pytest.raises(ValueError, match="digest is stale"):
+        validate_assessment_registry_binding(assessment, registry_b)
+
+
+def test_make_result_record_uses_catalog_root_relationship_registry(tmp_path) -> None:
+    benchmark_root = tmp_path / "custom-benchmark"
+    benchmark_root.mkdir()
+    registry_data = {
+        "schema_version": "1",
+        "revision": "custom-root.7",
+        "sources": [_contract_source("local:custom")],
+        "relationships": [],
+    }
+    relationship_path = benchmark_root / "training_overlap_relationships.yaml"
+    relationship_path.write_text(json.dumps(registry_data), encoding="utf-8")
+    model = _contract_model("custom-model", source_claims=[("local:custom", "source-r1")])
+    task = _contract_task("local:custom")
+    catalog = BenchmarkCatalog(root=benchmark_root, models={model.id: model}, tasks={task.id: task})
+
+    record = make_result_record(
+        run=RunManifest(id="custom-root-run"),
+        model=model,
+        task=task,
+        run_task=RunTask(id=task.id),
+        result=EvalResult(
+            task_name=task.task,
+            provider_name="invented",
+            model_name=model.id,
+            metrics={"overall_accuracy": 1.0},
+        ),
+        started_at="2026-07-28T00:00:00Z",
+        finished_at="2026-07-28T00:00:01Z",
+        duration_s=1.0,
+        catalog=catalog,
+    )
+
+    custom_registry = load_relationship_registry(relationship_path)
+    assert record["training_overlap"]["relationship_registry_revision"] == "custom-root.7"
+    assert record["training_overlap"]["relationship_registry_sha256"] == custom_registry.sha256
+    assert record["training_overlap"]["data_overlap_status"] == "exact"
+
+
+def test_registry_parsing_rejects_unsupported_declaration_semantics() -> None:
+    base_model = {
+        "id": "invalid-model",
+        "display_name": "Invalid model",
+        "provider": "invented",
+        "training_data": {
+            "source_claims": [{"source_id": "local:source", "source_revision": "source-r1"}],
+            "negative_claims": [],
+            "public_provenance": _contract_provenance(),
+            "review": {"state": "approved"},
+        },
+    }
+    invalid_model_cases = [
+        ("source_claims", "relation", "pretrained_on", "training source relation"),
+        ("source_claims", "scope", "metadata_only", "training source scope"),
+        ("negative_claims", "relation", "never_seen", "negative training relation"),
+        ("negative_claims", "scope", "task_family", "negative training scope"),
+    ]
+    for claim_group, key, value, message in invalid_model_cases:
+        payload = json.loads(json.dumps(base_model))
+        payload["training_data"]["source_claims"] = []
+        payload["training_data"]["negative_claims"] = []
+        payload["training_data"][claim_group] = [
+            {"source_id": "local:source", "source_revision": "source-r1", key: value}
+        ]
+        with pytest.raises(ValueError, match=message):
+            ModelSpec.from_dict(payload, Path("invalid-model.yaml"))
+
+    invalid_review = json.loads(json.dumps(base_model))
+    invalid_review["training_data"]["review"]["state"] = "trusted"
+    with pytest.raises(ValueError, match="Unsupported review state"):
+        ModelSpec.from_dict(invalid_review, Path("invalid-model.yaml"))
+
+    base_task = {
+        "id": "invalid-task",
+        "display_name": "Invalid task",
+        "task": "invalid_task",
+        "description": "Invalid fixture.",
+        "evaluation_sources": {
+            "sources": [{"source_id": "local:source", "usage": "evaluation"}],
+            "review": {"state": "approved"},
+        },
+    }
+    invalid_usage = json.loads(json.dumps(base_task))
+    invalid_usage["evaluation_sources"]["sources"][0]["usage"] = "training"
+    with pytest.raises(ValueError, match="evaluation source usage"):
+        TaskSpec.from_dict(invalid_usage, Path("invalid-task.yaml"))
+
+    invalid_task_review = json.loads(json.dumps(base_task))
+    invalid_task_review["evaluation_sources"]["review"]["state"] = "trusted"
+    with pytest.raises(ValueError, match="Unsupported review state"):
+        TaskSpec.from_dict(invalid_task_review, Path("invalid-task.yaml"))
+
+
+def test_assessment_rejects_directly_constructed_unsupported_semantics() -> None:
+    registry = _contract_registry([_contract_source("local:eval")])
+    task = _contract_task("local:eval")
+    model = _contract_model("model", source_claims=[("local:eval", "source-r1")])
+    invalid_training = replace(
+        model.training_data,
+        source_claims=[
+            TrainingSourceClaim(
+                source_id="local:eval",
+                relation="pretrained_on",
+                scope="material_samples",
+                source_revision="source-r1",
+            )
+        ],
+    )
+    invalid_model = replace(model, training_data=invalid_training)
+    catalog = BenchmarkCatalog(root=Path("."), models={invalid_model.id: invalid_model}, tasks={task.id: task})
+    with pytest.raises(ValueError, match="unsupported training relation"):
+        assess_training_overlap(
+            model=invalid_model,
+            task=task,
+            catalog=catalog,
+            relationship_registry=registry,
+            assessed_at="2026-07-28T00:00:00Z",
+        )
+
+    invalid_evaluation = replace(
+        task.evaluation_sources,
+        sources=[
+            EvaluationSourceClaim(
+                source_id="local:eval",
+                usage="training",
+                source_revision="source-r1",
+            )
+        ],
+    )
+    invalid_task = replace(task, evaluation_sources=invalid_evaluation)
+    catalog = BenchmarkCatalog(root=Path("."), models={model.id: model}, tasks={invalid_task.id: invalid_task})
+    with pytest.raises(ValueError, match="unsupported evaluation usage"):
+        assess_training_overlap(
+            model=model,
+            task=invalid_task,
+            catalog=catalog,
+            relationship_registry=registry,
+            assessed_at="2026-07-28T00:00:00Z",
+        )
+
+    invalid_review_model = replace(
+        model,
+        training_data=replace(model.training_data, review=ReviewSpec(state="trusted")),
+    )
+    catalog = BenchmarkCatalog(
+        root=Path("."), models={invalid_review_model.id: invalid_review_model}, tasks={task.id: task}
+    )
+    with pytest.raises(ValueError, match="unsupported review state"):
+        validate_catalog_contract(catalog, registry)
+
+    invalid_negative_model = replace(
+        model,
+        training_data=replace(
+            model.training_data,
+            source_claims=[],
+            negative_claims=[
+                NegativeTrainingClaim(
+                    source_id="local:eval",
+                    relation="not_trained_on",
+                    scope="task_family",
+                    source_revision="source-r1",
+                )
+            ],
+        ),
+    )
+    catalog = BenchmarkCatalog(
+        root=Path("."), models={invalid_negative_model.id: invalid_negative_model}, tasks={task.id: task}
+    )
+    with pytest.raises(ValueError, match="unsupported negative scope"):
+        validate_catalog_contract(catalog, registry)
+
+
+def test_relationship_registry_rejects_unsupported_review_states() -> None:
+    invalid_source = _contract_source("local:source")
+    invalid_source["review"]["state"] = "trusted"
+    with pytest.raises(ValueError, match="Source 'local:source' has unsupported review state"):
+        _contract_registry([invalid_source])
+
+    relationship = _contract_relationship("related", "local:a", "same_task_as", "local:b")
+    relationship["review"]["state"] = "trusted"
+    with pytest.raises(ValueError, match="Relationship 'related' has unsupported review state"):
+        _contract_registry([_contract_source("local:a"), _contract_source("local:b")], [relationship])
+
+
+@pytest.mark.parametrize("predicate", ["same_task_as", "similar_task_to"])
+def test_alias_component_does_not_inherit_unrelated_task_edge(predicate) -> None:
+    registry = _contract_registry(
+        [
+            _contract_source("local:alias", canonical=False),
+            _contract_source("local:canonical"),
+            _contract_source("local:unrelated"),
+        ],
+        [
+            _contract_relationship("alias", "local:alias", "alias_of", "local:canonical"),
+            _contract_relationship("unrelated-edge", "local:canonical", predicate, "local:unrelated"),
+        ],
+    )
+    model = _contract_model("model", source_claims=[("local:alias", "source-r1")])
+    task = _contract_task("local:canonical")
+    assessment, _catalog = _contract_assessment(model, task, registry)
+
+    assert assessment["data_overlap_status"] == "exact"
+    assert assessment["task_training_status"] == "unknown"
+    assert assessment["zero_shot_status"] == "no"
+    assert assessment["relationship_ids"] == ["alias"]
+
+
+@pytest.mark.parametrize(
+    ("data_status", "task_status", "zero_shot_status"),
+    [
+        ("exact", "unknown", "reviewed_yes"),
+        ("unknown", "unknown", "no"),
+        ("declared_none", "declared_none", "unknown"),
+        ("unknown", "similar_task", "reviewed_yes"),
+    ],
+)
+def test_frozen_assessment_rejects_inconsistent_zero_shot_status(
+    data_status,
+    task_status,
+    zero_shot_status,
+) -> None:
+    snapshot = legacy_unknown_assessment()
+    snapshot.update(
+        {
+            "data_overlap_status": data_status,
+            "task_training_status": task_status,
+            "zero_shot_status": zero_shot_status,
+        }
+    )
+    with pytest.raises(ValueError, match="zero_shot_status is inconsistent"):
+        validate_assessment_snapshot(snapshot)
+
+
+def test_public_export_rejects_inconsistent_frozen_assessment(tmp_path) -> None:
+    snapshot = legacy_unknown_assessment()
+    snapshot.update(
+        {
+            "relationship_registry_revision": "invented.1",
+            "data_overlap_status": "exact",
+            "task_training_status": "unknown",
+            "zero_shot_status": "reviewed_yes",
+            "reason_codes": ["exact_source_match"],
+        }
+    )
+    results = tmp_path / "results.jsonl"
+    results.write_text(
+        json.dumps(_contract_result("invalid", "model", 0.5, assessment=snapshot)) + "\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="zero_shot_status is inconsistent"):
+        export_dataset_repo(output_dir=tmp_path / "dataset", results_path=results)

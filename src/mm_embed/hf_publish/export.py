@@ -5,15 +5,15 @@ from __future__ import annotations
 import csv
 import json
 import math
+import re
 import shutil
 from collections import Counter, defaultdict
-from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
 import yaml
 
-from mm_embed.benchmark.leaderboard import build_leaderboard, primary_metric_value
+from mm_embed.benchmark.leaderboard import TRAINING_OVERLAP_FIELDNAMES, build_leaderboard, primary_metric_value
 from mm_embed.benchmark.registry import (
     BenchmarkCatalog,
     ModelSpec,
@@ -23,6 +23,13 @@ from mm_embed.benchmark.registry import (
     normalize_evidence_tier,
 )
 from mm_embed.benchmark.results import is_embedding_result_record, json_safe, load_jsonl
+from mm_embed.benchmark.training_overlap import (
+    load_relationship_registry,
+    public_assessment_for_record,
+    public_model_training_projection,
+    public_task_source_projection,
+    validate_assessment_registry_binding,
+)
 
 
 DEFAULT_EXPORT_ROOT = Path("dist/huggingface")
@@ -61,7 +68,87 @@ LEADERBOARD_FIELDNAMES = (
     LEADERBOARD_BASE_FIELDNAMES
     + LEADERBOARD_PROVENANCE_FIELDNAMES
     + LEADERBOARD_OPERATIONAL_FIELDNAMES
+    + TRAINING_OVERLAP_FIELDNAMES
 )
+
+TRAINING_OVERLAP_WARNING = (
+    "Training-overlap status is interpretation evidence for this model revision, "
+    "task source, and reviewed relationship-table revision. Unknown means "
+    "unreported, incomplete, unresolved, or stale; it does not mean zero-shot. "
+    "Status does not change the task score or ranking."
+)
+PUBLIC_TRAINING_OVERLAP_FIELDS = (
+    "schema_version",
+    "relationship_registry_revision",
+    "relationship_registry_sha256",
+    "model_revision",
+    "model_training_evidence_revision",
+    "task_dataset_version",
+    "task_source_evidence_revision",
+    "data_overlap_status",
+    "task_training_status",
+    "zero_shot_status",
+    "matched_model_ids",
+    "matched_training_source_ids",
+    "matched_evaluation_source_ids",
+    "relationship_ids",
+    "reason_codes",
+    "assessed_at",
+)
+_DROP_PUBLIC_VALUE = object()
+_NON_PUBLIC_RESULT_KEYS = {
+    "api_key_env",
+    "environment",
+    "environment_variables",
+    "evaluation_sources",
+    "private_notes",
+    "raw_prompt",
+    "raw_provider_payload",
+    "raw_request",
+    "raw_response",
+    "raw_source_payload",
+    "request_body",
+    "request_headers",
+    "response_body",
+    "response_headers",
+    "review",
+    "review_notes",
+    "reviewer_notes",
+    "training_data",
+}
+_SECRET_RESULT_KEYS = {
+    "access_key",
+    "api_key",
+    "apikey",
+    "auth_token",
+    "authorization",
+    "cookie",
+    "credential",
+    "credentials",
+    "password",
+    "passwd",
+    "private_key",
+    "refresh_token",
+    "secret",
+    "secret_key",
+    "set_cookie",
+    "token",
+}
+_SECRET_VALUE_PATTERN = re.compile(
+    r"(?i)(?:bearer\s+[a-z0-9._~+/=-]{8,}|(?:sk|hf|gh[pousr])_[a-z0-9_-]{8,}|"
+    r"sk-[a-z0-9_-]{12,}|github_pat_[a-z0-9_]{12,}|AKIA[0-9A-Z]{12,}|AIza[0-9A-Za-z_-]{20,})"
+)
+_INLINE_SECRET_ASSIGNMENT_PATTERN = re.compile(
+    r"(?i)(?:api[_-]?key|access[_-]?token|password|secret|credential)\s*[:=]\s*\S{4,}"
+)
+_SECRET_ENV_VALUE_PATTERN = re.compile(
+    r"^[A-Z][A-Z0-9_]*(?:API_KEY|ACCESS_KEY|PRIVATE_KEY|TOKEN|SECRET|PASSWORD|CREDENTIALS?)$"
+)
+_EMBEDDED_PRIVATE_PATH_PATTERN = re.compile(
+    r"(?:^|[\s\"'(=])(?:~[/\\]|/(?:home|root|Users|data\d*|mnt|tmp|workspace)(?:[/\\]|$)|"
+    r"[A-Za-z]:[/\\]|\\\\)"
+)
+_CREDENTIAL_URL_PATTERN = re.compile(r"^[a-z][a-z0-9+.-]*://[^/@\s:]+:[^/@\s]+@", re.IGNORECASE)
 
 TASK_NOTES = {
     "mrl_stress": {
@@ -143,6 +230,7 @@ def _space_task_catalog_rows(catalog: BenchmarkCatalog) -> list[dict[str, Any]]:
                 "required_modalities": task.required_modalities,
                 "publish": True,
                 "leaderboard_publish": True,
+                "evaluation_sources": public_task_source_projection(task),
             }
         )
     return rows
@@ -173,6 +261,7 @@ def _space_model_catalog_rows(catalog: BenchmarkCatalog) -> list[dict[str, Any]]
                 "access": model.access,
                 "status": model.status,
                 "source": model.source,
+                "training_data": public_model_training_projection(model),
             }
         )
     rows.sort(key=lambda row: (row["display_name"].lower(), row["provider"].lower(), row["id"].lower()))
@@ -210,8 +299,150 @@ def _public_records(
             provider_result.get("model_name"),
         ):
             continue
-        public.append(record)
+        public.append(_public_result_record(record))
     return public
+
+
+def _dataset_model_catalog_rows(catalog: BenchmarkCatalog) -> list[dict[str, Any]]:
+    return [
+        {
+            "id": model.id,
+            "display_name": model.display_name,
+            "provider": model.provider,
+            "modalities": model.modalities,
+            "dimensions": model.dimensions,
+            "max_text_length": model.max_text_length,
+            "supports_mrl": model.supports_mrl,
+            "access": model.access,
+            "status": model.status,
+            "source": model.source,
+            "tags": model.tags,
+            "training_data": public_model_training_projection(model),
+        }
+        for model in catalog.models.values()
+        if _is_public_model(model)
+    ]
+
+
+def _dataset_task_catalog_rows(catalog: BenchmarkCatalog) -> list[dict[str, Any]]:
+    return [
+        {
+            "id": task.id,
+            "display_name": task.display_name,
+            "description": task.description,
+            "required_modalities": task.required_modalities,
+            "primary_metric": task.primary_metric,
+            "metric_direction": task.metric_direction,
+            "dataset_version": task.dataset_version,
+            "publish": True,
+            "leaderboard_publish": True,
+            "tags": task.tags,
+            "evaluation_sources": public_task_source_projection(task),
+        }
+        for task in catalog.tasks.values()
+        if _is_public_task(task)
+    ]
+
+
+def _public_result_record(record: dict[str, Any]) -> dict[str, Any]:
+    """Preserve existing public evidence while recursively removing unsafe values."""
+    overlap = public_assessment_for_record(record)
+    source_record = {key: value for key, value in record.items() if key != "training_overlap"}
+    sanitized = _sanitize_public_result_value(source_record)
+    if not isinstance(sanitized, dict):
+        raise ValueError("Public result sanitizer did not produce a result mapping")
+    public_record = sanitized
+    public_record["training_overlap"] = {
+        key: overlap.get(key)
+        for key in PUBLIC_TRAINING_OVERLAP_FIELDS
+    }
+    original_error = record.get("error")
+    if original_error and not isinstance(public_record.get("error"), str):
+        public_record["error"] = "Evaluation failed"
+    return public_record
+
+
+def _sanitize_public_result_value(value: Any) -> Any:
+    if isinstance(value, dict):
+        sanitized = {}
+        for raw_key, item in value.items():
+            key = str(raw_key)
+            if _is_non_public_result_key(key):
+                continue
+            public_item = _sanitize_public_result_value(item)
+            if public_item is not _DROP_PUBLIC_VALUE:
+                sanitized[key] = public_item
+        return sanitized
+    if isinstance(value, (list, tuple)):
+        sanitized_items = []
+        for item in value:
+            public_item = _sanitize_public_result_value(item)
+            if public_item is not _DROP_PUBLIC_VALUE:
+                sanitized_items.append(public_item)
+        return sanitized_items
+    if isinstance(value, str):
+        return _DROP_PUBLIC_VALUE if _is_unsafe_public_result_text(value) else value
+    if value is None or isinstance(value, (bool, int, float)):
+        return value
+    return _DROP_PUBLIC_VALUE
+
+
+def _is_non_public_result_key(key: str) -> bool:
+    normalized = re.sub(r"[^a-z0-9]+", "_", key.lower()).strip("_")
+    if normalized in _NON_PUBLIC_RESULT_KEYS or normalized in _SECRET_RESULT_KEYS:
+        return True
+    if normalized in {"token_count", "token_usage", "input_tokens", "output_tokens", "total_tokens"}:
+        return False
+    if normalized.startswith(("private_", "reviewer_", "internal_only_")):
+        return True
+    if normalized.startswith(
+        (
+            "access_key_",
+            "access_token_",
+            "api_key_",
+            "auth_token_",
+            "authorization_",
+            "credential_",
+            "password_",
+            "private_key_",
+            "secret_",
+        )
+    ):
+        return True
+    return normalized.endswith(
+        (
+            "_api_key",
+            "_access_key",
+            "_auth_token",
+            "_credential",
+            "_credentials",
+            "_password",
+            "_private_key",
+            "_refresh_token",
+            "_secret",
+            "_secret_key",
+            "_token",
+        )
+    )
+
+
+def _is_unsafe_public_result_text(value: str) -> bool:
+    text = value.strip()
+    if not text:
+        return False
+    if Path(text).is_absolute() or text.startswith(("~/", "~\\", "$HOME/", "${HOME}/")):
+        return True
+    if text.lower().startswith("file://"):
+        return True
+    if _EMBEDDED_PRIVATE_PATH_PATTERN.search(text):
+        return True
+    if (
+        _SECRET_VALUE_PATTERN.search(text)
+        or _SECRET_ENV_VALUE_PATTERN.fullmatch(text)
+        or _INLINE_SECRET_ASSIGNMENT_PATTERN.search(text)
+    ):
+        return True
+    return bool(_CREDENTIAL_URL_PATTERN.match(text))
 
 
 def _read_leaderboard_csv(path: Path) -> tuple[list[dict[str, str]], list[str]]:
@@ -222,21 +453,35 @@ def _read_leaderboard_csv(path: Path) -> tuple[list[dict[str, str]], list[str]]:
 
 def _write_leaderboard_csv_rows(path: Path, rows: list[dict[str, Any]], fieldnames: list[str] | None = None) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    ordered_fields = fieldnames or LEADERBOARD_FIELDNAMES
-    extras = sorted({key for row in rows for key in row if key not in ordered_fields})
+    requested_fields = list(fieldnames or LEADERBOARD_FIELDNAMES)
+    ordered_fields = [field for field in requested_fields if field not in TRAINING_OVERLAP_FIELDNAMES]
+    extras = sorted({key for row in rows for key in row if key not in requested_fields})
+    final_fields = ordered_fields + extras + TRAINING_OVERLAP_FIELDNAMES
     with open(path, "w", encoding="utf-8", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=ordered_fields + extras)
+        writer = csv.DictWriter(f, fieldnames=final_fields)
         writer.writeheader()
         for row in rows:
             writer.writerow(row)
 
 
 def _leaderboard_fieldnames_with_provenance(fieldnames: list[str] | None) -> list[str]:
-    fields = list(fieldnames or LEADERBOARD_BASE_FIELDNAMES)
-    for field in LEADERBOARD_PROVENANCE_FIELDNAMES + LEADERBOARD_OPERATIONAL_FIELDNAMES:
+    fields = [
+        field
+        for field in (fieldnames or LEADERBOARD_BASE_FIELDNAMES)
+        if field not in TRAINING_OVERLAP_FIELDNAMES
+    ]
+    for field in LEADERBOARD_PROVENANCE_FIELDNAMES + LEADERBOARD_OPERATIONAL_FIELDNAMES + TRAINING_OVERLAP_FIELDNAMES:
         if field not in fields:
             fields.append(field)
     return fields
+
+
+def _normalize_overlap_row(row: dict[str, Any]) -> None:
+    row.setdefault("data_overlap_status", "unknown")
+    row.setdefault("task_training_status", "unknown")
+    row.setdefault("zero_shot_status", "unknown")
+    row.setdefault("overlap_reason_codes", "legacy_missing_contract")
+    row.setdefault("overlap_relationship_registry_revision", "legacy")
 
 
 def _public_leaderboard_rows(
@@ -266,6 +511,7 @@ def _public_leaderboard_rows(
             continue
         if _contains_excluded_marker(provider, model_id, model):
             continue
+        _normalize_overlap_row(row)
         public.append(row)
     return public
 
@@ -428,6 +674,7 @@ def _leaderboard_provenance_by_key(
                 "evidence_tier_explicit": explicit_tier is not None,
                 "evidence_source": _record_evidence_source(record),
                 **_record_operational_evidence(record),
+                **_record_overlap_evidence(record),
             }
         )
     return provenance
@@ -464,6 +711,10 @@ def _enrich_leaderboard_rows(
         for field in LEADERBOARD_OPERATIONAL_FIELDNAMES:
             if field in match:
                 row[field] = match[field]
+        for field in TRAINING_OVERLAP_FIELDNAMES:
+            if field in match:
+                row[field] = match[field]
+        _normalize_overlap_row(row)
 
     groups: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
     for row in enriched:
@@ -479,6 +730,17 @@ def _enrich_leaderboard_rows(
             row.pop("_source_index", None)
 
     return enriched
+
+
+def _record_overlap_evidence(record: dict[str, Any]) -> dict[str, Any]:
+    overlap = public_assessment_for_record(record)
+    return {
+        "data_overlap_status": overlap["data_overlap_status"],
+        "task_training_status": overlap["task_training_status"],
+        "zero_shot_status": overlap["zero_shot_status"],
+        "overlap_reason_codes": ";".join(overlap["reason_codes"]),
+        "overlap_relationship_registry_revision": overlap["relationship_registry_revision"],
+    }
 
 
 def _result_stats(records: list[dict[str, Any]]) -> dict[str, int]:
@@ -614,6 +876,16 @@ Each line in `results/latest.jsonl` is one model-task run. Important fields:
 - `details`: diagnostic details for deeper analysis
 - `error`: error text for failed runs, otherwise `null`
 
+## Training-overlap interpretation
+
+{TRAINING_OVERLAP_WARNING}
+
+The leaderboard appends `data_overlap_status`, `task_training_status`,
+`zero_shot_status`, `overlap_reason_codes`, and
+`overlap_relationship_registry_revision` after all score, provenance, and
+operational fields. `Reviewed zero-shot` means the strict combined reviewed
+status; unknown rows remain visible and are not treated as zero-shot.
+
 ## Leaderboard Provenance
 
 `leaderboards/latest.csv` keeps every public row, including historical duplicate
@@ -718,8 +990,8 @@ def export_dataset_repo(
     public_records: list[dict[str, Any]] = []
     leaderboard_rows: list[dict[str, Any]] = []
 
-    _write_jsonl(output / "models.jsonl", [asdict(model) for model in public_models])
-    _write_jsonl(output / "tasks.jsonl", [asdict(task) for task in public_tasks])
+    _write_jsonl(output / "models.jsonl", _dataset_model_catalog_rows(catalog))
+    _write_jsonl(output / "tasks.jsonl", _dataset_task_catalog_rows(catalog))
 
     run_dir = catalog.root / "runs"
     if run_dir.exists():
@@ -732,6 +1004,9 @@ def export_dataset_repo(
         result_src = Path(results_path)
         result_records = load_jsonl(result_src)
         public_records = _public_records(result_records, private_model_ids, private_task_ids)
+        relationship_registry = load_relationship_registry(catalog.root / "training_overlap_relationships.yaml")
+        for public_record in public_records:
+            validate_assessment_registry_binding(public_record["training_overlap"], relationship_registry)
         _write_jsonl(output / "results" / "latest.jsonl", public_records)
         _write_jsonl(output / "results" / "latest-successful.jsonl", [r for r in public_records if not r.get("error")])
 
@@ -841,12 +1116,13 @@ def export_space_repo(
     output_dir: str | Path = DEFAULT_EXPORT_ROOT / "space",
     dataset_repo_id: str | None = None,
     bundled_leaderboard: str | Path | None = None,
+    benchmark_root: str | Path | None = None,
     clean: bool = True,
 ) -> Path:
     """Create a Hugging Face Gradio Space folder."""
     output = Path(output_dir)
     _reset_dir(output, clean=clean)
-    catalog = load_catalog()
+    catalog = load_catalog(benchmark_root)
     public_model_rows = _space_model_catalog_rows(catalog)
     public_task_rows = _space_task_catalog_rows(catalog)
 
@@ -862,7 +1138,11 @@ def export_space_repo(
             task.id for task in catalog.tasks.values() if not _is_public_task(task)
         }
         public_rows = _public_leaderboard_rows(rows, set(), private_task_ids)
-        _write_leaderboard_csv_rows(output / "leaderboard.csv", public_rows, fieldnames)
+        _write_leaderboard_csv_rows(
+            output / "leaderboard.csv",
+            public_rows,
+            _leaderboard_fieldnames_with_provenance(fieldnames),
+        )
     else:
         _write_empty_leaderboard(output / "leaderboard.csv")
 
@@ -925,6 +1205,18 @@ TASK_CATALOG_FILE = "tasks.jsonl"
 STATIC_TASK_DETAILS = __TASK_DETAILS__
 PUBLIC_EXCLUDED_PROVIDERS = {"geevec_api", "geevec_lite"}
 PUBLIC_EXCLUDED_MARKERS = ("geevec",)
+TRAINING_OVERLAP_WARNING = __TRAINING_OVERLAP_WARNING__
+ALL_DATA_OVERLAP_STATUSES = "All data-overlap statuses"
+ALL_TASK_TRAINING_STATUSES = "All task-training statuses"
+REVIEWED_ZERO_SHOT_ONLY = "Reviewed zero-shot only"
+OVERLAP_STATUS_LABELS = {
+    "exact": "Known exact training overlap",
+    "adapted": "Known adapted training overlap",
+    "same_task": "Same-task training exposure",
+    "similar_task": "Similar-task training exposure",
+    "declared_none": "Reviewed no declared overlap",
+    "unknown": "Unknown - no zero-shot claim",
+}
 
 
 def dataset_file(filename, bundled_filename, label):
@@ -997,6 +1289,7 @@ def load_model_specs():
             if not isinstance(modalities, list):
                 modalities = []
             model_id = str(model["id"])
+            training = model.get("training_data") if isinstance(model.get("training_data"), dict) else {}
             models[model_id] = {
                 "id": model_id,
                 "display_name": str(model.get("display_name") or model_id),
@@ -1008,6 +1301,16 @@ def load_model_specs():
                 "access": str(model.get("access") or "unknown"),
                 "status": str(model.get("status") or "unknown"),
                 "source": str(model.get("source") or ""),
+                "training_data": {
+                    "disclosure": str(training.get("disclosure") or "unknown"),
+                    "lineage_disclosure": str(training.get("lineage_disclosure") or "unknown"),
+                    "model_revision": training.get("model_revision"),
+                    "source_ids": [str(value) for value in training.get("source_ids") or []],
+                    "adapted_from": [str(value) for value in training.get("adapted_from") or []],
+                    "evidence_revision": training.get("evidence_revision"),
+                    "evidence_urls": [str(value) for value in training.get("evidence_urls") or []],
+                    "review_state": str(training.get("review_state") or "pending"),
+                },
             }
     return list(models.values())
 
@@ -1031,7 +1334,34 @@ def load_task_specs():
                 continue
             if not enabled(task.get("leaderboard_publish"), enabled(task.get("publish"), True)):
                 continue
-            tasks.append(task)
+            evaluation = task.get("evaluation_sources") if isinstance(task.get("evaluation_sources"), dict) else {}
+            tasks.append({
+                "id": str(task["id"]),
+                "display_name": str(task.get("display_name") or task["id"]),
+                "description": str(task.get("description") or ""),
+                "primary_metric": str(task.get("primary_metric") or ""),
+                "metric_direction": str(task.get("metric_direction") or "higher"),
+                "dataset_version": str(task.get("dataset_version") or "unknown"),
+                "publish": True,
+                "leaderboard_publish": True,
+                "evaluation_sources": {
+                    "disclosure": str(evaluation.get("disclosure") or "unknown"),
+                    "sources": [
+                        {
+                            "source_id": str(source.get("source_id") or ""),
+                            "source_revision": source.get("source_revision"),
+                            "config": source.get("config"),
+                            "split": source.get("split"),
+                            "transformation_id": source.get("transformation_id"),
+                        }
+                        for source in evaluation.get("sources") or []
+                        if isinstance(source, dict)
+                    ],
+                    "evidence_revision": evaluation.get("evidence_revision"),
+                    "evidence_urls": [str(value) for value in evaluation.get("evidence_urls") or []],
+                    "review_state": str(evaluation.get("review_state") or "pending"),
+                },
+            })
     return tasks
 
 
@@ -1090,6 +1420,12 @@ MODEL_PROVIDERS = [ALL_MODEL_PROVIDERS] + sorted(
     {model.get("provider", "") for model in MODEL_SPECS if model.get("provider")}
 )
 EVIDENCE_TIERS = [ALL_EVIDENCE_TIERS] + sorted({evidence_tier_value(row) for row in ROWS})
+DATA_OVERLAP_STATUSES = [ALL_DATA_OVERLAP_STATUSES] + sorted(
+    {str(row.get("data_overlap_status") or "unknown") for row in ROWS}
+)
+TASK_TRAINING_STATUSES = [ALL_TASK_TRAINING_STATUSES] + sorted(
+    {str(row.get("task_training_status") or "unknown") for row in ROWS}
+)
 LATEST_MARKERS_AVAILABLE = any(str(row.get("is_latest_for_task_model") or "").strip() for row in ROWS)
 DEFAULT_LATEST_ONLY = LATEST_MARKERS_AVAILABLE
 PROVENANCE_COLUMNS = [
@@ -1098,6 +1434,11 @@ PROVENANCE_COLUMNS = [
     "task_model_duplicate_count",
     "task_model_run_rank",
     "is_latest_for_task_model",
+    "data_overlap_status",
+    "task_training_status",
+    "zero_shot_status",
+    "overlap_reason_codes",
+    "overlap_relationship_registry_revision",
 ]
 OPERATIONAL_COLUMNS = [
     "task_id",
@@ -1182,15 +1523,27 @@ def summary_markdown():
 def task_markdown(task_id):
     details = TASK_DETAILS.get(task_id or "", {})
     if not details:
-        return "Scores are task-specific and should not be averaged into a global ranking."
-    return "**{}**  \\n{}  \\nPrimary signal: `{}`".format(
+        return "Scores are task-specific and should not be averaged into a global ranking.  \\n{}".format(
+            TRAINING_OVERLAP_WARNING
+        )
+    return "**{}**  \\n{}  \\nPrimary signal: `{}`  \\n{}".format(
         details.get("label", task_id),
         details.get("summary", ""),
         details.get("metric", ""),
+        TRAINING_OVERLAP_WARNING,
     )
 
 
-def filtered_rows(task_id, provider, evidence_tier, query, latest_only):
+def filtered_rows(
+    task_id,
+    provider,
+    evidence_tier,
+    query,
+    latest_only,
+    data_overlap_status=ALL_DATA_OVERLAP_STATUSES,
+    task_training_status=ALL_TASK_TRAINING_STATUSES,
+    reviewed_zero_shot_only=False,
+):
     filtered = []
     for source_row in ROWS:
         if source_row.get("task_id") != task_id:
@@ -1202,6 +1555,16 @@ def filtered_rows(task_id, provider, evidence_tier, query, latest_only):
         filtered = [row for row in filtered if row.get("provider") == provider]
     if evidence_tier != ALL_EVIDENCE_TIERS:
         filtered = [row for row in filtered if row.get("evidence_tier") == evidence_tier]
+    if data_overlap_status != ALL_DATA_OVERLAP_STATUSES:
+        filtered = [
+            row for row in filtered if str(row.get("data_overlap_status") or "unknown") == data_overlap_status
+        ]
+    if task_training_status != ALL_TASK_TRAINING_STATUSES:
+        filtered = [
+            row for row in filtered if str(row.get("task_training_status") or "unknown") == task_training_status
+        ]
+    if reviewed_zero_shot_only:
+        filtered = [row for row in filtered if row.get("zero_shot_status") == "reviewed_yes"]
     if latest_only and LATEST_MARKERS_AVAILABLE:
         filtered = [row for row in filtered if truthy(row.get("is_latest_for_task_model"))]
     query = (query or "").strip().lower()
@@ -1219,6 +1582,10 @@ def filtered_rows(task_id, provider, evidence_tier, query, latest_only):
                     "primary_metric",
                     "evidence_tier",
                     "evidence_source",
+                    "data_overlap_status",
+                    "task_training_status",
+                    "zero_shot_status",
+                    "overlap_reason_codes",
                 )
             )
         ]
@@ -1495,16 +1862,58 @@ def table_from_rows(filtered, top_n):
         row["rank"] = index
         score = as_float(row.get("score"))
         row["score"] = round(score, 6) if score is not None else row.get("score")
+        if row.get("data_overlap_status") in {"exact", "adapted"}:
+            status_key = row.get("data_overlap_status")
+        elif row.get("task_training_status") in {"same_task", "similar_task"}:
+            status_key = row.get("task_training_status")
+        elif row.get("zero_shot_status") == "reviewed_yes":
+            status_key = "declared_none"
+        else:
+            status_key = "unknown"
+        row["overlap_interpretation"] = OVERLAP_STATUS_LABELS[status_key]
     columns = ["rank", "model", "provider", "score", "primary_metric", "run_id", "duration_s"]
     columns.extend(column for column in PROVENANCE_COLUMNS if any(row.get(column) for row in filtered))
+    columns.append("overlap_interpretation")
     return pd.DataFrame(filtered, columns=columns)
 
 
-def render_table(task_id, provider, evidence_tier, query, latest_only, top_n):
-    return table_from_rows(filtered_rows(task_id, provider, evidence_tier, query, latest_only), top_n)
+def render_table(
+    task_id,
+    provider,
+    evidence_tier,
+    query,
+    latest_only,
+    top_n,
+    data_overlap_status=ALL_DATA_OVERLAP_STATUSES,
+    task_training_status=ALL_TASK_TRAINING_STATUSES,
+    reviewed_zero_shot_only=False,
+):
+    return table_from_rows(
+        filtered_rows(
+            task_id,
+            provider,
+            evidence_tier,
+            query,
+            latest_only,
+            data_overlap_status,
+            task_training_status,
+            reviewed_zero_shot_only,
+        ),
+        top_n,
+    )
 
 
-def view_markdown(provider, evidence_tier, query, latest_only, matching_count, shown_count):
+def view_markdown(
+    provider,
+    evidence_tier,
+    query,
+    latest_only,
+    matching_count,
+    shown_count,
+    data_overlap_status=ALL_DATA_OVERLAP_STATUSES,
+    task_training_status=ALL_TASK_TRAINING_STATUSES,
+    reviewed_zero_shot_only=False,
+):
     if latest_only and LATEST_MARKERS_AVAILABLE:
         history_state = "current marked rows only"
         history_hint = "Uncheck the current-row filter to inspect all historical rows."
@@ -1519,6 +1928,12 @@ def view_markdown(provider, evidence_tier, query, latest_only, matching_count, s
         filters.append("provider={}".format(provider))
     if evidence_tier != ALL_EVIDENCE_TIERS:
         filters.append("evidence={}".format(evidence_tier))
+    if data_overlap_status != ALL_DATA_OVERLAP_STATUSES:
+        filters.append("data_overlap={}".format(data_overlap_status))
+    if task_training_status != ALL_TASK_TRAINING_STATUSES:
+        filters.append("task_training={}".format(task_training_status))
+    if reviewed_zero_shot_only:
+        filters.append(REVIEWED_ZERO_SHOT_ONLY)
     if (query or "").strip():
         filters.append('search="{}"'.format((query or "").strip()))
     if matching_count:
@@ -1528,12 +1943,41 @@ def view_markdown(provider, evidence_tier, query, latest_only, matching_count, s
     return "{}  \\nView: **{}**  \\n{}".format(status, " | ".join(filters), history_hint)
 
 
-def render(task_id, provider, evidence_tier, query, latest_only, top_n):
+def render(
+    task_id,
+    provider,
+    evidence_tier,
+    query,
+    latest_only,
+    top_n,
+    data_overlap_status=ALL_DATA_OVERLAP_STATUSES,
+    task_training_status=ALL_TASK_TRAINING_STATUSES,
+    reviewed_zero_shot_only=False,
+):
     if not task_id:
         return "No leaderboard rows are available.", pd.DataFrame()
-    filtered = filtered_rows(task_id, provider, evidence_tier, query, latest_only)
+    filtered = filtered_rows(
+        task_id,
+        provider,
+        evidence_tier,
+        query,
+        latest_only,
+        data_overlap_status,
+        task_training_status,
+        reviewed_zero_shot_only,
+    )
     table = table_from_rows(filtered, top_n)
-    note = view_markdown(provider, evidence_tier, query, latest_only, len(filtered), len(table.index))
+    note = view_markdown(
+        provider,
+        evidence_tier,
+        query,
+        latest_only,
+        len(filtered),
+        len(table.index),
+        data_overlap_status,
+        task_training_status,
+        reviewed_zero_shot_only,
+    )
     return "{}\\n\\n{}".format(task_markdown(task_id), note), table
 
 
@@ -1572,19 +2016,47 @@ def main():
                 label="Current marked row per task/model only",
                 interactive=LATEST_MARKERS_AVAILABLE,
             )
+            with gr.Row():
+                data_overlap_status = gr.Dropdown(
+                    choices=DATA_OVERLAP_STATUSES,
+                    value=ALL_DATA_OVERLAP_STATUSES,
+                    label="Data overlap status",
+                )
+                task_training_status = gr.Dropdown(
+                    choices=TASK_TRAINING_STATUSES,
+                    value=ALL_TASK_TRAINING_STATUSES,
+                    label="Task training status",
+                )
+            reviewed_zero_shot_only = gr.Checkbox(
+                value=False,
+                label="Reviewed zero-shot only",
+            )
             query = gr.Textbox(label="Search", placeholder="Filter by model, provider, run, or metric")
             table = gr.Dataframe(
                 value=initial_table,
                 label="Leaderboard",
                 interactive=False,
             )
-            controls = [task, provider, evidence_tier, query, latest_only, top_n]
+            controls = [
+                task,
+                provider,
+                evidence_tier,
+                query,
+                latest_only,
+                top_n,
+                data_overlap_status,
+                task_training_status,
+                reviewed_zero_shot_only,
+            ]
             task.change(render, inputs=controls, outputs=[task_note, table])
             provider.change(render, inputs=controls, outputs=[task_note, table])
             evidence_tier.change(render, inputs=controls, outputs=[task_note, table])
             query.change(render, inputs=controls, outputs=[task_note, table])
             latest_only.change(render, inputs=controls, outputs=[task_note, table])
             top_n.change(render, inputs=controls, outputs=[task_note, table])
+            data_overlap_status.change(render, inputs=controls, outputs=[task_note, table])
+            task_training_status.change(render, inputs=controls, outputs=[task_note, table])
+            reviewed_zero_shot_only.change(render, inputs=controls, outputs=[task_note, table])
 
         with gr.Tab("Operational evidence"):
             operational_note = gr.Markdown(initial_operational_note)
@@ -1703,4 +2175,8 @@ def main():
 if __name__ == "__main__":
     main()
 '''
-    return source.replace("__DATASET_REPO_ID__", repr(default_repo)).replace("__TASK_DETAILS__", repr(TASK_NOTES))
+    return (
+        source.replace("__DATASET_REPO_ID__", repr(default_repo))
+        .replace("__TASK_DETAILS__", repr(TASK_NOTES))
+        .replace("__TRAINING_OVERLAP_WARNING__", repr(TRAINING_OVERLAP_WARNING))
+    )

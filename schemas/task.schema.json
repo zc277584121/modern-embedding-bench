@@ -1,6 +1,51 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Benchmark Task Registry",
+  "$defs": {
+    "publicProvenance": {
+      "type": "object",
+      "properties": {
+        "urls": {"type": "array", "items": {"type": "string"}},
+        "evidence_revision": {"type": ["string", "null"]},
+        "reviewed_at": {"type": ["string", "null"]},
+        "reviewed_by": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "review": {
+      "type": "object",
+      "properties": {
+        "state": {"type": "string", "enum": ["pending", "approved", "rejected"]},
+        "private_notes": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "evaluationSources": {
+      "type": "object",
+      "properties": {
+        "disclosure": {"type": "string", "enum": ["unknown", "complete"]},
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["source_id"],
+            "properties": {
+              "source_id": {"type": "string", "minLength": 1},
+              "usage": {"type": "string", "enum": ["evaluation"]},
+              "config": {"type": ["string", "null"]},
+              "split": {"type": ["string", "null"]},
+              "transformation_id": {"type": ["string", "null"]},
+              "source_revision": {"type": ["string", "null"]}
+            },
+            "additionalProperties": false
+          }
+        },
+        "public_provenance": {"$ref": "#/$defs/publicProvenance"},
+        "review": {"$ref": "#/$defs/review"}
+      },
+      "additionalProperties": false
+    }
+  },
   "type": "object",
   "required": ["tasks"],
   "properties": {
@@ -19,7 +64,10 @@
           "primary_metric": {"type": ["string", "null"]},
           "metric_direction": {"type": "string", "enum": ["higher", "lower"]},
           "dataset_version": {"type": "string"},
-          "tags": {"type": "array", "items": {"type": "string"}}
+          "publish": {"type": "boolean"},
+          "leaderboard_publish": {"type": "boolean"},
+          "tags": {"type": "array", "items": {"type": "string"}},
+          "evaluation_sources": {"$ref": "#/$defs/evaluationSources"}
         },
         "additionalProperties": true
       }
