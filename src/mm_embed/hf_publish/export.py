@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import csv
 import json
+import math
 import shutil
 from collections import Counter, defaultdict
 from dataclasses import asdict
@@ -45,7 +46,22 @@ LEADERBOARD_PROVENANCE_FIELDNAMES = [
     "task_model_run_rank",
     "is_latest_for_task_model",
 ]
-LEADERBOARD_FIELDNAMES = LEADERBOARD_BASE_FIELDNAMES + LEADERBOARD_PROVENANCE_FIELDNAMES
+LEADERBOARD_OPERATIONAL_FIELDNAMES = [
+    "run_started_at",
+    "run_finished_at",
+    "dataset_version",
+    "input_count_total",
+    "token_usage",
+    "provider_latency_ms",
+    "cost_usd",
+    "fresh_provider_calls",
+    "cache_enabled",
+]
+LEADERBOARD_FIELDNAMES = (
+    LEADERBOARD_BASE_FIELDNAMES
+    + LEADERBOARD_PROVENANCE_FIELDNAMES
+    + LEADERBOARD_OPERATIONAL_FIELDNAMES
+)
 
 TASK_NOTES = {
     "mrl_stress": {
@@ -217,7 +233,7 @@ def _write_leaderboard_csv_rows(path: Path, rows: list[dict[str, Any]], fieldnam
 
 def _leaderboard_fieldnames_with_provenance(fieldnames: list[str] | None) -> list[str]:
     fields = list(fieldnames or LEADERBOARD_BASE_FIELDNAMES)
-    for field in LEADERBOARD_PROVENANCE_FIELDNAMES:
+    for field in LEADERBOARD_PROVENANCE_FIELDNAMES + LEADERBOARD_OPERATIONAL_FIELDNAMES:
         if field not in fields:
             fields.append(field)
     return fields
@@ -334,11 +350,66 @@ def _record_evidence_source(record: dict[str, Any]) -> str:
     run = record.get("run") or {}
     metadata = run.get("metadata") or {}
     for key in ("legacy_source", "source", "results_path"):
-        if metadata.get(key):
-            return str(metadata[key])
-    if run.get("git_sha"):
-        return str(run["git_sha"])
-    return str(run.get("id") or "")
+        value = _safe_public_text(metadata.get(key), max_length=512)
+        if value:
+            return value
+    return _safe_public_text(run.get("git_sha")) or _safe_public_text(run.get("id")) or ""
+
+
+def _safe_public_text(value: Any, *, max_length: int = 128) -> str | None:
+    if not isinstance(value, str):
+        return None
+    text = value.strip()
+    if not text or len(text) > max_length or any(char in text for char in "\x00\r\n"):
+        return None
+    if text.startswith(("/", "\\\\")):
+        return None
+    if text.startswith("~/") or text[0] in "=+-@":
+        return None
+    if len(text) >= 3 and text[1] == ":" and text[2] in {"/", "\\"}:
+        return None
+    return text
+
+
+def _safe_nonnegative_number(value: Any) -> int | float | None:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return None
+    if not math.isfinite(float(value)) or value < 0:
+        return None
+    return value
+
+
+def _safe_nonnegative_int(value: Any) -> int | None:
+    if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+        return None
+    return value
+
+
+def _record_operational_evidence(record: dict[str, Any]) -> dict[str, Any]:
+    timestamps = record.get("timestamps") if isinstance(record.get("timestamps"), dict) else {}
+    task = record.get("task") if isinstance(record.get("task"), dict) else {}
+    details = record.get("details") if isinstance(record.get("details"), dict) else {}
+    input_cardinality = (
+        details.get("input_cardinality") if isinstance(details.get("input_cardinality"), dict) else {}
+    )
+    candidates = {
+        "run_started_at": _safe_public_text(timestamps.get("started_at")),
+        "run_finished_at": _safe_public_text(timestamps.get("finished_at")),
+        "dataset_version": _safe_public_text(task.get("dataset_version")),
+        "input_count_total": _safe_nonnegative_int(input_cardinality.get("total")),
+        "token_usage": _safe_nonnegative_int(details.get("token_usage")),
+        "provider_latency_ms": _safe_nonnegative_number(details.get("provider_latency_ms")),
+        "cost_usd": _safe_nonnegative_number(details.get("cost_usd")),
+        "fresh_provider_calls": (
+            str(details["fresh_provider_calls"]).lower()
+            if isinstance(details.get("fresh_provider_calls"), bool)
+            else None
+        ),
+        "cache_enabled": (
+            str(details["cache_enabled"]).lower() if isinstance(details.get("cache_enabled"), bool) else None
+        ),
+    }
+    return {key: value for key, value in candidates.items() if value is not None}
 
 
 def _leaderboard_provenance_by_key(
@@ -356,6 +427,7 @@ def _leaderboard_provenance_by_key(
                 "evidence_tier": _record_evidence_tier(record),
                 "evidence_tier_explicit": explicit_tier is not None,
                 "evidence_source": _record_evidence_source(record),
+                **_record_operational_evidence(record),
             }
         )
     return provenance
@@ -373,6 +445,9 @@ def _enrich_leaderboard_rows(
     for index, row in enumerate(enriched):
         matches = provenance.get(_leaderboard_row_key(row)) or []
         match = matches.pop(0) if matches else {}
+        if result_records:
+            for field in LEADERBOARD_OPERATIONAL_FIELDNAMES:
+                row.pop(field, None)
         row["_source_index"] = match.get("_source_index", index)
         explicit_row_tier = (
             normalize_evidence_tier(row["evidence_tier"])
@@ -386,6 +461,9 @@ def _enrich_leaderboard_rows(
         else:
             row["evidence_tier"] = match.get("evidence_tier") or _row_evidence_tier(row)
         row["evidence_source"] = match.get("evidence_source") or row.get("evidence_source") or ""
+        for field in LEADERBOARD_OPERATIONAL_FIELDNAMES:
+            if field in match:
+                row[field] = match[field]
 
     groups: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
     for row in enriched:
@@ -548,6 +626,12 @@ with older CSV readers, and provenance columns are appended:
 - `task_model_run_rank`: 1-based order for that task/model pair
 - `is_latest_for_task_model`: `true` for the latest exported row in that pair
 
+Optional operational-evidence columns are projected only from explicit public
+result fields: `run_started_at`, `run_finished_at`, `dataset_version`,
+`input_count_total`, `token_usage`, `provider_latency_ms`, `cost_usd`,
+`fresh_provider_calls`, and `cache_enabled`. Missing values remain blank; in
+particular, missing cost is not converted to zero or estimated.
+
 Latest markers are computed from the order of `results/latest.jsonl` when result
 records are available, otherwise from CSV row order. Use
 `is_latest_for_task_model=true` to inspect one current row per task/model pair
@@ -584,6 +668,11 @@ uv run modern-embed-bench benchmark leaderboard \\
   artifacts; historical records without a publication field remain public.
 - Scores are task-specific. Avoid comparing scores across tasks as if they were
   one global ranking.
+- Duration and provider latency are run observations, not comparable performance
+  metrics across providers, routes, hardware, batching, task sizes, or cache
+  states. Token and input counts describe workload, not model quality.
+- No price, throughput, efficiency, energy, or CO2 values are inferred from the
+  optional operational evidence.
 - Some preview or private-in-progress model results are intentionally excluded
   from the public export until they are ready for publication.
 - Image binaries are not bundled by default; `cross_modal` metadata is included
@@ -1010,6 +1099,34 @@ PROVENANCE_COLUMNS = [
     "task_model_run_rank",
     "is_latest_for_task_model",
 ]
+OPERATIONAL_COLUMNS = [
+    "task_id",
+    "model",
+    "model_id",
+    "provider",
+    "evidence_tier",
+    "run_id",
+    "evidence_source",
+    "run_started_at",
+    "run_finished_at",
+    "dataset_version",
+    "duration_s",
+    "provider_latency_ms",
+    "input_count_total",
+    "token_usage",
+    "cost_usd",
+    "fresh_provider_calls",
+    "cache_enabled",
+    "is_latest_for_task_model",
+]
+OPERATIONAL_DETAIL_FIELDS = [
+    "provider_latency_ms",
+    "input_count_total",
+    "token_usage",
+    "cost_usd",
+    "fresh_provider_calls",
+    "cache_enabled",
+]
 
 
 def build_task_details():
@@ -1291,6 +1408,87 @@ def render_model_catalog(provider, query):
     return model_catalog_markdown(provider, query, len(table.index)), table
 
 
+def reported(row, key):
+    value = row.get(key)
+    return value is not None and str(value).strip() != ""
+
+
+def operational_filtered_rows(provider, evidence_tier, query, latest_only):
+    filtered = []
+    query = (query or "").strip().lower()
+    for source_row in ROWS:
+        row = source_row.copy()
+        row["evidence_tier"] = evidence_tier_value(row)
+        if provider != ALL_PROVIDERS and row.get("provider") != provider:
+            continue
+        if evidence_tier != ALL_EVIDENCE_TIERS and row.get("evidence_tier") != evidence_tier:
+            continue
+        if latest_only and LATEST_MARKERS_AVAILABLE and not truthy(row.get("is_latest_for_task_model")):
+            continue
+        if query and query not in " ".join(
+            str(row.get(key) or "").lower()
+            for key in (
+                "task_id",
+                "task",
+                "model",
+                "model_id",
+                "provider",
+                "evidence_tier",
+                "run_id",
+                "evidence_source",
+                "dataset_version",
+            )
+        ):
+            continue
+        filtered.append(row)
+    filtered.sort(
+        key=lambda row: (
+            str(row.get("task_id") or "").lower(),
+            str(row.get("model") or row.get("model_id") or "").lower(),
+            str(row.get("provider") or "").lower(),
+            str(row.get("run_started_at") or ""),
+            str(row.get("run_id") or ""),
+        )
+    )
+    return filtered
+
+
+def operational_table(provider, evidence_tier, query, latest_only, top_n):
+    filtered = operational_filtered_rows(provider, evidence_tier, query, latest_only)
+    return pd.DataFrame(filtered[: int(top_n or 50)], columns=OPERATIONAL_COLUMNS)
+
+
+def operational_markdown(provider, evidence_tier, query, latest_only, matching_count, shown_count):
+    filters = ["current marked rows only" if latest_only and LATEST_MARKERS_AVAILABLE else "all run rows"]
+    if provider != ALL_PROVIDERS:
+        filters.append("provider={}".format(provider))
+    if evidence_tier != ALL_EVIDENCE_TIERS:
+        filters.append("evidence={}".format(evidence_tier))
+    if (query or "").strip():
+        filters.append('search="{}"'.format((query or "").strip()))
+    filtered = operational_filtered_rows(provider, evidence_tier, query, latest_only)
+    detailed_count = sum(
+        1
+        for row in filtered
+        if any(reported(row, field) for field in OPERATIONAL_DETAIL_FIELDS)
+    )
+    return (
+        "This is **non-ranking per-run operational evidence**. Rows are alphabetized by task and model; no "
+        "operational field affects leaderboard scores, sorting, or latest-row selection. Latency and duration are "
+        "not comparable across providers, routes, hardware, batching, task sizes, or cache states. Token and input "
+        "counts are workload evidence, not quality. Missing values mean unreported, not zero. Cost is shown only "
+        "when explicitly reported; no price, throughput, normalized efficiency, energy, or CO2 value is inferred.  \\n"
+        "Showing **{}** of **{}** matching rows; **{}** report at least one detailed operational field | View: **{}**"
+    ).format(shown_count, matching_count, detailed_count, " | ".join(filters))
+
+
+def render_operational(provider, evidence_tier, query, latest_only, top_n):
+    filtered = operational_filtered_rows(provider, evidence_tier, query, latest_only)
+    table = pd.DataFrame(filtered[: int(top_n or 50)], columns=OPERATIONAL_COLUMNS)
+    note = operational_markdown(provider, evidence_tier, query, latest_only, len(filtered), len(table.index))
+    return note, table
+
+
 def table_from_rows(filtered, top_n):
     filtered = filtered[: int(top_n or 50)]
     for index, row in enumerate(filtered, start=1):
@@ -1351,6 +1549,9 @@ def main():
         ALL_PROVIDERS, default_evidence_tier, ""
     )
     initial_model_note, initial_model_table = render_model_catalog(ALL_MODEL_PROVIDERS, "")
+    initial_operational_note, initial_operational_table = render_operational(
+        ALL_PROVIDERS, default_evidence_tier, "", False, 50
+    )
     with gr.Blocks(title="Modern Embedding Bench") as demo:
         gr.Markdown("# Modern Embedding Bench")
         gr.Markdown(summary_markdown())
@@ -1384,6 +1585,67 @@ def main():
             query.change(render, inputs=controls, outputs=[task_note, table])
             latest_only.change(render, inputs=controls, outputs=[task_note, table])
             top_n.change(render, inputs=controls, outputs=[task_note, table])
+
+        with gr.Tab("Operational evidence"):
+            operational_note = gr.Markdown(initial_operational_note)
+            with gr.Row():
+                operational_provider = gr.Dropdown(
+                    choices=PROVIDERS,
+                    value=ALL_PROVIDERS,
+                    label="Provider",
+                )
+                operational_evidence = gr.Dropdown(
+                    choices=EVIDENCE_TIERS,
+                    value=default_evidence_tier,
+                    label="Evidence tier",
+                )
+                operational_top_n = gr.Slider(10, 250, value=50, step=10, label="Rows")
+            operational_latest_only = gr.Checkbox(
+                value=False,
+                label="Current marked row per task/model only",
+                interactive=LATEST_MARKERS_AVAILABLE,
+            )
+            operational_query = gr.Textbox(
+                label="Search",
+                placeholder="Filter by task, model, provider, run, provenance, or dataset version",
+            )
+            operational_table_view = gr.Dataframe(
+                value=initial_operational_table,
+                label="Operational evidence (unranked)",
+                interactive=False,
+            )
+            operational_controls = [
+                operational_provider,
+                operational_evidence,
+                operational_query,
+                operational_latest_only,
+                operational_top_n,
+            ]
+            operational_provider.change(
+                render_operational,
+                inputs=operational_controls,
+                outputs=[operational_note, operational_table_view],
+            )
+            operational_evidence.change(
+                render_operational,
+                inputs=operational_controls,
+                outputs=[operational_note, operational_table_view],
+            )
+            operational_query.change(
+                render_operational,
+                inputs=operational_controls,
+                outputs=[operational_note, operational_table_view],
+            )
+            operational_latest_only.change(
+                render_operational,
+                inputs=operational_controls,
+                outputs=[operational_note, operational_table_view],
+            )
+            operational_top_n.change(
+                render_operational,
+                inputs=operational_controls,
+                outputs=[operational_note, operational_table_view],
+            )
 
         with gr.Tab("Model catalog"):
             model_note = gr.Markdown(initial_model_note)

@@ -524,10 +524,14 @@ def test_export_hf_dataset_marks_leaderboard_provenance_and_latest(tmp_path) -> 
             "run": {
                 "id": "openai-smoke",
                 "description": "OpenAI smoke benchmark",
-                "metadata": {},
+                "metadata": {"results_path": "/home/example/private/results.jsonl"},
                 "git_sha": "abc123",
             },
-            "timestamps": {"duration_s": 0.9},
+            "timestamps": {
+                "duration_s": 0.9,
+                "started_at": "2026-07-27T10:17:56+00:00",
+                "finished_at": "2026-07-27T10:18:04+00:00",
+            },
             "model": {
                 "id": "openai-text-embedding-3-large",
                 "display_name": "OpenAI",
@@ -539,10 +543,21 @@ def test_export_hf_dataset_marks_leaderboard_provenance_and_latest(tmp_path) -> 
             "task": {
                 "id": "needle_in_haystack",
                 "display_name": "Needle",
+                "dataset_version": "needle-v1",
                 "primary_metric": "overall_accuracy",
                 "tags": [],
             },
             "metrics": {"overall_accuracy": 0.9},
+            "details": {
+                "input_cardinality": {"queries": 10, "documents": 99, "total": 109},
+                "token_usage": 89430,
+                "provider_latency_ms": 7357.978,
+                "cost_usd": None,
+                "fresh_provider_calls": True,
+                "cache_enabled": False,
+                "embedding_calls": [{"raw_prompt": "must-not-leak"}],
+                "provider_kwargs": {"api_key_env": "MUST_NOT_LEAK"},
+            },
             "error": None,
         },
     ]
@@ -612,6 +627,15 @@ def test_export_hf_dataset_marks_leaderboard_provenance_and_latest(tmp_path) -> 
         "task_model_duplicate_count",
         "task_model_run_rank",
         "is_latest_for_task_model",
+        "run_started_at",
+        "run_finished_at",
+        "dataset_version",
+        "input_count_total",
+        "token_usage",
+        "provider_latency_ms",
+        "cost_usd",
+        "fresh_provider_calls",
+        "cache_enabled",
     ]
     assert [row["evidence_tier"] for row in rows] == ["legacy", "smoke"]
     assert rows[0]["evidence_source"] == "legacy/results/baseline.json"
@@ -619,6 +643,20 @@ def test_export_hf_dataset_marks_leaderboard_provenance_and_latest(tmp_path) -> 
     assert [row["task_model_duplicate_count"] for row in rows] == ["2", "2"]
     assert [row["task_model_run_rank"] for row in rows] == ["1", "2"]
     assert [row["is_latest_for_task_model"] for row in rows] == ["false", "true"]
+    assert rows[0]["input_count_total"] == ""
+    assert rows[1]["run_started_at"] == "2026-07-27T10:17:56+00:00"
+    assert rows[1]["run_finished_at"] == "2026-07-27T10:18:04+00:00"
+    assert rows[1]["dataset_version"] == "needle-v1"
+    assert rows[1]["input_count_total"] == "109"
+    assert rows[1]["token_usage"] == "89430"
+    assert rows[1]["provider_latency_ms"] == "7357.978"
+    assert rows[1]["cost_usd"] == ""
+    assert rows[1]["fresh_provider_calls"] == "true"
+    assert rows[1]["cache_enabled"] == "false"
+    leaderboard_text = (output / "leaderboards" / "latest.csv").read_text(encoding="utf-8")
+    assert "must-not-leak" not in leaderboard_text
+    assert "MUST_NOT_LEAK" not in leaderboard_text
+    assert "/home/example/private/results.jsonl" not in leaderboard_text
 
     manifest_text = (output / "export_manifest.yaml").read_text(encoding="utf-8")
     assert "duplicate_task_model_repeats: 1" in manifest_text
@@ -1021,6 +1059,50 @@ def test_export_hf_space_loads_remote_public_task_catalog(tmp_path, monkeypatch)
             "needle_in_haystack": "evaluated (benchmark)",
         }
     ]
+
+
+def test_export_hf_space_operational_evidence_is_unranked(tmp_path, monkeypatch) -> None:
+    leaderboard = tmp_path / "leaderboard.csv"
+    leaderboard.write_text(
+        "task_id,task,model_id,model,provider,primary_metric,score,run_id,duration_s,evidence_tier,"
+        "evidence_source,task_model_duplicate_count,task_model_run_rank,is_latest_for_task_model,"
+        "run_started_at,run_finished_at,dataset_version,input_count_total,token_usage,provider_latency_ms,"
+        "cost_usd,fresh_provider_calls,cache_enabled\n"
+        "needle_in_haystack,Needle,model-z,Model Z,voyage,overall_accuracy,1.0,smoke:z,10.332,smoke,"
+        "sha-z,1,1,true,2026-07-27T10:18:04+00:00,2026-07-27T10:18:15+00:00,needle-v1,109,90505,"
+        "4667.493,,true,false\n"
+        "needle_in_haystack,Needle,model-a,Model A,openai,overall_accuracy,0.1,smoke:a,8.046,smoke,"
+        "sha-a,1,1,true,2026-07-27T10:17:56+00:00,2026-07-27T10:18:04+00:00,needle-v1,109,89430,"
+        "7357.979,,true,false\n",
+        encoding="utf-8",
+    )
+
+    output = export_space_repo(output_dir=tmp_path / "space", bundled_leaderboard=leaderboard)
+    app = _load_generated_space_app(output, monkeypatch)
+
+    note, table = app["render_operational"](
+        "All providers", "All evidence tiers", "", False, 50
+    )
+    rows = table.to_dict("records")
+    assert [row["model"] for row in rows] == ["Model A", "Model Z"]
+    assert "score" not in rows[0]
+    assert "rank" not in rows[0]
+    assert rows[0]["task_id"] == "needle_in_haystack"
+    assert rows[0]["evidence_tier"] == "smoke"
+    assert rows[0]["run_id"] == "smoke:a"
+    assert rows[0]["evidence_source"] == "sha-a"
+    assert rows[0]["dataset_version"] == "needle-v1"
+    assert rows[0]["input_count_total"] == "109"
+    assert rows[0]["token_usage"] == "89430"
+    assert rows[0]["provider_latency_ms"] == "7357.979"
+    assert rows[0]["cost_usd"] == ""
+    assert rows[0]["fresh_provider_calls"] == "true"
+    assert rows[0]["cache_enabled"] == "false"
+    assert "non-ranking per-run operational evidence" in note
+    assert "not comparable across providers, routes, hardware, batching, task sizes, or cache states" in note
+    assert "workload evidence, not quality" in note
+    assert "Missing values mean unreported, not zero" in note
+    assert "no price, throughput, normalized efficiency, energy, or CO2 value is inferred" in note
 
 
 def test_export_hf_space_single_evidence_tier_ui_is_neutral(tmp_path, monkeypatch) -> None:
