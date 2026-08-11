@@ -26,6 +26,9 @@ dependencies = [
     "huggingface-hub>=0.30",
 ]
 
+[dependency-groups]
+dev = ["jsonschema>=4.23"]
+
 [project.optional-dependencies]
 data = ["datasets>=2.0"]
 dashscope = ["dashscope>=1.20"]

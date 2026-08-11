@@ -74,6 +74,14 @@ class ExactSparseIndex:
             raise ValueError("Sparse query and index dimensions do not match")
         if queries.embeddings.representation != self._documents.embeddings.representation:
             raise ValueError("Sparse query and index representation identities do not match")
+        if queries.provider != self._documents.provider:
+            raise ValueError("Sparse query and index provider identities do not match")
+        if queries.model_name != self._documents.model_name or queries.model_revision != self._documents.model_revision:
+            raise ValueError("Sparse query and index model identities do not match")
+        if queries.query_route != self._documents.query_route:
+            raise ValueError("Sparse query route does not match the indexed provider contract")
+        if queries.document_route != self._documents.document_route:
+            raise ValueError("Sparse document route does not match the indexed provider contract")
 
         scores = (queries.embeddings.values @ self._documents.embeddings.values.T).tocsr()
         scores.sum_duplicates()

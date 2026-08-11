@@ -21,6 +21,7 @@ class SparseEncodingRoute(str, Enum):
     NEURAL = "neural"
     STATIC_LOOKUP = "static_lookup"
     TOKENIZER_IDF = "tokenizer_idf"
+    DOCUMENT_EXPANSION = "document_expansion"
     NONE = "none"
 
 

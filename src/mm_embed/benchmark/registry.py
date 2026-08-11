@@ -241,6 +241,12 @@ class ModelSpec:
     display_name: str
     provider: str
     provider_kwargs: dict[str, Any] = field(default_factory=dict)
+    representation_kind: str = "dense_vector"
+    model_revision: str | None = None
+    vocabulary_id: str | None = None
+    representation_id: str | None = None
+    query_route: str | None = None
+    document_route: str | None = None
     modalities: list[str] = field(default_factory=list)
     dimensions: int | None = None
     max_text_length: int | None = None
@@ -261,19 +267,39 @@ class ModelSpec:
         missing = [key for key in required if key not in data]
         if missing:
             raise ValueError(f"Model entry in {source_file} is missing: {', '.join(missing)}")
+        representation_kind = str(data.get("representation_kind", "dense_vector"))
+        if representation_kind not in {"dense_vector", "sparse_csr"}:
+            raise ValueError(f"Unsupported model representation_kind '{representation_kind}'")
+        dimensions = data.get("dimensions")
+        publish = bool(data.get("publish", True))
+        sparse_required = ("model_revision", "vocabulary_id", "representation_id", "query_route", "document_route")
+        if representation_kind == "sparse_csr":
+            missing_sparse = [key for key in sparse_required if not data.get(key)]
+            if dimensions is None:
+                missing_sparse.append("dimensions")
+            if missing_sparse:
+                raise ValueError(f"Sparse model entry in {source_file} is missing: {', '.join(missing_sparse)}")
+        if data.get("provider") == "deterministic_sparse_fixture" and publish:
+            raise ValueError("Deterministic sparse fixture models must disable publication")
         return cls(
             id=str(data["id"]),
             display_name=str(data["display_name"]),
             provider=str(data["provider"]),
             provider_kwargs=dict(data.get("provider_kwargs") or {}),
+            representation_kind=representation_kind,
+            model_revision=_optional_string(data.get("model_revision")),
+            vocabulary_id=_optional_string(data.get("vocabulary_id")),
+            representation_id=_optional_string(data.get("representation_id")),
+            query_route=_optional_string(data.get("query_route")),
+            document_route=_optional_string(data.get("document_route")),
             modalities=list(data.get("modalities") or []),
-            dimensions=data.get("dimensions"),
+            dimensions=dimensions,
             max_text_length=data.get("max_text_length"),
             supports_mrl=bool(data.get("supports_mrl", False)),
             access=str(data.get("access", "unknown")),
             api_key_env=data.get("api_key_env"),
             status=str(data.get("status", "active")),
-            publish=bool(data.get("publish", True)),
+            publish=publish,
             priority=int(data.get("priority", 100)),
             tags=list(data.get("tags") or []),
             source=data.get("source"),
@@ -291,6 +317,9 @@ class TaskSpec:
     task: str
     description: str
     default_kwargs: dict[str, Any] = field(default_factory=dict)
+    execution_kind: str = "dense"
+    fixture_only: bool = False
+    score_validity: str | None = None
     required_modalities: list[str] = field(default_factory=list)
     primary_metric: str | None = None
     metric_direction: str = "higher"
@@ -307,18 +336,31 @@ class TaskSpec:
         missing = [key for key in required if key not in data]
         if missing:
             raise ValueError(f"Task entry in {source_file} is missing: {', '.join(missing)}")
+        execution_kind = str(data.get("execution_kind", "dense"))
+        if execution_kind not in {"dense", "sparse_exact"}:
+            raise ValueError(f"Unsupported task execution_kind '{execution_kind}'")
+        fixture_only = bool(data.get("fixture_only", False))
+        publish = bool(data.get("publish", True))
+        leaderboard_publish = bool(data.get("leaderboard_publish", publish))
+        if fixture_only and (publish or leaderboard_publish):
+            raise ValueError("Fixture-only tasks must disable public and leaderboard publication")
+        if execution_kind == "sparse_exact" and not fixture_only:
+            raise ValueError("The current sparse-exact task surface is contract-fixture only")
         return cls(
             id=str(data["id"]),
             display_name=str(data["display_name"]),
             task=str(data["task"]),
             description=str(data["description"]),
             default_kwargs=dict(data.get("default_kwargs") or {}),
+            execution_kind=execution_kind,
+            fixture_only=fixture_only,
+            score_validity=_optional_string(data.get("score_validity")),
             required_modalities=list(data.get("required_modalities") or []),
             primary_metric=data.get("primary_metric"),
             metric_direction=str(data.get("metric_direction", "higher")),
             dataset_version=str(data.get("dataset_version", "unknown")),
-            publish=bool(data.get("publish", True)),
-            leaderboard_publish=bool(data.get("leaderboard_publish", data.get("publish", True))),
+            publish=publish,
+            leaderboard_publish=leaderboard_publish,
             tags=list(data.get("tags") or []),
             evaluation_sources=EvaluationSourcesSpec.from_dict(data.get("evaluation_sources")),
             materialization=MaterializationSpec.from_dict(data.get("materialization")),
@@ -432,12 +474,15 @@ def load_run_manifest(path: str | Path) -> RunManifest:
             metadata.get("evidence_tier", metadata.get("tier")),
             default="benchmark",
         )
+    publish = bool(data.get("publish", True))
+    if evidence_tier == "fixture" and publish:
+        raise ValueError(f"Fixture run manifest {run_path} must disable publication")
     return RunManifest(
         id=str(data["id"]),
         description=str(data.get("description", "")),
         model_ids=[str(item) for item in data.get("models", [])],
         tasks=[RunTask.from_value(item) for item in data.get("tasks", [])],
         metadata=metadata,
-        publish=bool(data.get("publish", True)),
+        publish=publish,
         evidence_tier=evidence_tier,
     )

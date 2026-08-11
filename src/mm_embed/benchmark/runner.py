@@ -12,6 +12,7 @@ from mm_embed.benchmark.materialization import prepare_data_source_contract
 from mm_embed.benchmark.registry import BenchmarkCatalog, RunManifest, RunTask, load_catalog, load_run_manifest
 from mm_embed.benchmark.results import append_jsonl, make_result_record, utc_now_iso
 from mm_embed.providers import get_provider
+from mm_embed.providers.sparse_base import SparseEmbeddingProvider
 from mm_embed.tasks import get_task
 from mm_embed.tasks.base import EvalResult
 
@@ -98,7 +99,7 @@ class BenchmarkRunner:
                     execution_kwargs = dict(task_kwargs)
                     if prepared_source is not None:
                         execution_kwargs["materialization_binding"] = prepared_source.authorization
-                    result = self._run_one(provider, task.task, execution_kwargs)
+                    result = self._run_one(provider, model, task, execution_kwargs)
 
                 finished_at = utc_now_iso()
                 record = make_result_record(
@@ -152,13 +153,38 @@ class BenchmarkRunner:
         return merged
 
     @staticmethod
-    def _run_one(provider, task_name: str, kwargs: dict) -> EvalResult:
+    def _run_one(provider, model, task, kwargs: dict) -> EvalResult:
         try:
-            task = get_task(task_name, **kwargs)
-            return task.run(provider)
+            if model.representation_kind == "sparse_csr" and task.execution_kind != "sparse_exact":
+                raise ValueError("Sparse models require an explicitly sparse task")
+            if model.representation_kind != "sparse_csr" and task.execution_kind == "sparse_exact":
+                raise ValueError("Sparse tasks require an explicitly sparse model")
+            if task.execution_kind == "sparse_exact":
+                if not isinstance(provider, SparseEmbeddingProvider):
+                    raise TypeError("Sparse task provider does not implement SparseEmbeddingProvider")
+                expected = {
+                    "model_revision": provider.revision,
+                    "vocabulary_id": provider.representation.vocabulary_id,
+                    "representation_id": provider.representation.representation_id,
+                    "dimensions": provider.representation.dimensions,
+                    "query_route": provider.query_route.value,
+                    "document_route": provider.document_route.value,
+                }
+                declared = {
+                    "model_revision": model.model_revision,
+                    "vocabulary_id": model.vocabulary_id,
+                    "representation_id": model.representation_id,
+                    "dimensions": model.dimensions,
+                    "query_route": model.query_route,
+                    "document_route": model.document_route,
+                }
+                if declared != expected:
+                    raise ValueError("Sparse provider identity does not match the model registry contract")
+            task_instance = get_task(task.task, **kwargs)
+            return task_instance.run(provider)
         except Exception as exc:
             return EvalResult(
-                task_name=task_name,
+                task_name=task.task,
                 provider_name=getattr(provider, "name", "unknown"),
                 model_name=getattr(provider, "model", "unknown"),
                 metrics={},

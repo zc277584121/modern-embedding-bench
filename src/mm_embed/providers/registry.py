@@ -4,9 +4,6 @@ from __future__ import annotations
 
 from typing import Any
 
-from mm_embed.providers.base import EmbeddingProvider
-
-
 # Registry: name -> (module_path, class_name)
 PROVIDER_REGISTRY: dict[str, tuple[str, str]] = {
     "dashscope": ("mm_embed.providers.dashscope_provider", "DashScopeProvider"),
@@ -22,10 +19,14 @@ PROVIDER_REGISTRY: dict[str, tuple[str, str]] = {
     "transformers": ("mm_embed.providers.transformers_provider", "TransformersProvider"),
     "ollama": ("mm_embed.providers.ollama_provider", "OllamaProvider"),
     "sentence_transformers": ("mm_embed.providers.sentence_transformers_provider", "SentenceTransformersProvider"),
+    "deterministic_sparse_fixture": (
+        "mm_embed.providers.deterministic_sparse_provider",
+        "DeterministicSparseFixtureProvider",
+    ),
 }
 
 
-def get_provider(name: str, **kwargs: Any) -> EmbeddingProvider:
+def get_provider(name: str, **kwargs: Any) -> Any:
     """Instantiate a provider by name.
 
     Args:

@@ -27,3 +27,18 @@ uv run modern-embed-bench benchmark leaderboard --results results/openai-smoke.j
 Generated results remain outside the tracked source tree by default. Use
 `scripts/import_legacy_results.py` to convert older `results/*.json` artifacts
 into the v2 JSONL shape when comparing against historical runs.
+
+The learned-sparse fixture exercises the provider-neutral CSR path without a
+model download or external index service:
+
+```bash
+uv run modern-embed-bench benchmark run \
+  --manifest benchmark/runs/learned-sparse-retrieval-fixture.yaml \
+  --output results/learned-sparse-retrieval-fixture.jsonl
+```
+
+This run is a deterministic contract check only. Its model, task, run, and
+result are fixture-only and excluded from public Dataset, Space, and
+leaderboard exports. Query and document routes remain distinct, scoring uses
+the exact SciPy CSR backend, and the JSONL record contains sparse efficiency
+statistics rather than sparse payloads.

@@ -1,0 +1,29 @@
+{
+  "dataset_version": "learned-sparse-retrieval-fixture-v0",
+  "fixture_only": true,
+  "publish": false,
+  "leaderboard_publish": false,
+  "evidence_tier": "fixture",
+  "score_validity": "contract_only",
+  "network": "forbidden",
+  "representation": {
+    "kind": "sparse_csr",
+    "representation_id": "learned-sparse-fixture-representation-v1",
+    "vocabulary_id": "learned-sparse-fixture-vocabulary-v1",
+    "dimensions": 32,
+    "query_route": "static_lookup",
+    "document_route": "document_expansion"
+  },
+  "document_count": 12,
+  "query_count": 6,
+  "diagnostic_slices": [
+    "exact_entity_product_name",
+    "code_tool_identifier",
+    "long_tail_term",
+    "lexical_mismatch_document_expansion",
+    "long_document_local_evidence"
+  ],
+  "qrels_and_hard_negatives": "fixed_in_repository_source",
+  "label_sha256": "e99f4faeae8599456be29dce3d869d8abf59699ceab4dc67fa0ece2de6cc36c5",
+  "fixture_sha256": "d0ae6f34ea9f29dc51b1aa5c961dc73664270f02a41fe461d294bfbd127923ee"
+}

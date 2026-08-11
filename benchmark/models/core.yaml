@@ -1,4 +1,27 @@
 models:
+  - id: learned-sparse-contract-fixture
+    display_name: Learned sparse contract fixture
+    provider: deterministic_sparse_fixture
+    provider_kwargs:
+      model: learned-sparse-contract-fixture
+      revision: fixture-v1
+      dataset_version: learned-sparse-retrieval-fixture-v0
+    representation_kind: sparse_csr
+    model_revision: fixture-v1
+    representation_id: learned-sparse-fixture-representation-v1
+    vocabulary_id: learned-sparse-fixture-vocabulary-v1
+    query_route: static_lookup
+    document_route: document_expansion
+    modalities: [text]
+    dimensions: 32
+    supports_mrl: false
+    access: fixture
+    status: active
+    publish: false
+    priority: 1
+    tags: [sparse, csr, exact, deterministic, fixture-only, no-publish, contract-only]
+    notes: Deterministic test double for the sparse benchmark contract; not a learned model or quality result.
+
   - id: openai-text-embedding-3-large
     display_name: OpenAI text-embedding-3-large
     provider: openai

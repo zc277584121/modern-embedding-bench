@@ -18,6 +18,7 @@ class EvalResult:
     model_name: str
     metrics: dict[str, float]
     details: dict[str, Any] = field(default_factory=dict)
+    execution: dict[str, Any] = field(default_factory=dict)
     error: str | None = None
 
     @property

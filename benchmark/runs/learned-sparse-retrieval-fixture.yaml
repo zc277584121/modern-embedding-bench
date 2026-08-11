@@ -1,0 +1,25 @@
+id: learned-sparse-retrieval-fixture
+description: Deterministic zero-network exact sparse CSR contract fixture.
+publish: false
+evidence_tier: fixture
+models:
+  - learned-sparse-contract-fixture
+tasks:
+  - id: learned_sparse_retrieval
+metadata:
+  dataset_version: learned-sparse-retrieval-fixture-v0
+  fixture_only: true
+  score_validity: contract_only
+  leaderboard_publish: false
+  network: forbidden
+  provider_api_calls: 0
+  model_downloads: 0
+  hugging_face_operations: 0
+  retrieval_kind: sparse_exact
+  representation_kind: sparse_csr
+  diagnostic_slices:
+    - exact_entity_product_name
+    - code_tool_identifier
+    - long_tail_term
+    - lexical_mismatch_document_expansion
+    - long_document_local_evidence

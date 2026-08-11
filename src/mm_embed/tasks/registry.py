@@ -38,6 +38,10 @@ TASK_REGISTRY: dict[str, tuple[str, str]] = {
         "mm_embed.tasks.code_edit_chunk_localization",
         "CodeEditChunkLocalizationTask",
     ),
+    "learned_sparse_retrieval": (
+        "mm_embed.tasks.learned_sparse_retrieval",
+        "LearnedSparseRetrievalTask",
+    ),
 }
 
 
