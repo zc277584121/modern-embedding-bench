@@ -1,0 +1,204 @@
+{
+  "artifacts": {
+    "document_ids.json": {
+      "bytes": 2765776,
+      "sha256": "27681a87751eab1190769bd5203c745a36c9fe3d7f696a7e8c17387d5ca8709e"
+    },
+    "documents.npz": {
+      "bytes": 9710414,
+      "sha256": "463ddb1910318b803bbd4663ca1058cbd3f0b38d6f4dfa0d86b4b38d1ea4c8c3"
+    },
+    "queries.npz": {
+      "bytes": 23495,
+      "sha256": "7bf1a27fa2e475e23049e89ce8d221e04072a0ab89d495710af0e47561321cc2"
+    },
+    "query_ids.json": {
+      "bytes": 612,
+      "sha256": "0fbb6ce652ab1b0b0534f83dec8f591f534b9e3f54be2db413abd44811e77f3a"
+    },
+    "rankings.jsonl": {
+      "bytes": 1120935,
+      "sha256": "4ef6a66908446e749190a7d95d78c0d947ff7a3a60dab955a519fe846def8020"
+    }
+  },
+  "audit": {
+    "document_empty_count": 0,
+    "document_non_finite_count": 0,
+    "document_truncated_count": 155,
+    "query_empty_count": 0,
+    "query_non_finite_count": 0,
+    "query_truncated_count": 1
+  },
+  "counts": {
+    "documents": 57359,
+    "positives": 372,
+    "queries": 103
+  },
+  "data": {
+    "benchmark_version": "bright-nontechnical-pilot-v0.1",
+    "materialization": {
+      "deterministic": true,
+      "files": {
+        "audit.json": {
+          "bytes": 1134,
+          "path": "audit.json",
+          "sha256": "14fff3c99df731a9657828a43b45e669d3082305f656c5883fbb37ad4d797854"
+        },
+        "corpus.jsonl": {
+          "bytes": 22991898,
+          "path": "corpus.jsonl",
+          "rows": 57359,
+          "sha256": "80414ed1384102adde0168c5f4ef3e3e51536c276c49b97c9660ef19b1606a7b"
+        },
+        "qrels/test.tsv": {
+          "bytes": 18307,
+          "path": "qrels/test.tsv",
+          "rows": 372,
+          "sha256": "3a8425f7d93fff080238fa2f16443d0b4645f799a415831b2a771baec455f7a0"
+        },
+        "queries.jsonl": {
+          "bytes": 65972,
+          "path": "queries.jsonl",
+          "rows": 103,
+          "sha256": "e125db608e452ed254d3f6b8ce0c7be7604ef1e3049442cc533c18d455e90f72"
+        }
+      },
+      "ordering": "lexicographic query/document ids; lexicographic gold ids per query",
+      "text_protocol": "content.strip()"
+    },
+    "publication": {
+      "classification": "research_only",
+      "gate": "closed_pending_upstream_web_content_rights_review",
+      "public_export_allowed": false,
+      "reason": "The repository-level CC-BY-4.0 declaration does not establish that every copied upstream web page was sublicensable for public redistribution."
+    },
+    "runner_adapter": {
+      "corpus": {
+        "id": "id",
+        "text": "content"
+      },
+      "excluded_ids_policy": "filter candidates before ranking and metric computation",
+      "qrels": {
+        "document_id": "corpus-id",
+        "grade": "score",
+        "query_id": "query-id"
+      },
+      "queries": {
+        "id": "id",
+        "text": "text"
+      }
+    },
+    "schema_version": "1",
+    "source": {
+      "dataset": "xlangai/BRIGHT",
+      "files": [
+        {
+          "bytes": 11046045,
+          "role": "documents",
+          "rows": 57359,
+          "sha256": "8516d0c233f9c34e9eb6922b56e8a1698e5a6f6e504a9499fcd511cdd5741670",
+          "url": "https://huggingface.co/datasets/xlangai/BRIGHT/resolve/3066d29c9651a576c8aba4832d249807b181ecae/documents/biology-00000-of-00001.parquet"
+        },
+        {
+          "bytes": 200655,
+          "role": "examples",
+          "rows": 103,
+          "sha256": "6e105c4f09d9a70b8a20ed6a4d0e386823a5545151df41b3f0e64eb5c5987829",
+          "url": "https://huggingface.co/datasets/xlangai/BRIGHT/resolve/3066d29c9651a576c8aba4832d249807b181ecae/examples/biology-00000-of-00001.parquet"
+        }
+      ],
+      "revision": "3066d29c9651a576c8aba4832d249807b181ecae",
+      "trust_remote_code": false
+    },
+    "track": "biology"
+  },
+  "evidence_tier": "research_pilot",
+  "metrics": {
+    "map@100": 0.1267647646101999,
+    "mrr@10": 0.2602558175373709,
+    "ndcg@10": 0.1647525857211988,
+    "recall@10": 0.17980191329705894,
+    "recall@100": 0.44871231788707516
+  },
+  "model": {
+    "dimensions": 250002,
+    "document_route": "neural",
+    "id": "BAAI/bge-m3",
+    "provider": "bge_m3_sparse",
+    "query_route": "neural",
+    "representation_id": "bge-m3-contextual-lexical-csr-v1",
+    "revision": "5617a9f61b028005a4858fdac845db406aefb181",
+    "snapshot_identity_sha256": {
+      "1_Pooling/config.json": "e54c164a07274f2eb45bb724f54a79d1efcc90c41573887cd9a29aeee0597352",
+      "colbert_linear.pt": "19bfbae397c2b7524158c919d0e9b19393c5639d098f0a66932c91ed8f5f9abb",
+      "config.json": "26159e7ad065073448460117eb24b7a4572f6f4e78eadff65dc0a11c052449fa",
+      "config_sentence_transformers.json": "1eef72430e7194a1e59680e635aed81ffa083f05668dbc5bb1c56c04c0999c38",
+      "modules.json": "84e40c8e006c9b1d6c122e02cba9b02458120b5fb0c87b746c41e0207cf642cf",
+      "pytorch_model.bin": "b5e0ce3470abf5ef3831aa1bd5553b486803e83251590ab7ff35a117cf6aad38",
+      "sentence_bert_config.json": "eb9b44b13c0f52a3b3685c3b1cbdea1ba8b04bea123b98f61610048940776eb1",
+      "sentencepiece.bpe.model": "cfc8146abe2a0488e9e2a0c56de7952f7c11ab059eca145a0a727afce0db2865",
+      "sparse_linear.pt": "45c93804d2142b8f6d7ec6914ae23a1eee9c6a1d27d83d908a20d2afb3595ad9",
+      "special_tokens_map.json": "8c785abebea9ae3257b61681b4e6fd8365ceafde980c21970d001e834cf10835",
+      "tokenizer.json": "21106b6d7dab2952c1d496fb21d5dc9db75c28ed361a05f5020bbba27810dd08",
+      "tokenizer_config.json": "a62b2b6784f990259fddef5f16388693a8043be4f69179e6a5257eeb3f9abac4"
+    },
+    "snapshot_path": "/data1/cache/huggingface/hub/models--BAAI--bge-m3/snapshots/5617a9f61b028005a4858fdac845db406aefb181",
+    "vocabulary_id": "bge-m3-xlm-roberta-vocab-250002"
+  },
+  "nnz": {
+    "documents": {
+      "count": 57359,
+      "max": 281,
+      "mean": 45.85559371676633,
+      "p50": 48.0,
+      "p95": 84.0,
+      "p99": 96.0,
+      "total": 2630231
+    },
+    "queries": {
+      "count": 103,
+      "max": 210,
+      "mean": 48.52427184466019,
+      "p50": 43.0,
+      "p95": 94.79999999999998,
+      "p99": 124.60000000000008,
+      "total": 4998
+    }
+  },
+  "policy": {
+    "batch_size": 4,
+    "empty_rows_allowed": true,
+    "max_length": 512,
+    "truncation": "tokenizer truncation at fixed max_length"
+  },
+  "publication": {
+    "classification": "research_only",
+    "gate": "closed",
+    "leaderboard_publish": false,
+    "public_export_allowed": false,
+    "publish": false
+  },
+  "resources": {
+    "csr_uncompressed_bytes": 21311688,
+    "peak_ram_bytes": 3955343360,
+    "peak_vram_bytes": 1197252096
+  },
+  "schema_version": "1",
+  "search": {
+    "backend": "scipy_csr_exact",
+    "exact": true,
+    "tie_break": "document_id_ascending",
+    "top_k": 100
+  },
+  "timing": {
+    "document_encoding_s": 326.1633211541921,
+    "document_latency_ms_per_item": 5.686349503202498,
+    "document_throughput_per_s": 175.85974964022338,
+    "exact_search_latency_ms_per_query": 75.42962128820929,
+    "exact_search_s": 7.769250992685556,
+    "query_encoding_s": 0.6216670926660299,
+    "query_latency_ms_per_item": 6.0356028414177665,
+    "query_throughput_per_s": 165.6835325773522
+  },
+  "track": "biology"
+}

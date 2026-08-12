@@ -1,0 +1,210 @@
+{
+  "artifacts": {
+    "document_ids.json": {
+      "bytes": 2765776,
+      "sha256": "27681a87751eab1190769bd5203c745a36c9fe3d7f696a7e8c17387d5ca8709e"
+    },
+    "documents.npz": {
+      "bytes": 54166810,
+      "sha256": "32ab2d0bfe6961e3575efc1717b01bf422f1edbaf8e05f96376bcd8b2708518c"
+    },
+    "queries.npz": {
+      "bytes": 27290,
+      "sha256": "35bb03194eea76c6ec0c3d0b93f93c78514aafa520438b28d684e8c738ac7524"
+    },
+    "query_ids.json": {
+      "bytes": 612,
+      "sha256": "0fbb6ce652ab1b0b0534f83dec8f591f534b9e3f54be2db413abd44811e77f3a"
+    },
+    "rankings.jsonl": {
+      "bytes": 1108309,
+      "sha256": "1de33ea7fb32eccf0aae9481288808322d2c4c761b825580dd7d706222e1fe48"
+    }
+  },
+  "audit": {
+    "document_empty_count": 0,
+    "document_non_finite_count": 0,
+    "document_truncated_count": 141,
+    "query_empty_count": 0,
+    "query_non_finite_count": 0,
+    "query_truncated_count": 1
+  },
+  "counts": {
+    "documents": 57359,
+    "positives": 372,
+    "queries": 103
+  },
+  "data": {
+    "benchmark_version": "bright-nontechnical-pilot-v0.1",
+    "materialization": {
+      "deterministic": true,
+      "files": {
+        "audit.json": {
+          "bytes": 1134,
+          "path": "audit.json",
+          "sha256": "14fff3c99df731a9657828a43b45e669d3082305f656c5883fbb37ad4d797854"
+        },
+        "corpus.jsonl": {
+          "bytes": 22991898,
+          "path": "corpus.jsonl",
+          "rows": 57359,
+          "sha256": "80414ed1384102adde0168c5f4ef3e3e51536c276c49b97c9660ef19b1606a7b"
+        },
+        "qrels/test.tsv": {
+          "bytes": 18307,
+          "path": "qrels/test.tsv",
+          "rows": 372,
+          "sha256": "3a8425f7d93fff080238fa2f16443d0b4645f799a415831b2a771baec455f7a0"
+        },
+        "queries.jsonl": {
+          "bytes": 65972,
+          "path": "queries.jsonl",
+          "rows": 103,
+          "sha256": "e125db608e452ed254d3f6b8ce0c7be7604ef1e3049442cc533c18d455e90f72"
+        }
+      },
+      "ordering": "lexicographic query/document ids; lexicographic gold ids per query",
+      "text_protocol": "content.strip()"
+    },
+    "publication": {
+      "classification": "research_only",
+      "gate": "closed_pending_upstream_web_content_rights_review",
+      "public_export_allowed": false,
+      "reason": "The repository-level CC-BY-4.0 declaration does not establish that every copied upstream web page was sublicensable for public redistribution."
+    },
+    "runner_adapter": {
+      "corpus": {
+        "id": "id",
+        "text": "content"
+      },
+      "excluded_ids_policy": "filter candidates before ranking and metric computation",
+      "qrels": {
+        "document_id": "corpus-id",
+        "grade": "score",
+        "query_id": "query-id"
+      },
+      "queries": {
+        "id": "id",
+        "text": "text"
+      }
+    },
+    "schema_version": "1",
+    "source": {
+      "dataset": "xlangai/BRIGHT",
+      "files": [
+        {
+          "bytes": 11046045,
+          "role": "documents",
+          "rows": 57359,
+          "sha256": "8516d0c233f9c34e9eb6922b56e8a1698e5a6f6e504a9499fcd511cdd5741670",
+          "url": "https://huggingface.co/datasets/xlangai/BRIGHT/resolve/3066d29c9651a576c8aba4832d249807b181ecae/documents/biology-00000-of-00001.parquet"
+        },
+        {
+          "bytes": 200655,
+          "role": "examples",
+          "rows": 103,
+          "sha256": "6e105c4f09d9a70b8a20ed6a4d0e386823a5545151df41b3f0e64eb5c5987829",
+          "url": "https://huggingface.co/datasets/xlangai/BRIGHT/resolve/3066d29c9651a576c8aba4832d249807b181ecae/examples/biology-00000-of-00001.parquet"
+        }
+      ],
+      "revision": "3066d29c9651a576c8aba4832d249807b181ecae",
+      "trust_remote_code": false
+    },
+    "track": "biology"
+  },
+  "evidence_tier": "research_pilot",
+  "metrics": {
+    "map@100": 0.09408007032722891,
+    "mrr@10": 0.19465634150100172,
+    "ndcg@10": 0.12206232832012405,
+    "recall@10": 0.13672961342864254,
+    "recall@100": 0.3660165162720093
+  },
+  "model": {
+    "dimensions": 30522,
+    "document_route": "document_expansion",
+    "id": "opensearch-project/opensearch-neural-sparse-encoding-doc-v3-distill",
+    "provider": "opensearch_neural_sparse",
+    "query_route": "static_lookup",
+    "representation_id": "opensearch-neural-sparse-v3-distill-csr-v1",
+    "revision": "babf71f3c48695e2e53a978208e8aba48335e3c0",
+    "snapshot_identity_sha256": {
+      "config.json": "ee97780493e7d0a3b7b788ea98f3391e6be6b0b379921b465ca55bfdd0d9cbe3",
+      "config_sentence_transformers.json": "44e5b5295415281c3f61341f0670bf6752ce1d85880380faeebae3752889d718",
+      "document_1_SpladePooling/config.json": "d7a84fb418b94887421b277c5407175e476f0fa629037f4f5db540e98db682f3",
+      "idf.json": "da23a1c0b9252776cc8c6d70fd14723e218f484d489cd9027ac6e4065d5b9edd",
+      "model.safetensors": "83a3cc9757876b8590aac53f4f6685012f89d7fb4bbeb540815a54d325f7f70a",
+      "modules.json": "2e12f8a5fbc625578d7bbaee4c18b748ccd82f0d4549c3d952638693ce4058cf",
+      "query_0_SparseStaticEmbedding/config.json": "f1aa3269d4139c461e2d3b7b8f1570f507bc59529cffb004c6a3702da4f5087a",
+      "query_0_SparseStaticEmbedding/model.safetensors": "711ec64837a7962d2ae106996079782b7ee87860089a0b2348bf7cb840f252d3",
+      "query_0_SparseStaticEmbedding/special_tokens_map.json": "5d5b662e421ea9fac075174bb0688ee0d9431699900b90662acd44b2a350503a",
+      "query_0_SparseStaticEmbedding/tokenizer.json": "91f1def9b9391fdabe028cd3f3fcc4efd34e5d1f08c3bf2de513ebb5911a1854",
+      "query_0_SparseStaticEmbedding/tokenizer_config.json": "74fe3555a2e4e56248a4f64333c7891f07acc7f0276c01a40764defc9564a839",
+      "query_0_SparseStaticEmbedding/vocab.txt": "07eced375cec144d27c900241f3e339478dec958f92fddbc551f295c992038a3",
+      "query_token_weights.txt": "79c55cf7c5c7e1680d6332225aa58dda9b71445cf02e21b348b97c3ee5c81f07",
+      "router_config.json": "c373414574b65ea6612a43c16a17d8a5942e91ccde1cd1433e41619af02a8264",
+      "special_tokens_map.json": "b6d346be366a7d1d48332dbc9fdf3bf8960b5d879522b7799ddba59e76237ee3",
+      "tokenizer.json": "91f1def9b9391fdabe028cd3f3fcc4efd34e5d1f08c3bf2de513ebb5911a1854",
+      "tokenizer_config.json": "77128cb6e818fc57e5d75f305bdc6b7ebf8c7e91228ec9d7f33f4fcb493bc0a7",
+      "vocab.txt": "07eced375cec144d27c900241f3e339478dec958f92fddbc551f295c992038a3"
+    },
+    "snapshot_path": "/data1/cache/huggingface/hub/models--opensearch-project--opensearch-neural-sparse-encoding-doc-v3-distill/snapshots/babf71f3c48695e2e53a978208e8aba48335e3c0",
+    "vocabulary_id": "sentencepiece-wordpiece-vocab-30522"
+  },
+  "nnz": {
+    "documents": {
+      "count": 57359,
+      "max": 885,
+      "mean": 186.32626091807737,
+      "p50": 196.0,
+      "p95": 256.0,
+      "p99": 280.0,
+      "total": 10687488
+    },
+    "queries": {
+      "count": 103,
+      "max": 219,
+      "mean": 67.36893203883496,
+      "p50": 63.0,
+      "p95": 141.7,
+      "p99": 173.70000000000005,
+      "total": 6939
+    }
+  },
+  "policy": {
+    "batch_size": 32,
+    "empty_rows_allowed": true,
+    "max_length": 512,
+    "truncation": "tokenizer truncation at fixed max_length"
+  },
+  "publication": {
+    "classification": "research_only",
+    "gate": "closed",
+    "leaderboard_publish": false,
+    "public_export_allowed": false,
+    "publish": false
+  },
+  "resources": {
+    "csr_uncompressed_bytes": 85785272,
+    "peak_ram_bytes": 1907499008,
+    "peak_vram_bytes": 4296665600
+  },
+  "schema_version": "1",
+  "search": {
+    "backend": "scipy_csr_exact",
+    "exact": true,
+    "tie_break": "document_id_ascending",
+    "top_k": 100
+  },
+  "timing": {
+    "document_encoding_s": 101.46778765507042,
+    "document_latency_ms_per_item": 1.7689950601487199,
+    "document_throughput_per_s": 565.2927034832588,
+    "exact_search_latency_ms_per_query": 174.46018529386774,
+    "exact_search_s": 17.96939908526838,
+    "query_encoding_s": 0.07206732779741287,
+    "query_latency_ms_per_item": 0.6996827941496395,
+    "query_throughput_per_s": 1429.2190809341703
+  },
+  "track": "biology"
+}
