@@ -1,4 +1,28 @@
 models:
+  - id: opensearch-neural-sparse-encoding-doc-v3-distill
+    display_name: OpenSearch neural sparse encoding doc v3 distill
+    provider: opensearch_neural_sparse
+    provider_kwargs:
+      model: opensearch-project/opensearch-neural-sparse-encoding-doc-v3-distill
+      revision: babf71f3c48695e2e53a978208e8aba48335e3c0
+      snapshot_path: .cache/huggingface/models--opensearch-project--opensearch-neural-sparse-encoding-doc-v3-distill/snapshots/babf71f3c48695e2e53a978208e8aba48335e3c0
+      allow_download: false
+      cache_dir: .cache/huggingface
+    representation_kind: sparse_csr
+    model_revision: babf71f3c48695e2e53a978208e8aba48335e3c0
+    representation_id: opensearch-neural-sparse-v3-distill-csr-v1
+    vocabulary_id: sentencepiece-wordpiece-vocab-30522
+    query_route: static_lookup
+    document_route: document_expansion
+    modalities: [text]
+    dimensions: 30522
+    access: local
+    status: active
+    publish: false
+    priority: 2
+    tags: [sparse, csr, exact, sentence-transformers, opensearch, smoke-only, no-publish]
+    notes: Fixed-revision local Sentence Transformers SparseEncoder adapter; bounded smoke only.
+
   - id: learned-sparse-contract-fixture
     display_name: Learned sparse contract fixture
     provider: deterministic_sparse_fixture

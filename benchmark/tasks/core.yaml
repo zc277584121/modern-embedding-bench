@@ -1,4 +1,23 @@
 tasks:
+  - id: opensearch_neural_sparse_smoke
+    display_name: OpenSearch neural sparse bounded smoke
+    task: learned_sparse_retrieval
+    description: One-query/four-document exact CSR smoke for the fixed OpenSearch neural sparse adapter.
+    default_kwargs:
+      dataset_version: opensearch-neural-sparse-smoke-v0
+      fixture_only: true
+      top_k: 4
+    execution_kind: sparse_exact
+    fixture_only: true
+    score_validity: smoke_only
+    required_modalities: [text]
+    primary_metric: recall@1
+    metric_direction: higher
+    dataset_version: opensearch-neural-sparse-smoke-v0
+    publish: false
+    leaderboard_publish: false
+    tags: [learned-sparse, sparse, csr, exact, bounded-smoke, fixture-only, no-publish]
+
   - id: learned_sparse_retrieval
     display_name: Learned sparse retrieval contract fixture
     task: learned_sparse_retrieval

@@ -69,7 +69,7 @@
           "default_kwargs": {"type": "object"},
           "execution_kind": {"type": "string", "enum": ["dense", "sparse_exact"]},
           "fixture_only": {"type": "boolean"},
-          "score_validity": {"type": ["string", "null"], "enum": ["contract_only", null]},
+          "score_validity": {"type": ["string", "null"], "enum": ["contract_only", "smoke_only", null]},
           "required_modalities": {"type": "array", "items": {"type": "string"}},
           "primary_metric": {"type": ["string", "null"]},
           "metric_direction": {"type": "string", "enum": ["higher", "lower"]},

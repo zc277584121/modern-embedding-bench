@@ -1,0 +1,21 @@
+id: opensearch-neural-sparse-smoke
+description: Bounded no-publish smoke for the fixed OpenSearch neural sparse adapter.
+publish: false
+evidence_tier: smoke
+models:
+  - opensearch-neural-sparse-encoding-doc-v3-distill
+tasks:
+  - id: opensearch_neural_sparse_smoke
+metadata:
+  dataset_version: opensearch-neural-sparse-smoke-v0
+  fixture_only: true
+  score_validity: smoke_only
+  leaderboard_publish: false
+  network: model_download_only
+  provider_api_calls: 0
+  model_downloads: 1
+  hugging_face_operations: snapshot_download_only
+  retrieval_kind: sparse_exact
+  representation_kind: sparse_csr
+  query_count: 1
+  document_count: 4
