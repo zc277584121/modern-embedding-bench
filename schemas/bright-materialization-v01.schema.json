@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/schemas/bright-materialization-v01.schema.json",
+  "$defs": {
+    "hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "materializedFile": {
+      "type": "object",
+      "required": ["path", "bytes", "sha256"],
+      "properties": {
+        "path": {"type": "string", "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[^\\u0000]+$"},
+        "rows": {"type": "integer", "minimum": 0},
+        "bytes": {"type": "integer", "minimum": 1},
+        "sha256": {"$ref": "#/$defs/hash"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "type": "object",
+  "required": ["schema_version", "benchmark_version", "track", "source", "materialization", "runner_adapter", "publication"],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "benchmark_version": {"const": "bright-nontechnical-pilot-v0.1"},
+    "track": {"const": "biology"},
+    "source": {
+      "type": "object",
+      "required": ["dataset", "revision", "trust_remote_code", "files"],
+      "properties": {
+        "dataset": {"const": "xlangai/BRIGHT"},
+        "revision": {"const": "3066d29c9651a576c8aba4832d249807b181ecae"},
+        "trust_remote_code": {"const": false},
+        "files": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "type": "object",
+              "required": ["role", "url", "bytes", "rows", "sha256"],
+              "properties": {
+                "role": {"const": "documents"},
+                "url": {"type": "string", "pattern": "^https://huggingface\\.co/datasets/xlangai/BRIGHT/resolve/3066d29c9651a576c8aba4832d249807b181ecae/documents/(biology|economics|psychology)-00000-of-00001\\.parquet$"},
+                "bytes": {"enum": [11046045, 10969621, 11430533]},
+                "rows": {"enum": [57359, 50220, 52835]},
+                "sha256": {"enum": ["8516d0c233f9c34e9eb6922b56e8a1698e5a6f6e504a9499fcd511cdd5741670", "f3ba8a0fbc9a9aed07b4970cc686e32cfefcd06d6922402587adf871f006394c", "085d381739cb24b4227dfaf577f39d0adcad8b7b1ae74be028ac239d37be3c1d"]}
+              },
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "required": ["role", "url", "bytes", "rows", "sha256"],
+              "properties": {
+                "role": {"const": "examples"},
+                "url": {"type": "string", "pattern": "^https://huggingface\\.co/datasets/xlangai/BRIGHT/resolve/3066d29c9651a576c8aba4832d249807b181ecae/examples/(biology|economics|psychology)-00000-of-00001\\.parquet$"},
+                "bytes": {"enum": [200655, 219518, 183889]},
+                "rows": {"enum": [103, 101]},
+                "sha256": {"enum": ["6e105c4f09d9a70b8a20ed6a4d0e386823a5545151df41b3f0e64eb5c5987829", "2a79f0f3a881c7c03a258cf8ef8ac2db1ca9080963252d9a020bb45a264aa037", "404e7dff2a4528419df0bdc162541e92138e35b78918d82d3a04ade5b8f7876b"]}
+              },
+              "additionalProperties": false
+            }
+          ],
+          "items": false,
+          "minItems": 2,
+          "maxItems": 2
+        }
+      },
+      "additionalProperties": false
+    },
+    "materialization": {
+      "type": "object",
+      "required": ["deterministic", "ordering", "text_protocol", "files"],
+      "properties": {
+        "deterministic": {"const": true},
+        "ordering": {"const": "lexicographic query/document ids; lexicographic gold ids per query"},
+        "text_protocol": {"const": "content.strip()"},
+        "files": {
+          "type": "object",
+          "required": ["corpus.jsonl", "queries.jsonl", "qrels/test.tsv", "audit.json"],
+          "properties": {
+            "corpus.jsonl": {"allOf": [{"$ref": "#/$defs/materializedFile"}, {"required": ["rows"], "properties": {"path": {"const": "corpus.jsonl"}}}]},
+            "queries.jsonl": {"allOf": [{"$ref": "#/$defs/materializedFile"}, {"required": ["rows"], "properties": {"path": {"const": "queries.jsonl"}}}]},
+            "qrels/test.tsv": {"allOf": [{"$ref": "#/$defs/materializedFile"}, {"required": ["rows"], "properties": {"path": {"const": "qrels/test.tsv"}}}]},
+            "audit.json": {"allOf": [{"$ref": "#/$defs/materializedFile"}, {"properties": {"path": {"const": "audit.json"}}}]}
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "runner_adapter": {
+      "type": "object",
+      "required": ["corpus", "queries", "qrels", "excluded_ids_policy"],
+      "properties": {
+        "corpus": {"type": "object", "required": ["id", "text"], "properties": {"id": {"const": "id"}, "text": {"const": "content"}}, "additionalProperties": false},
+        "queries": {"type": "object", "required": ["id", "text"], "properties": {"id": {"const": "id"}, "text": {"const": "text"}}, "additionalProperties": false},
+        "qrels": {"type": "object", "required": ["query_id", "document_id", "grade"], "properties": {"query_id": {"const": "query-id"}, "document_id": {"const": "corpus-id"}, "grade": {"const": "score"}}, "additionalProperties": false},
+        "excluded_ids_policy": {"const": "filter candidates before ranking and metric computation"}
+      },
+      "additionalProperties": false
+    },
+    "publication": {
+      "type": "object",
+      "required": ["classification", "public_export_allowed", "gate", "reason"],
+      "properties": {
+        "classification": {"const": "research_only"},
+        "public_export_allowed": {"const": false},
+        "gate": {"const": "closed_pending_upstream_web_content_rights_review"},
+        "reason": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    }
+  },
+  "allOf": [
+    {
+      "properties": {"source": {"properties": {"files": {"const": [
+        {"role": "documents", "url": "https://huggingface.co/datasets/xlangai/BRIGHT/resolve/3066d29c9651a576c8aba4832d249807b181ecae/documents/biology-00000-of-00001.parquet", "bytes": 11046045, "sha256": "8516d0c233f9c34e9eb6922b56e8a1698e5a6f6e504a9499fcd511cdd5741670", "rows": 57359},
+        {"role": "examples", "url": "https://huggingface.co/datasets/xlangai/BRIGHT/resolve/3066d29c9651a576c8aba4832d249807b181ecae/examples/biology-00000-of-00001.parquet", "bytes": 200655, "sha256": "6e105c4f09d9a70b8a20ed6a4d0e386823a5545151df41b3f0e64eb5c5987829", "rows": 103}
+      ]}}}}
+    }
+  ],
+  "additionalProperties": false
+}

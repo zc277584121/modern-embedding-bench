@@ -26,7 +26,7 @@ dependencies = [
 dev = ["jsonschema>=4.23", "pytest>=8.0"]
 
 [project.optional-dependencies]
-data = ["datasets>=2.0"]
+data = ["datasets>=2.0", "pyarrow>=18.0"]
 dashscope = ["dashscope>=1.20"]
 volcengine = ["volcengine-python-sdk[ark]>=1.0"]
 gemini = ["google-genai>=1.0"]

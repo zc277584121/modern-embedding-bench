@@ -244,6 +244,11 @@ uv run python scripts/upload_hf.py \
 
 Use `--private` during dry runs if you want to avoid publishing public artifacts.
 
+`upload_hf.py` is a raw transport for a folder whose publication has already been authorized. It does not
+classify arbitrary external directories or grant redistribution rights. Use the dataset exporter for local
+benchmark data, review its export manifest, and never pass research-only source or materialized data directly
+to the upload command.
+
 ## Compatibility CLI
 
 The historical `mm-bench` command still exists for compatibility. New work

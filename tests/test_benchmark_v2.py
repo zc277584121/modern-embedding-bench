@@ -326,7 +326,11 @@ def test_runner_overwrite_replaces_existing_jsonl(tmp_path) -> None:
     assert written[0]["training_overlap"]["zero_shot_status"] == "unknown"
 
 
-def test_export_hf_dataset_skips_cache_artifacts(tmp_path) -> None:
+def test_export_hf_dataset_skips_cache_artifacts(tmp_path, monkeypatch) -> None:
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "data" / "embedding_cache").mkdir(parents=True)
+    (tmp_path / "data" / "embedding_cache" / "cached.npy").write_bytes(b"cache")
+    (tmp_path / "data" / "fixture.jsonl").write_text('{"id":"safe"}\n', encoding="utf-8")
     output = export_dataset_repo(output_dir=tmp_path / "dataset", include_data=True)
 
     exported_files = [str(path.relative_to(output)) for path in output.rglob("*") if path.is_file()]

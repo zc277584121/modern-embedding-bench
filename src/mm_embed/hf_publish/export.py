@@ -1137,6 +1137,8 @@ def _copy_benchmark_data(data_root: Path, output: Path, *, include_images: bool)
         (output / "README.md").write_text("Local data directory was not found.\n", encoding="utf-8")
         return
 
+    _reject_restricted_materializations(data_root)
+
     for path in sorted(data_root.rglob("*")):
         if path.is_dir():
             continue
@@ -1155,6 +1157,40 @@ def _copy_benchmark_data(data_root: Path, output: Path, *, include_images: bool)
     if not include_images:
         note.append("Image files were skipped. Re-run with `--include-images` to bundle image assets.")
     (output / "README.md").write_text("\n".join(note) + "\n", encoding="utf-8")
+
+
+def _reject_restricted_materializations(copy_root: Path) -> None:
+    """Reject trees containing or governed by restricted dataset materializations."""
+    from mm_embed.benchmark.bright_v01 import BENCHMARK_VERSION
+
+    root = copy_root.resolve()
+    search_roots = [root]
+    for ancestor in root.parents:
+        if ancestor.name in {"data", "benchmark_data"}:
+            search_roots.append(ancestor)
+            break
+    restricted_markers: set[Path] = set()
+    for search_root in search_roots:
+        if search_root.is_dir():
+            restricted_markers.update(path for path in search_root.rglob(BENCHMARK_VERSION))
+            restricted_markers.update(
+                path
+                for path in search_root.rglob("*.parquet")
+                if path.parent.name in {"documents", "examples"}
+                and path.parent.parent.name == "source"
+                and path.name.removesuffix("-00000-of-00001.parquet")
+                in {"biology", "economics", "psychology"}
+            )
+            for corpus_path in search_root.rglob("corpus.jsonl"):
+                candidate = corpus_path.parent
+                if all(
+                    (candidate / relative).is_file()
+                    for relative in ("queries.jsonl", "qrels/test.tsv", "audit.json")
+                ):
+                    restricted_markers.add(candidate)
+    if restricted_markers:
+        marker = sorted(restricted_markers)[0]
+        raise ValueError(f"public export denied for restricted BRIGHT data layout: {marker}")
 
 
 def _should_skip_data_file(rel: Path, *, include_images: bool) -> bool:
