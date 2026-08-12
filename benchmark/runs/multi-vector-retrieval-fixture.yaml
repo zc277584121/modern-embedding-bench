@@ -1,0 +1,7 @@
+id: multi-vector-retrieval-fixture
+description: Deterministic multi-vector exact MaxSim contract fixture
+models: [multi-vector-contract-fixture]
+tasks: [multi_vector_retrieval]
+publish: false
+evidence_tier: fixture
+metadata: {fixture_only: true, contract_only: true, leaderboard_publish: false}

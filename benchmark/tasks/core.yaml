@@ -1,4 +1,20 @@
 tasks:
+  - id: multi_vector_retrieval
+    display_name: Multi-vector exact MaxSim contract fixture
+    task: multi_vector_retrieval
+    description: Deterministic no-network fixture for variable-length multi-vector retrieval.
+    default_kwargs: {dataset_version: multi-vector-retrieval-fixture-v0, fixture_only: true, top_k: 10, aggregation: max_passage}
+    execution_kind: multi_vector_exact
+    fixture_only: true
+    score_validity: contract_only
+    required_modalities: [text]
+    primary_metric: recall@1
+    metric_direction: higher
+    dataset_version: multi-vector-retrieval-fixture-v0
+    publish: false
+    leaderboard_publish: false
+    tags: [multi-vector, maxsim, exact, fixture-only, no-publish, contract-only]
+
   - id: opensearch_neural_sparse_smoke
     display_name: OpenSearch neural sparse bounded smoke
     task: learned_sparse_retrieval

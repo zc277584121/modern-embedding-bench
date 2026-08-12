@@ -42,6 +42,10 @@ TASK_REGISTRY: dict[str, tuple[str, str]] = {
         "mm_embed.tasks.learned_sparse_retrieval",
         "LearnedSparseRetrievalTask",
     ),
+    "multi_vector_retrieval": (
+        "mm_embed.tasks.multi_vector_retrieval",
+        "MultiVectorRetrievalTask",
+    ),
 }
 
 

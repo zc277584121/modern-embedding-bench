@@ -268,7 +268,7 @@ class ModelSpec:
         if missing:
             raise ValueError(f"Model entry in {source_file} is missing: {', '.join(missing)}")
         representation_kind = str(data.get("representation_kind", "dense_vector"))
-        if representation_kind not in {"dense_vector", "sparse_csr"}:
+        if representation_kind not in {"dense_vector", "sparse_csr", "multi_vector"}:
             raise ValueError(f"Unsupported model representation_kind '{representation_kind}'")
         dimensions = data.get("dimensions")
         publish = bool(data.get("publish", True))
@@ -337,15 +337,15 @@ class TaskSpec:
         if missing:
             raise ValueError(f"Task entry in {source_file} is missing: {', '.join(missing)}")
         execution_kind = str(data.get("execution_kind", "dense"))
-        if execution_kind not in {"dense", "sparse_exact"}:
+        if execution_kind not in {"dense", "sparse_exact", "multi_vector_exact"}:
             raise ValueError(f"Unsupported task execution_kind '{execution_kind}'")
         fixture_only = bool(data.get("fixture_only", False))
         publish = bool(data.get("publish", True))
         leaderboard_publish = bool(data.get("leaderboard_publish", publish))
         if fixture_only and (publish or leaderboard_publish):
             raise ValueError("Fixture-only tasks must disable public and leaderboard publication")
-        if execution_kind == "sparse_exact" and not fixture_only:
-            raise ValueError("The current sparse-exact task surface is contract-fixture only")
+        if execution_kind in {"sparse_exact", "multi_vector_exact"} and not fixture_only:
+            raise ValueError("The current exact retrieval task surfaces are contract-fixture only")
         return cls(
             id=str(data["id"]),
             display_name=str(data["display_name"]),

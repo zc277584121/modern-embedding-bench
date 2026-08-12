@@ -113,8 +113,8 @@
     "execution": {
       "type": "object",
       "properties": {
-        "retrieval_kind": {"type": "string", "enum": ["sparse_exact"]},
-        "representation_kind": {"type": "string", "enum": ["sparse_csr"]},
+        "retrieval_kind": {"type": "string", "enum": ["sparse_exact", "multi_vector_exact_maxsim"]},
+        "representation_kind": {"type": "string", "enum": ["sparse_csr", "multi_vector"]},
         "provider": {"type": "string"},
         "model_name": {"type": "string"},
         "model_revision": {"type": "string"},
@@ -126,6 +126,10 @@
         "document_route": {"type": "string"},
         "query_nnz": {"$ref": "#/$defs/nnzStats"},
         "document_nnz": {"$ref": "#/$defs/nnzStats"},
+        "valid_token_count": {"type": "integer", "minimum": 1},
+        "passage_count": {"type": "integer", "minimum": 1},
+        "document_count": {"type": "integer", "minimum": 1},
+        "aggregation": {"type": "string", "enum": ["max_passage"]},
         "exact_backend": {"type": "string"},
         "exact": {"type": "boolean"},
         "index_bytes_estimate": {"type": "integer", "minimum": 0},
@@ -174,6 +178,32 @@
               "retrieval_kind", "representation_kind", "provider", "model_name", "model_revision",
               "representation_id", "representation_identity", "vocabulary_id", "dimensions", "query_route",
               "document_route", "query_nnz", "document_nnz", "exact_backend", "exact",
+              "index_bytes_estimate", "encoding_latency_ms", "search_latency_ms", "peak_memory_bytes",
+              "peak_vram_bytes"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "model": {
+            "type": "object",
+            "properties": {"representation_kind": {"const": "multi_vector"}},
+            "required": ["representation_kind"]
+          },
+          "error": {"type": "null"}
+        },
+        "required": ["model", "error"]
+      },
+      "then": {
+        "properties": {
+          "execution": {
+            "required": [
+              "retrieval_kind", "representation_kind", "provider", "model_name", "model_revision",
+              "representation_id", "representation_identity", "dimensions", "query_route", "document_route",
+              "valid_token_count", "passage_count", "document_count", "aggregation", "exact_backend", "exact",
               "index_bytes_estimate", "encoding_latency_ms", "search_latency_ms", "peak_memory_bytes",
               "peak_vram_bytes"
             ]

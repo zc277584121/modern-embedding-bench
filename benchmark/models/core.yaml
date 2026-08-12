@@ -1,4 +1,21 @@
 models:
+  - id: multi-vector-contract-fixture
+    display_name: Multi-vector contract fixture
+    provider: deterministic_multi_vector_fixture
+    provider_kwargs: {}
+    representation_kind: multi_vector
+    model_revision: fixture-v1
+    representation_id: multi-vector-fixture-v1
+    query_route: query_late_interaction
+    document_route: document_late_interaction
+    modalities: [text]
+    dimensions: 4
+    access: fixture
+    status: active
+    publish: false
+    priority: 1
+    tags: [multi-vector, maxsim, exact, deterministic, fixture-only, no-publish, contract-only]
+
   - id: opensearch-neural-sparse-encoding-doc-v3-distill
     display_name: OpenSearch neural sparse encoding doc v3 distill
     provider: opensearch_neural_sparse

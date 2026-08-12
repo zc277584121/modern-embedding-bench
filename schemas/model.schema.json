@@ -70,12 +70,12 @@
           "display_name": {"type": "string"},
           "provider": {"type": "string"},
           "provider_kwargs": {"type": "object"},
-          "representation_kind": {"type": "string", "enum": ["dense_vector", "sparse_csr"]},
+          "representation_kind": {"type": "string", "enum": ["dense_vector", "sparse_csr", "multi_vector"]},
           "model_revision": {"type": ["string", "null"]},
           "representation_id": {"type": ["string", "null"]},
           "vocabulary_id": {"type": ["string", "null"]},
-          "query_route": {"type": ["string", "null"], "enum": ["neural", "static_lookup", "tokenizer_idf", "document_expansion", "none", null]},
-          "document_route": {"type": ["string", "null"], "enum": ["neural", "static_lookup", "tokenizer_idf", "document_expansion", "none", null]},
+          "query_route": {"type": ["string", "null"], "enum": ["neural", "static_lookup", "tokenizer_idf", "document_expansion", "query_late_interaction", "none", null]},
+          "document_route": {"type": ["string", "null"], "enum": ["neural", "static_lookup", "tokenizer_idf", "document_expansion", "document_late_interaction", "none", null]},
           "modalities": {"type": "array", "items": {"type": "string"}},
           "dimensions": {"type": ["integer", "null"]},
           "max_text_length": {"type": ["integer", "null"]},
@@ -96,6 +96,10 @@
             "then": {
               "required": ["model_revision", "representation_id", "vocabulary_id", "query_route", "document_route", "dimensions"]
             }
+          }
+          ,{
+            "if": {"properties": {"representation_kind": {"const": "multi_vector"}}, "required": ["representation_kind"]},
+            "then": {"required": ["model_revision", "representation_id", "query_route", "document_route", "dimensions"]}
           }
         ],
         "additionalProperties": true

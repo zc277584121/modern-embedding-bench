@@ -67,7 +67,7 @@
           "task": {"type": "string"},
           "description": {"type": "string"},
           "default_kwargs": {"type": "object"},
-          "execution_kind": {"type": "string", "enum": ["dense", "sparse_exact"]},
+          "execution_kind": {"type": "string", "enum": ["dense", "sparse_exact", "multi_vector_exact"]},
           "fixture_only": {"type": "boolean"},
           "score_validity": {"type": ["string", "null"], "enum": ["contract_only", "smoke_only", null]},
           "required_modalities": {"type": "array", "items": {"type": "string"}},

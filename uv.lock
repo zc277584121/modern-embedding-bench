@@ -1819,7 +1819,6 @@ source = { editable = "." }
 dependencies = [
     { name = "click" },
     { name = "cohere" },
-    { name = "einops" },
     { name = "google-genai" },
     { name = "httpx" },
     { name = "huggingface-hub" },
@@ -1830,13 +1829,10 @@ dependencies = [
     { name = "pillow" },
     { name = "plotly" },
     { name = "pyyaml" },
-    { name = "qwen-vl-utils" },
     { name = "rich" },
     { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
-    { name = "torchvision" },
     { name = "tqdm" },
-    { name = "transformers" },
     { name = "voyageai" },
 ]
 
@@ -1865,11 +1861,17 @@ jina = [
     { name = "httpx" },
 ]
 local = [
+    { name = "einops" },
     { name = "sentence-transformers" },
     { name = "torch" },
+    { name = "torchvision" },
+    { name = "transformers" },
 ]
 openai = [
     { name = "openai" },
+]
+qwen-vl = [
+    { name = "qwen-vl-utils" },
 ]
 volcengine = [
     { name = "volcengine-python-sdk", extra = ["ark"] },
@@ -1881,6 +1883,7 @@ voyage = [
 [package.dev-dependencies]
 dev = [
     { name = "jsonschema" },
+    { name = "pytest" },
 ]
 
 [package.metadata]
@@ -1892,7 +1895,7 @@ requires-dist = [
     { name = "dashscope", marker = "extra == 'all'", specifier = ">=1.20" },
     { name = "dashscope", marker = "extra == 'dashscope'", specifier = ">=1.20" },
     { name = "datasets", marker = "extra == 'data'", specifier = ">=2.0" },
-    { name = "einops", specifier = ">=0.8.2" },
+    { name = "einops", marker = "extra == 'local'", specifier = ">=0.8.2" },
     { name = "google-genai", specifier = ">=1.66.0" },
     { name = "google-genai", marker = "extra == 'all'", specifier = ">=1.0" },
     { name = "google-genai", marker = "extra == 'gemini'", specifier = ">=1.0" },
@@ -1907,24 +1910,27 @@ requires-dist = [
     { name = "pillow", specifier = ">=10.0" },
     { name = "plotly", specifier = ">=6.6.0" },
     { name = "pyyaml", specifier = ">=6.0" },
-    { name = "qwen-vl-utils", specifier = ">=0.0.14" },
+    { name = "qwen-vl-utils", marker = "extra == 'qwen-vl'", specifier = ">=0.0.14" },
     { name = "rich", specifier = ">=13.0" },
     { name = "scipy", specifier = ">=1.12" },
     { name = "sentence-transformers", marker = "extra == 'local'", specifier = ">=3.0" },
     { name = "torch", marker = "extra == 'local'", specifier = ">=2.0" },
-    { name = "torchvision", specifier = ">=0.25.0" },
+    { name = "torchvision", marker = "extra == 'local'", specifier = ">=0.25.0" },
     { name = "tqdm", specifier = ">=4.66" },
-    { name = "transformers", specifier = ">=4.57.0" },
+    { name = "transformers", marker = "extra == 'local'", specifier = ">=4.57.0" },
     { name = "volcengine-python-sdk", extras = ["ark"], marker = "extra == 'all'", specifier = ">=1.0" },
     { name = "volcengine-python-sdk", extras = ["ark"], marker = "extra == 'volcengine'", specifier = ">=1.0" },
     { name = "voyageai", specifier = ">=0.3.7" },
     { name = "voyageai", marker = "extra == 'all'", specifier = ">=0.3" },
     { name = "voyageai", marker = "extra == 'voyage'", specifier = ">=0.3" },
 ]
-provides-extras = ["data", "dashscope", "volcengine", "gemini", "voyage", "cohere", "openai", "jina", "local", "all"]
+provides-extras = ["data", "dashscope", "volcengine", "gemini", "voyage", "cohere", "openai", "jina", "local", "qwen-vl", "all"]
 
 [package.metadata.requires-dev]
-dev = [{ name = "jsonschema", specifier = ">=4.23" }]
+dev = [
+    { name = "jsonschema", specifier = ">=4.23" },
+    { name = "pytest", specifier = ">=8.0" },
+]
 
 [[package]]
 name = "mpmath"

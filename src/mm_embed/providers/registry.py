@@ -23,6 +23,10 @@ PROVIDER_REGISTRY: dict[str, tuple[str, str]] = {
         "mm_embed.providers.deterministic_sparse_provider",
         "DeterministicSparseFixtureProvider",
     ),
+    "deterministic_multi_vector_fixture": (
+        "mm_embed.providers.deterministic_multi_vector_provider",
+        "DeterministicMultiVectorFixtureProvider",
+    ),
     "opensearch_neural_sparse": (
         "mm_embed.providers.opensearch_neural_sparse_provider",
         "OpenSearchNeuralSparseProvider",

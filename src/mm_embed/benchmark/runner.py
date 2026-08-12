@@ -13,6 +13,7 @@ from mm_embed.benchmark.registry import BenchmarkCatalog, RunManifest, RunTask, 
 from mm_embed.benchmark.results import append_jsonl, make_result_record, utc_now_iso
 from mm_embed.providers import get_provider
 from mm_embed.providers.sparse_base import SparseEmbeddingProvider
+from mm_embed.providers.multi_vector_base import MultiVectorProvider
 from mm_embed.tasks import get_task
 from mm_embed.tasks.base import EvalResult
 
@@ -159,6 +160,15 @@ class BenchmarkRunner:
                 raise ValueError("Sparse models require an explicitly sparse task")
             if model.representation_kind != "sparse_csr" and task.execution_kind == "sparse_exact":
                 raise ValueError("Sparse tasks require an explicitly sparse model")
+            if model.representation_kind == "multi_vector" and task.execution_kind != "multi_vector_exact":
+                raise ValueError("Multi-vector models require an explicitly multi-vector task")
+            if model.representation_kind != "multi_vector" and task.execution_kind == "multi_vector_exact":
+                raise ValueError("Multi-vector tasks require an explicitly multi-vector model")
+            if task.execution_kind == "multi_vector_exact":
+                if not isinstance(provider, MultiVectorProvider):
+                    raise TypeError("Multi-vector task provider does not implement MultiVectorProvider")
+                if (model.model_revision, model.representation_id, model.dimensions, model.query_route, model.document_route) != (provider.revision, provider.representation.representation_id, provider.representation.dimensions, provider.query_route.value, provider.document_route.value):
+                    raise ValueError("Multi-vector provider identity does not match the model registry contract")
             if task.execution_kind == "sparse_exact":
                 if not isinstance(provider, SparseEmbeddingProvider):
                     raise TypeError("Sparse task provider does not implement SparseEmbeddingProvider")
