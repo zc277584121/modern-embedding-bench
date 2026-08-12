@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "bm25Execution": {
+      "type": "object",
+      "required": ["tokenizer", "k1", "b", "build_s", "search_s", "index_bytes", "peak_rss_bytes"],
+      "properties": {
+        "tokenizer": {"const": "unicode-word-lower-v1"},
+        "k1": {"const": 1.2},
+        "b": {"const": 0.75},
+        "build_s": {"type": "number", "minimum": 0},
+        "search_s": {"type": "number", "minimum": 0},
+        "index_bytes": {"type": "integer", "minimum": 0},
+        "peak_rss_bytes": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "denseExecution": {
+      "type": "object",
+      "required": ["model_id", "revision", "trust_remote_code", "dimensions", "device", "normalize_embeddings", "similarity", "query_block_size", "document_block_size", "max_score_block_elements", "embedding_bytes", "encode_s", "search_s", "peak_rss_bytes", "peak_vram_bytes", "full_matrix_elements"],
+      "properties": {
+        "model_id": {"const": "sentence-transformers/all-MiniLM-L6-v2"},
+        "revision": {"const": "c9745ed1d9f207416be6d2e6f8de32d1f16199bf"},
+        "trust_remote_code": {"const": false},
+        "dimensions": {"const": 384},
+        "device": {"enum": ["cpu", "cuda"]},
+        "normalize_embeddings": {"const": true},
+        "similarity": {"const": "exact_cosine"},
+        "query_block_size": {"const": 32},
+        "document_block_size": {"const": 4096},
+        "max_score_block_elements": {"type": "integer", "minimum": 1, "maximum": 131072},
+        "embedding_bytes": {"type": "integer", "minimum": 1},
+        "encode_s": {"type": "number", "minimum": 0},
+        "search_s": {"type": "number", "minimum": 0},
+        "peak_rss_bytes": {"type": "integer", "minimum": 0},
+        "peak_vram_bytes": {"type": "integer", "minimum": 0},
+        "full_matrix_elements": {"type": "integer", "minimum": 1}
+      },
+      "additionalProperties": false
+    }
+  },
+  "type": "object",
+  "required": ["schema_version", "benchmark_version", "track", "method", "queries_evaluated", "documents_searched", "metrics", "execution", "rankings", "training_overlap"],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "benchmark_version": {"const": "beir-three-track-v0.1"},
+    "track": {"enum": ["scifact", "nfcorpus", "fiqa"]},
+    "method": {"enum": ["bm25", "dense"]},
+    "queries_evaluated": {"type": "integer", "minimum": 1},
+    "documents_searched": {"type": "integer", "minimum": 1},
+    "metrics": {
+      "type": "object",
+      "required": ["ndcg@10", "map@100", "mrr@10", "recall@10", "recall@100"],
+      "properties": {
+        "ndcg@10": {"type": "number", "minimum": 0, "maximum": 1},
+        "map@100": {"type": "number", "minimum": 0, "maximum": 1},
+        "mrr@10": {"type": "number", "minimum": 0, "maximum": 1},
+        "recall@10": {"type": "number", "minimum": 0, "maximum": 1},
+        "recall@100": {"type": "number", "minimum": 0, "maximum": 1}
+      },
+      "additionalProperties": false
+    },
+    "execution": {"type": "object"},
+    "rankings": {
+      "type": "object",
+      "required": ["path", "rows", "sha256", "depth"],
+      "properties": {
+        "path": {"type": "string"},
+        "rows": {"type": "integer", "minimum": 1},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "depth": {"const": 100}
+      },
+      "additionalProperties": false
+    },
+    "training_overlap": {
+      "type": "object",
+      "required": ["status", "zero_shot_claim_allowed"],
+      "properties": {
+        "status": {"const": "unknown"},
+        "zero_shot_claim_allowed": {"const": false}
+      },
+      "additionalProperties": false
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"method": {"const": "bm25"}}, "required": ["method"]},
+      "then": {"properties": {"execution": {"$ref": "#/$defs/bm25Execution"}}},
+      "else": {"properties": {"execution": {"$ref": "#/$defs/denseExecution"}}}
+    }
+  ],
+  "oneOf": [
+    {"properties": {"method": {"const": "bm25"}, "track": {"const": "scifact"}, "queries_evaluated": {"const": 300}, "documents_searched": {"const": 5183}, "rankings": {"properties": {"path": {"const": "bm25-scifact.rankings.jsonl"}, "rows": {"const": 30000}}}}},
+    {"properties": {"method": {"const": "dense"}, "track": {"const": "scifact"}, "queries_evaluated": {"const": 300}, "documents_searched": {"const": 5183}, "execution": {"properties": {"embedding_bytes": {"const": 8421888}, "max_score_block_elements": {"const": 131072}, "full_matrix_elements": {"const": 1554900}}}, "rankings": {"properties": {"path": {"const": "dense-scifact.rankings.jsonl"}, "rows": {"const": 30000}}}}},
+    {"properties": {"method": {"const": "bm25"}, "track": {"const": "nfcorpus"}, "queries_evaluated": {"const": 323}, "documents_searched": {"const": 3633}, "rankings": {"properties": {"path": {"const": "bm25-nfcorpus.rankings.jsonl"}, "rows": {"const": 32300}}}}},
+    {"properties": {"method": {"const": "dense"}, "track": {"const": "nfcorpus"}, "queries_evaluated": {"const": 323}, "documents_searched": {"const": 3633}, "execution": {"properties": {"embedding_bytes": {"const": 6076416}, "max_score_block_elements": {"const": 116256}, "full_matrix_elements": {"const": 1173459}}}, "rankings": {"properties": {"path": {"const": "dense-nfcorpus.rankings.jsonl"}, "rows": {"const": 32300}}}}},
+    {"properties": {"method": {"const": "bm25"}, "track": {"const": "fiqa"}, "queries_evaluated": {"const": 648}, "documents_searched": {"const": 57638}, "rankings": {"properties": {"path": {"const": "bm25-fiqa.rankings.jsonl"}, "rows": {"const": 64800}}}}},
+    {"properties": {"method": {"const": "dense"}, "track": {"const": "fiqa"}, "queries_evaluated": {"const": 648}, "documents_searched": {"const": 57638}, "execution": {"properties": {"embedding_bytes": {"const": 89527296}, "max_score_block_elements": {"const": 131072}, "full_matrix_elements": {"const": 37349424}}}, "rankings": {"properties": {"path": {"const": "dense-fiqa.rankings.jsonl"}, "rows": {"const": 64800}}}}}
+  ],
+  "additionalProperties": false
+}

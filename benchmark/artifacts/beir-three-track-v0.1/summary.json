@@ -1,0 +1,47 @@
+{
+  "benchmark_version": "beir-three-track-v0.1",
+  "generated_from_local_fixed_archives": true,
+  "publish_gate": "closed_pending_dataset_specific_license_and_redistribution_review",
+  "audit_pack": {
+    "rows": 150,
+    "sha256": "8e7902858b1d295522d1fece60399ff8a5855cc621c61acdfc1999653c5dfed3"
+  },
+  "tracks": {
+    "scifact": {
+      "documents": 5183,
+      "queries": 300,
+      "qrels": 339,
+      "bm25": {"ndcg@10": 0.6634477520519494, "map@100": 0.6231540925452861, "mrr@10": 0.6308915343915344, "recall@10": 0.7876111111111112, "recall@100": 0.8825555555555555},
+      "dense": {"ndcg@10": 0.6450816521455774, "map@100": 0.6030740834806814, "mrr@10": 0.6047248677248678, "recall@10": 0.7833333333333333, "recall@100": 0.925}
+    },
+    "nfcorpus": {
+      "documents": 3633,
+      "queries": 323,
+      "qrels": 12334,
+      "exact_duplicate_groups": 40,
+      "bm25": {"ndcg@10": 0.3073099066564784, "map@100": 0.13848088544208012, "mrr@10": 0.5137119760184776, "recall@10": 0.1486339905628572, "recall@100": 0.23595914653349132},
+      "dense": {"ndcg@10": 0.31727151366759654, "map@100": 0.14278148333399812, "mrr@10": 0.5076539387684896, "recall@10": 0.15498797328057842, "recall@100": 0.3115099240116931}
+    },
+    "fiqa": {
+      "documents": 57638,
+      "queries": 648,
+      "qrels": 1706,
+      "empty_documents": 38,
+      "qrels_to_empty_documents": 1,
+      "exact_duplicate_groups": 2,
+      "bm25": {"ndcg@10": 0.2376639261458518, "map@100": 0.18904256834781305, "mrr@10": 0.29520441407015474, "recall@10": 0.3017042628153741, "recall@100": 0.5089855703281629},
+      "dense": {"ndcg@10": 0.36867136984071597, "map@100": 0.30956063389266836, "mrr@10": 0.44512235449735443, "recall@10": 0.44130556086574607, "recall@100": 0.7060569574458465}
+    }
+  },
+  "dense_model": {
+    "id": "sentence-transformers/all-MiniLM-L6-v2",
+    "revision": "c9745ed1d9f207416be6d2e6f8de32d1f16199bf",
+    "trust_remote_code": false,
+    "dimensions": 384,
+    "query_block_size": 32,
+    "document_block_size": 4096,
+    "maximum_score_block_elements": 131072,
+    "training_overlap_status": "unknown",
+    "zero_shot_claim_allowed": false
+  }
+}
