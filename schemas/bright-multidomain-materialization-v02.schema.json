@@ -1,0 +1,265 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/schemas/bright-multidomain-materialization-v02.schema.json",
+  "$defs": {
+    "hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "file": {
+      "type": "object",
+      "required": ["path", "bytes", "sha256"],
+      "properties": {
+        "path": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"},
+        "rows": {"type": "integer", "minimum": 0},
+        "bytes": {"type": "integer", "minimum": 1},
+        "sha256": {"$ref": "#/$defs/hash"}
+      },
+      "additionalProperties": false
+    },
+    "trackFiles": {
+      "type": "object",
+      "required": ["corpus.jsonl", "queries.jsonl", "qrels.jsonl", "selection.jsonl", "audit.json", "sensitive-evidence.jsonl"],
+      "properties": {
+        "corpus.jsonl": {"allOf": [{"$ref": "#/$defs/file"}, {"properties": {"path": {"const": "corpus.jsonl"}, "rows": {"const": 7500}}, "required": ["rows"]}]},
+        "queries.jsonl": {"$ref": "#/$defs/file"},
+        "qrels.jsonl": {"$ref": "#/$defs/file"},
+        "selection.jsonl": {"allOf": [{"$ref": "#/$defs/file"}, {"properties": {"path": {"const": "selection.jsonl"}, "rows": {"const": 7500}}, "required": ["rows"]}]},
+        "audit.json": {"allOf": [{"$ref": "#/$defs/file"}, {"properties": {"path": {"const": "audit.json"}}}]},
+        "sensitive-evidence.jsonl": {"allOf": [{"$ref": "#/$defs/file"}, {"properties": {"path": {"const": "sensitive-evidence.jsonl"}}, "required": ["rows"]}]}
+      },
+      "additionalProperties": false
+    },
+    "sourceFile": {
+      "type": "object",
+      "required": ["role", "url", "bytes", "rows", "sha256"],
+      "properties": {
+        "role": {"enum": ["documents", "examples"]},
+        "url": {"type": "string", "pattern": "^https://huggingface\\.co/datasets/xlangai/BRIGHT/resolve/3066d29c9651a576c8aba4832d249807b181ecae/(documents|examples)/(economics|psychology)-00000-of-00001\\.parquet$"},
+        "bytes": {"type": "integer", "minimum": 1},
+        "rows": {"type": "integer", "minimum": 1},
+        "sha256": {"$ref": "#/$defs/hash"}
+      },
+      "additionalProperties": false
+    },
+    "track": {
+      "type": "object",
+      "required": ["documents", "queries", "positive_qrels", "selection_ids_sha256", "source_files", "files"],
+      "properties": {
+        "documents": {"const": 7500},
+        "queries": {"type": "integer", "minimum": 1},
+        "positive_qrels": {"type": "integer", "minimum": 1},
+        "selection_ids_sha256": {"$ref": "#/$defs/hash"},
+        "source_files": {"type": "array", "items": {"$ref": "#/$defs/sourceFile"}, "minItems": 2, "maxItems": 2},
+        "files": {"$ref": "#/$defs/trackFiles"}
+      },
+      "additionalProperties": false
+    },
+    "truncationRole": {
+      "type": "object",
+      "required": ["total", "by_cap"],
+      "properties": {
+        "total": {"type": "integer", "minimum": 1},
+        "by_cap": {
+          "type": "object",
+          "required": ["512", "1024", "2048", "4096", "8192"],
+          "properties": {
+            "512": {"$ref": "#/$defs/truncationValue"},
+            "1024": {"$ref": "#/$defs/truncationValue"},
+            "2048": {"$ref": "#/$defs/truncationValue"},
+            "4096": {"$ref": "#/$defs/truncationValue"},
+            "8192": {"$ref": "#/$defs/truncationValue"}
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "truncationValue": {
+      "type": "object",
+      "required": ["truncated", "rate"],
+      "properties": {
+        "truncated": {"type": "integer", "minimum": 0},
+        "rate": {"type": "number", "minimum": 0, "maximum": 1}
+      },
+      "additionalProperties": false
+    },
+    "truncationTrack": {
+      "type": "object",
+      "required": ["queries", "candidates", "gold_documents"],
+      "properties": {
+        "queries": {"$ref": "#/$defs/truncationRole"},
+        "candidates": {"$ref": "#/$defs/truncationRole"},
+        "gold_documents": {"$ref": "#/$defs/truncationRole"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "type": "object",
+  "required": ["schema_version", "benchmark_version", "source", "protocol", "selection", "aggregate", "review_plan", "long_dense", "publication", "tracks"],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "benchmark_version": {"const": "bright-nontechnical-pilot-v0.2"},
+    "source": {
+      "type": "object",
+      "required": ["dataset", "revision", "trust_remote_code"],
+      "properties": {
+        "dataset": {"const": "xlangai/BRIGHT"},
+        "revision": {"const": "3066d29c9651a576c8aba4832d249807b181ecae"},
+        "trust_remote_code": {"const": false}
+      },
+      "additionalProperties": false
+    },
+    "protocol": {
+      "type": "object",
+      "required": ["tracks", "independent_candidate_pools", "cross_track_or_biology_comparison_allowed", "text_protocol", "qrels", "gold_ids_long", "excluded_ids", "ranking_depth", "metrics"],
+      "properties": {
+        "tracks": {"const": ["economics", "psychology"]},
+        "independent_candidate_pools": {"const": true},
+        "cross_track_or_biology_comparison_allowed": {"const": false},
+        "text_protocol": {"const": "content.strip() for documents; query.strip() for queries"},
+        "qrels": {"const": "source gold_ids become grade-1 positives"},
+        "gold_ids_long": {"const": "restricted provenance only"},
+        "excluded_ids": {"const": "filter before ranking and metrics; never negative qrels"},
+        "ranking_depth": {"const": 100},
+        "metrics": {"const": ["ndcg@10", "map@100", "mrr@10", "recall@10", "recall@100"]}
+      },
+      "additionalProperties": false
+    },
+    "selection": {
+      "type": "object",
+      "required": ["salt", "target_documents_per_track", "model_score_used", "exact_content_deduplication", "policy"],
+      "properties": {
+        "salt": {"const": "bright-nontechnical-pilot-v0.2"},
+        "target_documents_per_track": {"const": 7500},
+        "model_score_used": {"const": false},
+        "exact_content_deduplication": {"const": true},
+        "policy": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "aggregate": {
+      "type": "object",
+      "required": ["tracks", "documents", "queries", "positive_qrels", "cross_track_shared_exact_content_values"],
+      "properties": {
+        "tracks": {"const": 2},
+        "documents": {"const": 15000},
+        "queries": {"const": 204},
+        "positive_qrels": {"const": 1492},
+        "cross_track_shared_exact_content_values": {"const": 25}
+      },
+      "additionalProperties": false
+    },
+    "review_plan": {
+      "type": "object",
+      "required": ["path", "rows", "bytes", "sha256", "allocation", "fixed_before_model_runs", "model_score_used", "selection_salt"],
+      "properties": {
+        "path": {"const": "review-plan-120.jsonl"},
+        "rows": {"const": 120},
+        "bytes": {"type": "integer", "minimum": 1},
+        "sha256": {"$ref": "#/$defs/hash"},
+        "allocation": {"const": {"economics": 60, "psychology": 60}},
+        "fixed_before_model_runs": {"const": true},
+        "model_score_used": {"const": false},
+        "selection_salt": {"const": "bright-nontechnical-pilot-v0.2-review-plan-120"}
+      },
+      "additionalProperties": false
+    },
+    "long_dense": {
+      "type": "object",
+      "required": ["method", "model", "cap_selection"],
+      "properties": {
+        "method": {"const": "long_dense"},
+        "model": {
+          "type": "object",
+          "required": ["repo_id", "revision", "files", "bytes", "aggregate_sha256", "trust_remote_code", "representation", "declared_max_sequence_length"],
+          "properties": {
+            "repo_id": {"const": "BAAI/bge-m3"},
+            "revision": {"const": "5617a9f61b028005a4858fdac845db406aefb181"},
+            "files": {"const": 13},
+            "bytes": {"const": 2295435813},
+            "aggregate_sha256": {"const": "9bfc0c6488e958ec7be6223d95c331c9692c4ae47212a9730cb38ccc190e6cec"},
+            "trust_remote_code": {"const": false},
+            "representation": {"const": "SentenceTransformer dense representation"},
+            "declared_max_sequence_length": {"const": 8192}
+          },
+          "additionalProperties": false
+        },
+        "cap_selection": {
+          "type": "object",
+          "required": ["candidate_caps", "criterion", "gold_truncation_threshold", "selected_cap", "score_used", "fixed_before_model_scoring", "token_length_semantics", "tracks"],
+          "properties": {
+            "candidate_caps": {"const": [512, 1024, 2048, 4096, 8192]},
+            "criterion": {"const": "minimum cap with unique-gold-document truncation rate <= 0.10 in every track"},
+            "gold_truncation_threshold": {"const": 0.1},
+            "selected_cap": {"const": 1024},
+            "score_used": {"const": false},
+            "fixed_before_model_scoring": {"const": true},
+            "token_length_semantics": {"const": "tokenizer input length including special tokens; truncated iff length exceeds cap"},
+            "tracks": {
+              "type": "object",
+              "required": ["economics", "psychology"],
+              "properties": {
+                "economics": {"$ref": "#/$defs/truncationTrack"},
+                "psychology": {"$ref": "#/$defs/truncationTrack"}
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "publication": {
+      "type": "object",
+      "required": ["classification", "public_export_allowed", "gate", "restricted_artifacts"],
+      "properties": {
+        "classification": {"const": "research_only"},
+        "public_export_allowed": {"const": false},
+        "gate": {"const": "closed_pending_upstream_web_content_rights_review"},
+        "restricted_artifacts": {"const": ["corpus", "queries", "qrels", "rankings", "review_plan", "review_pack", "failure_cases"]}
+      },
+      "additionalProperties": false
+    },
+    "tracks": {
+      "type": "object",
+      "required": ["economics", "psychology"],
+      "properties": {
+        "economics": {
+          "allOf": [
+            {"$ref": "#/$defs/track"},
+            {
+              "properties": {
+                "queries": {"const": 103},
+                "positive_qrels": {"const": 800},
+                "selection_ids_sha256": {"const": "13e2bf56644a8d5b8d8701be74ead7b0f147057bbda34e6a8f246b515f4b1398"},
+                "source_files": {"const": [
+                  {"role": "documents", "url": "https://huggingface.co/datasets/xlangai/BRIGHT/resolve/3066d29c9651a576c8aba4832d249807b181ecae/documents/economics-00000-of-00001.parquet", "bytes": 10969621, "sha256": "f3ba8a0fbc9a9aed07b4970cc686e32cfefcd06d6922402587adf871f006394c", "rows": 50220},
+                  {"role": "examples", "url": "https://huggingface.co/datasets/xlangai/BRIGHT/resolve/3066d29c9651a576c8aba4832d249807b181ecae/examples/economics-00000-of-00001.parquet", "bytes": 219518, "sha256": "2a79f0f3a881c7c03a258cf8ef8ac2db1ca9080963252d9a020bb45a264aa037", "rows": 103}
+                ]},
+                "files": {"properties": {"queries.jsonl": {"properties": {"path": {"const": "queries.jsonl"}, "rows": {"const": 103}}, "required": ["rows"]}, "qrels.jsonl": {"properties": {"path": {"const": "qrels.jsonl"}, "rows": {"const": 800}}, "required": ["rows"]}}}
+              }
+            }
+          ]
+        },
+        "psychology": {
+          "allOf": [
+            {"$ref": "#/$defs/track"},
+            {
+              "properties": {
+                "queries": {"const": 101},
+                "positive_qrels": {"const": 692},
+                "selection_ids_sha256": {"const": "d56ba2a26cc69163b412c35ebea5c1fa5141ab03fe54215a19abd053d516d3e4"},
+                "source_files": {"const": [
+                  {"role": "documents", "url": "https://huggingface.co/datasets/xlangai/BRIGHT/resolve/3066d29c9651a576c8aba4832d249807b181ecae/documents/psychology-00000-of-00001.parquet", "bytes": 11430533, "sha256": "085d381739cb24b4227dfaf577f39d0adcad8b7b1ae74be028ac239d37be3c1d", "rows": 52835},
+                  {"role": "examples", "url": "https://huggingface.co/datasets/xlangai/BRIGHT/resolve/3066d29c9651a576c8aba4832d249807b181ecae/examples/psychology-00000-of-00001.parquet", "bytes": 183889, "sha256": "404e7dff2a4528419df0bdc162541e92138e35b78918d82d3a04ade5b8f7876b", "rows": 101}
+                ]},
+                "files": {"properties": {"queries.jsonl": {"properties": {"path": {"const": "queries.jsonl"}, "rows": {"const": 101}}, "required": ["rows"]}, "qrels.jsonl": {"properties": {"path": {"const": "qrels.jsonl"}, "rows": {"const": 692}}, "required": ["rows"]}}}
+              }
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

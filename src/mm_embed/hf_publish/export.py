@@ -3,11 +3,16 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
 import math
+import os
 import re
 import shutil
+import stat
+import tempfile
 from collections import Counter, defaultdict
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -1131,48 +1136,573 @@ def export_dataset_repo(
     return output
 
 
-def _copy_benchmark_data(data_root: Path, output: Path, *, include_images: bool) -> None:
-    if not data_root.exists():
+@dataclass(frozen=True)
+class _BenchmarkCopyLimits:
+    max_depth: int = 32
+    max_entries: int = 100_000
+    max_aggregate_bytes: int = 20 * 1024 * 1024 * 1024
+    max_scan_bytes: int = 20 * 1024 * 1024 * 1024
+
+
+@dataclass(frozen=True)
+class _BenchmarkCopyEntry:
+    source: Path
+    relative: Path
+    device: int
+    inode: int
+    mode: int
+    size: int
+    mtime_ns: int
+    ctime_ns: int
+    sha256: str
+
+
+@dataclass(frozen=True)
+class _BenchmarkCopyPlan:
+    files: tuple[_BenchmarkCopyEntry, ...]
+    tree_paths: frozenset[Path]
+    entry_count: int
+    aggregate_bytes: int
+    scan_bytes: int
+
+
+_DEFAULT_BENCHMARK_COPY_LIMITS = _BenchmarkCopyLimits()
+_COPY_CHUNK_BYTES = 1024 * 1024
+
+
+def _deny_benchmark_export(detail: str) -> None:
+    raise ValueError(f"public export denied for unsafe benchmark data tree: {detail}")
+
+
+def _stat_matches_copy_entry(value: os.stat_result, entry: _BenchmarkCopyEntry) -> bool:
+    return (
+        stat.S_ISREG(value.st_mode)
+        and value.st_dev == entry.device
+        and value.st_ino == entry.inode
+        and value.st_mode == entry.mode
+        and value.st_size == entry.size
+        and value.st_mtime_ns == entry.mtime_ns
+        and value.st_ctime_ns == entry.ctime_ns
+    )
+
+
+def _open_bound_copy_source(entry: _BenchmarkCopyEntry) -> int:
+    no_follow = getattr(os, "O_NOFOLLOW", None)
+    if no_follow is None:
+        _deny_benchmark_export("O_NOFOLLOW is unavailable on this platform")
+    flags = os.O_RDONLY | no_follow | getattr(os, "O_CLOEXEC", 0)
+    try:
+        descriptor = os.open(entry.source, flags)
+    except OSError as exc:
+        _deny_benchmark_export(f"source file cannot be opened safely: {entry.relative}: {exc}")
+    try:
+        opened_stat = os.fstat(descriptor)
+    except OSError as exc:
+        os.close(descriptor)
+        _deny_benchmark_export(f"source file cannot be bound: {entry.relative}: {exc}")
+    if not _stat_matches_copy_entry(opened_stat, entry):
+        os.close(descriptor)
+        _deny_benchmark_export(f"source file changed after preflight: {entry.relative}")
+    return descriptor
+
+
+def _digest_preflight_copy_source(entry: _BenchmarkCopyEntry) -> str:
+    descriptor = _open_bound_copy_source(entry)
+    digest = hashlib.sha256()
+    consumed = 0
+    try:
+        with os.fdopen(descriptor, "rb", closefd=True) as handle:
+            while chunk := handle.read(_COPY_CHUNK_BYTES):
+                consumed += len(chunk)
+                if consumed > entry.size:
+                    _deny_benchmark_export(f"source file grew during preflight: {entry.relative}")
+                digest.update(chunk)
+            final_stat = os.fstat(handle.fileno())
+    except OSError as exc:
+        _deny_benchmark_export(f"source file cannot be read safely: {entry.relative}: {exc}")
+    if consumed != entry.size or not _stat_matches_copy_entry(final_stat, entry):
+        _deny_benchmark_export(f"source file changed during preflight: {entry.relative}")
+    return digest.hexdigest()
+
+
+def _preflight_benchmark_copy_tree(
+    data_root: Path,
+    *,
+    include_images: bool,
+    limits: _BenchmarkCopyLimits,
+) -> _BenchmarkCopyPlan | None:
+    """Stream tree metadata through fixed limits, then bind every planned file."""
+    try:
+        root_mode = data_root.lstat().st_mode
+    except FileNotFoundError:
+        return None
+    except OSError as exc:
+        _deny_benchmark_export(f"source root cannot be inspected: {exc}")
+    if stat.S_ISLNK(root_mode) or not stat.S_ISDIR(root_mode):
+        _deny_benchmark_export("source root must be a real directory")
+
+    pending_directories = [(data_root, Path(), 0)]
+    unbound_files: list[_BenchmarkCopyEntry] = []
+    tree_paths: set[Path] = set()
+    entry_count = 0
+    aggregate_bytes = 0
+    scan_bytes = 0
+    while pending_directories:
+        directory, relative_directory, directory_depth = pending_directories.pop()
+        try:
+            iterator = os.scandir(directory)
+        except OSError as exc:
+            _deny_benchmark_export(f"source directory cannot be enumerated: {relative_directory}: {exc}")
+        with iterator:
+            for directory_entry in iterator:
+                relative = relative_directory / directory_entry.name
+                depth = directory_depth + 1
+                entry_count += 1
+                if depth > limits.max_depth:
+                    _deny_benchmark_export(f"source tree exceeds depth limit {limits.max_depth}: {relative}")
+                if entry_count > limits.max_entries:
+                    _deny_benchmark_export(f"source tree exceeds entry limit {limits.max_entries}")
+                tree_paths.add(relative)
+                try:
+                    metadata = directory_entry.stat(follow_symlinks=False)
+                except OSError as exc:
+                    _deny_benchmark_export(f"source entry cannot be inspected: {relative}: {exc}")
+                if stat.S_ISLNK(metadata.st_mode):
+                    _deny_benchmark_export(f"source entry is a symlink: {relative}")
+                source = Path(directory_entry.path)
+                if stat.S_ISDIR(metadata.st_mode):
+                    pending_directories.append((source, relative, depth))
+                    continue
+                if not stat.S_ISREG(metadata.st_mode):
+                    _deny_benchmark_export(f"source entry is not a regular file: {relative}")
+                aggregate_bytes += metadata.st_size
+                if aggregate_bytes > limits.max_aggregate_bytes:
+                    _deny_benchmark_export(
+                        f"source tree exceeds aggregate byte limit {limits.max_aggregate_bytes}"
+                    )
+                if _should_skip_data_file(relative, include_images=include_images):
+                    continue
+                scan_bytes += metadata.st_size
+                if scan_bytes > limits.max_scan_bytes:
+                    _deny_benchmark_export(f"source tree exceeds scan byte limit {limits.max_scan_bytes}")
+                unbound_files.append(
+                    _BenchmarkCopyEntry(
+                        source=source,
+                        relative=relative,
+                        device=metadata.st_dev,
+                        inode=metadata.st_ino,
+                        mode=metadata.st_mode,
+                        size=metadata.st_size,
+                        mtime_ns=metadata.st_mtime_ns,
+                        ctime_ns=metadata.st_ctime_ns,
+                        sha256="",
+                    )
+                )
+
+    bound_files = []
+    for entry in sorted(unbound_files, key=lambda item: item.relative):
+        bound_files.append(
+            _BenchmarkCopyEntry(
+                source=entry.source,
+                relative=entry.relative,
+                device=entry.device,
+                inode=entry.inode,
+                mode=entry.mode,
+                size=entry.size,
+                mtime_ns=entry.mtime_ns,
+                ctime_ns=entry.ctime_ns,
+                sha256=_digest_preflight_copy_source(entry),
+            )
+        )
+    return _BenchmarkCopyPlan(
+        files=tuple(bound_files),
+        tree_paths=frozenset(tree_paths),
+        entry_count=entry_count,
+        aggregate_bytes=aggregate_bytes,
+        scan_bytes=scan_bytes,
+    )
+
+
+def _stage_preflighted_benchmark_files(plan: _BenchmarkCopyPlan, staging: Path) -> None:
+    """Copy and digest the exact already-bound source objects into private staging."""
+    for entry in plan.files:
+        destination = staging / entry.relative
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        descriptor = _open_bound_copy_source(entry)
+        digest = hashlib.sha256()
+        consumed = 0
+        try:
+            with os.fdopen(descriptor, "rb", closefd=True) as source_handle:
+                with destination.open("xb") as destination_handle:
+                    while chunk := source_handle.read(_COPY_CHUNK_BYTES):
+                        consumed += len(chunk)
+                        if consumed > entry.size:
+                            _deny_benchmark_export(f"source file grew during copy: {entry.relative}")
+                        destination_handle.write(chunk)
+                        digest.update(chunk)
+                    destination_handle.flush()
+                    os.fsync(destination_handle.fileno())
+                final_stat = os.fstat(source_handle.fileno())
+        except OSError as exc:
+            _deny_benchmark_export(f"source file cannot be copied safely: {entry.relative}: {exc}")
+        if (
+            consumed != entry.size
+            or digest.hexdigest() != entry.sha256
+            or not _stat_matches_copy_entry(final_stat, entry)
+        ):
+            _deny_benchmark_export(f"source file changed after preflight: {entry.relative}")
+
+
+def _verify_staged_benchmark_files(
+    source_plan: _BenchmarkCopyPlan,
+    staging: Path,
+    limits: _BenchmarkCopyLimits,
+) -> None:
+    """Rebind staged bytes after content validation and before atomic publication."""
+    staged_plan = _preflight_benchmark_copy_tree(staging, include_images=True, limits=limits)
+    assert staged_plan is not None
+    expected_paths: set[Path] = set()
+    for entry in source_plan.files:
+        expected_paths.add(entry.relative)
+        for parent in entry.relative.parents:
+            if parent != Path("."):
+                expected_paths.add(parent)
+    if staged_plan.tree_paths != expected_paths:
+        _deny_benchmark_export("staging tree changed before publication")
+    source_digests = {entry.relative: (entry.size, entry.sha256) for entry in source_plan.files}
+    staged_digests = {entry.relative: (entry.size, entry.sha256) for entry in staged_plan.files}
+    if staged_digests != source_digests:
+        _deny_benchmark_export("staged bytes differ from validated source bytes")
+
+
+def _copy_benchmark_data(
+    data_root: Path,
+    output: Path,
+    *,
+    include_images: bool,
+    _limits: _BenchmarkCopyLimits | None = None,
+) -> None:
+    limits = _limits or _DEFAULT_BENCHMARK_COPY_LIMITS
+    copy_plan = _preflight_benchmark_copy_tree(data_root, include_images=include_images, limits=limits)
+    if copy_plan is None:
         output.mkdir(parents=True, exist_ok=True)
         (output / "README.md").write_text("Local data directory was not found.\n", encoding="utf-8")
         return
+    if output.exists() or output.is_symlink():
+        _deny_benchmark_export("output path already exists")
 
     _reject_restricted_materializations(data_root)
 
-    for path in sorted(data_root.rglob("*")):
-        if path.is_dir():
-            continue
-        rel = path.relative_to(data_root)
-        if _should_skip_data_file(rel, include_images=include_images):
-            continue
-        _copy_if_exists(path, output / rel)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    staging = Path(tempfile.mkdtemp(prefix=f".{output.name}.staging-", dir=output.parent))
+    try:
+        staging.chmod(0o700)
+        _stage_preflighted_benchmark_files(copy_plan, staging)
+        _reject_restricted_materializations(staging)
+        _verify_staged_benchmark_files(copy_plan, staging, limits)
 
-    note = [
-        "# Benchmark Data Export",
-        "",
-        "This folder mirrors selected local benchmark input data.",
-        "",
-        "Embedding caches, tool caches, numpy arrays, and temporary files are intentionally skipped.",
-    ]
-    if not include_images:
-        note.append("Image files were skipped. Re-run with `--include-images` to bundle image assets.")
-    (output / "README.md").write_text("\n".join(note) + "\n", encoding="utf-8")
+        note = [
+            "# Benchmark Data Export",
+            "",
+            "This folder mirrors selected local benchmark input data.",
+            "",
+            "Embedding caches, tool caches, numpy arrays, and temporary files are intentionally skipped.",
+        ]
+        if not include_images:
+            note.append("Image files were skipped. Re-run with `--include-images` to bundle image assets.")
+        (staging / "README.md").write_text("\n".join(note) + "\n", encoding="utf-8")
+        os.rename(staging, output)
+    except Exception as exc:
+        shutil.rmtree(staging, ignore_errors=True)
+        if isinstance(exc, ValueError) and "public export denied" in str(exc):
+            raise
+        _deny_benchmark_export(f"transactional copy failed: {exc}")
+
+
+def _is_safe_bright_v02_aggregate(value: object, benchmark_version: str) -> bool:
+    """Recognize the two commit-safe aggregate contracts by content."""
+    if not isinstance(value, dict) or value.get("benchmark_version") != benchmark_version:
+        return False
+    if value.get("restricted_text_or_identifiers_included") is not False:
+        return False
+    publication = value.get("publication")
+    if not isinstance(publication, dict) or publication.get("public_export_allowed") is not False:
+        return False
+    safe_manifest = set(value) == {
+        "schema_version",
+        "benchmark_version",
+        "summary",
+        "restricted_text_or_identifiers_included",
+        "publication",
+    }
+    safe_summary = {"scope", "tracks", "artifact_identities", "claim_boundaries"} <= set(value)
+    if not (safe_manifest or safe_summary):
+        return False
+
+    def contains_restricted_row_fields(item: object, depth: int = 0) -> bool:
+        if depth > 32:
+            return True
+        if isinstance(item, dict):
+            keys = set(item)
+            if {"query_id", "document_id"} & keys:
+                return True
+            if any(isinstance(item.get(key), str) for key in ("query", "content")):
+                return True
+            if any(isinstance(item.get(key), list) for key in ("gold_ids", "gold_ids_long")):
+                return True
+            if {"rank", "score"} <= keys:
+                return True
+            return any(contains_restricted_row_fields(child, depth + 1) for child in item.values())
+        if isinstance(item, list):
+            return any(contains_restricted_row_fields(child, depth + 1) for child in item)
+        return False
+
+    return not contains_restricted_row_fields(value)
+
+
+def _validate_bright_v02_safe_aggregate_tree(copy_root: Path, benchmark_version: str) -> bool:
+    """Validate the complete source tree when it is a safe v0.2 aggregate root."""
+    manifest_path = copy_root / "manifest.json"
+    summary_path = copy_root / "summary.json"
+    max_contract_bytes = 4 * 1024 * 1024
+
+    def deny(detail: str) -> None:
+        raise ValueError(f"public export denied for invalid BRIGHT v0.2 safe aggregate tree: {detail}")
+
+    def load_contract(path: Path) -> tuple[object | None, bytes | None]:
+        try:
+            if not path.is_file():
+                return None, None
+            with path.open("rb") as handle:
+                data = handle.read(max_contract_bytes + 1)
+            if len(data) > max_contract_bytes:
+                return None, None
+            return json.loads(data.decode("utf-8")), data
+        except (FileNotFoundError, OSError, UnicodeDecodeError, json.JSONDecodeError):
+            return None, None
+
+    manifest, _ = load_contract(manifest_path)
+    summary, summary_bytes = load_contract(summary_path)
+    manifest_is_safe = _is_safe_bright_v02_aggregate(manifest, benchmark_version)
+    summary_is_safe = _is_safe_bright_v02_aggregate(summary, benchmark_version)
+    if not manifest_is_safe and not summary_is_safe:
+        return False
+    if not manifest_is_safe or not summary_is_safe:
+        deny("manifest.json and summary.json must both be valid safe aggregate contracts")
+
+    if copy_root.is_symlink():
+        deny("source root is a symlink")
+    try:
+        entries = list(copy_root.iterdir())
+    except OSError as exc:
+        deny(f"source tree cannot be enumerated: {exc}")
+    allowed_names = {"manifest.json", "summary.json"}
+    if {entry.name for entry in entries} != allowed_names or len(entries) != len(allowed_names):
+        deny("source tree must contain exactly manifest.json and summary.json")
+    for entry in entries:
+        try:
+            mode = entry.lstat().st_mode
+        except OSError as exc:
+            deny(f"source entry cannot be inspected: {entry.name}: {exc}")
+        if entry.is_symlink() or not stat.S_ISREG(mode):
+            deny(f"source entry is not a regular file: {entry.name}")
+
+    summary_contract = manifest.get("summary")
+    if not isinstance(summary_contract, dict) or summary_contract.get("path") != "summary.json":
+        deny("manifest summary path is not exactly summary.json")
+    assert summary_bytes is not None
+    if summary_contract.get("bytes") != len(summary_bytes):
+        deny("summary byte count does not match manifest")
+    if summary_contract.get("sha256") != hashlib.sha256(summary_bytes).hexdigest():
+        deny("summary SHA256 does not match manifest")
+    return True
+
+
+def _restricted_bright_object_reason(value: object, benchmark_version: str) -> str | None:
+    """Recursively classify one decoded JSON value with a fixed depth bound."""
+
+    def classify(item: object, depth: int) -> str | None:
+        if depth > 32:
+            return "excessively nested JSON content"
+        if _is_safe_bright_v02_aggregate(item, benchmark_version):
+            return None
+        if isinstance(item, list):
+            for child in item:
+                if reason := classify(child, depth + 1):
+                    return reason
+            return None
+        if not isinstance(item, dict):
+            return None
+
+        keys = set(item)
+        if item.get("benchmark_version") == benchmark_version:
+            publication = item.get("publication")
+            if (
+                isinstance(publication, dict)
+                and (
+                    publication.get("classification") == "research_only"
+                    or publication.get("public_export_allowed") is False
+                )
+            ):
+                return "research-only BRIGHT v0.2 JSON contract"
+            if {"track", "method", "rankings", "per_query_metrics"} <= keys:
+                return "BRIGHT v0.2 result contract"
+            if {"review_plan_sha256", "audit_pack", "failure_cases"} <= keys:
+                return "BRIGHT v0.2 audit contract"
+        if {"query_id", "rank", "document_id", "score"} <= keys:
+            return "retrieval ranking rows"
+        if keys == {"query_id", "metrics"}:
+            return "per-query retrieval metric rows"
+        if {"id", "text", "gold_ids_long", "excluded_ids"} <= keys:
+            return "BRIGHT v0.2 materialized query rows"
+        if {"query_id", "document_id", "grade"} <= keys:
+            return "BRIGHT v0.2 materialized qrel rows"
+        if {"document_id", "content_sha256", "reason"} <= keys:
+            return "BRIGHT v0.2 materialized selection rows"
+        if {
+            "track",
+            "role",
+            "record_id_sha256",
+            "pattern",
+            "classification",
+            "match_sha256",
+            "context_sha256",
+            "raw_text_included",
+        } <= keys:
+            return "BRIGHT v0.2 sensitive-evidence rows"
+        if {"query_id", "query", "gold_ids", "gold_documents", "baseline_top10_union"} <= keys:
+            return "deep-review audit pack rows"
+        if {"case_sha256", "query_id", "query", "gold_ids", "metrics"} <= keys:
+            return "complete retrieval failure-case rows"
+        if {"query_id", "query", "gold_ids", "gold_ids_long", "strata", "selection"} <= keys:
+            return "pre-model review-plan rows"
+        for child in item.values():
+            if reason := classify(child, depth + 1):
+                return reason
+        return None
+
+    return classify(value, 0)
+
+
+_TEXT_BOM_MARKERS = (
+    b"\xef\xbb\xbf",
+    b"\xff\xfe\x00\x00",
+    b"\x00\x00\xfe\xff",
+    b"\xff\xfe",
+    b"\xfe\xff",
+)
+
+
+def _decode_export_scan_text(data: bytes) -> tuple[str | None, str | None]:
+    """Decode one bounded payload while rejecting ambiguous text encodings."""
+    if any(marker in data for marker in _TEXT_BOM_MARKERS):
+        return None, "byte-order mark in scanned content"
+    try:
+        text = data.decode("utf-8")
+    except UnicodeDecodeError:
+        return None, "non-UTF-8 scanned content"
+    if any(
+        (ord(character) < 32 and character not in "\t\r\n") or ord(character) == 127
+        for character in text
+    ):
+        return None, "control character in scanned content"
+    return text, None
+
+
+def _restricted_bright_json_reason(
+    path: Path,
+    benchmark_version: str,
+    canonical_identities: dict[int, set[str]],
+) -> str | None:
+    """Scan every bounded JSON row for BRIGHT v0.2 restricted content."""
+    max_line_bytes = 1024 * 1024
+    max_document_bytes = 4 * 1024 * 1024
+    max_scan_bytes = 128 * 1024 * 1024
+    try:
+        file_size = path.stat().st_size
+        canonical_hashes = canonical_identities.get(file_size)
+        if canonical_hashes:
+            with path.open("rb") as canonical_handle:
+                if hashlib.file_digest(canonical_handle, "sha256").hexdigest() in canonical_hashes:
+                    return "canonical BRIGHT v0.2 materialization artifact"
+
+        with path.open("rb") as handle:
+            saw_json_row = False
+            saw_non_json_row = False
+            scanned_bytes = 0
+            while line := handle.readline(max_line_bytes + 1):
+                scanned_bytes += len(line)
+                if scanned_bytes > max_scan_bytes:
+                    return "scan byte limit exceeded"
+                if len(line) > max_line_bytes:
+                    return "overlong content"
+                text, encoding_reason = _decode_export_scan_text(line)
+                if encoding_reason is not None:
+                    return encoding_reason
+                assert text is not None
+                if not text.strip():
+                    continue
+                stripped = text.lstrip()
+                if not stripped.startswith(("{", "[")):
+                    if saw_json_row:
+                        return "invalid or mixed JSON rows"
+                    saw_non_json_row = True
+                    continue
+                try:
+                    value = json.loads(text)
+                except (json.JSONDecodeError, RecursionError):
+                    if saw_non_json_row or saw_json_row:
+                        return "invalid or mixed JSON-like content"
+                    if file_size > max_document_bytes:
+                        return "oversized or invalid JSON-like content"
+                    try:
+                        document_bytes = path.read_bytes()
+                    except OSError:
+                        return "unreadable JSON-like content"
+                    document_text, document_encoding_reason = _decode_export_scan_text(document_bytes)
+                    if document_encoding_reason is not None:
+                        return document_encoding_reason
+                    assert document_text is not None
+                    try:
+                        value = json.loads(document_text)
+                    except (json.JSONDecodeError, RecursionError):
+                        return "invalid or mixed JSON-like content"
+                    return _restricted_bright_object_reason(value, benchmark_version)
+
+                saw_json_row = True
+                reason = _restricted_bright_object_reason(value, benchmark_version)
+                if reason is not None:
+                    return reason
+    except OSError:
+        return "unreadable scanned content"
+    return None
 
 
 def _reject_restricted_materializations(copy_root: Path) -> None:
-    """Reject trees containing or governed by restricted dataset materializations."""
-    from mm_embed.benchmark.bright_v01 import BENCHMARK_VERSION
+    """Reject trees containing restricted BRIGHT data, results, or audit artifacts."""
+    from mm_embed.benchmark import bright_multidomain_v02 as multidomain
 
+    _validate_bright_v02_safe_aggregate_tree(copy_root, multidomain.BENCHMARK_VERSION)
+    canonical_identities: dict[int, set[str]] = defaultdict(set)
+    for track_files in multidomain.CANONICAL_TRACK_FILES.values():
+        for artifact in track_files.values():
+            canonical_identities[artifact["bytes"]].add(artifact["sha256"])
     root = copy_root.resolve()
     search_roots = [root]
-    for ancestor in root.parents:
-        if ancestor.name in {"data", "benchmark_data"}:
-            search_roots.append(ancestor)
-            break
     restricted_markers: set[Path] = set()
     for search_root in search_roots:
         if search_root.is_dir():
-            restricted_markers.update(path for path in search_root.rglob(BENCHMARK_VERSION))
+            for path in search_root.rglob("*"):
+                if (
+                    path.is_file()
+                    and _restricted_bright_json_reason(
+                        path,
+                        multidomain.BENCHMARK_VERSION,
+                        canonical_identities,
+                    )
+                    is not None
+                ):
+                    restricted_markers.add(path)
             restricted_markers.update(
                 path
                 for path in search_root.rglob("*.parquet")
@@ -1183,14 +1713,19 @@ def _reject_restricted_materializations(copy_root: Path) -> None:
             )
             for corpus_path in search_root.rglob("corpus.jsonl"):
                 candidate = corpus_path.parent
-                if all(
+                legacy_layout = all(
                     (candidate / relative).is_file()
                     for relative in ("queries.jsonl", "qrels/test.tsv", "audit.json")
-                ):
+                )
+                multidomain_layout = all(
+                    (candidate / relative).is_file()
+                    for relative in ("queries.jsonl", "qrels.jsonl", "selection.jsonl", "audit.json")
+                )
+                if legacy_layout or multidomain_layout:
                     restricted_markers.add(candidate)
     if restricted_markers:
         marker = sorted(restricted_markers)[0]
-        raise ValueError(f"public export denied for restricted BRIGHT data layout: {marker}")
+        raise ValueError(f"public export denied for restricted BRIGHT data or result layout: {marker}")
 
 
 def _should_skip_data_file(rel: Path, *, include_images: bool) -> bool:

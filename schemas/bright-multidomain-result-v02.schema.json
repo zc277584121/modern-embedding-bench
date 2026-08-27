@@ -1,0 +1,274 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/schemas/bright-multidomain-result-v02.schema.json",
+  "$defs": {
+    "hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "metricValues": {
+      "type": "object",
+      "required": ["ndcg@10", "map@100", "mrr@10", "recall@10", "recall@100"],
+      "properties": {
+        "ndcg@10": {"type": "number", "minimum": 0, "maximum": 1},
+        "map@100": {"type": "number", "minimum": 0, "maximum": 1},
+        "mrr@10": {"type": "number", "minimum": 0, "maximum": 1},
+        "recall@10": {"type": "number", "minimum": 0, "maximum": 1},
+        "recall@100": {"type": "number", "minimum": 0, "maximum": 1}
+      },
+      "additionalProperties": false
+    },
+    "interval": {
+      "type": "object",
+      "required": ["mean", "low", "high", "samples", "seed"],
+      "properties": {
+        "mean": {"type": "number", "minimum": 0, "maximum": 1},
+        "low": {"type": "number", "minimum": 0, "maximum": 1},
+        "high": {"type": "number", "minimum": 0, "maximum": 1},
+        "samples": {"const": 10000},
+        "seed": {"const": 20260826}
+      },
+      "additionalProperties": false
+    },
+    "intervals": {
+      "type": "object",
+      "required": ["ndcg@10", "map@100", "mrr@10", "recall@10", "recall@100"],
+      "properties": {
+        "ndcg@10": {"$ref": "#/$defs/interval"},
+        "map@100": {"$ref": "#/$defs/interval"},
+        "mrr@10": {"$ref": "#/$defs/interval"},
+        "recall@10": {"$ref": "#/$defs/interval"},
+        "recall@100": {"$ref": "#/$defs/interval"}
+      },
+      "additionalProperties": false
+    },
+    "artifact": {
+      "type": "object",
+      "required": ["path", "rows", "bytes", "sha256"],
+      "properties": {
+        "path": {"type": "string", "pattern": "^(bm25|dense|long_dense)-(economics|psychology)\\.(rankings|per-query)\\.jsonl$"},
+        "rows": {"type": "integer", "minimum": 1},
+        "bytes": {"type": "integer", "minimum": 1},
+        "sha256": {"$ref": "#/$defs/hash"},
+        "depth": {"const": 100}
+      },
+      "additionalProperties": false
+    },
+    "modelSnapshotFile": {
+      "type": "object",
+      "required": ["path", "bytes", "sha256"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "bytes": {"type": "integer", "minimum": 0},
+        "sha256": {"$ref": "#/$defs/hash"}
+      },
+      "additionalProperties": false
+    },
+    "miniLMSnapshot": {
+      "type": "object",
+      "required": ["repo_id", "revision", "files", "bytes", "aggregate_sha256", "file_manifest"],
+      "properties": {
+        "repo_id": {"const": "sentence-transformers/all-MiniLM-L6-v2"},
+        "revision": {"const": "c9745ed1d9f207416be6d2e6f8de32d1f16199bf"},
+        "files": {"type": "integer", "minimum": 1},
+        "bytes": {"type": "integer", "minimum": 1},
+        "aggregate_sha256": {"$ref": "#/$defs/hash"},
+        "file_manifest": {"type": "array", "items": {"$ref": "#/$defs/modelSnapshotFile"}, "minItems": 1}
+      },
+      "additionalProperties": false
+    },
+    "bm25Execution": {
+      "type": "object",
+      "required": ["tokenizer", "k1", "b", "build_s", "search_s", "documents_per_second", "queries_per_second", "index_bytes", "input_text_bytes", "wall_time_s", "peak_rss_bytes"],
+      "properties": {
+        "tokenizer": {"const": "unicode-word-lower-v1"},
+        "k1": {"const": 1.2},
+        "b": {"const": 0.75},
+        "build_s": {"type": "number", "minimum": 0},
+        "search_s": {"type": "number", "minimum": 0},
+        "documents_per_second": {"type": "number", "minimum": 0},
+        "queries_per_second": {"type": "number", "minimum": 0},
+        "index_bytes": {"type": "integer", "minimum": 1},
+        "input_text_bytes": {"type": "integer", "minimum": 1},
+        "wall_time_s": {"type": "number", "minimum": 0},
+        "peak_rss_bytes": {"type": "integer", "minimum": 1}
+      },
+      "additionalProperties": false
+    },
+    "bgeM3Snapshot": {
+      "type": "object",
+      "required": ["repo_id", "revision", "files", "bytes", "aggregate_sha256", "file_manifest"],
+      "properties": {
+        "repo_id": {"const": "BAAI/bge-m3"},
+        "revision": {"const": "5617a9f61b028005a4858fdac845db406aefb181"},
+        "files": {"const": 13},
+        "bytes": {"const": 2295435813},
+        "aggregate_sha256": {"const": "9bfc0c6488e958ec7be6223d95c331c9692c4ae47212a9730cb38ccc190e6cec"},
+        "file_manifest": {"type": "array", "items": {"$ref": "#/$defs/modelSnapshotFile"}, "minItems": 13, "maxItems": 13}
+      },
+      "additionalProperties": false
+    },
+    "denseExecution": {
+      "type": "object",
+      "required": ["model_id", "revision", "trust_remote_code", "device", "dimensions", "normalize_embeddings", "similarity", "batch_size", "document_encode_s", "query_encode_s", "encode_s", "search_s", "document_throughput_per_second", "query_throughput_per_second", "embedding_bytes", "index_bytes", "query_block_size", "document_block_size", "max_score_block_elements", "full_matrix_elements", "peak_vram_bytes", "declared_max_sequence_length", "configured_max_sequence_length", "model_max_sequence_length", "document_truncated_count", "query_truncated_count", "gold_document_truncated_count", "unique_gold_documents", "model_snapshot", "wall_time_s", "peak_rss_bytes"],
+      "properties": {
+        "model_id": {"const": "sentence-transformers/all-MiniLM-L6-v2"},
+        "revision": {"const": "c9745ed1d9f207416be6d2e6f8de32d1f16199bf"},
+        "trust_remote_code": {"const": false},
+        "device": {"enum": ["cpu", "cuda"]},
+        "dimensions": {"const": 384},
+        "normalize_embeddings": {"const": true},
+        "similarity": {"const": "exact_cosine"},
+        "batch_size": {"const": 128},
+        "document_encode_s": {"type": "number", "minimum": 0},
+        "query_encode_s": {"type": "number", "minimum": 0},
+        "encode_s": {"type": "number", "minimum": 0},
+        "search_s": {"type": "number", "minimum": 0},
+        "document_throughput_per_second": {"type": "number", "minimum": 0},
+        "query_throughput_per_second": {"type": "number", "minimum": 0},
+        "embedding_bytes": {"enum": [11678208, 11675136]},
+        "index_bytes": {"const": 11520000},
+        "query_block_size": {"const": 32},
+        "document_block_size": {"const": 4096},
+        "max_score_block_elements": {"type": "integer", "minimum": 1, "maximum": 131072},
+        "full_matrix_elements": {"enum": [772500, 757500]},
+        "peak_vram_bytes": {"type": "integer", "minimum": 0},
+        "declared_max_sequence_length": {"const": 256},
+        "configured_max_sequence_length": {"const": 256},
+        "model_max_sequence_length": {"const": 256},
+        "document_truncated_count": {"type": "integer", "minimum": 0, "maximum": 7500},
+        "query_truncated_count": {"type": "integer", "minimum": 0, "maximum": 103},
+        "gold_document_truncated_count": {"type": "integer", "minimum": 0, "maximum": 800},
+        "unique_gold_documents": {"enum": [800, 688]},
+        "model_snapshot": {"$ref": "#/$defs/miniLMSnapshot"},
+        "wall_time_s": {"type": "number", "minimum": 0},
+        "peak_rss_bytes": {"type": "integer", "minimum": 1}
+      },
+      "additionalProperties": false
+    },
+    "longDenseExecution": {
+      "type": "object",
+      "required": ["model_id", "revision", "trust_remote_code", "device", "dimensions", "normalize_embeddings", "similarity", "batch_size", "document_encode_s", "query_encode_s", "encode_s", "search_s", "document_throughput_per_second", "query_throughput_per_second", "embedding_bytes", "index_bytes", "query_block_size", "document_block_size", "max_score_block_elements", "full_matrix_elements", "peak_vram_bytes", "declared_max_sequence_length", "configured_max_sequence_length", "model_max_sequence_length", "document_truncated_count", "query_truncated_count", "gold_document_truncated_count", "unique_gold_documents", "cap_selection", "model_snapshot", "wall_time_s", "peak_rss_bytes"],
+      "properties": {
+        "model_id": {"const": "BAAI/bge-m3"},
+        "revision": {"const": "5617a9f61b028005a4858fdac845db406aefb181"},
+        "trust_remote_code": {"const": false},
+        "device": {"enum": ["cpu", "cuda"]},
+        "dimensions": {"const": 1024},
+        "normalize_embeddings": {"const": true},
+        "similarity": {"const": "exact_cosine"},
+        "batch_size": {"const": 4},
+        "document_encode_s": {"type": "number", "minimum": 0},
+        "query_encode_s": {"type": "number", "minimum": 0},
+        "encode_s": {"type": "number", "minimum": 0},
+        "search_s": {"type": "number", "minimum": 0},
+        "document_throughput_per_second": {"type": "number", "minimum": 0},
+        "query_throughput_per_second": {"type": "number", "minimum": 0},
+        "embedding_bytes": {"enum": [31141888, 31133696]},
+        "index_bytes": {"const": 30720000},
+        "query_block_size": {"const": 32},
+        "document_block_size": {"const": 4096},
+        "max_score_block_elements": {"type": "integer", "minimum": 1, "maximum": 131072},
+        "full_matrix_elements": {"enum": [772500, 757500]},
+        "peak_vram_bytes": {"type": "integer", "minimum": 0},
+        "declared_max_sequence_length": {"const": 8192},
+        "configured_max_sequence_length": {"const": 1024},
+        "model_max_sequence_length": {"const": 1024},
+        "document_truncated_count": {"enum": [148, 160]},
+        "query_truncated_count": {"const": 0},
+        "gold_document_truncated_count": {"enum": [37, 63]},
+        "unique_gold_documents": {"enum": [800, 688]},
+        "cap_selection": {
+          "type": "object",
+          "required": ["selected_cap", "gold_truncation_threshold", "fixed_before_model_scoring", "score_used", "materialization_contract_sha256"],
+          "properties": {
+            "selected_cap": {"const": 1024},
+            "gold_truncation_threshold": {"const": 0.1},
+            "fixed_before_model_scoring": {"const": true},
+            "score_used": {"const": false},
+            "materialization_contract_sha256": {"const": "fcd1b3a8c4004f56cc8c65e0438edcdd3cacc3149e33845b5365ecd1ed263d8f"}
+          },
+          "additionalProperties": false
+        },
+        "model_snapshot": {"$ref": "#/$defs/bgeM3Snapshot"},
+        "wall_time_s": {"type": "number", "minimum": 0},
+        "peak_rss_bytes": {"type": "integer", "minimum": 1}
+      },
+      "additionalProperties": false
+    }
+  },
+  "type": "object",
+  "required": ["schema_version", "benchmark_version", "track", "method", "baseline_role", "queries_evaluated", "documents_searched", "positive_qrels", "metrics", "confidence_intervals", "execution", "rankings", "per_query_metrics", "data_identity", "training_overlap", "publication", "failure_counts"],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "benchmark_version": {"const": "bright-nontechnical-pilot-v0.2"},
+    "track": {"enum": ["economics", "psychology"]},
+    "method": {"enum": ["bm25", "dense", "long_dense"]},
+    "baseline_role": {"enum": ["formal_lexical", "diagnostic_truncation_degraded", "formal_long_context_dense"]},
+    "queries_evaluated": {"enum": [103, 101]},
+    "documents_searched": {"const": 7500},
+    "positive_qrels": {"enum": [800, 692]},
+    "metrics": {"$ref": "#/$defs/metricValues"},
+    "confidence_intervals": {"$ref": "#/$defs/intervals"},
+    "execution": {"type": "object"},
+    "rankings": {"allOf": [{"$ref": "#/$defs/artifact"}, {"required": ["depth"]}]},
+    "per_query_metrics": {"$ref": "#/$defs/artifact"},
+    "data_identity": {
+      "type": "object",
+      "required": ["materialization_manifest_sha256", "source_revision", "selection_ids_sha256", "corpus_sha256", "queries_sha256", "qrels_sha256", "selection_sha256", "candidate_policy"],
+      "properties": {
+        "materialization_manifest_sha256": {"const": "8174b0c01a32e977cf0c5d89522356c485196b0aa0571251cfe1595c5579cb1f"},
+        "source_revision": {"const": "3066d29c9651a576c8aba4832d249807b181ecae"},
+        "selection_ids_sha256": {"enum": ["13e2bf56644a8d5b8d8701be74ead7b0f147057bbda34e6a8f246b515f4b1398", "d56ba2a26cc69163b412c35ebea5c1fa5141ab03fe54215a19abd053d516d3e4"]},
+        "corpus_sha256": {"$ref": "#/$defs/hash"},
+        "queries_sha256": {"$ref": "#/$defs/hash"},
+        "qrels_sha256": {"$ref": "#/$defs/hash"},
+        "selection_sha256": {"$ref": "#/$defs/hash"},
+        "candidate_policy": {"const": "independent fixed 7,500-document track pool with pre-ranking excluded_ids filtering"}
+      },
+      "additionalProperties": false
+    },
+    "training_overlap": {
+      "type": "object",
+      "required": ["status", "zero_shot_claim_allowed"],
+      "properties": {
+        "status": {"const": "unknown_not_zero_shot_verified"},
+        "zero_shot_claim_allowed": {"const": false}
+      },
+      "additionalProperties": false
+    },
+    "publication": {
+      "type": "object",
+      "required": ["classification", "public_export_allowed", "gate"],
+      "properties": {
+        "classification": {"const": "research_only"},
+        "public_export_allowed": {"const": false},
+        "gate": {"const": "closed_pending_upstream_web_content_rights_review"}
+      },
+      "additionalProperties": false
+    },
+    "failure_counts": {
+      "type": "object",
+      "required": ["zero_recall_at_10", "zero_recall_at_100", "positive_recall_at_10"],
+      "properties": {
+        "zero_recall_at_10": {"type": "integer", "minimum": 0, "maximum": 103},
+        "zero_recall_at_100": {"type": "integer", "minimum": 0, "maximum": 103},
+        "positive_recall_at_10": {"type": "integer", "minimum": 0, "maximum": 103}
+      },
+      "additionalProperties": false
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"method": {"const": "bm25"}}, "required": ["method"]},
+      "then": {"properties": {"baseline_role": {"const": "formal_lexical"}, "execution": {"$ref": "#/$defs/bm25Execution"}}},
+      "else": {
+        "if": {"properties": {"method": {"const": "dense"}}, "required": ["method"]},
+        "then": {"properties": {"baseline_role": {"const": "diagnostic_truncation_degraded"}, "execution": {"$ref": "#/$defs/denseExecution"}}},
+        "else": {"properties": {"baseline_role": {"const": "formal_long_context_dense"}, "execution": {"$ref": "#/$defs/longDenseExecution"}}}
+      }
+    }
+  ],
+  "oneOf": [
+    {"properties": {"track": {"const": "economics"}, "queries_evaluated": {"const": 103}, "positive_qrels": {"const": 800}, "rankings": {"properties": {"rows": {"const": 10300}}}, "per_query_metrics": {"properties": {"rows": {"const": 103}}}}},
+    {"properties": {"track": {"const": "psychology"}, "queries_evaluated": {"const": 101}, "positive_qrels": {"const": 692}, "rankings": {"properties": {"rows": {"const": 10100}}}, "per_query_metrics": {"properties": {"rows": {"const": 101}}}}}
+  ],
+  "additionalProperties": false
+}

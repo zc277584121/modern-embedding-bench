@@ -4,28 +4,29 @@ from __future__ import annotations
 
 import argparse
 import hashlib
-import heapq
 import json
-import math
 import os
-import re
 import resource
 import shutil
 import statistics
-import time
 import zipfile
 from collections import Counter, defaultdict
-from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 from typing import Any, Iterable
 
 import numpy as np
 
+from mm_embed.benchmark.retrieval_v01 import (
+    TrackData,
+    bm25_rank as _shared_bm25_rank,
+    dense_rank as _shared_dense_rank,
+    evaluate_rankings,
+    tokens as _tokens,
+)
+
 
 BENCHMARK_VERSION = "beir-three-track-v0.1"
 TEXT_PROTOCOL = "title.strip() + ('\\n' if title and text else '') + text.strip()"
-TOKENIZER_ID = "unicode-word-lower-v1"
-TOKEN_PATTERN = re.compile(r"(?u)\b\w+\b")
 TRACKS: dict[str, dict[str, Any]] = {
     "scifact": {
         "url": "https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/scifact.zip",
@@ -62,14 +63,6 @@ TRACKS: dict[str, dict[str, Any]] = {
 
 class BeirBenchmarkError(ValueError):
     """Fail-closed benchmark validation error."""
-
-
-@dataclass(frozen=True)
-class TrackData:
-    name: str
-    corpus: tuple[dict[str, str], ...]
-    queries: tuple[dict[str, str], ...]
-    qrels: dict[str, dict[str, int]]
 
 
 def _digest(path: Path, algorithm: str) -> str:
@@ -198,10 +191,6 @@ def _percentiles(values: list[int]) -> dict[str, float]:
     return {key: float(value) for key, value in zip(("min", "p50", "p90", "p95", "p99", "max", "mean"), np.percentile(array, [0, 50, 90, 95, 99, 100]).tolist() + [array.mean()])}
 
 
-def _tokens(text: str) -> list[str]:
-    return TOKEN_PATTERN.findall(text.lower())
-
-
 def audit_track(data: TrackData) -> dict[str, Any]:
     doc_tokens = [len(_tokens(row["content"])) for row in data.corpus]
     query_tokens = [len(_tokens(row["text"])) for row in data.queries]
@@ -323,119 +312,41 @@ def load_materialized(root: str | Path, track: str) -> TrackData:
     return TrackData(track, corpus, queries, dict(qrels))
 
 
-def evaluate_rankings(data: TrackData, rankings: dict[str, list[tuple[str, float]]]) -> dict[str, float]:
-    metrics: defaultdict[str, float] = defaultdict(float)
-    for query in data.queries:
-        query_id = query["id"]
-        ranked = [doc_id for doc_id, _ in rankings[query_id]]
-        rels = data.qrels[query_id]
-        gains = [rels.get(doc_id, 0) for doc_id in ranked]
-        dcg = sum((2**gain - 1) / math.log2(index + 2) for index, gain in enumerate(gains[:10]))
-        ideal = sorted(rels.values(), reverse=True)[:10]
-        idcg = sum((2**gain - 1) / math.log2(index + 2) for index, gain in enumerate(ideal))
-        metrics["ndcg@10"] += dcg / idcg if idcg else 0.0
-        binary = [gain > 0 for gain in gains]
-        found = 0
-        ap = 0.0
-        for index, relevant in enumerate(binary[:100], 1):
-            if relevant:
-                found += 1
-                ap += found / index
-        metrics["map@100"] += ap / len(rels)
-        first = next((index for index, relevant in enumerate(binary[:10], 1) if relevant), None)
-        metrics["mrr@10"] += 0.0 if first is None else 1.0 / first
-        metrics["recall@10"] += sum(binary[:10]) / len(rels)
-        metrics["recall@100"] += sum(binary[:100]) / len(rels)
-    return {key: value / len(data.queries) for key, value in metrics.items()}
-
-
 def bm25_rank(data: TrackData, top_k: int = 100, k1: float = 1.2, b: float = 0.75) -> tuple[dict[str, list[tuple[str, float]]], dict[str, Any]]:
-    """Run fixed-tokenizer exact BM25 over one independent track."""
-    started = time.perf_counter()
-    postings: defaultdict[str, list[tuple[int, int]]] = defaultdict(list)
-    lengths = np.empty(len(data.corpus), dtype=np.int32)
-    for index, row in enumerate(data.corpus):
-        counts = Counter(_tokens(row["content"]))
-        lengths[index] = sum(counts.values())
-        for token, frequency in counts.items():
-            postings[token].append((index, frequency))
-    build_s = time.perf_counter() - started
-    avgdl = float(lengths.mean())
-    rankings = {}
-    search_started = time.perf_counter()
-    for query in data.queries:
-        scores: defaultdict[int, float] = defaultdict(float)
-        for token, query_frequency in Counter(_tokens(query["text"])).items():
-            posting = postings.get(token, ())
-            idf = math.log(1.0 + (len(data.corpus) - len(posting) + 0.5) / (len(posting) + 0.5))
-            for doc_index, frequency in posting:
-                denominator = frequency + k1 * (1.0 - b + b * lengths[doc_index] / avgdl)
-                scores[doc_index] += query_frequency * idf * frequency * (k1 + 1.0) / denominator
-        best = heapq.nlargest(top_k, scores.items(), key=lambda item: (item[1], -item[0]))
-        if len(best) < top_k:
-            selected = {index for index, _ in best}
-            best.extend((index, 0.0) for index in range(len(data.corpus)) if index not in selected)
-            best = sorted(best, key=lambda item: (-item[1], item[0]))[:top_k]
-        rankings[query["id"]] = [(data.corpus[index]["id"], float(score)) for index, score in best]
-    search_s = time.perf_counter() - search_started
-    index_bytes = int(lengths.nbytes + sum(len(token.encode("utf-8")) + len(items) * 8 for token, items in postings.items()))
-    return rankings, {"tokenizer": TOKENIZER_ID, "k1": k1, "b": b, "build_s": build_s, "search_s": search_s, "index_bytes": index_bytes}
+    """Run the shared BM25 implementation with the legacy execution projection."""
+    rankings, execution = _shared_bm25_rank(data, top_k=top_k, k1=k1, b=b)
+    fields = ("tokenizer", "k1", "b", "build_s", "search_s", "index_bytes")
+    return rankings, {field: execution[field] for field in fields}
 
 
 def dense_rank(data: TrackData, model_id: str, revision: str, top_k: int = 100, query_block_size: int = 32, doc_block_size: int = 4096) -> tuple[dict[str, list[tuple[str, float]]], dict[str, Any]]:
-    """Run normalized dense exact search without a full query-document matrix."""
-    from sentence_transformers import SentenceTransformer
-
-    import torch
-
-    model = SentenceTransformer(model_id, revision=revision, trust_remote_code=False, local_files_only=True)
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    model.to(device)
-    started = time.perf_counter()
-    doc_embeddings = model.encode([row["content"] for row in data.corpus], batch_size=128, normalize_embeddings=True, convert_to_numpy=True, show_progress_bar=False)
-    query_embeddings = model.encode([row["text"] for row in data.queries], batch_size=128, normalize_embeddings=True, convert_to_numpy=True, show_progress_bar=False)
-    encode_s = time.perf_counter() - started
-    rankings: dict[str, list[tuple[str, float]]] = {}
-    search_started = time.perf_counter()
-    max_score_block_elements = 0
-    for query_start in range(0, len(data.queries), query_block_size):
-        query_block = query_embeddings[query_start : query_start + query_block_size]
-        heaps: list[list[tuple[float, int]]] = [[] for _ in range(len(query_block))]
-        for doc_start in range(0, len(data.corpus), doc_block_size):
-            scores = query_block @ doc_embeddings[doc_start : doc_start + doc_block_size].T
-            max_score_block_elements = max(max_score_block_elements, scores.size)
-            for row_index, row_scores in enumerate(scores):
-                local = min(top_k, len(row_scores))
-                indices = np.argpartition(row_scores, -local)[-local:]
-                heap = heaps[row_index]
-                for local_index in indices:
-                    item = (float(row_scores[local_index]), doc_start + int(local_index))
-                    if len(heap) < top_k:
-                        heapq.heappush(heap, item)
-                    elif item > heap[0]:
-                        heapq.heapreplace(heap, item)
-        for offset, heap in enumerate(heaps):
-            query = data.queries[query_start + offset]
-            rankings[query["id"]] = [(data.corpus[index]["id"], score) for score, index in sorted(heap, key=lambda item: (-item[0], item[1]))]
-    search_s = time.perf_counter() - search_started
-    vram = int(torch.cuda.max_memory_allocated()) if device == "cuda" else 0
-    return rankings, {
-        "model_id": model_id,
-        "revision": revision,
-        "trust_remote_code": False,
-        "device": device,
-        "dimensions": int(doc_embeddings.shape[1]),
-        "normalize_embeddings": True,
-        "similarity": "exact_cosine",
-        "encode_s": encode_s,
-        "search_s": search_s,
-        "embedding_bytes": int(doc_embeddings.nbytes + query_embeddings.nbytes),
-        "query_block_size": query_block_size,
-        "document_block_size": doc_block_size,
-        "max_score_block_elements": max_score_block_elements,
-        "full_matrix_elements": len(data.queries) * len(data.corpus),
-        "peak_vram_bytes": vram,
-    }
+    """Run the shared dense implementation with the legacy execution projection."""
+    rankings, execution = _shared_dense_rank(
+        data,
+        model_id,
+        revision,
+        top_k=top_k,
+        query_block_size=query_block_size,
+        doc_block_size=doc_block_size,
+    )
+    fields = (
+        "model_id",
+        "revision",
+        "trust_remote_code",
+        "device",
+        "dimensions",
+        "normalize_embeddings",
+        "similarity",
+        "encode_s",
+        "search_s",
+        "embedding_bytes",
+        "query_block_size",
+        "document_block_size",
+        "max_score_block_elements",
+        "full_matrix_elements",
+        "peak_vram_bytes",
+    )
+    return rankings, {field: execution[field] for field in fields}
 
 
 def make_audit_pack(root: str | Path, output: str | Path, rankings_by_track: dict[str, dict[str, list[tuple[str, float]]]]) -> dict[str, Any]:
