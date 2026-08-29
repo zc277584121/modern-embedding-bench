@@ -32,6 +32,10 @@ PROVIDER_REGISTRY: dict[str, tuple[str, str]] = {
         "OpenSearchNeuralSparseProvider",
     ),
     "bge_m3_sparse": ("mm_embed.providers.bge_m3_sparse_provider", "BGEM3SparseProvider"),
+    "sentence_transformers_sparse": (
+        "mm_embed.providers.sentence_transformers_sparse_provider",
+        "SentenceTransformersSparseProvider",
+    ),
 }
 
 

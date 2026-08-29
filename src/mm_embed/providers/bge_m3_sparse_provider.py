@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import resource
 import time
 from collections.abc import Sequence
 from pathlib import Path
@@ -24,6 +25,7 @@ DIMENSIONS = 250002
 VOCABULARY_ID = "bge-m3-xlm-roberta-vocab-250002"
 REPRESENTATION_ID = "bge-m3-contextual-lexical-csr-v1"
 MAX_SNAPSHOT_BYTES = 3 * 1024**3
+GPU_GATE_CAP_BYTES = int(10.5 * 1024**3)
 SNAPSHOT_IDENTITY = {
     "1_Pooling/config.json": "e54c164a07274f2eb45bb724f54a79d1efcc90c41573887cd9a29aeee0597352",
     "colbert_linear.pt": "19bfbae397c2b7524158c919d0e9b19393c5639d098f0a66932c91ed8f5f9abb",
@@ -60,13 +62,15 @@ class BGEM3SparseProvider:
         max_length: int = 512,
         batch_size: int = 8,
         use_fp16: bool = True,
+        gpu_cap_bytes: int = GPU_GATE_CAP_BYTES,
     ) -> None:
         if model != MODEL_ID or revision != REVISION:
             raise ValueError(f"This adapter requires model {MODEL_ID!r} at revision {REVISION!r}")
-        if max_length <= 2 or batch_size <= 0:
-            raise ValueError("max_length and batch_size must be positive")
+        if max_length <= 2 or batch_size <= 0 or gpu_cap_bytes <= 0:
+            raise ValueError("max_length, batch_size, and gpu_cap_bytes must be positive")
         self.model, self.revision = model, revision
         self.max_length, self.batch_size = max_length, batch_size
+        self.gpu_cap_bytes = gpu_cap_bytes
         self._snapshot_path = Path(snapshot_path).expanduser().resolve()
         self._check_snapshot(self._snapshot_path)
         import torch
@@ -99,38 +103,67 @@ class BGEM3SparseProvider:
     def _encode(self, texts: Sequence[str], item_ids: Sequence[str], role: SparseEmbeddingRole) -> SparseEmbeddingResult:
         torch = self._torch
         started = time.perf_counter()
-        rows: list[int] = []
-        cols: list[int] = []
-        data: list[float] = []
-        truncated = 0
+        cpu_started = time.process_time()
+        attempted_batch_sizes: list[int] = []
+        active_batch_size = self.batch_size
         peak_vram = 0
-        if self.device.startswith("cuda"):
-            torch.cuda.reset_peak_memory_stats(self.device)
-        with torch.inference_mode():
-            for offset in range(0, len(texts), self.batch_size):
-                batch = list(texts[offset:offset + self.batch_size])
-                full_lengths = self._tokenizer(batch, add_special_tokens=True, truncation=False, return_length=True)["length"]
-                truncated += sum(int(length > self.max_length) for length in full_lengths)
-                tokens = self._tokenizer(
-                    batch, padding=True, truncation=True, max_length=self.max_length,
-                    return_tensors="pt", return_token_type_ids=False,
-                ).to(self.device)
-                hidden = self._encoder(**tokens, return_dict=True).last_hidden_state
-                weights = torch.relu(self._sparse_linear(hidden)).squeeze(-1).float().cpu().numpy()
-                token_ids = tokens["input_ids"].cpu().numpy()
-                masks = tokens["attention_mask"].cpu().numpy()
-                for local_row, (ids, values, mask) in enumerate(zip(token_ids, weights, masks, strict=True)):
-                    maxima: dict[int, float] = {}
-                    for token_id, value, active in zip(ids, values, mask, strict=True):
-                        token_id, value = int(token_id), float(value)
-                        if active and token_id not in self._unused_ids and value > maxima.get(token_id, 0.0):
-                            maxima[token_id] = value
-                    row = offset + local_row
-                    rows.extend([row] * len(maxima)); cols.extend(maxima); data.extend(maxima.values())
-        if self.device.startswith("cuda"):
-            peak_vram = int(torch.cuda.max_memory_allocated(self.device))
+        while True:
+            attempted_batch_sizes.append(active_batch_size)
+            rows: list[int] = []
+            cols: list[int] = []
+            data: list[float] = []
+            truncated = 0
+            max_observed_tokens = 0
+            if self.device.startswith("cuda"):
+                torch.cuda.reset_peak_memory_stats(self.device)
+            try:
+                with torch.inference_mode():
+                    for offset in range(0, len(texts), active_batch_size):
+                        batch = list(texts[offset:offset + active_batch_size])
+                        full_lengths = self._tokenizer(
+                            batch, add_special_tokens=True, truncation=False, return_length=True
+                        )["length"]
+                        truncated += sum(int(length > self.max_length) for length in full_lengths)
+                        max_observed_tokens = max(max_observed_tokens, max(full_lengths, default=0))
+                        tokens = self._tokenizer(
+                            batch, padding=True, truncation=True, max_length=self.max_length,
+                            return_tensors="pt", return_token_type_ids=False,
+                        ).to(self.device)
+                        hidden = self._encoder(**tokens, return_dict=True).last_hidden_state
+                        weights = torch.relu(self._sparse_linear(hidden)).squeeze(-1).float().cpu().numpy()
+                        token_ids = tokens["input_ids"].cpu().numpy()
+                        masks = tokens["attention_mask"].cpu().numpy()
+                        for local_row, (ids, values, mask) in enumerate(
+                            zip(token_ids, weights, masks, strict=True)
+                        ):
+                            maxima: dict[int, float] = {}
+                            for token_id, value, active in zip(ids, values, mask, strict=True):
+                                token_id, value = int(token_id), float(value)
+                                if active and token_id not in self._unused_ids and value > maxima.get(token_id, 0.0):
+                                    maxima[token_id] = value
+                            row = offset + local_row
+                            rows.extend([row] * len(maxima))
+                            cols.extend(maxima)
+                            data.extend(maxima.values())
+                if self.device.startswith("cuda"):
+                    peak_vram = max(peak_vram, int(torch.cuda.max_memory_allocated(self.device)))
+                break
+            except torch.cuda.OutOfMemoryError:
+                if self.device.startswith("cuda"):
+                    peak_vram = max(peak_vram, int(torch.cuda.max_memory_allocated(self.device)))
+                if peak_vram > self.gpu_cap_bytes:
+                    raise ValueError(
+                        f"Sparse encoding peak VRAM {peak_vram} exceeds cap {self.gpu_cap_bytes}"
+                    )
+                if not self.device.startswith("cuda") or active_batch_size == 1:
+                    raise
+                torch.cuda.empty_cache()
+                active_batch_size = max(1, active_batch_size // 2)
+        if peak_vram > self.gpu_cap_bytes:
+            raise ValueError(f"Sparse encoding peak VRAM {peak_vram} exceeds cap {self.gpu_cap_bytes}")
         matrix = sparse.csr_matrix((np.asarray(data, dtype=np.float32), (rows, cols)), shape=(len(texts), DIMENSIONS))
         elapsed = (time.perf_counter() - started) * 1000.0
+        cpu_time_s = time.process_time() - cpu_started
         return SparseEmbeddingResult(
             embeddings=SparseEmbeddingBatch(matrix, item_ids, self.representation), role=role,
             model_name=self.model, provider=self.name, model_revision=self.revision,
@@ -138,11 +171,24 @@ class BGEM3SparseProvider:
             latency_ms=elapsed, device=self.device, peak_vram_bytes=peak_vram,
             metadata={"backend": "transformers_sparse_only", "snapshot_path": str(self._snapshot_path),
                       "max_length": self.max_length, "batch_size": self.batch_size,
-                      "truncated_count": truncated, "input_count": len(texts), "trust_remote_code": False},
+                      "batch_size_requested": self.batch_size,
+                      "batch_size_attempts": attempted_batch_sizes,
+                      "batch_size_used": active_batch_size, "truncated_count": truncated,
+                      "gpu_cap_bytes": self.gpu_cap_bytes,
+                      "max_observed_tokens": max_observed_tokens,
+                      "tokenizer_class": type(self._tokenizer).__name__,
+                      "cpu_time_s": cpu_time_s,
+                      "peak_ram_bytes": resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * 1024,
+                      "input_count": len(texts), "trust_remote_code": False},
         )
 
     def encode_sparse_query(self, text: str, *, item_id: str) -> SparseEmbeddingResult:
         return self._encode((text,), (item_id,), SparseEmbeddingRole.QUERY)
+
+    def encode_sparse_queries(self, texts: Sequence[str], *, item_ids: Sequence[str]) -> SparseEmbeddingResult:
+        if len(texts) != len(item_ids):
+            raise ValueError("Sparse query text and id counts must match")
+        return self._encode(texts, item_ids, SparseEmbeddingRole.QUERY)
 
     def encode_sparse_documents(self, texts: Sequence[str], *, item_ids: Sequence[str]) -> SparseEmbeddingResult:
         if len(texts) != len(item_ids):

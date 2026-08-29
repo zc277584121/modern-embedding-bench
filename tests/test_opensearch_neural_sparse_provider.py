@@ -157,6 +157,57 @@ def test_adapter_rejects_shape_nonfinite_and_document_count_mismatch(
     bad = sparse.csr_matrix(([np.inf], ([0], [0])), shape=(1, DIMENSIONS), dtype=np.float32)
     with pytest.raises(ValueError, match="non-finite"):
         _to_csr(bad, 1, DIMENSIONS)
+    negative = sparse.csr_matrix(([-1.0], ([0], [0])), shape=(1, DIMENSIONS), dtype=np.float32)
+    with pytest.raises(ValueError, match="negative"):
+        _to_csr(negative, 1, DIMENSIONS)
     provider = _provider(tmp_path, monkeypatch)
     with pytest.raises(ValueError, match="counts must match"):
         provider.encode_sparse_documents(["a"], item_ids=[])
+
+
+def test_csr_canonicalization_sums_duplicates_and_eliminates_zeros() -> None:
+    matrix = sparse.csr_matrix(
+        (
+            np.asarray([1.25, 2.75, 0.0], dtype=np.float32),
+            np.asarray([7, 7, 9], dtype=np.int32),
+            np.asarray([0, 3], dtype=np.int32),
+        ),
+        shape=(1, DIMENSIONS),
+    )
+    result = _to_csr(matrix, 1, DIMENSIONS)
+    assert result.has_canonical_format
+    assert result.nnz == 1
+    assert result[0, 7] == 4.0
+
+
+def test_anchor_uses_deterministic_oom_fallback_and_enforces_gpu_cap(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import torch
+
+    provider = _provider(tmp_path, monkeypatch)
+    provider.device = "cuda:0"
+    provider.batch_size = 8
+    provider.gpu_cap_bytes = 1000
+    provider._encoder.tokenizer = lambda texts, **kwargs: {"length": [4 for _ in texts]}
+    attempts: list[int] = []
+
+    def encode(texts, **kwargs):
+        attempts.append(kwargs["batch_size"])
+        if len(attempts) == 1:
+            raise torch.cuda.OutOfMemoryError("synthetic OOM")
+        return sparse.csr_matrix(([1.0], ([0], [7])), shape=(1, DIMENSIONS), dtype=np.float32)
+
+    provider._encoder.encode_query = encode
+    monkeypatch.setattr(torch.cuda, "reset_peak_memory_stats", lambda _device: None)
+    monkeypatch.setattr(torch.cuda, "max_memory_allocated", lambda _device: 900)
+    monkeypatch.setattr(torch.cuda, "empty_cache", lambda: None)
+    result = provider.encode_sparse_query("query", item_id="q")
+    assert attempts == [8, 4]
+    assert result.metadata_dict()["batch_size_requested"] == 8
+    assert result.metadata_dict()["batch_size_attempts"] == [8, 4]
+    assert result.metadata_dict()["batch_size_used"] == 4
+
+    provider.gpu_cap_bytes = 800
+    with pytest.raises(ValueError, match="exceeds cap"):
+        provider.encode_sparse_query("query", item_id="q")

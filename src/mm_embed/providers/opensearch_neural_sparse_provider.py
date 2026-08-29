@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import resource
 import time
 from collections.abc import Sequence
 from pathlib import Path
@@ -24,6 +25,7 @@ DIMENSIONS = 30522
 VOCABULARY_ID = "sentencepiece-wordpiece-vocab-30522"
 REPRESENTATION_ID = "opensearch-neural-sparse-v3-distill-csr-v1"
 MAX_SNAPSHOT_BYTES = 300 * 1024 * 1024
+GPU_GATE_CAP_BYTES = int(10.5 * 1024**3)
 SNAPSHOT_IDENTITY = {
     "config.json": "ee97780493e7d0a3b7b788ea98f3391e6be6b0b379921b465ca55bfdd0d9cbe3",
     "config_sentence_transformers.json": "44e5b5295415281c3f61341f0670bf6752ce1d85880380faeebae3752889d718",
@@ -59,15 +61,17 @@ class OpenSearchNeuralSparseProvider:
     def __init__(self, *, model: str = MODEL_ID, revision: str = REVISION,
                  snapshot_path: str | None = None, cache_dir: str | None = None,
                  allow_download: bool = True, device: str | None = None,
-                 max_length: int = 512, batch_size: int = 32) -> None:
+                 max_length: int = 512, batch_size: int = 32,
+                 gpu_cap_bytes: int = GPU_GATE_CAP_BYTES) -> None:
         if model != MODEL_ID or revision != REVISION:
             raise ValueError(f"This adapter requires model {MODEL_ID!r} at revision {REVISION!r}")
         self.model = model
         self.revision = revision
-        if max_length <= 2 or batch_size <= 0:
-            raise ValueError("max_length and batch_size must be positive")
+        if max_length <= 2 or batch_size <= 0 or gpu_cap_bytes <= 0:
+            raise ValueError("max_length, batch_size, and gpu_cap_bytes must be positive")
         self.max_length = max_length
         self.batch_size = batch_size
+        self.gpu_cap_bytes = gpu_cap_bytes
         self._snapshot_path = Path(snapshot_path).expanduser() if snapshot_path else None
         if self._snapshot_path is not None:
             self._check_snapshot(self._snapshot_path)
@@ -114,20 +118,50 @@ class OpenSearchNeuralSparseProvider:
         import torch
 
         started = time.perf_counter()
+        cpu_started = time.process_time()
         method = self._encoder.encode_query if role is SparseEmbeddingRole.QUERY else self._encoder.encode_document
         truncated_count = 0
+        max_observed_tokens = 0
         tokenizer = getattr(self._encoder, "tokenizer", None)
         if tokenizer is not None:
             lengths = tokenizer(list(texts), add_special_tokens=True, truncation=False, return_length=True)["length"]
             truncated_count = sum(int(length > self.max_length) for length in lengths)
-        if self.device.startswith("cuda"):
-            torch.cuda.reset_peak_memory_stats(self.device)
-        encoded = method(
-            list(texts), convert_to_sparse_tensor=True, show_progress_bar=False, batch_size=self.batch_size,
-        )
+            max_observed_tokens = max(lengths, default=0)
+        attempted_batch_sizes: list[int] = []
+        active_batch_size = self.batch_size
+        peak_vram_bytes = 0
+        while True:
+            attempted_batch_sizes.append(active_batch_size)
+            if self.device.startswith("cuda"):
+                torch.cuda.reset_peak_memory_stats(self.device)
+            try:
+                encoded = method(
+                    list(texts), convert_to_sparse_tensor=True, show_progress_bar=False,
+                    batch_size=active_batch_size,
+                )
+                if self.device.startswith("cuda"):
+                    peak_vram_bytes = max(
+                        peak_vram_bytes, int(torch.cuda.max_memory_allocated(self.device))
+                    )
+                break
+            except torch.cuda.OutOfMemoryError:
+                if self.device.startswith("cuda"):
+                    peak_vram_bytes = max(
+                        peak_vram_bytes, int(torch.cuda.max_memory_allocated(self.device))
+                    )
+                if peak_vram_bytes > self.gpu_cap_bytes:
+                    raise ValueError(
+                        f"Sparse encoding peak VRAM {peak_vram_bytes} exceeds cap {self.gpu_cap_bytes}"
+                    )
+                if not self.device.startswith("cuda") or active_batch_size == 1:
+                    raise
+                torch.cuda.empty_cache()
+                active_batch_size = max(1, active_batch_size // 2)
         matrix = _to_csr(encoded, len(texts), self.representation.dimensions)
         elapsed = (time.perf_counter() - started) * 1000.0
-        peak_vram_bytes = int(torch.cuda.max_memory_allocated(self.device)) if self.device.startswith("cuda") else 0
+        cpu_time_s = time.process_time() - cpu_started
+        if peak_vram_bytes > self.gpu_cap_bytes:
+            raise ValueError(f"Sparse encoding peak VRAM {peak_vram_bytes} exceeds cap {self.gpu_cap_bytes}")
         return SparseEmbeddingResult(
             embeddings=SparseEmbeddingBatch(matrix, item_ids, self.representation), role=role,
             model_name=self.model, provider=self.name, model_revision=self.revision,
@@ -136,11 +170,24 @@ class OpenSearchNeuralSparseProvider:
             metadata={"trust_remote_code": False, "snapshot_path": str(self._snapshot_path) if self._snapshot_path else None,
                       "route": role.value, "backend": "sentence_transformers_sparse_encoder",
                       "max_length": self.max_length, "batch_size": self.batch_size,
-                      "truncated_count": truncated_count, "input_count": len(texts)},
+                      "batch_size_requested": self.batch_size,
+                      "batch_size_attempts": attempted_batch_sizes,
+                      "batch_size_used": active_batch_size, "truncated_count": truncated_count,
+                      "gpu_cap_bytes": self.gpu_cap_bytes,
+                      "max_observed_tokens": max_observed_tokens,
+                      "tokenizer_class": type(tokenizer).__name__ if tokenizer is not None else "unavailable",
+                      "cpu_time_s": cpu_time_s,
+                      "peak_ram_bytes": resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * 1024,
+                      "input_count": len(texts)},
         )
 
     def encode_sparse_query(self, text: str, *, item_id: str) -> SparseEmbeddingResult:
         return self._encode((text,), (item_id,), SparseEmbeddingRole.QUERY)
+
+    def encode_sparse_queries(self, texts: Sequence[str], *, item_ids: Sequence[str]) -> SparseEmbeddingResult:
+        if len(texts) != len(item_ids):
+            raise ValueError("Sparse query text and id counts must match")
+        return self._encode(texts, item_ids, SparseEmbeddingRole.QUERY)
 
     def encode_sparse_documents(self, texts: Sequence[str], *, item_ids: Sequence[str]) -> SparseEmbeddingResult:
         if len(texts) != len(item_ids):
@@ -150,11 +197,13 @@ class OpenSearchNeuralSparseProvider:
 
 def _to_csr(encoded: object, rows: int, dimensions: int) -> sparse.csr_matrix:
     if sparse.isspmatrix_csr(encoded):
-        matrix = encoded
+        matrix = encoded.copy()
     elif sparse.issparse(encoded):
-        matrix = encoded.tocsr()
+        matrix = encoded.tocsr(copy=True)
     elif getattr(encoded, "is_sparse", False):
         tensor = encoded.coalesce()
+        if tensor.ndim != 2:
+            raise ValueError("SparseEncoder output must be a two-dimensional sparse tensor")
         indices = tensor.indices().detach().cpu().numpy()
         values = tensor.values().detach().cpu().numpy()
         matrix = sparse.csr_matrix((values, (indices[0], indices[1])), shape=(rows, dimensions))
@@ -165,6 +214,11 @@ def _to_csr(encoded: object, rows: int, dimensions: int) -> sparse.csr_matrix:
     matrix = matrix.astype(np.float32, copy=False)
     if not np.all(np.isfinite(matrix.data)):
         raise ValueError("SparseEncoder output contains non-finite values")
+    if np.any(matrix.data < 0):
+        raise ValueError("SparseEncoder output contains negative values")
+    matrix.sum_duplicates()
+    matrix.sort_indices()
+    matrix.eliminate_zeros()
     return matrix
 
 

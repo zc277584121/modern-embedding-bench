@@ -1,0 +1,48 @@
+models:
+  - id: granite-embedding-30m-sparse
+    display_name: IBM Granite Embedding 30M Sparse
+    provider: sentence_transformers_sparse
+    provider_kwargs:
+      model_key: granite-30m-sparse
+      allow_download: false
+      max_length: 512
+    representation_kind: sparse_csr
+    model_revision: ad82b1fd09541c998c8d45045d601c51fdb8a9b7
+    representation_id: granite-30m-sparse-csr-v1
+    vocabulary_id: roberta-bpe-50265
+    query_route: neural
+    document_route: neural
+    modalities: [text]
+    dimensions: 50265
+    max_text_length: 512
+    access: open_weights
+    status: batch_a_selected
+    publish: false
+    priority: 30
+    tags: [sparse, csr, exact, sentence-transformers, splade, batch-a, no-publish]
+    source: https://huggingface.co/ibm-granite/granite-embedding-30m-sparse
+    notes: Apache-2.0; query max_active_dims 50 and document max_active_dims 192 are fixed by Batch A.
+
+  - id: opensearch-neural-sparse-doc-v2-mini
+    display_name: OpenSearch Neural Sparse Encoding Doc V2 Mini
+    provider: sentence_transformers_sparse
+    provider_kwargs:
+      model_key: opensearch-doc-v2-mini
+      allow_download: false
+      max_length: 512
+    representation_kind: sparse_csr
+    model_revision: 4af867a426867dfdd744097531046f4289a32fdd
+    representation_id: opensearch-doc-v2-mini-csr-v1
+    vocabulary_id: bert-wordpiece-30522
+    query_route: static_lookup
+    document_route: document_expansion
+    modalities: [text]
+    dimensions: 30522
+    max_text_length: 512
+    access: open_weights
+    status: batch_a_selected
+    publish: false
+    priority: 31
+    tags: [sparse, csr, exact, sentence-transformers, opensearch, batch-a, no-publish]
+    source: https://huggingface.co/opensearch-project/opensearch-neural-sparse-encoding-doc-v2-mini
+    notes: Apache-2.0; static query lookup and document expansion routes are fixed by Batch A.

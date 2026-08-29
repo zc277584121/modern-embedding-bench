@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "BRIGHT Learned Sparse Tracked Artifact Manifest V1",
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "revision": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "fileIdentity": {
+      "type": "object",
+      "required": ["bytes", "sha256"],
+      "properties": {
+        "bytes": {"type": "integer", "minimum": 1},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      },
+      "additionalProperties": false
+    },
+    "publication": {
+      "type": "object",
+      "required": ["publish", "leaderboard_publish", "public_export_allowed", "gate", "classification"],
+      "properties": {
+        "publish": {"const": false},
+        "leaderboard_publish": {"const": false},
+        "public_export_allowed": {"const": false},
+        "gate": {"const": "closed"},
+        "classification": {"const": "research_only"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "type": "object",
+  "required": ["schema_version", "dataset_version", "publication", "protocol", "tracked_files", "raw_results", "content_policy"],
+  "properties": {
+    "schema_version": {"const": "bright-learned-sparse-artifact-manifest-v1"},
+    "dataset_version": {"const": "bright-nontechnical-pilot-v0.2"},
+    "publication": {"$ref": "#/$defs/publication"},
+    "protocol": {
+      "type": "object",
+      "required": [
+        "models", "tracks", "dataset_version", "canonical_data_root", "materialization_manifest_sha256",
+        "source_revision", "device", "batch_size", "chunk_size", "max_length", "search",
+        "trust_remote_code", "identity_sha256"
+      ],
+      "properties": {
+        "models": {
+          "const": ["granite-30m-sparse", "opensearch-doc-v2-mini", "opensearch-doc-v3", "bge-m3"]
+        },
+        "tracks": {"const": ["economics", "psychology"]},
+        "dataset_version": {"const": "bright-nontechnical-pilot-v0.2"},
+        "canonical_data_root": {"const": "data/bright-nontechnical-pilot-v0.2"},
+        "materialization_manifest_sha256": {"$ref": "#/$defs/sha256"},
+        "source_revision": {"$ref": "#/$defs/revision"},
+        "device": {"const": "cuda:0"},
+        "batch_size": {"const": 8},
+        "chunk_size": {"const": 256},
+        "max_length": {"const": 512},
+        "search": {
+          "type": "object",
+          "required": ["backend", "exact", "top_k", "tie_break"],
+          "properties": {
+            "backend": {"const": "scipy_csr_exact"},
+            "exact": {"const": true},
+            "top_k": {"const": 100},
+            "tie_break": {"const": "document_id_ascending"}
+          },
+          "additionalProperties": false
+        },
+        "trust_remote_code": {"const": false},
+        "identity_sha256": {"$ref": "#/$defs/sha256"}
+      },
+      "additionalProperties": false
+    },
+    "tracked_files": {
+      "type": "object",
+      "minProperties": 3,
+      "maxProperties": 3,
+      "propertyNames": {"pattern": "^benchmark/(artifacts|research)/"},
+      "additionalProperties": {"$ref": "#/$defs/fileIdentity"}
+    },
+    "raw_results": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "required": ["model_key", "track", "manifest_sha256", "sidecar_sha256", "artifact_map_sha256"],
+        "properties": {
+          "model_key": {"enum": ["granite-30m-sparse", "opensearch-doc-v2-mini", "opensearch-doc-v3", "bge-m3"]},
+          "track": {"enum": ["economics", "psychology"]},
+          "manifest_sha256": {"$ref": "#/$defs/sha256"},
+          "sidecar_sha256": {"$ref": "#/$defs/sha256"},
+          "artifact_map_sha256": {"$ref": "#/$defs/sha256"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "content_policy": {
+      "const": "Tracked files contain no source text, query or document identifiers, rankings, or per-query rows."
+    }
+  },
+  "additionalProperties": false
+}

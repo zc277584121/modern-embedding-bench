@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Learned Sparse Inventory V1",
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "revision": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "route": {"enum": ["neural", "static_lookup", "tokenizer_idf", "document_expansion", "none"]},
+    "nullablePositiveInteger": {"type": ["integer", "null"], "minimum": 1}
+  },
+  "type": "object",
+  "required": ["schema_version", "policy", "models"],
+  "properties": {
+    "schema_version": {"const": "learned-sparse-inventory-v1"},
+    "policy": {
+      "type": "object",
+      "required": ["batch_download_cap_bytes", "story_disk_cap_bytes", "trust_remote_code", "revision", "weights"],
+      "properties": {
+        "batch_download_cap_bytes": {"const": 536870912},
+        "story_disk_cap_bytes": {"const": 4294967296},
+        "trust_remote_code": {"const": false},
+        "revision": {"const": "40-character lowercase hexadecimal commit"},
+        "weights": {"const": "safetensors only for newly resolved snapshots"}
+      },
+      "additionalProperties": false
+    },
+    "models": {
+      "type": "array",
+      "minItems": 13,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "required": [
+          "key", "status", "reason", "repo_id", "revision", "license", "gated", "adapter",
+          "query_route", "document_route", "vocabulary_id", "dimensions", "max_length", "query_pruning",
+          "document_pruning", "dependencies", "download_cap_bytes", "estimated_snapshot_bytes",
+          "trust_remote_code", "remote_code_risk", "allowlist", "expected_identity"
+          , "revision_evidence"
+        ],
+        "properties": {
+          "key": {"type": "string", "minLength": 1},
+          "status": {"enum": ["selected", "anchor", "deferred", "excluded"]},
+          "reason": {"type": "string", "minLength": 1},
+          "repo_id": {"type": "string", "pattern": "^[^/]+/[^/]+$"},
+          "revision": {"$ref": "#/$defs/revision"},
+          "license": {"type": "string", "minLength": 1},
+          "gated": {"enum": [false, true, "auto"]},
+          "adapter": {"type": "string", "minLength": 1},
+          "query_route": {"$ref": "#/$defs/route"},
+          "document_route": {"$ref": "#/$defs/route"},
+          "vocabulary_id": {"type": "string", "minLength": 1},
+          "dimensions": {"type": "integer", "minimum": 1},
+          "max_length": {"type": "integer", "minimum": 1},
+          "query_pruning": {"$ref": "#/$defs/nullablePositiveInteger"},
+          "document_pruning": {"$ref": "#/$defs/nullablePositiveInteger"},
+          "dependencies": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+          "download_cap_bytes": {"type": ["integer", "null"], "minimum": 1},
+          "estimated_snapshot_bytes": {"type": ["integer", "null"], "minimum": 1},
+          "trust_remote_code": {"type": "boolean"},
+          "remote_code_risk": {"type": "string", "minLength": 1},
+          "allowlist": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+          "expected_identity": {
+            "type": "object",
+            "propertyNames": {"type": "string", "minLength": 1},
+            "additionalProperties": {"$ref": "#/$defs/sha256"}
+          },
+          "revision_evidence": {
+            "type": "object",
+            "required": ["kind", "url"],
+            "properties": {
+              "kind": {"const": "huggingface_immutable_tree"},
+              "url": {"type": "string", "pattern": "^https://huggingface\\.co/[^/]+/[^/]+/tree/[0-9a-f]{40}$"}
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

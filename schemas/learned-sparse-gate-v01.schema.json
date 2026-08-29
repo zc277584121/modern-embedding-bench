@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Learned Sparse Bounded Gate V1",
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "revision": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "route": {"enum": ["neural", "static_lookup", "document_expansion"]},
+    "publication": {
+      "type": "object",
+      "required": ["publish", "leaderboard_publish", "public_export_allowed", "gate", "classification"],
+      "properties": {
+        "publish": {"const": false},
+        "leaderboard_publish": {"const": false},
+        "public_export_allowed": {"const": false},
+        "gate": {"const": "closed"},
+        "classification": {"const": "research_only"}
+      },
+      "additionalProperties": false
+    },
+    "resource": {
+      "type": "object",
+      "required": [
+        "nnz", "latency_ms", "truncated_count", "max_observed_tokens", "cpu_time_s",
+        "peak_ram_bytes", "peak_vram_bytes", "batch_size_used", "tokenizer_class"
+      ],
+      "properties": {
+        "nnz": {"type": "array", "minItems": 1, "items": {"type": "integer", "minimum": 0}},
+        "latency_ms": {"type": "number", "exclusiveMinimum": 0},
+        "truncated_count": {"type": "integer", "minimum": 0},
+        "max_observed_tokens": {"type": "integer", "minimum": 1},
+        "cpu_time_s": {"type": "number", "exclusiveMinimum": 0},
+        "peak_ram_bytes": {"type": "integer", "minimum": 1},
+        "peak_vram_bytes": {"type": "integer", "minimum": 1, "maximum": 11274289152},
+        "batch_size_used": {"enum": [1, 2, 4, 8]},
+        "batch_size_requested": {"enum": [1, 2, 4, 8]},
+        "batch_size_attempts": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": [1, 2, 4, 8]}},
+        "tokenizer_class": {"type": "string", "minLength": 1, "not": {"const": "unknown"}}
+      },
+      "additionalProperties": false
+    }
+  },
+  "type": "object",
+  "required": ["schema_version", "publication", "model", "data", "query", "documents", "search"],
+  "properties": {
+    "schema_version": {"const": "learned-sparse-gate-v1"},
+    "publication": {"$ref": "#/$defs/publication"},
+    "model": {
+      "type": "object",
+      "required": [
+        "key", "repo_id", "revision", "license", "mechanism", "training_overlap_boundary", "snapshot",
+        "query_route", "document_route", "dimensions", "max_length", "query_pruning", "document_pruning"
+      ],
+      "properties": {
+        "key": {"enum": ["granite-30m-sparse", "opensearch-doc-v2-mini"]},
+        "repo_id": {"type": "string", "pattern": "^[^/]+/[^/]+$"},
+        "revision": {"$ref": "#/$defs/revision"},
+        "license": {"const": "Apache-2.0"},
+        "mechanism": {"type": "string", "minLength": 1},
+        "training_overlap_boundary": {"type": "string", "minLength": 1},
+        "snapshot": {
+          "type": "object",
+          "required": ["path", "files", "aggregate_identity_sha256", "actual_bytes"],
+          "properties": {
+            "path": {"type": "string", "minLength": 1},
+            "files": {"type": "object", "minProperties": 1, "additionalProperties": {"$ref": "#/$defs/sha256"}},
+            "aggregate_identity_sha256": {"$ref": "#/$defs/sha256"},
+            "actual_bytes": {"type": "integer", "minimum": 1, "maximum": 134217728}
+          },
+          "additionalProperties": false
+        },
+        "query_route": {"$ref": "#/$defs/route"},
+        "document_route": {"$ref": "#/$defs/route"},
+        "dimensions": {"enum": [30522, 50265]},
+        "max_length": {"const": 512},
+        "query_pruning": {"type": ["integer", "null"], "minimum": 1},
+        "document_pruning": {"type": ["integer", "null"], "minimum": 1}
+      },
+      "additionalProperties": false
+    },
+    "data": {
+      "type": "object",
+      "required": [
+        "dataset_version", "track", "query_count", "document_count", "query_ids_sha256",
+        "document_ids_sha256", "materialization_manifest_sha256", "source_revision", "selection_ids_sha256"
+      ],
+      "properties": {
+        "dataset_version": {"const": "bright-nontechnical-pilot-v0.2"},
+        "track": {"const": "economics"},
+        "query_count": {"const": 1},
+        "document_count": {"const": 4},
+        "query_ids_sha256": {"$ref": "#/$defs/sha256"},
+        "document_ids_sha256": {"$ref": "#/$defs/sha256"},
+        "materialization_manifest_sha256": {"$ref": "#/$defs/sha256"},
+        "source_revision": {"$ref": "#/$defs/revision"},
+        "selection_ids_sha256": {"$ref": "#/$defs/sha256"}
+      },
+      "additionalProperties": false
+    },
+    "query": {"allOf": [{"$ref": "#/$defs/resource"}, {"properties": {"nnz": {"minItems": 1, "maxItems": 1}}}]},
+    "documents": {"allOf": [{"$ref": "#/$defs/resource"}, {"properties": {"nnz": {"minItems": 4, "maxItems": 4}}}]},
+    "search": {
+      "type": "object",
+      "required": ["backend", "exact", "top_k", "tie_break", "ranking_fingerprint"],
+      "properties": {
+        "backend": {"const": "scipy_csr_exact"},
+        "exact": {"const": true},
+        "top_k": {"const": 4},
+        "tie_break": {"const": "document_id_ascending"},
+        "ranking_fingerprint": {"$ref": "#/$defs/sha256"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

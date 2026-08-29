@@ -38,6 +38,7 @@ def test_bge_m3_sparse_adapter_emits_finite_csr_without_dense_conversion() -> No
     provider.device = "cpu"
     provider.max_length = 8
     provider.batch_size = 2
+    provider.gpu_cap_bytes = provider_module.GPU_GATE_CAP_BYTES
     provider._snapshot_path = Path("/pinned")
     provider._unused_ids = {0, 1, 2, 3}
     provider._torch = __import__("torch")
@@ -67,3 +68,60 @@ def test_bge_m3_sparse_adapter_emits_finite_csr_without_dense_conversion() -> No
     assert result.embeddings.values.shape == (2, DIMENSIONS)
     assert np.all(np.isfinite(result.embeddings.values.data))
     assert result.embeddings.nnz_per_row == (1, 1)
+
+
+def test_bge_m3_anchor_uses_deterministic_oom_fallback(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import torch
+
+    provider = object.__new__(BGEM3SparseProvider)
+    provider.model = "BAAI/bge-m3"
+    provider.revision = provider_module.REVISION
+    provider.device = "cuda:0"
+    provider.max_length = 8
+    provider.batch_size = 8
+    provider.gpu_cap_bytes = 1000
+    provider._snapshot_path = Path("/pinned")
+    provider._unused_ids = {0, 1, 2, 3}
+    provider._torch = torch
+
+    class Tokens(dict):
+        def to(self, _device):
+            return self
+
+    class Tokenizer:
+        def __call__(self, texts, **kwargs):
+            if kwargs.get("return_length"):
+                return {"length": [4 for _ in texts]}
+            return Tokens(
+                input_ids=torch.tensor([[0, 7, 7, 2] for _ in texts]),
+                attention_mask=torch.ones((len(texts), 4), dtype=torch.long),
+            )
+
+    class Encoder:
+        def __init__(self):
+            self.calls = 0
+
+        def __call__(self, **kwargs):
+            self.calls += 1
+            if self.calls == 1:
+                raise torch.cuda.OutOfMemoryError("synthetic OOM")
+            return type(
+                "Output", (),
+                {"last_hidden_state": torch.ones((*kwargs["input_ids"].shape, 1))},
+            )
+
+    provider._tokenizer = Tokenizer()
+    provider._encoder = Encoder()
+    provider._sparse_linear = lambda hidden: hidden
+    monkeypatch.setattr(torch.cuda, "reset_peak_memory_stats", lambda _device: None)
+    monkeypatch.setattr(torch.cuda, "max_memory_allocated", lambda _device: 900)
+    monkeypatch.setattr(torch.cuda, "empty_cache", lambda: None)
+    result = provider._encode(["a", "b"], ["a", "b"], SparseEmbeddingRole.DOCUMENT)
+    assert result.metadata_dict()["batch_size_requested"] == 8
+    assert result.metadata_dict()["batch_size_attempts"] == [8, 4]
+    assert result.metadata_dict()["batch_size_used"] == 4
+    provider.gpu_cap_bytes = 800
+    with pytest.raises(ValueError, match="exceeds cap"):
+        provider._encode(["a", "b"], ["a", "b"], SparseEmbeddingRole.DOCUMENT)

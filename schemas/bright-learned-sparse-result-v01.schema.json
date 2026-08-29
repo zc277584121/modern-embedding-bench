@@ -1,0 +1,283 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "BRIGHT Learned Sparse Raw Result V1",
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "revision": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "route": {"enum": ["neural", "static_lookup", "document_expansion"]},
+    "publication": {
+      "type": "object",
+      "required": ["publish", "leaderboard_publish", "public_export_allowed", "gate", "classification"],
+      "properties": {
+        "publish": {"const": false},
+        "leaderboard_publish": {"const": false},
+        "public_export_allowed": {"const": false},
+        "gate": {"const": "closed"},
+        "classification": {"const": "research_only"}
+      },
+      "additionalProperties": false
+    },
+    "metrics": {
+      "type": "object",
+      "required": ["ndcg@10", "map@100", "mrr@10", "recall@10", "recall@100"],
+      "properties": {
+        "ndcg@10": {"type": "number", "minimum": 0, "maximum": 1},
+        "map@100": {"type": "number", "minimum": 0, "maximum": 1},
+        "mrr@10": {"type": "number", "minimum": 0, "maximum": 1},
+        "recall@10": {"type": "number", "minimum": 0, "maximum": 1},
+        "recall@100": {"type": "number", "minimum": 0, "maximum": 1}
+      },
+      "additionalProperties": false
+    },
+    "interval": {
+      "type": "object",
+      "required": ["mean", "low", "high", "samples", "seed"],
+      "properties": {
+        "mean": {"type": "number", "minimum": 0, "maximum": 1},
+        "low": {"type": "number", "minimum": 0, "maximum": 1},
+        "high": {"type": "number", "minimum": 0, "maximum": 1},
+        "samples": {"const": 10000},
+        "seed": {"const": 20260826}
+      },
+      "additionalProperties": false
+    },
+    "confidenceIntervals": {
+      "type": "object",
+      "required": ["ndcg@10", "map@100", "mrr@10", "recall@10", "recall@100"],
+      "properties": {
+        "ndcg@10": {"$ref": "#/$defs/interval"},
+        "map@100": {"$ref": "#/$defs/interval"},
+        "mrr@10": {"$ref": "#/$defs/interval"},
+        "recall@10": {"$ref": "#/$defs/interval"},
+        "recall@100": {"$ref": "#/$defs/interval"}
+      },
+      "additionalProperties": false
+    },
+    "nnzStats": {
+      "type": "object",
+      "required": ["count", "total", "mean", "p50", "p95", "max", "empty"],
+      "properties": {
+        "count": {"type": "integer", "minimum": 1},
+        "total": {"type": "integer", "minimum": 0},
+        "mean": {"type": "number", "minimum": 0},
+        "p50": {"type": "number", "minimum": 0},
+        "p95": {"type": "number", "minimum": 0},
+        "max": {"type": "integer", "minimum": 0},
+        "empty": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "dataEconomics": {
+      "allOf": [
+        {"$ref": "#/$defs/dataBase"},
+        {"properties": {"track": {"const": "economics"}, "documents": {"const": 7500}, "queries": {"const": 103}, "qrels": {"const": 800}}}
+      ]
+    },
+    "dataPsychology": {
+      "allOf": [
+        {"$ref": "#/$defs/dataBase"},
+        {"properties": {"track": {"const": "psychology"}, "documents": {"const": 7500}, "queries": {"const": 101}, "qrels": {"const": 692}}}
+      ]
+    },
+    "dataBase": {
+      "type": "object",
+      "required": [
+        "dataset_version", "track", "documents", "queries", "qrels", "materialization_manifest_sha256",
+        "source_revision", "selection_ids_sha256", "corpus_sha256", "queries_sha256", "qrels_sha256"
+      ],
+      "properties": {
+        "dataset_version": {"const": "bright-nontechnical-pilot-v0.2"},
+        "track": {"enum": ["economics", "psychology"]},
+        "documents": {"type": "integer", "minimum": 1},
+        "queries": {"type": "integer", "minimum": 1},
+        "qrels": {"type": "integer", "minimum": 1},
+        "materialization_manifest_sha256": {"$ref": "#/$defs/sha256"},
+        "source_revision": {"$ref": "#/$defs/revision"},
+        "selection_ids_sha256": {"$ref": "#/$defs/sha256"},
+        "corpus_sha256": {"$ref": "#/$defs/sha256"},
+        "queries_sha256": {"$ref": "#/$defs/sha256"},
+        "qrels_sha256": {"$ref": "#/$defs/sha256"}
+      },
+      "additionalProperties": false
+    },
+    "shape": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "prefixItems": [{"type": "integer", "minimum": 1}, {"type": "integer", "minimum": 1}],
+      "items": false
+    },
+    "documentAudit": {
+      "type": "object",
+      "required": [
+        "count", "latency_ms", "cpu_time_s", "truncated_count", "max_observed_tokens",
+        "peak_ram_bytes", "peak_vram_bytes", "tokenizer_classes", "batch_sizes_used"
+      ],
+      "properties": {
+        "count": {"const": 7500},
+        "latency_ms": {"type": "number", "exclusiveMinimum": 0},
+        "cpu_time_s": {"type": "number", "exclusiveMinimum": 0},
+        "truncated_count": {"type": "integer", "minimum": 0, "maximum": 7500},
+        "max_observed_tokens": {"type": "integer", "minimum": 1},
+        "peak_ram_bytes": {"type": "integer", "minimum": 1},
+        "peak_vram_bytes": {"type": "integer", "minimum": 1, "maximum": 11274289152},
+        "tokenizer_classes": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1, "not": {"const": "unknown"}}},
+        "batch_sizes_used": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": [1, 2, 4, 8]}},
+        "batch_sizes_attempted": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": [1, 2, 4, 8]}}
+      },
+      "additionalProperties": false
+    },
+    "queryAudit": {
+      "type": "object",
+      "required": [
+        "count", "latency_ms", "cpu_time_s", "truncated_count", "max_observed_tokens", "peak_ram_bytes",
+        "peak_vram_bytes", "tokenizer_class", "batch_size_requested", "batch_size_used", "pruning_max_active_dims"
+      ],
+      "properties": {
+        "count": {"enum": [101, 103]},
+        "latency_ms": {"type": "number", "exclusiveMinimum": 0},
+        "cpu_time_s": {"type": "number", "exclusiveMinimum": 0},
+        "truncated_count": {"type": "integer", "minimum": 0, "maximum": 103},
+        "max_observed_tokens": {"type": "integer", "minimum": 1},
+        "peak_ram_bytes": {"type": "integer", "minimum": 1},
+        "peak_vram_bytes": {"type": "integer", "minimum": 1, "maximum": 11274289152},
+        "tokenizer_class": {"type": "string", "minLength": 1, "not": {"const": "unknown"}},
+        "batch_size_requested": {"const": 8},
+        "batch_size_used": {"enum": [1, 2, 4, 8]},
+        "batch_size_attempts": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": [1, 2, 4, 8]}},
+        "pruning_max_active_dims": {"type": ["integer", "null"], "minimum": 1}
+      },
+      "additionalProperties": false
+    }
+  },
+  "type": "object",
+  "required": [
+    "schema_version", "evidence_tier", "publication", "model", "data", "config", "metrics",
+    "confidence_intervals", "nnz", "representations", "audit", "search", "artifacts"
+  ],
+  "properties": {
+    "schema_version": {"const": "bright-learned-sparse-result-v1"},
+    "evidence_tier": {"const": "research_benchmark"},
+    "publication": {"$ref": "#/$defs/publication"},
+    "model": {
+      "type": "object",
+      "required": [
+        "key", "repo_id", "revision", "license", "provider", "mechanism", "snapshot_identity_sha256",
+        "vocabulary_id", "dimensions", "query_route", "document_route", "training_overlap_boundary"
+      ],
+      "properties": {
+        "key": {"enum": ["granite-30m-sparse", "opensearch-doc-v2-mini", "opensearch-doc-v3", "bge-m3"]},
+        "repo_id": {"type": "string", "pattern": "^[^/]+/[^/]+$"},
+        "revision": {"$ref": "#/$defs/revision"},
+        "license": {"enum": ["Apache-2.0", "MIT"]},
+        "provider": {"enum": ["sentence_transformers_sparse", "opensearch_neural_sparse", "bge_m3_sparse"]},
+        "mechanism": {"type": "string", "minLength": 1},
+        "snapshot_identity_sha256": {"$ref": "#/$defs/sha256"},
+        "vocabulary_id": {"type": "string", "minLength": 1},
+        "dimensions": {"enum": [30522, 50265, 250002]},
+        "query_route": {"$ref": "#/$defs/route"},
+        "document_route": {"$ref": "#/$defs/route"},
+        "training_overlap_boundary": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "data": {"oneOf": [{"$ref": "#/$defs/dataEconomics"}, {"$ref": "#/$defs/dataPsychology"}]},
+    "config": {
+      "type": "object",
+      "required": [
+        "schema_version", "dataset_version", "model_key", "model_revision", "snapshot_identity_sha256", "track",
+        "dimensions", "max_length", "query_route", "document_route", "query_pruning", "document_pruning",
+        "chunk_size", "batch_size", "trust_remote_code"
+      ],
+      "properties": {
+        "schema_version": {"const": "bright-learned-sparse-chunk-v1"},
+        "dataset_version": {"const": "bright-nontechnical-pilot-v0.2"},
+        "model_key": {"enum": ["granite-30m-sparse", "opensearch-doc-v2-mini", "opensearch-doc-v3", "bge-m3"]},
+        "model_revision": {"$ref": "#/$defs/revision"},
+        "snapshot_identity_sha256": {"$ref": "#/$defs/sha256"},
+        "track": {"enum": ["economics", "psychology"]},
+        "dimensions": {"enum": [30522, 50265, 250002]},
+        "max_length": {"const": 512},
+        "query_route": {"$ref": "#/$defs/route"},
+        "document_route": {"$ref": "#/$defs/route"},
+        "query_pruning": {"type": ["integer", "null"], "minimum": 1},
+        "document_pruning": {"type": ["integer", "null"], "minimum": 1},
+        "chunk_size": {"const": 256},
+        "batch_size": {"const": 8},
+        "trust_remote_code": {"const": false}
+      },
+      "additionalProperties": false
+    },
+    "metrics": {"$ref": "#/$defs/metrics"},
+    "confidence_intervals": {"$ref": "#/$defs/confidenceIntervals"},
+    "nnz": {
+      "type": "object",
+      "required": ["documents", "queries"],
+      "properties": {"documents": {"$ref": "#/$defs/nnzStats"}, "queries": {"$ref": "#/$defs/nnzStats"}},
+      "additionalProperties": false
+    },
+    "representations": {
+      "type": "object",
+      "required": ["documents", "queries"],
+      "properties": {
+        "documents": {
+          "type": "object",
+          "required": ["shape", "nnz", "item_ids_sha256", "chunk_count"],
+          "properties": {
+            "shape": {"$ref": "#/$defs/shape"},
+            "nnz": {"type": "integer", "minimum": 0},
+            "item_ids_sha256": {"$ref": "#/$defs/sha256"},
+            "chunk_count": {"type": "integer", "minimum": 1}
+          },
+          "additionalProperties": false
+        },
+        "queries": {
+          "type": "object",
+          "required": ["shape", "nnz", "item_ids_sha256"],
+          "properties": {
+            "shape": {"$ref": "#/$defs/shape"},
+            "nnz": {"type": "integer", "minimum": 0},
+            "item_ids_sha256": {"$ref": "#/$defs/sha256"}
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "audit": {
+      "type": "object",
+      "required": ["document_chunks", "query", "exact_search_s"],
+      "properties": {
+        "document_chunks": {"$ref": "#/$defs/documentAudit"},
+        "query": {"$ref": "#/$defs/queryAudit"},
+        "exact_search_s": {"type": "number", "exclusiveMinimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "search": {
+      "type": "object",
+      "required": ["backend", "exact", "top_k", "tie_break"],
+      "properties": {
+        "backend": {"const": "scipy_csr_exact"},
+        "exact": {"const": true},
+        "top_k": {"const": 100},
+        "tie_break": {"const": "document_id_ascending"}
+      },
+      "additionalProperties": false
+    },
+    "artifacts": {
+      "type": "object",
+      "minProperties": 7,
+      "additionalProperties": {
+        "type": "object",
+        "required": ["bytes", "sha256"],
+        "properties": {
+          "bytes": {"type": "integer", "minimum": 1},
+          "sha256": {"$ref": "#/$defs/sha256"}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

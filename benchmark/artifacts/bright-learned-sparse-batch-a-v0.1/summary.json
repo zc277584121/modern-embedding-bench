@@ -1,0 +1,958 @@
+{
+  "cells": [
+    {
+      "audit": {
+        "document_chunks": {
+          "batch_sizes_used": [
+            8
+          ],
+          "count": 7500,
+          "cpu_time_s": 164.7423991849999,
+          "latency_ms": 44774.860894307494,
+          "max_observed_tokens": 8421,
+          "peak_ram_bytes": 3993358336,
+          "peak_vram_bytes": 1248534016,
+          "tokenizer_classes": [
+            "XLMRobertaTokenizer"
+          ],
+          "truncated_count": 711
+        },
+        "exact_search_s": 0.8319750502705574,
+        "query": {
+          "batch_size_requested": 8,
+          "batch_size_used": 8,
+          "count": 103,
+          "cpu_time_s": 2.3475706419999938,
+          "latency_ms": 648.4074480831623,
+          "max_observed_tokens": 539,
+          "peak_ram_bytes": 3993358336,
+          "peak_vram_bytes": 1247239680,
+          "pruning_max_active_dims": null,
+          "tokenizer_class": "XLMRobertaTokenizer",
+          "truncated_count": 2
+        }
+      },
+      "confidence_intervals": {
+        "map@100": {
+          "high": 0.27001884429108436,
+          "low": 0.16422220803514795,
+          "mean": 0.215270409574903,
+          "samples": 10000,
+          "seed": 20260826
+        },
+        "mrr@10": {
+          "high": 0.40174921020188026,
+          "low": 0.25224967252273073,
+          "mean": 0.32577824009862844,
+          "samples": 10000,
+          "seed": 20260826
+        },
+        "ndcg@10": {
+          "high": 0.3456919831505383,
+          "low": 0.21836347141731036,
+          "mean": 0.2806269377375966,
+          "samples": 10000,
+          "seed": 20260826
+        },
+        "recall@10": {
+          "high": 0.3955184820667703,
+          "low": 0.24463369611338995,
+          "mean": 0.3184928701849075,
+          "samples": 10000,
+          "seed": 20260826
+        },
+        "recall@100": {
+          "high": 0.7251315334862519,
+          "low": 0.5816321981595575,
+          "mean": 0.6543185531218194,
+          "samples": 10000,
+          "seed": 20260826
+        }
+      },
+      "counts": {
+        "documents": 7500,
+        "qrels": 800,
+        "queries": 103
+      },
+      "document_route": "neural",
+      "license": "MIT",
+      "mechanism": "contextual lexical token-weight projection with max pooling",
+      "metrics": {
+        "map@100": 0.21527040957490312,
+        "mrr@10": 0.32577824009862844,
+        "ndcg@10": 0.2806269377375966,
+        "recall@10": 0.3184928701849075,
+        "recall@100": 0.6543185531218195
+      },
+      "model_key": "bge-m3",
+      "nnz": {
+        "documents": {
+          "count": 7500,
+          "empty": 0,
+          "max": 294,
+          "mean": 51.46026666666667,
+          "p50": 34.0,
+          "p95": 174.0,
+          "total": 385952
+        },
+        "queries": {
+          "count": 103,
+          "empty": 0,
+          "max": 161,
+          "mean": 64.27184466019418,
+          "p50": 59.0,
+          "p95": 115.59999999999997,
+          "total": 6620
+        }
+      },
+      "query_route": "neural",
+      "repo_id": "BAAI/bge-m3",
+      "revision": "5617a9f61b028005a4858fdac845db406aefb181",
+      "search": {
+        "backend": "scipy_csr_exact",
+        "exact": true,
+        "tie_break": "document_id_ascending",
+        "top_k": 100
+      },
+      "snapshot_identity_sha256": "b74878c8ce0438f0cefe3d3422e699507bc1ba04cf9c59f0615f77fd3224a2d0",
+      "track": "economics",
+      "training_overlap_boundary": "Training overlap with BRIGHT source material is not ruled out; results must not be described as zero-shot."
+    },
+    {
+      "audit": {
+        "document_chunks": {
+          "batch_sizes_used": [
+            8
+          ],
+          "count": 7500,
+          "cpu_time_s": 162.22376329400004,
+          "latency_ms": 43797.447269782424,
+          "max_observed_tokens": 81252,
+          "peak_ram_bytes": 3963809792,
+          "peak_vram_bytes": 1248157184,
+          "tokenizer_classes": [
+            "XLMRobertaTokenizer"
+          ],
+          "truncated_count": 425
+        },
+        "exact_search_s": 0.7680287379771471,
+        "query": {
+          "batch_size_requested": 8,
+          "batch_size_used": 8,
+          "count": 101,
+          "cpu_time_s": 2.1097684709999953,
+          "latency_ms": 582.9007979482412,
+          "max_observed_tokens": 508,
+          "peak_ram_bytes": 3963809792,
+          "peak_vram_bytes": 1246514688,
+          "pruning_max_active_dims": null,
+          "tokenizer_class": "XLMRobertaTokenizer",
+          "truncated_count": 0
+        }
+      },
+      "confidence_intervals": {
+        "map@100": {
+          "high": 0.34934959369017193,
+          "low": 0.21130776865456957,
+          "mean": 0.2773825879223076,
+          "samples": 10000,
+          "seed": 20260826
+        },
+        "mrr@10": {
+          "high": 0.47777286657237156,
+          "low": 0.3095287207292157,
+          "mean": 0.3916863114882917,
+          "samples": 10000,
+          "seed": 20260826
+        },
+        "ndcg@10": {
+          "high": 0.397573835525951,
+          "low": 0.2516799288478224,
+          "mean": 0.32266363940032183,
+          "samples": 10000,
+          "seed": 20260826
+        },
+        "recall@10": {
+          "high": 0.41413098305533425,
+          "low": 0.260142917344083,
+          "mean": 0.33531673549620644,
+          "samples": 10000,
+          "seed": 20260826
+        },
+        "recall@100": {
+          "high": 0.6875130336962861,
+          "low": 0.5309782841044329,
+          "mean": 0.6108259628077215,
+          "samples": 10000,
+          "seed": 20260826
+        }
+      },
+      "counts": {
+        "documents": 7500,
+        "qrels": 692,
+        "queries": 101
+      },
+      "document_route": "neural",
+      "license": "MIT",
+      "mechanism": "contextual lexical token-weight projection with max pooling",
+      "metrics": {
+        "map@100": 0.2773825879223076,
+        "mrr@10": 0.3916863114882917,
+        "ndcg@10": 0.3226636394003219,
+        "recall@10": 0.33531673549620633,
+        "recall@100": 0.6108259628077215
+      },
+      "model_key": "bge-m3",
+      "nnz": {
+        "documents": {
+          "count": 7500,
+          "empty": 0,
+          "max": 275,
+          "mean": 47.8748,
+          "p50": 33.0,
+          "p95": 152.0,
+          "total": 359061
+        },
+        "queries": {
+          "count": 101,
+          "empty": 0,
+          "max": 153,
+          "mean": 59.722772277227726,
+          "p50": 55.0,
+          "p95": 103.0,
+          "total": 6032
+        }
+      },
+      "query_route": "neural",
+      "repo_id": "BAAI/bge-m3",
+      "revision": "5617a9f61b028005a4858fdac845db406aefb181",
+      "search": {
+        "backend": "scipy_csr_exact",
+        "exact": true,
+        "tie_break": "document_id_ascending",
+        "top_k": 100
+      },
+      "snapshot_identity_sha256": "b74878c8ce0438f0cefe3d3422e699507bc1ba04cf9c59f0615f77fd3224a2d0",
+      "track": "psychology",
+      "training_overlap_boundary": "Training overlap with BRIGHT source material is not ruled out; results must not be described as zero-shot."
+    },
+    {
+      "audit": {
+        "document_chunks": {
+          "batch_sizes_used": [
+            8
+          ],
+          "count": 7500,
+          "cpu_time_s": 115.67931609899995,
+          "latency_ms": 14607.105363160372,
+          "max_observed_tokens": 8406,
+          "peak_ram_bytes": 1889099776,
+          "peak_vram_bytes": 898789888,
+          "tokenizer_classes": [
+            "RobertaTokenizer"
+          ],
+          "truncated_count": 748
+        },
+        "exact_search_s": 0.8694914001971483,
+        "query": {
+          "batch_size_requested": 8,
+          "batch_size_used": 8,
+          "count": 103,
+          "cpu_time_s": 1.565255762999982,
+          "latency_ms": 234.4100195914507,
+          "max_observed_tokens": 711,
+          "peak_ram_bytes": 1952841728,
+          "peak_vram_bytes": 898789888,
+          "pruning_max_active_dims": 50,
+          "tokenizer_class": "RobertaTokenizer",
+          "truncated_count": 2
+        }
+      },
+      "confidence_intervals": {
+        "map@100": {
+          "high": 0.26157627159968094,
+          "low": 0.15663088647564594,
+          "mean": 0.20709281063904442,
+          "samples": 10000,
+          "seed": 20260826
+        },
+        "mrr@10": {
+          "high": 0.3698385729696408,
+          "low": 0.22069617814763448,
+          "mean": 0.2932963476652797,
+          "samples": 10000,
+          "seed": 20260826
+        },
+        "ndcg@10": {
+          "high": 0.32386934512668586,
+          "low": 0.1988561963192649,
+          "mean": 0.2595328092636765,
+          "samples": 10000,
+          "seed": 20260826
+        },
+        "recall@10": {
+          "high": 0.37089914881978625,
+          "low": 0.2245637923629153,
+          "mean": 0.2952049380383892,
+          "samples": 10000,
+          "seed": 20260826
+        },
+        "recall@100": {
+          "high": 0.7485537390433634,
+          "low": 0.6013131948649295,
+          "mean": 0.6767143776183396,
+          "samples": 10000,
+          "seed": 20260826
+        }
+      },
+      "counts": {
+        "documents": 7500,
+        "qrels": 800,
+        "queries": 103
+      },
+      "document_route": "neural",
+      "license": "Apache-2.0",
+      "mechanism": "neural SPLADE masked-language-model expansion with role-specific top-k pruning",
+      "metrics": {
+        "map@100": 0.2070928106390444,
+        "mrr@10": 0.2932963476652797,
+        "ndcg@10": 0.25953280926367644,
+        "recall@10": 0.2952049380383892,
+        "recall@100": 0.6767143776183396
+      },
+      "model_key": "granite-30m-sparse",
+      "nnz": {
+        "documents": {
+          "count": 7500,
+          "empty": 0,
+          "max": 192,
+          "mean": 163.3032,
+          "p50": 192.0,
+          "p95": 192.0,
+          "total": 1224774
+        },
+        "queries": {
+          "count": 103,
+          "empty": 0,
+          "max": 50,
+          "mean": 50.0,
+          "p50": 50.0,
+          "p95": 50.0,
+          "total": 5150
+        }
+      },
+      "query_route": "neural",
+      "repo_id": "ibm-granite/granite-embedding-30m-sparse",
+      "revision": "ad82b1fd09541c998c8d45045d601c51fdb8a9b7",
+      "search": {
+        "backend": "scipy_csr_exact",
+        "exact": true,
+        "tie_break": "document_id_ascending",
+        "top_k": 100
+      },
+      "snapshot_identity_sha256": "392f7930e073c6025d3eefd1caa3eedc01789b3dfcb7d7bc734179ccb511afaa",
+      "track": "economics",
+      "training_overlap_boundary": "Potential source-family overlap with StackExchange-derived BRIGHT data; results must not be described as zero-shot."
+    },
+    {
+      "audit": {
+        "document_chunks": {
+          "batch_sizes_used": [
+            8
+          ],
+          "count": 7500,
+          "cpu_time_s": 118.27483214399997,
+          "latency_ms": 14208.930032327771,
+          "max_observed_tokens": 78178,
+          "peak_ram_bytes": 1999667200,
+          "peak_vram_bytes": 898789888,
+          "tokenizer_classes": [
+            "RobertaTokenizer"
+          ],
+          "truncated_count": 415
+        },
+        "exact_search_s": 0.8548063822090626,
+        "query": {
+          "batch_size_requested": 8,
+          "batch_size_used": 8,
+          "count": 101,
+          "cpu_time_s": 1.4628136099999836,
+          "latency_ms": 194.83409263193607,
+          "max_observed_tokens": 474,
+          "peak_ram_bytes": 2039848960,
+          "peak_vram_bytes": 837663744,
+          "pruning_max_active_dims": 50,
+          "tokenizer_class": "RobertaTokenizer",
+          "truncated_count": 0
+        }
+      },
+      "confidence_intervals": {
+        "map@100": {
+          "high": 0.3228532665616525,
+          "low": 0.1939055867541859,
+          "mean": 0.2560785745354278,
+          "samples": 10000,
+          "seed": 20260826
+        },
+        "mrr@10": {
+          "high": 0.4101724815338677,
+          "low": 0.2491664702184504,
+          "mean": 0.32769134056262766,
+          "samples": 10000,
+          "seed": 20260826
+        },
+        "ndcg@10": {
+          "high": 0.36866030284732054,
+          "low": 0.22667484625497664,
+          "mean": 0.2963185987389417,
+          "samples": 10000,
+          "seed": 20260826
+        },
+        "recall@10": {
+          "high": 0.4063883619882497,
+          "low": 0.24683649490726625,
+          "mean": 0.3260740485304294,
+          "samples": 10000,
+          "seed": 20260826
+        },
+        "recall@100": {
+          "high": 0.7063221180873208,
+          "low": 0.5423758208006507,
+          "mean": 0.625039980342922,
+          "samples": 10000,
+          "seed": 20260826
+        }
+      },
+      "counts": {
+        "documents": 7500,
+        "qrels": 692,
+        "queries": 101
+      },
+      "document_route": "neural",
+      "license": "Apache-2.0",
+      "mechanism": "neural SPLADE masked-language-model expansion with role-specific top-k pruning",
+      "metrics": {
+        "map@100": 0.25607857453542776,
+        "mrr@10": 0.32769134056262766,
+        "ndcg@10": 0.2963185987389416,
+        "recall@10": 0.3260740485304294,
+        "recall@100": 0.625039980342922
+      },
+      "model_key": "granite-30m-sparse",
+      "nnz": {
+        "documents": {
+          "count": 7500,
+          "empty": 0,
+          "max": 192,
+          "mean": 161.35293333333334,
+          "p50": 192.0,
+          "p95": 192.0,
+          "total": 1210147
+        },
+        "queries": {
+          "count": 101,
+          "empty": 0,
+          "max": 50,
+          "mean": 50.0,
+          "p50": 50.0,
+          "p95": 50.0,
+          "total": 5050
+        }
+      },
+      "query_route": "neural",
+      "repo_id": "ibm-granite/granite-embedding-30m-sparse",
+      "revision": "ad82b1fd09541c998c8d45045d601c51fdb8a9b7",
+      "search": {
+        "backend": "scipy_csr_exact",
+        "exact": true,
+        "tie_break": "document_id_ascending",
+        "top_k": 100
+      },
+      "snapshot_identity_sha256": "392f7930e073c6025d3eefd1caa3eedc01789b3dfcb7d7bc734179ccb511afaa",
+      "track": "psychology",
+      "training_overlap_boundary": "Potential source-family overlap with StackExchange-derived BRIGHT data; results must not be described as zero-shot."
+    },
+    {
+      "audit": {
+        "document_chunks": {
+          "batch_sizes_used": [
+            8
+          ],
+          "count": 7500,
+          "cpu_time_s": 116.74177818099997,
+          "latency_ms": 15549.707438796759,
+          "max_observed_tokens": 8696,
+          "peak_ram_bytes": 1656680448,
+          "peak_vram_bytes": 1104987648,
+          "tokenizer_classes": [
+            "BertTokenizer"
+          ],
+          "truncated_count": 647
+        },
+        "exact_search_s": 0.9225831795483828,
+        "query": {
+          "batch_size_requested": 8,
+          "batch_size_used": 8,
+          "count": 103,
+          "cpu_time_s": 1.4221591579999995,
+          "latency_ms": 111.12379655241966,
+          "max_observed_tokens": 488,
+          "peak_ram_bytes": 1731256320,
+          "peak_vram_bytes": 103844864,
+          "pruning_max_active_dims": null,
+          "tokenizer_class": "BertTokenizer",
+          "truncated_count": 0
+        }
+      },
+      "confidence_intervals": {
+        "map@100": {
+          "high": 0.2533521753233598,
+          "low": 0.1429795054502432,
+          "mean": 0.1964300547419144,
+          "samples": 10000,
+          "seed": 20260826
+        },
+        "mrr@10": {
+          "high": 0.3669771921713669,
+          "low": 0.21028663892741564,
+          "mean": 0.28720141778394204,
+          "samples": 10000,
+          "seed": 20260826
+        },
+        "ndcg@10": {
+          "high": 0.3168027469347164,
+          "low": 0.1829977648598852,
+          "mean": 0.2484155572580241,
+          "samples": 10000,
+          "seed": 20260826
+        },
+        "recall@10": {
+          "high": 0.34594448018942286,
+          "low": 0.19732521002875503,
+          "mean": 0.2701597957745148,
+          "samples": 10000,
+          "seed": 20260826
+        },
+        "recall@100": {
+          "high": 0.6215800355888164,
+          "low": 0.46169503064402034,
+          "mean": 0.5421791291310769,
+          "samples": 10000,
+          "seed": 20260826
+        }
+      },
+      "counts": {
+        "documents": 7500,
+        "qrels": 800,
+        "queries": 103
+      },
+      "document_route": "document_expansion",
+      "license": "Apache-2.0",
+      "mechanism": "static sparse query lookup plus neural document expansion",
+      "metrics": {
+        "map@100": 0.19643005474191436,
+        "mrr@10": 0.28720141778394204,
+        "ndcg@10": 0.2484155572580241,
+        "recall@10": 0.2701597957745148,
+        "recall@100": 0.5421791291310768
+      },
+      "model_key": "opensearch-doc-v2-mini",
+      "nnz": {
+        "documents": {
+          "count": 7500,
+          "empty": 0,
+          "max": 883,
+          "mean": 205.36,
+          "p50": 180.0,
+          "p95": 409.0,
+          "total": 1540200
+        },
+        "queries": {
+          "count": 103,
+          "empty": 0,
+          "max": 243,
+          "mean": 87.79611650485437,
+          "p50": 77.0,
+          "p95": 157.59999999999997,
+          "total": 9043
+        }
+      },
+      "query_route": "static_lookup",
+      "repo_id": "opensearch-project/opensearch-neural-sparse-encoding-doc-v2-mini",
+      "revision": "4af867a426867dfdd744097531046f4289a32fdd",
+      "search": {
+        "backend": "scipy_csr_exact",
+        "exact": true,
+        "tie_break": "document_id_ascending",
+        "top_k": 100
+      },
+      "snapshot_identity_sha256": "46c91e3325d59555e2d848890835c276f406d96951c510ba25376e8c08c61458",
+      "track": "economics",
+      "training_overlap_boundary": "Potential source-family overlap with StackExchange-derived BRIGHT data; results must not be described as zero-shot."
+    },
+    {
+      "audit": {
+        "document_chunks": {
+          "batch_sizes_used": [
+            8
+          ],
+          "count": 7500,
+          "cpu_time_s": 126.69623885200002,
+          "latency_ms": 15646.199483424425,
+          "max_observed_tokens": 77990,
+          "peak_ram_bytes": 1785712640,
+          "peak_vram_bytes": 1104987648,
+          "tokenizer_classes": [
+            "BertTokenizer"
+          ],
+          "truncated_count": 387
+        },
+        "exact_search_s": 0.9162330124527216,
+        "query": {
+          "batch_size_requested": 8,
+          "batch_size_used": 8,
+          "count": 101,
+          "cpu_time_s": 1.236597283000009,
+          "latency_ms": 93.78918260335922,
+          "max_observed_tokens": 467,
+          "peak_ram_bytes": 1863614464,
+          "peak_vram_bytes": 103841792,
+          "pruning_max_active_dims": null,
+          "tokenizer_class": "BertTokenizer",
+          "truncated_count": 0
+        }
+      },
+      "confidence_intervals": {
+        "map@100": {
+          "high": 0.2604695102143832,
+          "low": 0.14616528537247356,
+          "mean": 0.20131079602980534,
+          "samples": 10000,
+          "seed": 20260826
+        },
+        "mrr@10": {
+          "high": 0.38595925663994973,
+          "low": 0.23023662187647334,
+          "mean": 0.3044947351878045,
+          "samples": 10000,
+          "seed": 20260826
+        },
+        "ndcg@10": {
+          "high": 0.31591259720641757,
+          "low": 0.18894144673062982,
+          "mean": 0.25075129990507083,
+          "samples": 10000,
+          "seed": 20260826
+        },
+        "recall@10": {
+          "high": 0.35111931464341944,
+          "low": 0.20369390631595527,
+          "mean": 0.27556900633525083,
+          "samples": 10000,
+          "seed": 20260826
+        },
+        "recall@100": {
+          "high": 0.6495052011913909,
+          "low": 0.49086872205008875,
+          "mean": 0.569914466113579,
+          "samples": 10000,
+          "seed": 20260826
+        }
+      },
+      "counts": {
+        "documents": 7500,
+        "qrels": 692,
+        "queries": 101
+      },
+      "document_route": "document_expansion",
+      "license": "Apache-2.0",
+      "mechanism": "static sparse query lookup plus neural document expansion",
+      "metrics": {
+        "map@100": 0.20131079602980542,
+        "mrr@10": 0.3044947351878045,
+        "ndcg@10": 0.2507512999050709,
+        "recall@10": 0.27556900633525083,
+        "recall@100": 0.569914466113579
+      },
+      "model_key": "opensearch-doc-v2-mini",
+      "nnz": {
+        "documents": {
+          "count": 7500,
+          "empty": 0,
+          "max": 857,
+          "mean": 203.70866666666666,
+          "p50": 178.0,
+          "p95": 416.0499999999993,
+          "total": 1527815
+        },
+        "queries": {
+          "count": 101,
+          "empty": 0,
+          "max": 207,
+          "mean": 85.58415841584159,
+          "p50": 79.0,
+          "p95": 154.0,
+          "total": 8644
+        }
+      },
+      "query_route": "static_lookup",
+      "repo_id": "opensearch-project/opensearch-neural-sparse-encoding-doc-v2-mini",
+      "revision": "4af867a426867dfdd744097531046f4289a32fdd",
+      "search": {
+        "backend": "scipy_csr_exact",
+        "exact": true,
+        "tie_break": "document_id_ascending",
+        "top_k": 100
+      },
+      "snapshot_identity_sha256": "46c91e3325d59555e2d848890835c276f406d96951c510ba25376e8c08c61458",
+      "track": "psychology",
+      "training_overlap_boundary": "Potential source-family overlap with StackExchange-derived BRIGHT data; results must not be described as zero-shot."
+    },
+    {
+      "audit": {
+        "document_chunks": {
+          "batch_sizes_used": [
+            8
+          ],
+          "count": 7500,
+          "cpu_time_s": 153.29979168000006,
+          "latency_ms": 22534.642385318875,
+          "max_observed_tokens": 8696,
+          "peak_ram_bytes": 1768038400,
+          "peak_vram_bytes": 1283808768,
+          "tokenizer_classes": [
+            "DistilBertTokenizer"
+          ],
+          "truncated_count": 647
+        },
+        "exact_search_s": 0.9276151247322559,
+        "query": {
+          "batch_size_requested": 8,
+          "batch_size_used": 8,
+          "count": 103,
+          "cpu_time_s": 1.6316274309999983,
+          "latency_ms": 115.7646644860506,
+          "max_observed_tokens": 488,
+          "peak_ram_bytes": 1839198208,
+          "peak_vram_bytes": 282170368,
+          "pruning_max_active_dims": null,
+          "tokenizer_class": "DistilBertTokenizer",
+          "truncated_count": 0
+        }
+      },
+      "confidence_intervals": {
+        "map@100": {
+          "high": 0.25077954388083906,
+          "low": 0.14443691378134882,
+          "mean": 0.19567713219389635,
+          "samples": 10000,
+          "seed": 20260826
+        },
+        "mrr@10": {
+          "high": 0.35874190938511324,
+          "low": 0.20792880258899676,
+          "mean": 0.28203883495145626,
+          "samples": 10000,
+          "seed": 20260826
+        },
+        "ndcg@10": {
+          "high": 0.3090948466216998,
+          "low": 0.1820434239062899,
+          "mean": 0.24436539670970464,
+          "samples": 10000,
+          "seed": 20260826
+        },
+        "recall@10": {
+          "high": 0.3356857337725413,
+          "low": 0.19464400002460955,
+          "mean": 0.2636865781828059,
+          "samples": 10000,
+          "seed": 20260826
+        },
+        "recall@100": {
+          "high": 0.6580221488249042,
+          "low": 0.5016362331589345,
+          "mean": 0.5802777575803322,
+          "samples": 10000,
+          "seed": 20260826
+        }
+      },
+      "counts": {
+        "documents": 7500,
+        "qrels": 800,
+        "queries": 103
+      },
+      "document_route": "document_expansion",
+      "license": "Apache-2.0",
+      "mechanism": "static sparse query lookup plus distilled neural document expansion",
+      "metrics": {
+        "map@100": 0.19567713219389643,
+        "mrr@10": 0.2820388349514563,
+        "ndcg@10": 0.24436539670970464,
+        "recall@10": 0.2636865781828059,
+        "recall@100": 0.580277757580332
+      },
+      "model_key": "opensearch-doc-v3",
+      "nnz": {
+        "documents": {
+          "count": 7500,
+          "empty": 0,
+          "max": 625,
+          "mean": 182.70293333333333,
+          "p50": 186.0,
+          "p95": 276.0,
+          "total": 1370272
+        },
+        "queries": {
+          "count": 103,
+          "empty": 0,
+          "max": 243,
+          "mean": 87.79611650485437,
+          "p50": 77.0,
+          "p95": 157.59999999999997,
+          "total": 9043
+        }
+      },
+      "query_route": "static_lookup",
+      "repo_id": "opensearch-project/opensearch-neural-sparse-encoding-doc-v3-distill",
+      "revision": "babf71f3c48695e2e53a978208e8aba48335e3c0",
+      "search": {
+        "backend": "scipy_csr_exact",
+        "exact": true,
+        "tie_break": "document_id_ascending",
+        "top_k": 100
+      },
+      "snapshot_identity_sha256": "55bf8e1df3905b6a4f81d7dd78402cf31088bd3db1a724baec8d5eace8b75151",
+      "track": "economics",
+      "training_overlap_boundary": "Potential source-family overlap with StackExchange-derived BRIGHT data; results must not be described as zero-shot."
+    },
+    {
+      "audit": {
+        "document_chunks": {
+          "batch_sizes_used": [
+            8
+          ],
+          "count": 7500,
+          "cpu_time_s": 150.19362601200004,
+          "latency_ms": 22111.495660617948,
+          "max_observed_tokens": 77990,
+          "peak_ram_bytes": 1834868736,
+          "peak_vram_bytes": 1283392000,
+          "tokenizer_classes": [
+            "DistilBertTokenizer"
+          ],
+          "truncated_count": 387
+        },
+        "exact_search_s": 0.886179743334651,
+        "query": {
+          "batch_size_requested": 8,
+          "batch_size_used": 8,
+          "count": 101,
+          "cpu_time_s": 2.1722630769999967,
+          "latency_ms": 124.02624636888504,
+          "max_observed_tokens": 467,
+          "peak_ram_bytes": 1892409344,
+          "peak_vram_bytes": 282162688,
+          "pruning_max_active_dims": null,
+          "tokenizer_class": "DistilBertTokenizer",
+          "truncated_count": 0
+        }
+      },
+      "confidence_intervals": {
+        "map@100": {
+          "high": 0.2547060086166666,
+          "low": 0.14340084511285908,
+          "mean": 0.1963717874492345,
+          "samples": 10000,
+          "seed": 20260826
+        },
+        "mrr@10": {
+          "high": 0.3602310231023102,
+          "low": 0.21171548404840476,
+          "mean": 0.2827832783278328,
+          "samples": 10000,
+          "seed": 20260826
+        },
+        "ndcg@10": {
+          "high": 0.3024330593837287,
+          "low": 0.17935935486824825,
+          "mean": 0.23862980625819522,
+          "samples": 10000,
+          "seed": 20260826
+        },
+        "recall@10": {
+          "high": 0.3441251023706485,
+          "low": 0.19893317581610734,
+          "mean": 0.27018115475591237,
+          "samples": 10000,
+          "seed": 20260826
+        },
+        "recall@100": {
+          "high": 0.6585309955984117,
+          "low": 0.5005070210458088,
+          "mean": 0.579766392158134,
+          "samples": 10000,
+          "seed": 20260826
+        }
+      },
+      "counts": {
+        "documents": 7500,
+        "qrels": 692,
+        "queries": 101
+      },
+      "document_route": "document_expansion",
+      "license": "Apache-2.0",
+      "mechanism": "static sparse query lookup plus distilled neural document expansion",
+      "metrics": {
+        "map@100": 0.1963717874492345,
+        "mrr@10": 0.2827832783278328,
+        "ndcg@10": 0.23862980625819524,
+        "recall@10": 0.27018115475591237,
+        "recall@100": 0.579766392158134
+      },
+      "model_key": "opensearch-doc-v3",
+      "nnz": {
+        "documents": {
+          "count": 7500,
+          "empty": 0,
+          "max": 618,
+          "mean": 182.3076,
+          "p50": 188.0,
+          "p95": 268.0,
+          "total": 1367307
+        },
+        "queries": {
+          "count": 101,
+          "empty": 0,
+          "max": 207,
+          "mean": 85.58415841584159,
+          "p50": 79.0,
+          "p95": 154.0,
+          "total": 8644
+        }
+      },
+      "query_route": "static_lookup",
+      "repo_id": "opensearch-project/opensearch-neural-sparse-encoding-doc-v3-distill",
+      "revision": "babf71f3c48695e2e53a978208e8aba48335e3c0",
+      "search": {
+        "backend": "scipy_csr_exact",
+        "exact": true,
+        "tie_break": "document_id_ascending",
+        "top_k": 100
+      },
+      "snapshot_identity_sha256": "55bf8e1df3905b6a4f81d7dd78402cf31088bd3db1a724baec8d5eace8b75151",
+      "track": "psychology",
+      "training_overlap_boundary": "Potential source-family overlap with StackExchange-derived BRIGHT data; results must not be described as zero-shot."
+    }
+  ],
+  "content_policy": "Aggregate-only fields; row-level and source-bearing fields are omitted.",
+  "dataset_version": "bright-nontechnical-pilot-v0.2",
+  "publication": {
+    "classification": "research_only",
+    "gate": "closed",
+    "leaderboard_publish": false,
+    "public_export_allowed": false,
+    "publish": false
+  },
+  "schema_version": "bright-learned-sparse-summary-v1"
+}
