@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "BRIGHT learned sparse Batch B formal raw cell",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "publication", "bindings", "model", "data", "protocol", "config", "metrics", "confidence_intervals", "nnz", "representations", "resources", "search", "artifacts"],
+  "properties": {
+    "schema_version": {"const": "bright-learned-sparse-batch-b-result-v1"},
+    "publication": {"$ref": "#/$defs/publication"},
+    "bindings": {"type": "object", "additionalProperties": false, "required": ["active_predeclaration_sha256", "canonical_data_manifest_sha256", "snapshot_evidence_sha256", "snapshot_identity_sha256", "protocol_identity_sha256"], "properties": {
+      "active_predeclaration_sha256": {"const": "2d30ac69b58e7bbd217550418619bab085e2c8b73e1453ee02e0d237827a32ef"},
+      "canonical_data_manifest_sha256": {"const": "8174b0c01a32e977cf0c5d89522356c485196b0aa0571251cfe1595c5579cb1f"},
+      "snapshot_evidence_sha256": {"$ref": "#/$defs/sha256"}, "snapshot_identity_sha256": {"$ref": "#/$defs/sha256"}, "protocol_identity_sha256": {"$ref": "#/$defs/sha256"}
+    }},
+    "model": {"type": "object", "additionalProperties": false, "required": ["key", "repo_id", "revision", "license", "provider", "mechanism", "snapshot_evidence_sha256", "snapshot_identity_sha256", "vocabulary_id", "dimensions", "query_route", "document_route"], "properties": {
+      "key": {"enum": ["splade-tiny", "opensearch-doc-v2-distill", "opensearch-multilingual"]}, "repo_id": {"type": "string"}, "revision": {"pattern": "^[0-9a-f]{40}$"}, "license": {"type": "string"}, "provider": {"const": "sentence_transformers_sparse"}, "mechanism": {"type": "string"},
+      "snapshot_evidence_sha256": {"$ref": "#/$defs/sha256"}, "snapshot_identity_sha256": {"$ref": "#/$defs/sha256"}, "vocabulary_id": {"type": "string"}, "dimensions": {"enum": [30522, 105879]}, "query_route": {"enum": ["neural", "static_lookup"]}, "document_route": {"enum": ["neural", "document_expansion"]}
+    }},
+    "data": {"type": "object", "additionalProperties": false, "required": ["dataset_version", "track", "documents", "queries", "qrels", "materialization_manifest_sha256", "source_revision", "selection_ids_sha256", "corpus_sha256", "queries_sha256", "qrels_sha256"], "properties": {
+      "dataset_version": {"const": "bright-nontechnical-pilot-v0.2"}, "track": {"enum": ["economics", "psychology"]}, "documents": {"const": 7500}, "queries": {"enum": [101, 103]}, "qrels": {"enum": [692, 800]}, "materialization_manifest_sha256": {"const": "8174b0c01a32e977cf0c5d89522356c485196b0aa0571251cfe1595c5579cb1f"}, "source_revision": {"pattern": "^[0-9a-f]{40}$"}, "selection_ids_sha256": {"$ref": "#/$defs/sha256"}, "corpus_sha256": {"$ref": "#/$defs/sha256"}, "queries_sha256": {"$ref": "#/$defs/sha256"}, "qrels_sha256": {"$ref": "#/$defs/sha256"}
+    }},
+    "protocol": {"type": "object", "required": ["schema_version", "active_predeclaration_sha256", "identity_sha256"], "properties": {"schema_version": {"const": "bright-learned-sparse-batch-b-protocol-v1"}, "active_predeclaration_sha256": {"const": "2d30ac69b58e7bbd217550418619bab085e2c8b73e1453ee02e0d237827a32ef"}, "identity_sha256": {"$ref": "#/$defs/sha256"}}},
+    "config": {"type": "object", "required": ["schema_version", "protocol_identity_sha256", "active_predeclaration_sha256", "model_key", "model_revision", "snapshot_identity_sha256", "track", "dimensions", "max_length", "query_route", "document_route", "chunk_size", "batch_size", "batch_fallback", "trust_remote_code"], "properties": {"schema_version": {"const": "bright-learned-sparse-batch-b-chunk-v1"}, "protocol_identity_sha256": {"$ref": "#/$defs/sha256"}, "active_predeclaration_sha256": {"const": "2d30ac69b58e7bbd217550418619bab085e2c8b73e1453ee02e0d237827a32ef"}, "model_key": {"enum": ["splade-tiny", "opensearch-doc-v2-distill", "opensearch-multilingual"]}, "model_revision": {"pattern": "^[0-9a-f]{40}$"}, "snapshot_identity_sha256": {"$ref": "#/$defs/sha256"}, "track": {"enum": ["economics", "psychology"]}, "dimensions": {"enum": [30522, 105879]}, "max_length": {"const": 512}, "query_route": {"enum": ["neural", "static_lookup"]}, "document_route": {"enum": ["neural", "document_expansion"]}, "chunk_size": {"const": 256}, "batch_size": {"const": 8}, "batch_fallback": {"const": [8,4,2,1]}, "trust_remote_code": {"const": false}}},
+    "metrics": {"$ref": "#/$defs/metrics"},
+    "confidence_intervals": {"type": "object", "minProperties": 5, "maxProperties": 5, "additionalProperties": {"type": "object", "additionalProperties": false, "required": ["mean", "low", "high", "samples", "seed"], "properties": {"mean": {"type": "number"}, "low": {"type": "number"}, "high": {"type": "number"}, "samples": {"const": 10000}, "seed": {"const": 20260826}}}},
+    "nnz": {"type": "object", "required": ["documents", "queries"], "properties": {"documents": {"$ref": "#/$defs/nnz"}, "queries": {"$ref": "#/$defs/nnz"}}},
+    "representations": {"type": "object", "required": ["documents", "queries"], "properties": {"documents": {"$ref": "#/$defs/representation"}, "queries": {"$ref": "#/$defs/representation"}}},
+    "resources": {"type": "object", "required": ["documents", "queries", "exact_search_s", "gpu_wall_s", "fallback_oom"], "properties": {"documents": {"type": "object"}, "queries": {"type": "object"}, "exact_search_s": {"type": "number", "minimum": 0}, "gpu_wall_s": {"type": "number", "minimum": 0, "maximum": 10800}, "fallback_oom": {"type": "object", "required": ["document_fallback_chunks", "query_attempts", "query_used", "batch1_oom", "terminal_failure"], "properties": {"document_fallback_chunks": {"type": "array"}, "query_attempts": {"type": "array", "items": {"enum": [8,4,2,1]}}, "query_used": {"enum": [8,4,2,1]}, "batch1_oom": {"const": false}, "terminal_failure": {"type": "null"}}}}},
+    "search": {"const": {"backend": "scipy_csr_exact", "exact": true, "similarity": "inner_product", "tie_break": "document_id_ascending", "top_k": 100}},
+    "artifacts": {"type": "object", "minProperties": 10, "additionalProperties": {"type": "object", "additionalProperties": false, "required": ["bytes", "sha256"], "properties": {"bytes": {"type": "integer", "minimum": 1}, "sha256": {"$ref": "#/$defs/sha256"}}}}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "publication": {"const": {"classification": "research_only", "gate": "closed", "leaderboard_publish": false, "public_export_allowed": false, "publish": false}},
+    "metrics": {"type": "object", "additionalProperties": false, "required": ["ndcg@10", "map@100", "mrr@10", "recall@10", "recall@100"], "properties": {"ndcg@10": {"type": "number", "minimum": 0, "maximum": 1}, "map@100": {"type": "number", "minimum": 0, "maximum": 1}, "mrr@10": {"type": "number", "minimum": 0, "maximum": 1}, "recall@10": {"type": "number", "minimum": 0, "maximum": 1}, "recall@100": {"type": "number", "minimum": 0, "maximum": 1}}},
+    "nnz": {"type": "object", "required": ["count", "total", "mean", "p50", "p95", "max", "empty"]},
+    "representation": {"type": "object", "required": ["shape", "nnz", "item_ids_sha256", "csr_memory_bytes", "npz_bytes"], "properties": {"shape": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "integer"}}, "nnz": {"type": "integer", "minimum": 0}, "item_ids_sha256": {"$ref": "#/$defs/sha256"}, "csr_memory_bytes": {"type": "integer", "minimum": 1}, "npz_bytes": {"type": "integer", "minimum": 1}, "index_backend": {"const": "scipy_csr_exact"}, "index_memory_bytes": {"type": "integer", "minimum": 1}}}
+  }
+}

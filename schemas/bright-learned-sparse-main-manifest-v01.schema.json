@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "package_version", "publication", "protocol", "bindings", "tracked_files", "privacy_scan", "content_policy"],
+  "properties": {
+    "schema_version": {"const": "bright-learned-sparse-main-manifest-v1"},
+    "package_version": {"const": "bright-learned-sparse-main-v0.1"},
+    "publication": {"type": "object"},
+    "protocol": {"type": "object"},
+    "bindings": {"type": "object", "required": ["input_contract_sha256", "active_predeclaration_sha256", "canonical_data_sha256", "batch_a_package_manifest_sha256", "batch_a_protocol_sha256", "batch_b_protocol_sha256", "raw_manifest_sha256", "batch_b_replay_sha256", "snapshot_evidence_sha256", "local_mapping_sha256"]},
+    "tracked_files": {"type": "object", "minProperties": 6, "maxProperties": 6, "additionalProperties": {"type": "object", "additionalProperties": false, "required": ["bytes", "sha256"], "properties": {"bytes": {"type": "integer", "minimum": 1}, "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}}},
+    "privacy_scan": {"type": "object", "required": ["status", "tracked_files_scanned", "canonical_document_ids_found", "canonical_source_texts_found", "public_gate"]},
+    "content_policy": {"type": "string"}
+  }
+}

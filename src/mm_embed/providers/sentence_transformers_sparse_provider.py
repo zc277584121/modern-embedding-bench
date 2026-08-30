@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import resource
 import time
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
@@ -42,11 +42,18 @@ class SentenceTransformersSparseProvider:
         max_length: int | None = None,
         gpu_cap_bytes: int = GPU_GATE_CAP_BYTES,
         encoder_factory: Callable[..., Any] | None = None,
+        model_spec: LearnedSparseSpec | None = None,
+        expected_snapshot_identity: Mapping[str, str] | None = None,
     ) -> None:
-        try:
-            spec = INVENTORY[model_key]
-        except KeyError as exc:
-            raise ValueError(f"Unknown learned-sparse model key: {model_key}") from exc
+        if model_spec is None:
+            try:
+                spec = INVENTORY[model_key]
+            except KeyError as exc:
+                raise ValueError(f"Unknown learned-sparse model key: {model_key}") from exc
+        else:
+            spec = model_spec
+            if spec.key != model_key:
+                raise ValueError("model_spec key does not match model_key")
         if spec.adapter != self.name or spec.status != "selected":
             raise ValueError(f"{model_key} is not a selected generic SparseEncoder model")
         if batch_size <= 0:
@@ -54,8 +61,9 @@ class SentenceTransformersSparseProvider:
         selected_max_length = spec.max_length if max_length is None else max_length
         if selected_max_length != spec.max_length:
             raise ValueError(f"{model_key} max_length is fixed at {spec.max_length}")
-        if not spec.identity:
-            raise ValueError(f"{model_key} has no frozen snapshot identity")
+        frozen_identity = dict(expected_snapshot_identity or spec.identity)
+        if not frozen_identity:
+            raise ValueError(f"{model_key} has no externally frozen snapshot identity")
 
         self.spec = spec
         self.model = spec.repo_id
@@ -81,7 +89,7 @@ class SentenceTransformersSparseProvider:
         else:
             self._snapshot_path = Path(snapshot_path).expanduser().resolve()
             self.hub_cache_dir = None
-        verify_snapshot_identity(self._snapshot_path, spec.identity, label=spec.key)
+        verify_snapshot_identity(self._snapshot_path, frozen_identity, label=spec.key)
 
         if encoder_factory is None:
             try:

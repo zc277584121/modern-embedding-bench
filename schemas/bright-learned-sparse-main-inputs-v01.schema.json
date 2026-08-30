@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "BRIGHT learned-sparse main package input identities",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "active_predeclaration_sha256", "canonical_data_sha256",
+    "batch_a_package_manifest_sha256", "batch_a_protocol_sha256", "batch_b_protocol_sha256",
+    "package_protocol_sha256", "raw_manifest_sha256", "batch_b_replay_sha256",
+    "snapshot_evidence_sha256"
+  ],
+  "properties": {
+    "schema_version": {"const": "bright-learned-sparse-main-inputs-v1"},
+    "active_predeclaration_sha256": {"$ref": "#/$defs/sha"},
+    "canonical_data_sha256": {"$ref": "#/$defs/sha"},
+    "batch_a_package_manifest_sha256": {"$ref": "#/$defs/sha"},
+    "batch_a_protocol_sha256": {"$ref": "#/$defs/sha"},
+    "batch_b_protocol_sha256": {"$ref": "#/$defs/sha"},
+    "package_protocol_sha256": {"$ref": "#/$defs/sha"},
+    "raw_manifest_sha256": {"type": "object", "minProperties": 14, "maxProperties": 14, "additionalProperties": {"$ref": "#/$defs/sha"}},
+    "batch_b_replay_sha256": {"type": "object", "minProperties": 6, "maxProperties": 6, "additionalProperties": {"$ref": "#/$defs/sha"}},
+    "snapshot_evidence_sha256": {"type": "object", "minProperties": 3, "maxProperties": 3, "additionalProperties": {"$ref": "#/$defs/sha"}}
+  },
+  "$defs": {"sha": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "package_version", "publication", "models", "boundaries"],
+  "properties": {
+    "schema_version": {"const": "bright-learned-sparse-main-resources-v1"},
+    "package_version": {"const": "bright-learned-sparse-main-v0.1"},
+    "publication": {"type": "object"},
+    "models": {"type": "array", "minItems": 7, "maxItems": 7, "items": {"$ref": "#/$defs/model"}},
+    "boundaries": {"type": "array", "minItems": 4, "items": {"type": "string"}}
+  },
+  "$defs": {
+    "track": {"type": "object", "required": ["track", "query_nnz", "document_nnz", "truncation", "encoding", "exact_search_seconds", "representation", "batch"], "properties": {"track": {"enum": ["economics", "psychology"]}, "query_nnz": {"type": "object"}, "document_nnz": {"type": "object"}, "truncation": {"type": "object"}, "encoding": {"type": "object"}, "exact_search_seconds": {"type": "number"}, "representation": {"type": "object"}, "batch": {"type": "object"}}, "additionalProperties": false},
+    "model": {"type": "object", "required": ["model_key", "repo_id", "revision", "license", "license_boundary", "mechanism", "query_route", "document_route", "dimensions", "snapshot_identity_sha256", "snapshot_bytes", "snapshot_bytes_kind", "parameter_count", "tracks"], "properties": {"model_key": {"type": "string"}, "repo_id": {"type": "string"}, "revision": {"type": "string", "pattern": "^[0-9a-f]{40}$"}, "license": {"type": "string"}, "license_boundary": {"type": "string"}, "mechanism": {"type": "string"}, "query_route": {"type": "string"}, "document_route": {"type": "string"}, "dimensions": {"type": "integer"}, "snapshot_identity_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "snapshot_bytes": {"type": "integer"}, "snapshot_bytes_kind": {"const": "frozen_estimate"}, "parameter_count": {"type": ["integer", "null"]}, "tracks": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"$ref": "#/$defs/track"}}}, "additionalProperties": false}
+  }
+}

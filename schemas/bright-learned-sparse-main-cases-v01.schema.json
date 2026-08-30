@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "package_version", "publication", "counts", "local_mapping_sha256", "cases"],
+  "properties": {
+    "schema_version": {"const": "bright-learned-sparse-main-cases-v1"},
+    "package_version": {"const": "bright-learned-sparse-main-v0.1"},
+    "publication": {"type": "object"},
+    "counts": {"type": "object", "additionalProperties": false, "required": ["total", "per_track_disagreement", "per_track_failure"], "properties": {"total": {"const": 24}, "per_track_disagreement": {"const": 6}, "per_track_failure": {"const": 6}}},
+    "local_mapping_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "cases": {"type": "array", "minItems": 24, "maxItems": 24, "items": {"$ref": "#/$defs/case"}}
+  },
+  "$defs": {
+    "case": {"type": "object", "additionalProperties": false, "required": ["opaque_case_id", "track", "category", "selection_rule", "mechanism_summary", "local_evidence_sha256", "restricted_content_included"], "properties": {"opaque_case_id": {"type": "string", "pattern": "^(economics|psychology)-(disagreement|failure)-0[1-6]$"}, "track": {"enum": ["economics", "psychology"]}, "category": {"enum": ["disagreement", "failure"]}, "selection_rule": {"type": "string"}, "mechanism_summary": {"type": "string"}, "local_evidence_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "restricted_content_included": {"const": false}}}
+  }
+}

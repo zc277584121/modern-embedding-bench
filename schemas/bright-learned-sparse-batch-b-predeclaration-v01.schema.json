@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "BRIGHT learned sparse Batch B predeclaration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "created_at", "publication", "bindings", "resources", "models", "model_evidence", "slices", "case_review", "formal_gate", "identity"],
+  "properties": {
+    "schema_version": {"const": "bright-learned-sparse-batch-b-predeclaration-v1"},
+    "created_at": {"type": "string", "format": "date-time"},
+    "publication": {"$ref": "#/$defs/publication"},
+    "bindings": {
+      "type": "object", "additionalProperties": false, "required": ["canonical_data", "batch_a"],
+      "properties": {
+        "canonical_data": {
+          "type": "object", "additionalProperties": false,
+          "required": ["dataset_version", "root", "manifest_sha256", "source_revision"],
+          "properties": {
+            "dataset_version": {"const": "bright-nontechnical-pilot-v0.2"},
+            "root": {"const": "data/bright-nontechnical-pilot-v0.2"},
+            "manifest_sha256": {"$ref": "#/$defs/sha256"},
+            "source_revision": {"pattern": "^[0-9a-f]{40}$"}
+          }
+        },
+        "batch_a": {
+          "type": "object", "additionalProperties": false,
+          "required": ["tracked_manifest_path", "tracked_manifest_sha256", "protocol_identity_sha256", "raw_manifest_sha256", "read_only"],
+          "properties": {
+            "tracked_manifest_path": {"type": "string"},
+            "tracked_manifest_sha256": {"$ref": "#/$defs/sha256"},
+            "protocol_identity_sha256": {"$ref": "#/$defs/sha256"},
+            "raw_manifest_sha256": {"type": "object", "minProperties": 8, "maxProperties": 8, "additionalProperties": {"$ref": "#/$defs/sha256"}},
+            "read_only": {"const": true}
+          }
+        }
+      }
+    },
+    "resources": {"type": "object", "additionalProperties": false, "required": ["aggregate_download_cap_bytes", "story_incremental_disk_cap_bytes", "per_model_wall_time_seconds", "gpu_vram_cap_bytes", "requested_batch_size", "batch_fallback"], "properties": {
+      "aggregate_download_cap_bytes": {"const": 1073741824},
+      "story_incremental_disk_cap_bytes": {"const": 4294967296},
+      "per_model_wall_time_seconds": {"const": 600},
+      "gpu_vram_cap_bytes": {"const": 11274289152},
+      "requested_batch_size": {"const": 8},
+      "batch_fallback": {"const": [8, 4, 2, 1]}
+    }},
+    "models": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"$ref": "#/$defs/model"}},
+    "model_evidence": {"type": "object", "minProperties": 3, "maxProperties": 3, "additionalProperties": {"type": "object", "required": ["official_sources", "accepted_api_licenses", "license_boundary", "validator_recheck_required"], "properties": {
+      "official_sources": {"type": "array", "minItems": 2, "items": {"type": "string", "format": "uri"}},
+      "accepted_api_licenses": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+      "license_boundary": {"type": "string"},
+      "validator_recheck_required": {"type": "boolean"}
+    }}},
+    "slices": {"type": "array", "minItems": 4, "maxItems": 4, "items": {"type": "object", "additionalProperties": false, "required": ["key", "definition", "bins", "sample_rule", "limitations"], "properties": {
+      "key": {"enum": ["query_length", "positive_lexical_overlap", "positive_document_length", "positive_qrel_density"]},
+      "definition": {"type": "string"}, "bins": {"type": "array", "minItems": 3, "items": {"type": "string"}},
+      "sample_rule": {"type": "string"}, "limitations": {"type": "string"}
+    }}},
+    "case_review": {"type": "object", "additionalProperties": false, "required": ["per_track", "disagreement", "failure", "content_policy"], "properties": {
+      "per_track": {"const": {"disagreement": 6, "failure": 6}},
+      "disagreement": {"type": "string"}, "failure": {"type": "string"}, "content_policy": {"type": "string"}
+    }},
+    "formal_gate": {"type": "object", "additionalProperties": false, "required": ["ordered_models", "all_three_must_go", "no_go"], "properties": {
+      "ordered_models": {"const": ["splade-tiny", "opensearch-doc-v2-distill", "opensearch-multilingual"]},
+      "all_three_must_go": {"const": true}, "no_go": {"type": "array", "minItems": 5, "items": {"type": "string"}}
+    }},
+    "identity": {"type": "object", "additionalProperties": false, "required": ["algorithm", "canonicalization", "payload_sha256", "external_file_sha256_required"], "properties": {
+      "algorithm": {"const": "sha256"}, "canonicalization": {"const": "json-sort-keys-compact-utf8-without-identity"},
+      "payload_sha256": {"$ref": "#/$defs/sha256"}, "external_file_sha256_required": {"const": true}
+    }}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "publication": {"const": {"classification": "research_only", "gate": "closed", "leaderboard_publish": false, "public_export_allowed": false, "publish": false}},
+    "model": {"type": "object", "additionalProperties": false, "required": ["key", "repo_id", "revision", "license", "gated", "trust_remote_code", "allowlist", "query_route", "document_route", "vocabulary_id", "dimensions", "max_length", "dependencies", "parameter_count", "estimated_snapshot_bytes", "download_cap_bytes", "disk_cap_bytes", "gpu_vram_cap_bytes", "batch_fallback", "behavior_file_policy"], "properties": {
+      "key": {"type": "string"}, "repo_id": {"type": "string"}, "revision": {"pattern": "^[0-9a-f]{40}$"}, "license": {"type": "string"},
+      "gated": {"type": ["boolean", "string"]}, "trust_remote_code": {"const": false},
+      "allowlist": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "not": {"pattern": "(?i)\\.(py|bin|pt|pth|pkl|pickle|ckpt)$"}}},
+      "query_route": {"enum": ["neural", "static_lookup"]}, "document_route": {"enum": ["neural", "document_expansion"]},
+      "vocabulary_id": {"type": "string"}, "dimensions": {"type": "integer", "minimum": 1}, "max_length": {"const": 512},
+      "dependencies": {"type": "array", "minItems": 1, "items": {"type": "string"}}, "parameter_count": {"type": "integer", "minimum": 1},
+      "estimated_snapshot_bytes": {"type": "integer", "minimum": 1}, "download_cap_bytes": {"type": "integer", "minimum": 1},
+      "disk_cap_bytes": {"type": "integer", "minimum": 1}, "gpu_vram_cap_bytes": {"const": 11274289152}, "batch_fallback": {"const": [8, 4, 2, 1]},
+      "behavior_file_policy": {"type": "string"}
+    }}
+  }
+}

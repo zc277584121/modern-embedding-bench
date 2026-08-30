@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "package_version", "publication", "active_predeclaration_sha256", "tracks"],
+  "properties": {
+    "schema_version": {"const": "bright-learned-sparse-main-slices-v1"},
+    "package_version": {"const": "bright-learned-sparse-main-v0.1"},
+    "publication": {"type": "object"},
+    "active_predeclaration_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "tracks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["economics", "psychology"],
+      "properties": {
+        "economics": {"$ref": "#/$defs/slices"},
+        "psychology": {"$ref": "#/$defs/slices"}
+      }
+    }
+  },
+  "$defs": {
+    "model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["model_key", "n", "metrics"],
+      "properties": {
+        "model_key": {"type": "string"},
+        "n": {"type": "integer", "minimum": 0},
+        "metrics": {"type": ["object", "null"]}
+      }
+    },
+    "pair": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["left", "right", "n", "metrics"],
+      "properties": {
+        "left": {"type": "string"},
+        "right": {"type": "string"},
+        "n": {"type": "integer", "minimum": 10},
+        "metrics": {"type": "object"}
+      }
+    },
+    "bin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bin", "n", "membership_sha256", "models", "pairwise", "inference"],
+      "properties": {
+        "bin": {"type": "string"},
+        "n": {"type": "integer", "minimum": 0},
+        "membership_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "models": {"type": "array", "minItems": 7, "maxItems": 7, "items": {"$ref": "#/$defs/model"}},
+        "pairwise": {"type": "array", "items": {"$ref": "#/$defs/pair"}},
+        "inference": {"enum": ["paired_ci_allowed", "point_estimates_only_no_win_claim"]}
+      }
+    },
+    "slice": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "definition", "limitations", "sample_rule", "bins"],
+      "properties": {
+        "key": {"type": "string"},
+        "definition": {"type": "string"},
+        "limitations": {"type": "string"},
+        "sample_rule": {"type": "string"},
+        "bins": {"type": "array", "minItems": 3, "maxItems": 4, "items": {"$ref": "#/$defs/bin"}}
+      }
+    },
+    "slices": {"type": "array", "minItems": 4, "maxItems": 4, "items": {"$ref": "#/$defs/slice"}}
+  }
+}

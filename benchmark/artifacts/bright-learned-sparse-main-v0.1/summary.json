@@ -1,0 +1,288 @@
+{
+  "package_version": "bright-learned-sparse-main-v0.1",
+  "publication": {
+    "classification": "research_only",
+    "gate": "closed",
+    "leaderboard_publish": false,
+    "public_export_allowed": false,
+    "publish": false
+  },
+  "schema_version": "bright-learned-sparse-main-summary-v1",
+  "track_aggregation": "independent_no_cross_track_micro_average_or_overall_rank",
+  "tracks": {
+    "economics": {
+      "metric_orders": {
+        "map@100": [
+          "opensearch-doc-v2-distill",
+          "bge-m3",
+          "granite-30m-sparse",
+          "opensearch-doc-v2-mini",
+          "opensearch-doc-v3",
+          "opensearch-multilingual",
+          "splade-tiny"
+        ],
+        "mrr@10": [
+          "bge-m3",
+          "splade-tiny",
+          "opensearch-multilingual",
+          "granite-30m-sparse",
+          "opensearch-doc-v2-distill",
+          "opensearch-doc-v2-mini",
+          "opensearch-doc-v3"
+        ],
+        "ndcg@10": [
+          "opensearch-doc-v2-distill",
+          "bge-m3",
+          "granite-30m-sparse",
+          "splade-tiny",
+          "opensearch-multilingual",
+          "opensearch-doc-v2-mini",
+          "opensearch-doc-v3"
+        ],
+        "recall@10": [
+          "bge-m3",
+          "opensearch-doc-v2-distill",
+          "granite-30m-sparse",
+          "opensearch-multilingual",
+          "opensearch-doc-v2-mini",
+          "splade-tiny",
+          "opensearch-doc-v3"
+        ],
+        "recall@100": [
+          "opensearch-doc-v2-distill",
+          "granite-30m-sparse",
+          "bge-m3",
+          "opensearch-multilingual",
+          "opensearch-doc-v3",
+          "opensearch-doc-v2-mini",
+          "splade-tiny"
+        ]
+      },
+      "primary_order": [
+        "opensearch-doc-v2-distill",
+        "bge-m3",
+        "granite-30m-sparse",
+        "splade-tiny",
+        "opensearch-multilingual",
+        "opensearch-doc-v2-mini",
+        "opensearch-doc-v3"
+      ],
+      "rows": [
+        {
+          "metrics": {
+            "map@100": 0.21527040957490312,
+            "mrr@10": 0.32577824009862844,
+            "ndcg@10": 0.2806269377375966,
+            "recall@10": 0.3184928701849075,
+            "recall@100": 0.6543185531218195
+          },
+          "model_key": "bge-m3",
+          "raw_manifest_sha256": "e022c394f09812b81c40f71128e18b2e799e9dd6dab2a6c294ab9d6ebf7c6b56"
+        },
+        {
+          "metrics": {
+            "map@100": 0.2070928106390444,
+            "mrr@10": 0.2932963476652797,
+            "ndcg@10": 0.25953280926367644,
+            "recall@10": 0.2952049380383892,
+            "recall@100": 0.6767143776183396
+          },
+          "model_key": "granite-30m-sparse",
+          "raw_manifest_sha256": "e8a8f9ac2aa59e2e819b64dbc3cc189b04b880330658aedf5d9ad5b218daeca1"
+        },
+        {
+          "metrics": {
+            "map@100": 0.23100006847568855,
+            "mrr@10": 0.29080366774541533,
+            "ndcg@10": 0.2813086427961599,
+            "recall@10": 0.3094360835398647,
+            "recall@100": 0.6883485041045219
+          },
+          "model_key": "opensearch-doc-v2-distill",
+          "raw_manifest_sha256": "221ee4f320395385556d000b1eb5903363ae3fdc580b2a95523045992872fc47"
+        },
+        {
+          "metrics": {
+            "map@100": 0.19643005474191436,
+            "mrr@10": 0.28720141778394204,
+            "ndcg@10": 0.2484155572580241,
+            "recall@10": 0.2701597957745148,
+            "recall@100": 0.5421791291310768
+          },
+          "model_key": "opensearch-doc-v2-mini",
+          "raw_manifest_sha256": "7d2caaf6f3659ca896e6406b597f40594baf804472ccdfd45feb0995ce3c3d88"
+        },
+        {
+          "metrics": {
+            "map@100": 0.19567713219389643,
+            "mrr@10": 0.2820388349514563,
+            "ndcg@10": 0.24436539670970464,
+            "recall@10": 0.2636865781828059,
+            "recall@100": 0.580277757580332
+          },
+          "model_key": "opensearch-doc-v3",
+          "raw_manifest_sha256": "09b1de1954e36f65aec38e8a0580b9523663a1b9e5ac053b8af00fe858f889ed"
+        },
+        {
+          "metrics": {
+            "map@100": 0.19491647036825224,
+            "mrr@10": 0.2943712436430883,
+            "ndcg@10": 0.24969348354731802,
+            "recall@10": 0.28721308763164544,
+            "recall@100": 0.5938922275718053
+          },
+          "model_key": "opensearch-multilingual",
+          "raw_manifest_sha256": "aa93b60bd8b17e036e3e537f59d121836d4b3608a7f692324d89883a53563779"
+        },
+        {
+          "metrics": {
+            "map@100": 0.1931687787759186,
+            "mrr@10": 0.2993912775466174,
+            "ndcg@10": 0.2526775331418246,
+            "recall@10": 0.26823989465164105,
+            "recall@100": 0.5240685487920478
+          },
+          "model_key": "splade-tiny",
+          "raw_manifest_sha256": "60d3e647a638f88b8f259ac21d5f90087ee1b2e2282671bd8e0f0102b738c702"
+        }
+      ]
+    },
+    "psychology": {
+      "metric_orders": {
+        "map@100": [
+          "bge-m3",
+          "opensearch-doc-v2-distill",
+          "granite-30m-sparse",
+          "opensearch-multilingual",
+          "splade-tiny",
+          "opensearch-doc-v2-mini",
+          "opensearch-doc-v3"
+        ],
+        "mrr@10": [
+          "bge-m3",
+          "opensearch-multilingual",
+          "opensearch-doc-v2-distill",
+          "granite-30m-sparse",
+          "opensearch-doc-v2-mini",
+          "splade-tiny",
+          "opensearch-doc-v3"
+        ],
+        "ndcg@10": [
+          "bge-m3",
+          "granite-30m-sparse",
+          "opensearch-multilingual",
+          "opensearch-doc-v2-distill",
+          "splade-tiny",
+          "opensearch-doc-v2-mini",
+          "opensearch-doc-v3"
+        ],
+        "recall@10": [
+          "bge-m3",
+          "granite-30m-sparse",
+          "opensearch-doc-v2-distill",
+          "opensearch-multilingual",
+          "splade-tiny",
+          "opensearch-doc-v2-mini",
+          "opensearch-doc-v3"
+        ],
+        "recall@100": [
+          "opensearch-doc-v2-distill",
+          "granite-30m-sparse",
+          "opensearch-multilingual",
+          "bge-m3",
+          "opensearch-doc-v3",
+          "opensearch-doc-v2-mini",
+          "splade-tiny"
+        ]
+      },
+      "primary_order": [
+        "bge-m3",
+        "granite-30m-sparse",
+        "opensearch-multilingual",
+        "opensearch-doc-v2-distill",
+        "splade-tiny",
+        "opensearch-doc-v2-mini",
+        "opensearch-doc-v3"
+      ],
+      "rows": [
+        {
+          "metrics": {
+            "map@100": 0.2773825879223076,
+            "mrr@10": 0.3916863114882917,
+            "ndcg@10": 0.3226636394003219,
+            "recall@10": 0.33531673549620633,
+            "recall@100": 0.6108259628077215
+          },
+          "model_key": "bge-m3",
+          "raw_manifest_sha256": "a15cc88c80b2a25411c5f82e173e19633b5f668b56eab5831fff01a145e9bffa"
+        },
+        {
+          "metrics": {
+            "map@100": 0.25607857453542776,
+            "mrr@10": 0.32769134056262766,
+            "ndcg@10": 0.2963185987389416,
+            "recall@10": 0.3260740485304294,
+            "recall@100": 0.625039980342922
+          },
+          "model_key": "granite-30m-sparse",
+          "raw_manifest_sha256": "8db4c46b6e379fcd1a932789bd72eb1dc33c28acd35c0c9aac62eaccfaa6174c"
+        },
+        {
+          "metrics": {
+            "map@100": 0.26042371658337105,
+            "mrr@10": 0.333030803080308,
+            "ndcg@10": 0.2875975598254223,
+            "recall@10": 0.3051432301291932,
+            "recall@100": 0.6444998453215945
+          },
+          "model_key": "opensearch-doc-v2-distill",
+          "raw_manifest_sha256": "cc2d98e239ad583829ba9d71ffd65b56cce67d82a3aae6929d0052a4834c01a3"
+        },
+        {
+          "metrics": {
+            "map@100": 0.20131079602980542,
+            "mrr@10": 0.3044947351878045,
+            "ndcg@10": 0.2507512999050709,
+            "recall@10": 0.27556900633525083,
+            "recall@100": 0.569914466113579
+          },
+          "model_key": "opensearch-doc-v2-mini",
+          "raw_manifest_sha256": "6d8ab1a65881a75c313678fd7a530252c15f60f7cc6e3e4df31b07c14f21b7b2"
+        },
+        {
+          "metrics": {
+            "map@100": 0.1963717874492345,
+            "mrr@10": 0.2827832783278328,
+            "ndcg@10": 0.23862980625819524,
+            "recall@10": 0.27018115475591237,
+            "recall@100": 0.579766392158134
+          },
+          "model_key": "opensearch-doc-v3",
+          "raw_manifest_sha256": "567425dffa5f829373675de97901400f150c031abd9d71e0174c31331151730e"
+        },
+        {
+          "metrics": {
+            "map@100": 0.24177296178950805,
+            "mrr@10": 0.3583058305830583,
+            "ndcg@10": 0.2889927410759592,
+            "recall@10": 0.3046986984716463,
+            "recall@100": 0.6133296942347848
+          },
+          "model_key": "opensearch-multilingual",
+          "raw_manifest_sha256": "99d6f3754fc698612ff416b5f9ca1a6ad601b50b76920e580f1de1ac063d8b55"
+        },
+        {
+          "metrics": {
+            "map@100": 0.20810635570147937,
+            "mrr@10": 0.3001217978940751,
+            "ndcg@10": 0.2569925657885266,
+            "recall@10": 0.2937924839686596,
+            "recall@100": 0.5542384560837331
+          },
+          "model_key": "splade-tiny",
+          "raw_manifest_sha256": "8e2bd3e5ffb378852396821301027860cf7eafb1a83ad37b089687ea561422ca"
+        }
+      ]
+    }
+  }
+}

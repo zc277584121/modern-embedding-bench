@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["schema_version", "package_version", "publication", "method", "tracks"],
+  "properties": {
+    "schema_version": {"const": "bright-learned-sparse-main-pairwise-v1"},
+    "package_version": {"const": "bright-learned-sparse-main-v0.1"},
+    "publication": {"type": "object"},
+    "method": {"type": "object"},
+    "tracks": {"type": "object", "additionalProperties": false, "required": ["economics", "psychology"], "properties": {"economics": {"$ref": "#/$defs/pairs"}, "psychology": {"$ref": "#/$defs/pairs"}}}
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "estimate": {"type": "object", "additionalProperties": false, "required": ["mean", "low", "high", "samples", "seed", "verdict"], "properties": {"mean": {"type": "number"}, "low": {"type": "number"}, "high": {"type": "number"}, "samples": {"const": 10000}, "seed": {"const": 20260826}, "verdict": {"enum": ["left_wins", "right_wins", "tie_or_uncertain"]}}},
+    "metrics": {"type": "object", "minProperties": 5, "maxProperties": 5, "additionalProperties": {"$ref": "#/$defs/estimate"}},
+    "pair": {"type": "object", "additionalProperties": false, "required": ["left", "right", "n", "metrics"], "properties": {"left": {"type": "string"}, "right": {"type": "string"}, "n": {"type": "integer", "minimum": 1}, "metrics": {"$ref": "#/$defs/metrics"}}},
+    "pairs": {"type": "array", "minItems": 21, "maxItems": 21, "items": {"$ref": "#/$defs/pair"}}
+  }
+}

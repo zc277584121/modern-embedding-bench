@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "publication", "status", "bindings", "model", "snapshot", "data", "query", "documents", "search", "wall_time_s"],
+  "properties": {
+    "schema_version": {"const": "learned-sparse-batch-b-gate-v1"},
+    "publication": {"const": {"classification": "research_only", "gate": "closed", "leaderboard_publish": false, "public_export_allowed": false, "publish": false}},
+    "status": {"const": "go"},
+    "bindings": {"type": "object", "additionalProperties": false, "required": ["predeclaration_sha256", "snapshot_evidence_sha256"], "properties": {"predeclaration_sha256": {"$ref": "#/$defs/sha256"}, "snapshot_evidence_sha256": {"$ref": "#/$defs/sha256"}}},
+    "model": {"type": "object", "additionalProperties": false, "required": ["key", "repo_id", "revision", "license", "query_route", "document_route", "dimensions", "max_length"], "properties": {
+      "key": {"enum": ["splade-tiny", "opensearch-doc-v2-distill", "opensearch-multilingual"]}, "repo_id": {"type": "string"}, "revision": {"pattern": "^[0-9a-f]{40}$"}, "license": {"type": "string"},
+      "query_route": {"enum": ["neural", "static_lookup"]}, "document_route": {"enum": ["neural", "document_expansion"]}, "dimensions": {"enum": [30522, 105879]}, "max_length": {"const": 512}
+    }},
+    "snapshot": {"type": "object", "additionalProperties": false, "required": ["actual_bytes", "aggregate_identity_sha256", "files"], "properties": {
+      "actual_bytes": {"type": "integer", "minimum": 1, "maximum": 805306368}, "aggregate_identity_sha256": {"$ref": "#/$defs/sha256"},
+      "files": {"type": "object", "minProperties": 1, "additionalProperties": {"$ref": "#/$defs/sha256"}}
+    }},
+    "data": {"type": "object", "additionalProperties": false, "required": ["dataset_version", "track", "query_count", "document_count", "query_ids_sha256", "document_ids_sha256", "manifest_sha256", "source_revision"], "properties": {
+      "dataset_version": {"const": "bright-nontechnical-pilot-v0.2"}, "track": {"const": "economics"}, "query_count": {"const": 1}, "document_count": {"const": 4},
+      "query_ids_sha256": {"$ref": "#/$defs/sha256"}, "document_ids_sha256": {"$ref": "#/$defs/sha256"}, "manifest_sha256": {"$ref": "#/$defs/sha256"}, "source_revision": {"pattern": "^[0-9a-f]{40}$"}
+    }},
+    "query": {"$ref": "#/$defs/audit"}, "documents": {"$ref": "#/$defs/audit"},
+    "search": {"type": "object", "additionalProperties": false, "required": ["backend", "exact", "ranking_fingerprint"], "properties": {"backend": {"type": "string"}, "exact": {"const": true}, "ranking_fingerprint": {"$ref": "#/$defs/sha256"}}},
+    "wall_time_s": {"type": "number", "minimum": 0, "maximum": 600}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "audit": {"type": "object", "additionalProperties": false, "required": ["shape", "nnz", "finite", "nonnegative", "latency_ms", "cpu_time_s", "peak_rss_bytes", "peak_vram_bytes", "batch_size_requested", "batch_size_attempted", "batch_size_used", "truncated_count", "max_observed_tokens", "tokenizer_class"], "properties": {
+      "shape": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "integer", "minimum": 1}}, "nnz": {"type": "array", "minItems": 1, "items": {"type": "integer", "minimum": 1}},
+      "finite": {"const": true}, "nonnegative": {"const": true}, "latency_ms": {"type": "number", "minimum": 0}, "cpu_time_s": {"type": "number", "minimum": 0},
+      "peak_rss_bytes": {"type": "integer", "minimum": 0}, "peak_vram_bytes": {"type": "integer", "minimum": 0, "maximum": 11274289152},
+      "batch_size_requested": {"const": 8}, "batch_size_attempted": {"type": "array", "minItems": 1, "items": {"enum": [8, 4, 2, 1]}}, "batch_size_used": {"enum": [8, 4, 2, 1]},
+      "truncated_count": {"type": "integer", "minimum": 0}, "max_observed_tokens": {"type": "integer", "minimum": 1}, "tokenizer_class": {"type": "string"}
+    }}
+  }
+}

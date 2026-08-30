@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "publication", "status", "cpu_only", "model_loaded", "raw_manifest_sha256", "active_predeclaration_sha256", "snapshot_evidence_sha256", "protocol_identity_sha256", "model_key", "track", "artifact_map_sha256", "metrics_sha256", "metrics"],
+  "properties": {
+    "schema_version": {"const": "bright-learned-sparse-batch-b-replay-v1"},
+    "publication": {"const": {"classification": "research_only", "gate": "closed", "leaderboard_publish": false, "public_export_allowed": false, "publish": false}},
+    "status": {"const": "pass"}, "cpu_only": {"const": true}, "model_loaded": {"const": false},
+    "raw_manifest_sha256": {"$ref": "#/$defs/sha256"}, "active_predeclaration_sha256": {"const": "2d30ac69b58e7bbd217550418619bab085e2c8b73e1453ee02e0d237827a32ef"}, "snapshot_evidence_sha256": {"$ref": "#/$defs/sha256"}, "protocol_identity_sha256": {"$ref": "#/$defs/sha256"},
+    "model_key": {"enum": ["splade-tiny", "opensearch-doc-v2-distill", "opensearch-multilingual"]}, "track": {"enum": ["economics", "psychology"]},
+    "artifact_map_sha256": {"$ref": "#/$defs/sha256"}, "metrics_sha256": {"$ref": "#/$defs/sha256"}, "metrics": {"type": "object", "minProperties": 5, "maxProperties": 5, "additionalProperties": {"type": "number", "minimum": 0, "maximum": 1}}
+  },
+  "$defs": {"sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}
+}

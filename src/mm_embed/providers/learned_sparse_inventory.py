@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from pathlib import Path, PurePosixPath
 from typing import Any
 
@@ -18,6 +18,8 @@ MIB = 1024**2
 GIB = 1024**3
 BATCH_DOWNLOAD_CAP_BYTES = 512 * MIB
 STORY_DISK_CAP_BYTES = 4 * GIB
+BATCH_B_DOWNLOAD_CAP_BYTES = 1 * GIB
+BATCH_B_GPU_CAP_BYTES = int(10.5 * GIB)
 REVISION_PATTERN = re.compile(r"^[0-9a-f]{40}$")
 PICKLE_SUFFIXES = frozenset({".bin", ".ckpt", ".pickle", ".pkl", ".pt", ".pth"})
 
@@ -73,6 +75,40 @@ GRANITE_ALLOWLIST = (
 )
 
 OPENSEARCH_MINI_ALLOWLIST = (
+    "config.json",
+    "config_sentence_transformers.json",
+    "document_1_SpladePooling/config.json",
+    "idf.json",
+    "model.safetensors",
+    "modules.json",
+    "query_0_SparseStaticEmbedding/config.json",
+    "query_0_SparseStaticEmbedding/model.safetensors",
+    "query_0_SparseStaticEmbedding/special_tokens_map.json",
+    "query_0_SparseStaticEmbedding/tokenizer.json",
+    "query_0_SparseStaticEmbedding/tokenizer_config.json",
+    "query_0_SparseStaticEmbedding/vocab.txt",
+    "query_token_weights.txt",
+    "router_config.json",
+    "special_tokens_map.json",
+    "tokenizer.json",
+    "tokenizer_config.json",
+    "vocab.txt",
+)
+
+BATCH_B_BERT_ALLOWLIST = (
+    "1_SpladePooling/config.json",
+    "config.json",
+    "config_sentence_transformers.json",
+    "model.safetensors",
+    "modules.json",
+    "sentence_bert_config.json",
+    "special_tokens_map.json",
+    "tokenizer.json",
+    "tokenizer_config.json",
+    "vocab.txt",
+)
+
+BATCH_B_MULTILINGUAL_ALLOWLIST = (
     "config.json",
     "config_sentence_transformers.json",
     "document_1_SpladePooling/config.json",
@@ -251,6 +287,37 @@ def _specs() -> tuple[LearnedSparseSpec, ...]:
 INVENTORY = {spec.key: spec for spec in _specs()}
 SELECTED_KEYS = ("granite-30m-sparse", "opensearch-doc-v2-mini")
 ANCHOR_KEYS = ("opensearch-doc-v3", "bge-m3")
+BATCH_B_SELECTED_KEYS = ("splade-tiny", "opensearch-doc-v2-distill", "opensearch-multilingual")
+BATCH_B_INVENTORY = {
+    "splade-tiny": replace(
+        INVENTORY["splade-tiny"],
+        status="selected",
+        reason="Frozen lightweight neural SPLADE lower bound for Batch B.",
+        license="MIT (pinned model-card/API evidence; no standalone LICENSE)",
+        allowlist=BATCH_B_BERT_ALLOWLIST,
+        download_cap_bytes=32 * MIB,
+        estimated_snapshot_bytes=18_618_173,
+        remote_code_risk="Standard BERT masked-LM and SpladePooling files; no Python, pickle, or auto_map allowed.",
+    ),
+    "opensearch-doc-v2-distill": replace(
+        INVENTORY["opensearch-doc-v2-distill"],
+        status="selected",
+        reason="Frozen larger neural/neural OpenSearch v2 capacity control for Batch B.",
+        allowlist=BATCH_B_BERT_ALLOWLIST,
+        download_cap_bytes=300 * MIB,
+        estimated_snapshot_bytes=268_899_492,
+        remote_code_risk="Standard BERT masked-LM and SpladePooling files; repository pickle duplicate is excluded.",
+    ),
+    "opensearch-multilingual": replace(
+        INVENTORY["opensearch-multilingual"],
+        status="selected",
+        reason="Frozen static-query/document-expansion multilingual complement for Batch B.",
+        allowlist=BATCH_B_MULTILINGUAL_ALLOWLIST,
+        download_cap_bytes=768 * MIB,
+        estimated_snapshot_bytes=683_815_451,
+        remote_code_risk="Standard Router, SparseStaticEmbedding, and SpladePooling files; no auto_map allowed.",
+    ),
+}
 
 
 def inventory_document() -> dict[str, Any]:
@@ -386,17 +453,23 @@ class BoundedSnapshotResolver:
             "cache": self.cache_audit(),
         }
 
-    def plan_batch(self, keys: tuple[str, ...] = SELECTED_KEYS) -> dict[str, Any]:
-        plans = [self.plan(INVENTORY[key]) for key in keys]
+    def plan_batch(
+        self,
+        keys: tuple[str, ...] = SELECTED_KEYS,
+        *,
+        inventory: dict[str, LearnedSparseSpec] = INVENTORY,
+        batch_cap_bytes: int = BATCH_DOWNLOAD_CAP_BYTES,
+    ) -> dict[str, Any]:
+        plans = [self.plan(inventory[key]) for key in keys]
         declared = sum(row["declared_bytes"] for row in plans)
         download = sum(row["download_bytes"] for row in plans)
-        if declared > BATCH_DOWNLOAD_CAP_BYTES or declared > STORY_DISK_CAP_BYTES:
-            raise SnapshotPolicyError("Batch-A allowlisted bytes exceed the approved hard caps")
+        if declared > batch_cap_bytes or declared > STORY_DISK_CAP_BYTES:
+            raise SnapshotPolicyError("Allowlisted bytes exceed the approved hard caps")
         return {
             "models": plans,
             "declared_bytes": declared,
             "download_bytes": download,
-            "batch_cap_bytes": BATCH_DOWNLOAD_CAP_BYTES,
+            "batch_cap_bytes": batch_cap_bytes,
             "story_disk_cap_bytes": STORY_DISK_CAP_BYTES,
             "cache": self.cache_audit(),
         }
@@ -484,6 +557,10 @@ class BoundedSnapshotResolver:
 __all__ = [
     "ANCHOR_KEYS",
     "BATCH_DOWNLOAD_CAP_BYTES",
+    "BATCH_B_DOWNLOAD_CAP_BYTES",
+    "BATCH_B_GPU_CAP_BYTES",
+    "BATCH_B_INVENTORY",
+    "BATCH_B_SELECTED_KEYS",
     "BoundedSnapshotResolver",
     "INVENTORY",
     "LearnedSparseSpec",

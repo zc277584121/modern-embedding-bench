@@ -1,0 +1,235 @@
+{
+  "cases": [
+    {
+      "category": "disagreement",
+      "local_evidence_sha256": "1c9ea446c96d9fad6c78fd8f2295062d239bdd0e661ad8022f7191cbefd93786",
+      "mechanism_summary": "The seven frozen sparse mechanisms disagree materially on positive-document placement.",
+      "opaque_case_id": "economics-disagreement-01",
+      "restricted_content_included": false,
+      "selection_rule": "descending_positive_rank_range_then_recall10_pair_disagreement_then_canonical_id",
+      "track": "economics"
+    },
+    {
+      "category": "disagreement",
+      "local_evidence_sha256": "b3aef573a90b9fb3c3f5bf2c98ece59c445e76622e647fe44ab80a30b2b582ae",
+      "mechanism_summary": "The seven frozen sparse mechanisms disagree materially on positive-document placement.",
+      "opaque_case_id": "economics-disagreement-02",
+      "restricted_content_included": false,
+      "selection_rule": "descending_positive_rank_range_then_recall10_pair_disagreement_then_canonical_id",
+      "track": "economics"
+    },
+    {
+      "category": "disagreement",
+      "local_evidence_sha256": "9fc4b64d21743ca32c02889ce6b4bb95a5853deceb6206d13a71a601e747c6d2",
+      "mechanism_summary": "The seven frozen sparse mechanisms disagree materially on positive-document placement.",
+      "opaque_case_id": "economics-disagreement-03",
+      "restricted_content_included": false,
+      "selection_rule": "descending_positive_rank_range_then_recall10_pair_disagreement_then_canonical_id",
+      "track": "economics"
+    },
+    {
+      "category": "disagreement",
+      "local_evidence_sha256": "7357ea3910413be220b2deae1d3f540b6cbbc2745ae52064eb573c5dbc50f792",
+      "mechanism_summary": "The seven frozen sparse mechanisms disagree materially on positive-document placement.",
+      "opaque_case_id": "economics-disagreement-04",
+      "restricted_content_included": false,
+      "selection_rule": "descending_positive_rank_range_then_recall10_pair_disagreement_then_canonical_id",
+      "track": "economics"
+    },
+    {
+      "category": "disagreement",
+      "local_evidence_sha256": "fce9738f37693b7899c96a01e3c78811036dcc6beba47921e55c216546bc87ec",
+      "mechanism_summary": "The seven frozen sparse mechanisms disagree materially on positive-document placement.",
+      "opaque_case_id": "economics-disagreement-05",
+      "restricted_content_included": false,
+      "selection_rule": "descending_positive_rank_range_then_recall10_pair_disagreement_then_canonical_id",
+      "track": "economics"
+    },
+    {
+      "category": "disagreement",
+      "local_evidence_sha256": "d81a9f53c13932147674cc812126af4fb0765993bb71d45f616dbc57c96a174e",
+      "mechanism_summary": "The seven frozen sparse mechanisms disagree materially on positive-document placement.",
+      "opaque_case_id": "economics-disagreement-06",
+      "restricted_content_included": false,
+      "selection_rule": "descending_positive_rank_range_then_recall10_pair_disagreement_then_canonical_id",
+      "track": "economics"
+    },
+    {
+      "category": "failure",
+      "local_evidence_sha256": "987eabe76adb6cf13ad27b55f44e9673c5fef6b936546cac2a979cdf4705b30f",
+      "mechanism_summary": "The seven frozen sparse mechanisms share a low-effectiveness failure region for this query.",
+      "opaque_case_id": "economics-failure-01",
+      "restricted_content_included": false,
+      "selection_rule": "ascending_mean_ndcg10_then_zero_count_desc_then_mean_recall100_then_canonical_id",
+      "track": "economics"
+    },
+    {
+      "category": "failure",
+      "local_evidence_sha256": "f078ae9fe2ee0ddeb42db56b4ae43a149926d40d1a37a35327c0848af1c2b061",
+      "mechanism_summary": "The seven frozen sparse mechanisms share a low-effectiveness failure region for this query.",
+      "opaque_case_id": "economics-failure-02",
+      "restricted_content_included": false,
+      "selection_rule": "ascending_mean_ndcg10_then_zero_count_desc_then_mean_recall100_then_canonical_id",
+      "track": "economics"
+    },
+    {
+      "category": "failure",
+      "local_evidence_sha256": "44fda208d1e525e1a9aa0df19a5def361e16ff033bfb7ef0cae3747723150b83",
+      "mechanism_summary": "The seven frozen sparse mechanisms share a low-effectiveness failure region for this query.",
+      "opaque_case_id": "economics-failure-03",
+      "restricted_content_included": false,
+      "selection_rule": "ascending_mean_ndcg10_then_zero_count_desc_then_mean_recall100_then_canonical_id",
+      "track": "economics"
+    },
+    {
+      "category": "failure",
+      "local_evidence_sha256": "a9c66fd05a9df3307e8b23bf2f0304cda799209f9a2be4863e8946afb1943949",
+      "mechanism_summary": "The seven frozen sparse mechanisms share a low-effectiveness failure region for this query.",
+      "opaque_case_id": "economics-failure-04",
+      "restricted_content_included": false,
+      "selection_rule": "ascending_mean_ndcg10_then_zero_count_desc_then_mean_recall100_then_canonical_id",
+      "track": "economics"
+    },
+    {
+      "category": "failure",
+      "local_evidence_sha256": "907891d63ecfb5941928a23293f47d41b46339c2087fbb2ebc31e1eac737659c",
+      "mechanism_summary": "The seven frozen sparse mechanisms share a low-effectiveness failure region for this query.",
+      "opaque_case_id": "economics-failure-05",
+      "restricted_content_included": false,
+      "selection_rule": "ascending_mean_ndcg10_then_zero_count_desc_then_mean_recall100_then_canonical_id",
+      "track": "economics"
+    },
+    {
+      "category": "failure",
+      "local_evidence_sha256": "beac55dd286f20b2119aa3bf542e97c3dd0ed8a186e2e190440230de9be1059b",
+      "mechanism_summary": "The seven frozen sparse mechanisms share a low-effectiveness failure region for this query.",
+      "opaque_case_id": "economics-failure-06",
+      "restricted_content_included": false,
+      "selection_rule": "ascending_mean_ndcg10_then_zero_count_desc_then_mean_recall100_then_canonical_id",
+      "track": "economics"
+    },
+    {
+      "category": "disagreement",
+      "local_evidence_sha256": "c05d6f3ac06e3c36318daecb441055aa91261dcf9c6e01022b7c9477a6b01ad0",
+      "mechanism_summary": "The seven frozen sparse mechanisms disagree materially on positive-document placement.",
+      "opaque_case_id": "psychology-disagreement-01",
+      "restricted_content_included": false,
+      "selection_rule": "descending_positive_rank_range_then_recall10_pair_disagreement_then_canonical_id",
+      "track": "psychology"
+    },
+    {
+      "category": "disagreement",
+      "local_evidence_sha256": "a02480c569bdc1eccfb5233c23e92524a986887615f240a1f66696a0921cefc3",
+      "mechanism_summary": "The seven frozen sparse mechanisms disagree materially on positive-document placement.",
+      "opaque_case_id": "psychology-disagreement-02",
+      "restricted_content_included": false,
+      "selection_rule": "descending_positive_rank_range_then_recall10_pair_disagreement_then_canonical_id",
+      "track": "psychology"
+    },
+    {
+      "category": "disagreement",
+      "local_evidence_sha256": "4d3a725f0cdebd97bbfd0fb7867ddfa3f829d50e6ae106bef80d2cf87ad9a484",
+      "mechanism_summary": "The seven frozen sparse mechanisms disagree materially on positive-document placement.",
+      "opaque_case_id": "psychology-disagreement-03",
+      "restricted_content_included": false,
+      "selection_rule": "descending_positive_rank_range_then_recall10_pair_disagreement_then_canonical_id",
+      "track": "psychology"
+    },
+    {
+      "category": "disagreement",
+      "local_evidence_sha256": "9de9dfa19b2e664aa6a3e92449c5ba534bfa8ddc6c8e062ac6cdea3bbc006110",
+      "mechanism_summary": "The seven frozen sparse mechanisms disagree materially on positive-document placement.",
+      "opaque_case_id": "psychology-disagreement-04",
+      "restricted_content_included": false,
+      "selection_rule": "descending_positive_rank_range_then_recall10_pair_disagreement_then_canonical_id",
+      "track": "psychology"
+    },
+    {
+      "category": "disagreement",
+      "local_evidence_sha256": "15ddc8c28605f3d2a92c195c15ae23c04526a64874c1d756847a09ca15699b7c",
+      "mechanism_summary": "The seven frozen sparse mechanisms disagree materially on positive-document placement.",
+      "opaque_case_id": "psychology-disagreement-05",
+      "restricted_content_included": false,
+      "selection_rule": "descending_positive_rank_range_then_recall10_pair_disagreement_then_canonical_id",
+      "track": "psychology"
+    },
+    {
+      "category": "disagreement",
+      "local_evidence_sha256": "70c13678c1ff8dc167b220bf918b295b7c4a676620660cbebd7470d185bdd66e",
+      "mechanism_summary": "The seven frozen sparse mechanisms disagree materially on positive-document placement.",
+      "opaque_case_id": "psychology-disagreement-06",
+      "restricted_content_included": false,
+      "selection_rule": "descending_positive_rank_range_then_recall10_pair_disagreement_then_canonical_id",
+      "track": "psychology"
+    },
+    {
+      "category": "failure",
+      "local_evidence_sha256": "6781774143f4a64b8406e32b0aabe1d2d10919f0a6a96ef84d434960ab1f0bae",
+      "mechanism_summary": "The seven frozen sparse mechanisms share a low-effectiveness failure region for this query.",
+      "opaque_case_id": "psychology-failure-01",
+      "restricted_content_included": false,
+      "selection_rule": "ascending_mean_ndcg10_then_zero_count_desc_then_mean_recall100_then_canonical_id",
+      "track": "psychology"
+    },
+    {
+      "category": "failure",
+      "local_evidence_sha256": "e9c4c856368e0d9549c87cb33e2878f99929b1eef936c9116ec9302a4d6abf8f",
+      "mechanism_summary": "The seven frozen sparse mechanisms share a low-effectiveness failure region for this query.",
+      "opaque_case_id": "psychology-failure-02",
+      "restricted_content_included": false,
+      "selection_rule": "ascending_mean_ndcg10_then_zero_count_desc_then_mean_recall100_then_canonical_id",
+      "track": "psychology"
+    },
+    {
+      "category": "failure",
+      "local_evidence_sha256": "0fa3388989a5f55bdb0a01637b8d63e12ff73cc039913e91a07cce79692a11e5",
+      "mechanism_summary": "The seven frozen sparse mechanisms share a low-effectiveness failure region for this query.",
+      "opaque_case_id": "psychology-failure-03",
+      "restricted_content_included": false,
+      "selection_rule": "ascending_mean_ndcg10_then_zero_count_desc_then_mean_recall100_then_canonical_id",
+      "track": "psychology"
+    },
+    {
+      "category": "failure",
+      "local_evidence_sha256": "0af601ea418ca59168f52aefa95d0ec704a6066eaf97416602751be3c0485bfb",
+      "mechanism_summary": "The seven frozen sparse mechanisms share a low-effectiveness failure region for this query.",
+      "opaque_case_id": "psychology-failure-04",
+      "restricted_content_included": false,
+      "selection_rule": "ascending_mean_ndcg10_then_zero_count_desc_then_mean_recall100_then_canonical_id",
+      "track": "psychology"
+    },
+    {
+      "category": "failure",
+      "local_evidence_sha256": "985a132c3618349c2d6a3603953741f2636c8db6ac2910040be2a1bb4fe30d1e",
+      "mechanism_summary": "The seven frozen sparse mechanisms share a low-effectiveness failure region for this query.",
+      "opaque_case_id": "psychology-failure-05",
+      "restricted_content_included": false,
+      "selection_rule": "ascending_mean_ndcg10_then_zero_count_desc_then_mean_recall100_then_canonical_id",
+      "track": "psychology"
+    },
+    {
+      "category": "failure",
+      "local_evidence_sha256": "2e4ae560420b721f2619980de1de4cc1c1fac334c6dcdd0e45490448c9f97ee2",
+      "mechanism_summary": "The seven frozen sparse mechanisms share a low-effectiveness failure region for this query.",
+      "opaque_case_id": "psychology-failure-06",
+      "restricted_content_included": false,
+      "selection_rule": "ascending_mean_ndcg10_then_zero_count_desc_then_mean_recall100_then_canonical_id",
+      "track": "psychology"
+    }
+  ],
+  "counts": {
+    "per_track_disagreement": 6,
+    "per_track_failure": 6,
+    "total": 24
+  },
+  "local_mapping_sha256": "1041c2cb0274965edb090c58b73db54cb355d9481e4ec7550cb1b6f837a8fd0e",
+  "package_version": "bright-learned-sparse-main-v0.1",
+  "publication": {
+    "classification": "research_only",
+    "gate": "closed",
+    "leaderboard_publish": false,
+    "public_export_allowed": false,
+    "publish": false
+  },
+  "schema_version": "bright-learned-sparse-main-cases-v1"
+}

@@ -1,0 +1,143 @@
+{
+  "bindings": {
+    "active_predeclaration_sha256": "2d30ac69b58e7bbd217550418619bab085e2c8b73e1453ee02e0d237827a32ef",
+    "batch_a_package_manifest_sha256": "068dd07e3b080bd6f39ece28793e225893732b92907f1e65ca1e69e9f69df362",
+    "batch_a_protocol_sha256": "bce4c723698b90d8868f24864575fb4af1c9be7cb5ef2393f9be310f7f878db0",
+    "batch_b_protocol_sha256": "81d1d5f99ecba9043fcfa550c3a5f531f80b93733638253044007afb1210a0c3",
+    "batch_b_replay_sha256": {
+      "opensearch-doc-v2-distill:economics": "21b2833e2ff64ccc0a8a69f7a768e06d4daed4a988a147c084d3276c3abad636",
+      "opensearch-doc-v2-distill:psychology": "c7979595e23ceeab44591afee0f570c48e6327157fcb7962e29e72aa0ee461cd",
+      "opensearch-multilingual:economics": "ecc8a532eb5a4a2801afa17dea35daace5081f22152db265bc2ecd9f8fc7fa44",
+      "opensearch-multilingual:psychology": "8b56ded9a40c12aaf41b6617e597f0a27d07ff92118ed4f99f93b45bbb2d1f64",
+      "splade-tiny:economics": "a9b1cec1fc5832b08ec68967deb86043cda5f650193cf5736063220910a1da78",
+      "splade-tiny:psychology": "34c2c5e2f93a8bd87e8a95ef47db5fb1beef62f3d2438d66d9372d77a23881ec"
+    },
+    "canonical_data_sha256": "8174b0c01a32e977cf0c5d89522356c485196b0aa0571251cfe1595c5579cb1f",
+    "input_contract_sha256": "18ec21848358fd19a454ed2f7362e1eb6117d6c508ca6f30cc9980d2642d1dc6",
+    "local_mapping_sha256": "1041c2cb0274965edb090c58b73db54cb355d9481e4ec7550cb1b6f837a8fd0e",
+    "raw_manifest_sha256": {
+      "bge-m3:economics": "e022c394f09812b81c40f71128e18b2e799e9dd6dab2a6c294ab9d6ebf7c6b56",
+      "bge-m3:psychology": "a15cc88c80b2a25411c5f82e173e19633b5f668b56eab5831fff01a145e9bffa",
+      "granite-30m-sparse:economics": "e8a8f9ac2aa59e2e819b64dbc3cc189b04b880330658aedf5d9ad5b218daeca1",
+      "granite-30m-sparse:psychology": "8db4c46b6e379fcd1a932789bd72eb1dc33c28acd35c0c9aac62eaccfaa6174c",
+      "opensearch-doc-v2-distill:economics": "221ee4f320395385556d000b1eb5903363ae3fdc580b2a95523045992872fc47",
+      "opensearch-doc-v2-distill:psychology": "cc2d98e239ad583829ba9d71ffd65b56cce67d82a3aae6929d0052a4834c01a3",
+      "opensearch-doc-v2-mini:economics": "7d2caaf6f3659ca896e6406b597f40594baf804472ccdfd45feb0995ce3c3d88",
+      "opensearch-doc-v2-mini:psychology": "6d8ab1a65881a75c313678fd7a530252c15f60f7cc6e3e4df31b07c14f21b7b2",
+      "opensearch-doc-v3:economics": "09b1de1954e36f65aec38e8a0580b9523663a1b9e5ac053b8af00fe858f889ed",
+      "opensearch-doc-v3:psychology": "567425dffa5f829373675de97901400f150c031abd9d71e0174c31331151730e",
+      "opensearch-multilingual:economics": "aa93b60bd8b17e036e3e537f59d121836d4b3608a7f692324d89883a53563779",
+      "opensearch-multilingual:psychology": "99d6f3754fc698612ff416b5f9ca1a6ad601b50b76920e580f1de1ac063d8b55",
+      "splade-tiny:economics": "60d3e647a638f88b8f259ac21d5f90087ee1b2e2282671bd8e0f0102b738c702",
+      "splade-tiny:psychology": "8e2bd3e5ffb378852396821301027860cf7eafb1a83ad37b089687ea561422ca"
+    },
+    "snapshot_evidence_sha256": {
+      "opensearch-doc-v2-distill": "fbe7d9c04587f0c0ebd0505e5680f0eb4c089f6d85fc30f2d6f4fd77e38a0718",
+      "opensearch-multilingual": "bfa63c1e11cee99689245edcd993f9020dfa13cfebb920ae7f81cf271ba4fad4",
+      "splade-tiny": "d395f55c3a249a7db8e57d2a66cc8fa454f95fee984667ba5e400e7699f925f6"
+    }
+  },
+  "content_policy": "Aggregate statistics and opaque case identifiers only; no canonical IDs, text, rankings, per-query rows, raw data, cache content, or model snapshots.",
+  "package_version": "bright-learned-sparse-main-v0.1",
+  "privacy_scan": {
+    "canonical_document_ids_found": 0,
+    "canonical_source_texts_found": 0,
+    "forbidden_row_fields": [
+      "content",
+      "document_id",
+      "hits",
+      "per_query",
+      "positive_document_ids",
+      "query_id",
+      "rankings",
+      "source_text",
+      "text"
+    ],
+    "public_gate": "closed",
+    "status": "pass",
+    "tracked_files_scanned": 6
+  },
+  "protocol": {
+    "aggregation": "independent_track_macro_average_no_cross_track_micro_average",
+    "cases": {
+      "disagreement_per_track": 6,
+      "failure_per_track": 6
+    },
+    "identity_sha256": "d6d615a9b753245767f895847a8828e99f1a961a3d8f7247470b9caa4edcbcaf",
+    "matrix": {
+      "cells": 14,
+      "models": [
+        "granite-30m-sparse",
+        "opensearch-doc-v2-mini",
+        "opensearch-doc-v3",
+        "bge-m3",
+        "splade-tiny",
+        "opensearch-doc-v2-distill",
+        "opensearch-multilingual"
+      ],
+      "tracks": [
+        "economics",
+        "psychology"
+      ]
+    },
+    "metrics": [
+      "ndcg@10",
+      "map@100",
+      "mrr@10",
+      "recall@10",
+      "recall@100"
+    ],
+    "models_loaded": false,
+    "pairwise": {
+      "decisive_rule": "95_percentile_interval_excludes_zero",
+      "method": "query_aligned_paired_bootstrap_left_minus_right",
+      "otherwise": "tie_or_uncertain",
+      "pairs_per_track": 21,
+      "samples": 10000,
+      "seed": 20260826
+    },
+    "publication": {
+      "classification": "research_only",
+      "gate": "closed",
+      "leaderboard_publish": false,
+      "public_export_allowed": false,
+      "publish": false
+    },
+    "schema_version": "bright-learned-sparse-main-protocol-v1",
+    "slices": "active_predeclaration_v2_exact_definitions_and_bins"
+  },
+  "publication": {
+    "classification": "research_only",
+    "gate": "closed",
+    "leaderboard_publish": false,
+    "public_export_allowed": false,
+    "publish": false
+  },
+  "schema_version": "bright-learned-sparse-main-manifest-v1",
+  "tracked_files": {
+    "cases.json": {
+      "bytes": 12345,
+      "sha256": "28da5092c727d62502159972a0bb660fc0807fe642e051c2aa935491f353f46b"
+    },
+    "pairwise.json": {
+      "bytes": 61386,
+      "sha256": "f2933b1d4979e8ea37c13b3f68ec3c3f21ba985cd4b8d6bef9bf6ebe736fe74d"
+    },
+    "report.md": {
+      "bytes": 8728,
+      "sha256": "3388f028445fdaa2e989f7753e2614af4fe7cedaaf2842e995294a1640339389"
+    },
+    "resources.json": {
+      "bytes": 31481,
+      "sha256": "ad0e7b4d2a0ba9bc91899fc91aa181b412eafebf56cb54b84cfeb3d889c9964f"
+    },
+    "slices.json": {
+      "bytes": 960401,
+      "sha256": "d0ce5981dea7ba5c510dc9c68f54356cec0a37b050d559429ac0fa2f2cac410b"
+    },
+    "summary.json": {
+      "bytes": 9448,
+      "sha256": "80e57e7648047753d21639660d89aa3676c084f5c8107f1a538a4cfbb4598a79"
+    }
+  }
+}

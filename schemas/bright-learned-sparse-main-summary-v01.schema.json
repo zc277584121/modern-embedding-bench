@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "package_version", "publication", "track_aggregation", "tracks"],
+  "properties": {
+    "schema_version": {"const": "bright-learned-sparse-main-summary-v1"},
+    "package_version": {"const": "bright-learned-sparse-main-v0.1"},
+    "publication": {"$ref": "#/$defs/publication"},
+    "track_aggregation": {"const": "independent_no_cross_track_micro_average_or_overall_rank"},
+    "tracks": {"$ref": "#/$defs/tracks"}
+  },
+  "$defs": {
+    "publication": {"type": "object", "required": ["publish", "leaderboard_publish", "public_export_allowed", "gate", "classification"], "properties": {"publish": {"const": false}, "leaderboard_publish": {"const": false}, "public_export_allowed": {"const": false}, "gate": {"const": "closed"}, "classification": {"const": "research_only"}}, "additionalProperties": false},
+    "metric": {"type": "object", "additionalProperties": false, "required": ["ndcg@10", "map@100", "mrr@10", "recall@10", "recall@100"], "properties": {"ndcg@10": {"type": "number"}, "map@100": {"type": "number"}, "mrr@10": {"type": "number"}, "recall@10": {"type": "number"}, "recall@100": {"type": "number"}}},
+    "row": {"type": "object", "additionalProperties": false, "required": ["model_key", "metrics", "raw_manifest_sha256"], "properties": {"model_key": {"type": "string"}, "metrics": {"$ref": "#/$defs/metric"}, "raw_manifest_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}},
+    "track": {"type": "object", "additionalProperties": false, "required": ["primary_order", "rows", "metric_orders"], "properties": {"primary_order": {"type": "array", "minItems": 7, "maxItems": 7, "uniqueItems": true, "items": {"type": "string"}}, "rows": {"type": "array", "minItems": 7, "maxItems": 7, "items": {"$ref": "#/$defs/row"}}, "metric_orders": {"type": "object", "minProperties": 5, "maxProperties": 5, "additionalProperties": {"type": "array", "minItems": 7, "maxItems": 7, "uniqueItems": true, "items": {"type": "string"}}}}},
+    "tracks": {"type": "object", "additionalProperties": false, "required": ["economics", "psychology"], "properties": {"economics": {"$ref": "#/$defs/track"}, "psychology": {"$ref": "#/$defs/track"}}}
+  }
+}

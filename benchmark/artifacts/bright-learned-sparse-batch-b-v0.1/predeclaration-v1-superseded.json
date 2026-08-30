@@ -1,0 +1,188 @@
+{
+  "bindings": {
+    "batch_a": {
+      "protocol_identity_sha256": "bce4c723698b90d8868f24864575fb4af1c9be7cb5ef2393f9be310f7f878db0",
+      "raw_manifest_sha256": {
+        "bge-m3:economics": "e022c394f09812b81c40f71128e18b2e799e9dd6dab2a6c294ab9d6ebf7c6b56",
+        "bge-m3:psychology": "a15cc88c80b2a25411c5f82e173e19633b5f668b56eab5831fff01a145e9bffa",
+        "granite-30m-sparse:economics": "e8a8f9ac2aa59e2e819b64dbc3cc189b04b880330658aedf5d9ad5b218daeca1",
+        "granite-30m-sparse:psychology": "8db4c46b6e379fcd1a932789bd72eb1dc33c28acd35c0c9aac62eaccfaa6174c",
+        "opensearch-doc-v2-mini:economics": "7d2caaf6f3659ca896e6406b597f40594baf804472ccdfd45feb0995ce3c3d88",
+        "opensearch-doc-v2-mini:psychology": "6d8ab1a65881a75c313678fd7a530252c15f60f7cc6e3e4df31b07c14f21b7b2",
+        "opensearch-doc-v3:economics": "09b1de1954e36f65aec38e8a0580b9523663a1b9e5ac053b8af00fe858f889ed",
+        "opensearch-doc-v3:psychology": "567425dffa5f829373675de97901400f150c031abd9d71e0174c31331151730e"
+      },
+      "read_only": true,
+      "tracked_manifest_path": "benchmark/artifacts/bright-learned-sparse-batch-a-v0.1/manifest.json",
+      "tracked_manifest_sha256": "068dd07e3b080bd6f39ece28793e225893732b92907f1e65ca1e69e9f69df362"
+    },
+    "canonical_data": {
+      "dataset_version": "bright-nontechnical-pilot-v0.2",
+      "manifest_sha256": "8174b0c01a32e977cf0c5d89522356c485196b0aa0571251cfe1595c5579cb1f",
+      "root": "data/bright-nontechnical-pilot-v0.2",
+      "source_revision": "3066d29c9651a576c8aba4832d249807b181ecae"
+    }
+  },
+  "case_review": {
+    "content_policy": "Tracked artifacts contain opaque local-review IDs only. Real restricted IDs, source text, rankings, and per-query metrics remain in a gitignored local research-only mapping and are never public-exported.",
+    "disagreement": "Per track select exactly six queries by descending across-model range of best positive rank, treating a missing positive in top 100 as rank 101; then descending count of model pairs that disagree on Recall@10; then canonical query ID ascending.",
+    "failure": "After removing disagreement queries, per track select exactly six by ascending cross-model mean nDCG@10; then descending number of models with zero nDCG@10; then ascending mean Recall@100; then canonical query ID ascending.",
+    "per_track": {"disagreement": 6, "failure": 6}
+  },
+  "created_at": "2026-08-29T22:55:00Z",
+  "formal_gate": {
+    "all_three_must_go": true,
+    "no_go": [
+      "metadata revision, license, gated state, or allowlisted files drift",
+      "aggregate download exceeds 1073741824 bytes or Story incremental disk exceeds 4294967296 bytes",
+      "one model gate exceeds 600 seconds",
+      "batch size 1 raises CUDA out-of-memory or peak allocated VRAM exceeds 11274289152 bytes",
+      "snapshot contains Python, pickle-compatible weights, non-empty auto_map, unexpected files, or content identity drift",
+      "query/document route, vocabulary dimension, max length, CSR canonicality, finiteness, or nonnegativity drifts"
+    ],
+    "ordered_models": ["splade-tiny", "opensearch-doc-v2-distill", "opensearch-multilingual"]
+  },
+  "identity": {
+    "algorithm": "sha256",
+    "canonicalization": "json-sort-keys-compact-utf8-without-identity",
+    "external_file_sha256_required": true,
+    "payload_sha256": "afd55ec2db924230dae7323c7a473db6de651f38701f7eab293361c96b87d759"
+  },
+  "model_evidence": {
+    "opensearch-doc-v2-distill": {
+      "accepted_api_licenses": ["apache-2.0"],
+      "license_boundary": "Apache-2.0 model-card/API and repository LICENSE evidence; safetensors allowlist excludes the repository pytorch_model.bin duplicate.",
+      "official_sources": [
+        "https://huggingface.co/api/models/opensearch-project/opensearch-neural-sparse-encoding-v2-distill/revision/269e6638b2c4f648996691f6d751495285d8f330",
+        "https://huggingface.co/opensearch-project/opensearch-neural-sparse-encoding-v2-distill/tree/269e6638b2c4f648996691f6d751495285d8f330"
+      ],
+      "validator_recheck_required": true
+    },
+    "opensearch-multilingual": {
+      "accepted_api_licenses": ["apache-2.0"],
+      "license_boundary": "Apache-2.0 model-card/API and repository LICENSE evidence; local research-only until the independent Validator accepts the full package.",
+      "official_sources": [
+        "https://huggingface.co/api/models/opensearch-project/opensearch-neural-sparse-encoding-multilingual-v1/revision/1e0f096c2b51c234f1d20725c793e1b5b6d556db",
+        "https://huggingface.co/opensearch-project/opensearch-neural-sparse-encoding-multilingual-v1/tree/1e0f096c2b51c234f1d20725c793e1b5b6d556db"
+      ],
+      "validator_recheck_required": true
+    },
+    "splade-tiny": {
+      "accepted_api_licenses": ["mit"],
+      "license_boundary": "MIT is frozen only from the pinned model card and Hub API. The repository has no standalone LICENSE file. Use is local research-only, weight redistribution is forbidden, and independent Validator license recheck is mandatory.",
+      "official_sources": [
+        "https://huggingface.co/api/models/rasyosef/splade-tiny/revision/7391972eac4411e33efff5fad27b886ec97895c0",
+        "https://huggingface.co/rasyosef/splade-tiny/blob/7391972eac4411e33efff5fad27b886ec97895c0/README.md"
+      ],
+      "validator_recheck_required": true
+    }
+  },
+  "models": [
+    {
+      "allowlist": ["1_SpladePooling/config.json", "config.json", "config_sentence_transformers.json", "model.safetensors", "modules.json", "sentence_bert_config.json", "special_tokens_map.json", "tokenizer.json", "tokenizer_config.json", "vocab.txt"],
+      "batch_fallback": [8, 4, 2, 1],
+      "behavior_file_policy": "Safetensors and declarative tokenizer/config files only; no Python, pickle-compatible weights, non-empty auto_map, or unexpected behavior files.",
+      "dependencies": ["huggingface-hub>=0.30", "sentence-transformers>=5.2", "torch>=2.0", "transformers>=4.57", "scipy>=1.12"],
+      "dimensions": 30522,
+      "disk_cap_bytes": 67108864,
+      "document_route": "neural",
+      "download_cap_bytes": 33554432,
+      "estimated_snapshot_bytes": 18618173,
+      "gated": false,
+      "gpu_vram_cap_bytes": 11274289152,
+      "key": "splade-tiny",
+      "license": "MIT (pinned model-card/API evidence; no standalone LICENSE)",
+      "max_length": 512,
+      "parameter_count": 4416698,
+      "query_route": "neural",
+      "repo_id": "rasyosef/splade-tiny",
+      "revision": "7391972eac4411e33efff5fad27b886ec97895c0",
+      "trust_remote_code": false,
+      "vocabulary_id": "bert-wordpiece-30522"
+    },
+    {
+      "allowlist": ["1_SpladePooling/config.json", "config.json", "config_sentence_transformers.json", "model.safetensors", "modules.json", "sentence_bert_config.json", "special_tokens_map.json", "tokenizer.json", "tokenizer_config.json", "vocab.txt"],
+      "batch_fallback": [8, 4, 2, 1],
+      "behavior_file_policy": "Safetensors and declarative tokenizer/config files only; repository pytorch_model.bin is excluded; no Python, non-empty auto_map, or unexpected behavior files.",
+      "dependencies": ["huggingface-hub>=0.30", "sentence-transformers>=5.2", "torch>=2.0", "transformers>=4.57", "scipy>=1.12"],
+      "dimensions": 30522,
+      "disk_cap_bytes": 536870912,
+      "document_route": "neural",
+      "download_cap_bytes": 314572800,
+      "estimated_snapshot_bytes": 268899492,
+      "gated": false,
+      "gpu_vram_cap_bytes": 11274289152,
+      "key": "opensearch-doc-v2-distill",
+      "license": "Apache-2.0",
+      "max_length": 512,
+      "parameter_count": 66985530,
+      "query_route": "neural",
+      "repo_id": "opensearch-project/opensearch-neural-sparse-encoding-v2-distill",
+      "revision": "269e6638b2c4f648996691f6d751495285d8f330",
+      "trust_remote_code": false,
+      "vocabulary_id": "bert-wordpiece-30522"
+    },
+    {
+      "allowlist": ["config.json", "config_sentence_transformers.json", "document_1_SpladePooling/config.json", "idf.json", "model.safetensors", "modules.json", "query_0_SparseStaticEmbedding/config.json", "query_0_SparseStaticEmbedding/model.safetensors", "query_0_SparseStaticEmbedding/special_tokens_map.json", "query_0_SparseStaticEmbedding/tokenizer.json", "query_0_SparseStaticEmbedding/tokenizer_config.json", "query_0_SparseStaticEmbedding/vocab.txt", "query_token_weights.txt", "router_config.json", "special_tokens_map.json", "tokenizer.json", "tokenizer_config.json", "vocab.txt"],
+      "batch_fallback": [8, 4, 2, 1],
+      "behavior_file_policy": "Safetensors and declarative tokenizer/config/lookup files only; no Python, pickle-compatible weights, non-empty auto_map, or unexpected behavior files.",
+      "dependencies": ["huggingface-hub>=0.30", "sentence-transformers>=5.2", "torch>=2.0", "transformers>=4.57", "scipy>=1.12"],
+      "dimensions": 105879,
+      "disk_cap_bytes": 1073741824,
+      "document_route": "document_expansion",
+      "download_cap_bytes": 805306368,
+      "estimated_snapshot_bytes": 683815451,
+      "gated": false,
+      "gpu_vram_cap_bytes": 11274289152,
+      "key": "opensearch-multilingual",
+      "license": "Apache-2.0",
+      "max_length": 512,
+      "parameter_count": 167463831,
+      "query_route": "static_lookup",
+      "repo_id": "opensearch-project/opensearch-neural-sparse-encoding-multilingual-v1",
+      "revision": "1e0f096c2b51c234f1d20725c793e1b5b6d556db",
+      "trust_remote_code": false,
+      "vocabulary_id": "multilingual-wordpiece-105879"
+    }
+  ],
+  "publication": {"classification": "research_only", "gate": "closed", "leaderboard_publish": false, "public_export_allowed": false, "publish": false},
+  "resources": {
+    "aggregate_download_cap_bytes": 1073741824,
+    "batch_fallback": [8, 4, 2, 1],
+    "gpu_vram_cap_bytes": 11274289152,
+    "per_model_wall_time_seconds": 600,
+    "requested_batch_size": 8,
+    "story_incremental_disk_cap_bytes": 4294967296
+  },
+  "schema_version": "bright-learned-sparse-batch-b-predeclaration-v1",
+  "slices": [
+    {
+      "bins": ["<=64", "65-128", ">128"],
+      "definition": "Lowercase strip the canonical query text and count Unicode word tokens with (?u)\\b\\w+\\b.",
+      "key": "query_length",
+      "limitations": "Track-local descriptive slice; thresholds cannot be changed after scores are observed.",
+      "sample_rule": "No cross-track pooling. n=0 is NA; n=1-9 reports point estimates only with no CI or win claim; n>=10 uses 10000 paired bootstrap samples with seed 20260826. Never merge bins."
+    },
+    {
+      "bins": ["0", "(0,0.25]", "(0.25,0.50]", ">0.50"],
+      "definition": "For each positive document compute |unique lowercase Unicode query tokens intersect unique document tokens| / |unique query tokens| and use the maximum across positives.",
+      "key": "positive_lexical_overlap",
+      "limitations": "Measures surface token overlap, not semantic overlap; positive texts stay local and restricted.",
+      "sample_rule": "No cross-track pooling. n=0 is NA; n=1-9 reports point estimates only with no CI or win claim; n>=10 uses 10000 paired bootstrap samples with seed 20260826. Never merge bins."
+    },
+    {
+      "bins": ["<=128", "129-512", ">512"],
+      "definition": "Count lowercase Unicode word tokens for every positive document and bin each query by the median positive-document token count.",
+      "key": "positive_document_length",
+      "limitations": "Canonical word-token length is not the model tokenizer length and does not directly identify truncation.",
+      "sample_rule": "No cross-track pooling. n=0 is NA; n=1-9 reports point estimates only with no CI or win claim; n>=10 uses 10000 paired bootstrap samples with seed 20260826. Never merge bins."
+    },
+    {
+      "bins": ["1", "2-4", ">=5"],
+      "definition": "Count unique canonical positive qrel document IDs per query after canonical materialization validation.",
+      "key": "positive_qrel_density",
+      "limitations": "Qrel density reflects annotation multiplicity and is not corpus prevalence.",
+      "sample_rule": "No cross-track pooling. n=0 is NA; n=1-9 reports point estimates only with no CI or win claim; n>=10 uses 10000 paired bootstrap samples with seed 20260826. Never merge bins."
+    }
+  ]
+}

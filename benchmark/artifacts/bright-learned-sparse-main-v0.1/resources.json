@@ -1,0 +1,964 @@
+{
+  "boundaries": [
+    "Encoding-observed RSS is not a whole-cell process peak.",
+    "Effectiveness is established only on the two fixed English BRIGHT tracks.",
+    "No verified zero-shot or multilingual-effectiveness claim is allowed.",
+    "The package is research-only and is not publication readiness evidence."
+  ],
+  "models": [
+    {
+      "dimensions": 50265,
+      "document_route": "neural",
+      "license": "Apache-2.0",
+      "license_boundary": "Apache-2.0",
+      "mechanism": "neural SPLADE masked-language-model expansion with role-specific top-k pruning",
+      "model_key": "granite-30m-sparse",
+      "parameter_count": null,
+      "query_route": "neural",
+      "repo_id": "ibm-granite/granite-embedding-30m-sparse",
+      "revision": "ad82b1fd09541c998c8d45045d601c51fdb8a9b7",
+      "snapshot_bytes": 63318503,
+      "snapshot_bytes_kind": "frozen_estimate",
+      "snapshot_identity_sha256": "392f7930e073c6025d3eefd1caa3eedc01789b3dfcb7d7bc734179ccb511afaa",
+      "tracks": [
+        {
+          "batch": {
+            "batch1_oom": false,
+            "document_attempted": [
+              8
+            ],
+            "document_used": [
+              8
+            ],
+            "fallback_observed": false,
+            "query_attempted": [
+              8
+            ],
+            "query_used": 8,
+            "requested": 8
+          },
+          "document_nnz": {
+            "count": 7500,
+            "empty": 0,
+            "max": 192,
+            "mean": 163.3032,
+            "p50": 192.0,
+            "p95": 192.0,
+            "total": 1224774
+          },
+          "encoding": {
+            "document_latency_ms": 14607.105363160372,
+            "document_observed_rss_bytes": 1889099776,
+            "document_peak_vram_bytes": 898789888,
+            "document_throughput_items_per_second": 513.4487506960319,
+            "query_latency_ms": 234.4100195914507,
+            "query_observed_rss_bytes": 1952841728,
+            "query_peak_vram_bytes": 898789888,
+            "query_throughput_items_per_second": 439.4010127191533,
+            "rss_scope": "encoding_observed_not_whole_cell_peak"
+          },
+          "exact_search_seconds": 0.8694914001971483,
+          "query_nnz": {
+            "count": 103,
+            "empty": 0,
+            "max": 50,
+            "mean": 50.0,
+            "p50": 50.0,
+            "p95": 50.0,
+            "total": 5150
+          },
+          "representation": {
+            "document_csr_bytes": 9828196,
+            "document_stored_bytes": 4108203,
+            "index_bytes": 9828196,
+            "query_csr_bytes": 41616,
+            "query_stored_bytes": 19729
+          },
+          "track": "economics",
+          "truncation": {
+            "documents": 748,
+            "queries": 2
+          }
+        },
+        {
+          "batch": {
+            "batch1_oom": false,
+            "document_attempted": [
+              8
+            ],
+            "document_used": [
+              8
+            ],
+            "fallback_observed": false,
+            "query_attempted": [
+              8
+            ],
+            "query_used": 8,
+            "requested": 8
+          },
+          "document_nnz": {
+            "count": 7500,
+            "empty": 0,
+            "max": 192,
+            "mean": 161.35293333333334,
+            "p50": 192.0,
+            "p95": 192.0,
+            "total": 1210147
+          },
+          "encoding": {
+            "document_latency_ms": 14208.930032327771,
+            "document_observed_rss_bytes": 1999667200,
+            "document_peak_vram_bytes": 898789888,
+            "document_throughput_items_per_second": 527.837070274553,
+            "query_latency_ms": 194.83409263193607,
+            "query_observed_rss_bytes": 2039848960,
+            "query_peak_vram_bytes": 837663744,
+            "query_throughput_items_per_second": 518.3897675998654,
+            "rss_scope": "encoding_observed_not_whole_cell_peak"
+          },
+          "exact_search_seconds": 0.8548063822090626,
+          "query_nnz": {
+            "count": 101,
+            "empty": 0,
+            "max": 50,
+            "mean": 50.0,
+            "p50": 50.0,
+            "p95": 50.0,
+            "total": 5050
+          },
+          "representation": {
+            "document_csr_bytes": 9711180,
+            "document_stored_bytes": 4142816,
+            "index_bytes": 9711180,
+            "query_csr_bytes": 40808,
+            "query_stored_bytes": 19648
+          },
+          "track": "psychology",
+          "truncation": {
+            "documents": 415,
+            "queries": 0
+          }
+        }
+      ]
+    },
+    {
+      "dimensions": 30522,
+      "document_route": "document_expansion",
+      "license": "Apache-2.0",
+      "license_boundary": "Apache-2.0",
+      "mechanism": "static sparse query lookup plus neural document expansion",
+      "model_key": "opensearch-doc-v2-mini",
+      "parameter_count": null,
+      "query_route": "static_lookup",
+      "repo_id": "opensearch-project/opensearch-neural-sparse-encoding-doc-v2-mini",
+      "revision": "4af867a426867dfdd744097531046f4289a32fdd",
+      "snapshot_bytes": 94631975,
+      "snapshot_bytes_kind": "frozen_estimate",
+      "snapshot_identity_sha256": "46c91e3325d59555e2d848890835c276f406d96951c510ba25376e8c08c61458",
+      "tracks": [
+        {
+          "batch": {
+            "batch1_oom": false,
+            "document_attempted": [
+              8
+            ],
+            "document_used": [
+              8
+            ],
+            "fallback_observed": false,
+            "query_attempted": [
+              8
+            ],
+            "query_used": 8,
+            "requested": 8
+          },
+          "document_nnz": {
+            "count": 7500,
+            "empty": 0,
+            "max": 883,
+            "mean": 205.36,
+            "p50": 180.0,
+            "p95": 409.0,
+            "total": 1540200
+          },
+          "encoding": {
+            "document_latency_ms": 15549.707438796759,
+            "document_observed_rss_bytes": 1656680448,
+            "document_peak_vram_bytes": 1104987648,
+            "document_throughput_items_per_second": 482.3241870961112,
+            "query_latency_ms": 111.12379655241966,
+            "query_observed_rss_bytes": 1731256320,
+            "query_peak_vram_bytes": 103844864,
+            "query_throughput_items_per_second": 926.8941774448151,
+            "rss_scope": "encoding_observed_not_whole_cell_peak"
+          },
+          "exact_search_seconds": 0.9225831795483828,
+          "query_nnz": {
+            "count": 103,
+            "empty": 0,
+            "max": 243,
+            "mean": 87.79611650485437,
+            "p50": 77.0,
+            "p95": 157.59999999999997,
+            "total": 9043
+          },
+          "representation": {
+            "document_csr_bytes": 12351604,
+            "document_stored_bytes": 8410429,
+            "index_bytes": 12351604,
+            "query_csr_bytes": 72760,
+            "query_stored_bytes": 35105
+          },
+          "track": "economics",
+          "truncation": {
+            "documents": 647,
+            "queries": 0
+          }
+        },
+        {
+          "batch": {
+            "batch1_oom": false,
+            "document_attempted": [
+              8
+            ],
+            "document_used": [
+              8
+            ],
+            "fallback_observed": false,
+            "query_attempted": [
+              8
+            ],
+            "query_used": 8,
+            "requested": 8
+          },
+          "document_nnz": {
+            "count": 7500,
+            "empty": 0,
+            "max": 857,
+            "mean": 203.70866666666666,
+            "p50": 178.0,
+            "p95": 416.0499999999993,
+            "total": 1527815
+          },
+          "encoding": {
+            "document_latency_ms": 15646.199483424425,
+            "document_observed_rss_bytes": 1785712640,
+            "document_peak_vram_bytes": 1104987648,
+            "document_throughput_items_per_second": 479.34963426393074,
+            "query_latency_ms": 93.78918260335922,
+            "query_observed_rss_bytes": 1863614464,
+            "query_peak_vram_bytes": 103841792,
+            "query_throughput_items_per_second": 1076.8832523803499,
+            "rss_scope": "encoding_observed_not_whole_cell_peak"
+          },
+          "exact_search_seconds": 0.9162330124527216,
+          "query_nnz": {
+            "count": 101,
+            "empty": 0,
+            "max": 207,
+            "mean": 85.58415841584159,
+            "p50": 79.0,
+            "p95": 154.0,
+            "total": 8644
+          },
+          "representation": {
+            "document_csr_bytes": 12252524,
+            "document_stored_bytes": 8440411,
+            "index_bytes": 12252524,
+            "query_csr_bytes": 69560,
+            "query_stored_bytes": 33537
+          },
+          "track": "psychology",
+          "truncation": {
+            "documents": 387,
+            "queries": 0
+          }
+        }
+      ]
+    },
+    {
+      "dimensions": 30522,
+      "document_route": "document_expansion",
+      "license": "Apache-2.0",
+      "license_boundary": "Apache-2.0",
+      "mechanism": "static sparse query lookup plus distilled neural document expansion",
+      "model_key": "opensearch-doc-v3",
+      "parameter_count": null,
+      "query_route": "static_lookup",
+      "repo_id": "opensearch-project/opensearch-neural-sparse-encoding-doc-v3-distill",
+      "revision": "babf71f3c48695e2e53a978208e8aba48335e3c0",
+      "snapshot_bytes": 271581184,
+      "snapshot_bytes_kind": "frozen_estimate",
+      "snapshot_identity_sha256": "55bf8e1df3905b6a4f81d7dd78402cf31088bd3db1a724baec8d5eace8b75151",
+      "tracks": [
+        {
+          "batch": {
+            "batch1_oom": false,
+            "document_attempted": [
+              8
+            ],
+            "document_used": [
+              8
+            ],
+            "fallback_observed": false,
+            "query_attempted": [
+              8
+            ],
+            "query_used": 8,
+            "requested": 8
+          },
+          "document_nnz": {
+            "count": 7500,
+            "empty": 0,
+            "max": 625,
+            "mean": 182.70293333333333,
+            "p50": 186.0,
+            "p95": 276.0,
+            "total": 1370272
+          },
+          "encoding": {
+            "document_latency_ms": 22534.642385318875,
+            "document_observed_rss_bytes": 1768038400,
+            "document_peak_vram_bytes": 1283808768,
+            "document_throughput_items_per_second": 332.82090178125856,
+            "query_latency_ms": 115.7646644860506,
+            "query_observed_rss_bytes": 1839198208,
+            "query_peak_vram_bytes": 282170368,
+            "query_throughput_items_per_second": 889.7360905184611,
+            "rss_scope": "encoding_observed_not_whole_cell_peak"
+          },
+          "exact_search_seconds": 0.9276151247322559,
+          "query_nnz": {
+            "count": 103,
+            "empty": 0,
+            "max": 243,
+            "mean": 87.79611650485437,
+            "p50": 77.0,
+            "p95": 157.59999999999997,
+            "total": 9043
+          },
+          "representation": {
+            "document_csr_bytes": 10992180,
+            "document_stored_bytes": 7318949,
+            "index_bytes": 10992180,
+            "query_csr_bytes": 72760,
+            "query_stored_bytes": 35105
+          },
+          "track": "economics",
+          "truncation": {
+            "documents": 647,
+            "queries": 0
+          }
+        },
+        {
+          "batch": {
+            "batch1_oom": false,
+            "document_attempted": [
+              8
+            ],
+            "document_used": [
+              8
+            ],
+            "fallback_observed": false,
+            "query_attempted": [
+              8
+            ],
+            "query_used": 8,
+            "requested": 8
+          },
+          "document_nnz": {
+            "count": 7500,
+            "empty": 0,
+            "max": 618,
+            "mean": 182.3076,
+            "p50": 188.0,
+            "p95": 268.0,
+            "total": 1367307
+          },
+          "encoding": {
+            "document_latency_ms": 22111.495660617948,
+            "document_observed_rss_bytes": 1834868736,
+            "document_peak_vram_bytes": 1283392000,
+            "document_throughput_items_per_second": 339.1900808120367,
+            "query_latency_ms": 124.02624636888504,
+            "query_observed_rss_bytes": 1892409344,
+            "query_peak_vram_bytes": 282162688,
+            "query_throughput_items_per_second": 814.343761558346,
+            "rss_scope": "encoding_observed_not_whole_cell_peak"
+          },
+          "exact_search_seconds": 0.886179743334651,
+          "query_nnz": {
+            "count": 101,
+            "empty": 0,
+            "max": 207,
+            "mean": 85.58415841584159,
+            "p50": 79.0,
+            "p95": 154.0,
+            "total": 8644
+          },
+          "representation": {
+            "document_csr_bytes": 10968460,
+            "document_stored_bytes": 7406618,
+            "index_bytes": 10968460,
+            "query_csr_bytes": 69560,
+            "query_stored_bytes": 33537
+          },
+          "track": "psychology",
+          "truncation": {
+            "documents": 387,
+            "queries": 0
+          }
+        }
+      ]
+    },
+    {
+      "dimensions": 250002,
+      "document_route": "neural",
+      "license": "MIT",
+      "license_boundary": "MIT",
+      "mechanism": "contextual lexical token-weight projection with max pooling",
+      "model_key": "bge-m3",
+      "parameter_count": null,
+      "query_route": "neural",
+      "repo_id": "BAAI/bge-m3",
+      "revision": "5617a9f61b028005a4858fdac845db406aefb181",
+      "snapshot_bytes": 3221225472,
+      "snapshot_bytes_kind": "frozen_estimate",
+      "snapshot_identity_sha256": "b74878c8ce0438f0cefe3d3422e699507bc1ba04cf9c59f0615f77fd3224a2d0",
+      "tracks": [
+        {
+          "batch": {
+            "batch1_oom": false,
+            "document_attempted": [
+              8
+            ],
+            "document_used": [
+              8
+            ],
+            "fallback_observed": false,
+            "query_attempted": [
+              8
+            ],
+            "query_used": 8,
+            "requested": 8
+          },
+          "document_nnz": {
+            "count": 7500,
+            "empty": 0,
+            "max": 294,
+            "mean": 51.46026666666667,
+            "p50": 34.0,
+            "p95": 174.0,
+            "total": 385952
+          },
+          "encoding": {
+            "document_latency_ms": 44774.860894307494,
+            "document_observed_rss_bytes": 3993358336,
+            "document_peak_vram_bytes": 1248534016,
+            "document_throughput_items_per_second": 167.5047080035378,
+            "query_latency_ms": 648.4074480831623,
+            "query_observed_rss_bytes": 3993358336,
+            "query_peak_vram_bytes": 1247239680,
+            "query_throughput_items_per_second": 158.85073545112888,
+            "rss_scope": "encoding_observed_not_whole_cell_peak"
+          },
+          "exact_search_seconds": 0.8319750502705574,
+          "query_nnz": {
+            "count": 103,
+            "empty": 0,
+            "max": 161,
+            "mean": 64.27184466019418,
+            "p50": 59.0,
+            "p95": 115.59999999999997,
+            "total": 6620
+          },
+          "representation": {
+            "document_csr_bytes": 3117620,
+            "document_stored_bytes": 1649256,
+            "index_bytes": 3117620,
+            "query_csr_bytes": 53376,
+            "query_stored_bytes": 30856
+          },
+          "track": "economics",
+          "truncation": {
+            "documents": 711,
+            "queries": 2
+          }
+        },
+        {
+          "batch": {
+            "batch1_oom": false,
+            "document_attempted": [
+              8
+            ],
+            "document_used": [
+              8
+            ],
+            "fallback_observed": false,
+            "query_attempted": [
+              8
+            ],
+            "query_used": 8,
+            "requested": 8
+          },
+          "document_nnz": {
+            "count": 7500,
+            "empty": 0,
+            "max": 275,
+            "mean": 47.8748,
+            "p50": 33.0,
+            "p95": 152.0,
+            "total": 359061
+          },
+          "encoding": {
+            "document_latency_ms": 43797.447269782424,
+            "document_observed_rss_bytes": 3963809792,
+            "document_peak_vram_bytes": 1248157184,
+            "document_throughput_items_per_second": 171.24285700492285,
+            "query_latency_ms": 582.9007979482412,
+            "query_observed_rss_bytes": 3963809792,
+            "query_peak_vram_bytes": 1246514688,
+            "query_throughput_items_per_second": 173.27133597262343,
+            "rss_scope": "encoding_observed_not_whole_cell_peak"
+          },
+          "exact_search_seconds": 0.7680287379771471,
+          "query_nnz": {
+            "count": 101,
+            "empty": 0,
+            "max": 153,
+            "mean": 59.722772277227726,
+            "p50": 55.0,
+            "p95": 103.0,
+            "total": 6032
+          },
+          "representation": {
+            "document_csr_bytes": 2902492,
+            "document_stored_bytes": 1562260,
+            "index_bytes": 2902492,
+            "query_csr_bytes": 48664,
+            "query_stored_bytes": 28203
+          },
+          "track": "psychology",
+          "truncation": {
+            "documents": 425,
+            "queries": 0
+          }
+        }
+      ]
+    },
+    {
+      "dimensions": 30522,
+      "document_route": "neural",
+      "license": "MIT (pinned model-card/API evidence; no standalone LICENSE)",
+      "license_boundary": "MIT is frozen only from the pinned model card and Hub API. The repository has no standalone LICENSE file. Use is local research-only, weight redistribution is forbidden, and independent Validator license recheck is mandatory.",
+      "mechanism": "lightweight neural SPLADE masked-language-model expansion",
+      "model_key": "splade-tiny",
+      "parameter_count": 4416698,
+      "query_route": "neural",
+      "repo_id": "rasyosef/splade-tiny",
+      "revision": "7391972eac4411e33efff5fad27b886ec97895c0",
+      "snapshot_bytes": 18618173,
+      "snapshot_bytes_kind": "frozen_estimate",
+      "snapshot_identity_sha256": "b8f98b34237158477a371b0f85f883ad0d67d67954a1821b306417b5816fbfe1",
+      "tracks": [
+        {
+          "batch": {
+            "batch1_oom": false,
+            "document_attempted": [
+              8
+            ],
+            "document_used": [
+              8
+            ],
+            "fallback_observed": false,
+            "query_attempted": [
+              8
+            ],
+            "query_used": 8,
+            "requested": 8
+          },
+          "document_nnz": {
+            "count": 7500,
+            "empty": 0,
+            "max": 714,
+            "mean": 123.12466666666667,
+            "p50": 92.0,
+            "p95": 369.0499999999993,
+            "total": 923435
+          },
+          "encoding": {
+            "document_latency_ms": 10762.619016692042,
+            "document_observed_rss_bytes": 1672343552,
+            "document_peak_vram_bytes": 1031410688,
+            "document_throughput_items_per_second": 696.8564053385187,
+            "query_latency_ms": 170.36638036370277,
+            "query_observed_rss_bytes": 1721094144,
+            "query_peak_vram_bytes": 984523776,
+            "query_throughput_items_per_second": 604.5793764010998,
+            "rss_scope": "encoding_observed_not_whole_cell_peak"
+          },
+          "exact_search_seconds": 0.9050662871450186,
+          "query_nnz": {
+            "count": 103,
+            "empty": 0,
+            "max": 510,
+            "mean": 171.11650485436894,
+            "p50": 157.0,
+            "p95": 292.0,
+            "total": 17625
+          },
+          "representation": {
+            "document_csr_bytes": 7417484,
+            "document_stored_bytes": 4906269,
+            "index_bytes": 7417484,
+            "query_csr_bytes": 141416,
+            "query_stored_bytes": 98174
+          },
+          "track": "economics",
+          "truncation": {
+            "documents": 647,
+            "queries": 0
+          }
+        },
+        {
+          "batch": {
+            "batch1_oom": false,
+            "document_attempted": [
+              8
+            ],
+            "document_used": [
+              8
+            ],
+            "fallback_observed": false,
+            "query_attempted": [
+              8
+            ],
+            "query_used": 8,
+            "requested": 8
+          },
+          "document_nnz": {
+            "count": 7500,
+            "empty": 0,
+            "max": 694,
+            "mean": 120.9488,
+            "p50": 95.0,
+            "p95": 331.0499999999993,
+            "total": 907116
+          },
+          "encoding": {
+            "document_latency_ms": 11103.286985307932,
+            "document_observed_rss_bytes": 1746849792,
+            "document_peak_vram_bytes": 1031410688,
+            "document_throughput_items_per_second": 675.4756505820425,
+            "query_latency_ms": 153.6826528608799,
+            "query_observed_rss_bytes": 1792749568,
+            "query_peak_vram_bytes": 943498752,
+            "query_throughput_items_per_second": 657.1984418529626,
+            "rss_scope": "encoding_observed_not_whole_cell_peak"
+          },
+          "exact_search_seconds": 0.8702317085117102,
+          "query_nnz": {
+            "count": 101,
+            "empty": 0,
+            "max": 407,
+            "mean": 164.22772277227722,
+            "p50": 149.0,
+            "p95": 304.0,
+            "total": 16587
+          },
+          "representation": {
+            "document_csr_bytes": 7286932,
+            "document_stored_bytes": 4854935,
+            "index_bytes": 7286932,
+            "query_csr_bytes": 133104,
+            "query_stored_bytes": 92530
+          },
+          "track": "psychology",
+          "truncation": {
+            "documents": 387,
+            "queries": 0
+          }
+        }
+      ]
+    },
+    {
+      "dimensions": 30522,
+      "document_route": "neural",
+      "license": "Apache-2.0",
+      "license_boundary": "Apache-2.0 model-card/API and repository LICENSE evidence; safetensors allowlist excludes the repository pytorch_model.bin duplicate.",
+      "mechanism": "distilled neural SPLADE query and document expansion",
+      "model_key": "opensearch-doc-v2-distill",
+      "parameter_count": 66985530,
+      "query_route": "neural",
+      "repo_id": "opensearch-project/opensearch-neural-sparse-encoding-v2-distill",
+      "revision": "269e6638b2c4f648996691f6d751495285d8f330",
+      "snapshot_bytes": 268899492,
+      "snapshot_bytes_kind": "frozen_estimate",
+      "snapshot_identity_sha256": "a8d620de7536c51931c198616042a62c68a8701e4458516635cb244d4509a984",
+      "tracks": [
+        {
+          "batch": {
+            "batch1_oom": false,
+            "document_attempted": [
+              8
+            ],
+            "document_used": [
+              8
+            ],
+            "fallback_observed": false,
+            "query_attempted": [
+              8
+            ],
+            "query_used": 8,
+            "requested": 8
+          },
+          "document_nnz": {
+            "count": 7500,
+            "empty": 0,
+            "max": 433,
+            "mean": 166.87826666666666,
+            "p50": 156.0,
+            "p95": 287.0,
+            "total": 1251587
+          },
+          "encoding": {
+            "document_latency_ms": 19816.34520366788,
+            "document_observed_rss_bytes": 1643409408,
+            "document_peak_vram_bytes": 1282925056,
+            "document_throughput_items_per_second": 378.4754415063277,
+            "query_latency_ms": 312.51891888678074,
+            "query_observed_rss_bytes": 1701404672,
+            "query_peak_vram_bytes": 1236039680,
+            "query_throughput_items_per_second": 329.58004707969314,
+            "rss_scope": "encoding_observed_not_whole_cell_peak"
+          },
+          "exact_search_seconds": 0.8444756716489792,
+          "query_nnz": {
+            "count": 103,
+            "empty": 0,
+            "max": 359,
+            "mean": 187.46601941747574,
+            "p50": 179.0,
+            "p95": 278.29999999999995,
+            "total": 19309
+          },
+          "representation": {
+            "document_csr_bytes": 10042700,
+            "document_stored_bytes": 6810108,
+            "index_bytes": 10042700,
+            "query_csr_bytes": 154888,
+            "query_stored_bytes": 109210
+          },
+          "track": "economics",
+          "truncation": {
+            "documents": 647,
+            "queries": 0
+          }
+        },
+        {
+          "batch": {
+            "batch1_oom": false,
+            "document_attempted": [
+              8
+            ],
+            "document_used": [
+              8
+            ],
+            "fallback_observed": false,
+            "query_attempted": [
+              8
+            ],
+            "query_used": 8,
+            "requested": 8
+          },
+          "document_nnz": {
+            "count": 7500,
+            "empty": 0,
+            "max": 450,
+            "mean": 169.07453333333333,
+            "p50": 161.0,
+            "p95": 286.0,
+            "total": 1268059
+          },
+          "encoding": {
+            "document_latency_ms": 19060.83575449884,
+            "document_observed_rss_bytes": 1748250624,
+            "document_peak_vram_bytes": 1282925056,
+            "document_throughput_items_per_second": 393.4769753330365,
+            "query_latency_ms": 269.7398792952299,
+            "query_observed_rss_bytes": 1812668416,
+            "query_peak_vram_bytes": 1195015680,
+            "query_throughput_items_per_second": 374.43480831937217,
+            "rss_scope": "encoding_observed_not_whole_cell_peak"
+          },
+          "exact_search_seconds": 0.8238263595849276,
+          "query_nnz": {
+            "count": 101,
+            "empty": 0,
+            "max": 320,
+            "mean": 199.04950495049505,
+            "p50": 203.0,
+            "p95": 281.0,
+            "total": 20104
+          },
+          "representation": {
+            "document_csr_bytes": 10174476,
+            "document_stored_bytes": 6975176,
+            "index_bytes": 10174476,
+            "query_csr_bytes": 161240,
+            "query_stored_bytes": 113490
+          },
+          "track": "psychology",
+          "truncation": {
+            "documents": 387,
+            "queries": 0
+          }
+        }
+      ]
+    },
+    {
+      "dimensions": 105879,
+      "document_route": "document_expansion",
+      "license": "Apache-2.0",
+      "license_boundary": "Apache-2.0 model-card/API and repository LICENSE evidence; local research-only until the independent Validator accepts the full package.",
+      "mechanism": "static sparse query lookup plus multilingual neural document expansion",
+      "model_key": "opensearch-multilingual",
+      "parameter_count": 167463831,
+      "query_route": "static_lookup",
+      "repo_id": "opensearch-project/opensearch-neural-sparse-encoding-multilingual-v1",
+      "revision": "1e0f096c2b51c234f1d20725c793e1b5b6d556db",
+      "snapshot_bytes": 683815451,
+      "snapshot_bytes_kind": "frozen_estimate",
+      "snapshot_identity_sha256": "ff6f330a406ad263a5bd8c92d139a79731ee11061905efdb26cd3d4d0b22e5c2",
+      "tracks": [
+        {
+          "batch": {
+            "batch1_oom": false,
+            "document_attempted": [
+              8
+            ],
+            "document_used": [
+              8
+            ],
+            "fallback_observed": false,
+            "query_attempted": [
+              8
+            ],
+            "query_used": 8,
+            "requested": 8
+          },
+          "document_nnz": {
+            "count": 7500,
+            "empty": 0,
+            "max": 1178,
+            "mean": 248.31613333333334,
+            "p50": 236.0,
+            "p95": 430.0,
+            "total": 1862371
+          },
+          "encoding": {
+            "document_latency_ms": 39717.0511521399,
+            "document_observed_rss_bytes": 1751912448,
+            "document_peak_vram_bytes": 4163964416,
+            "document_throughput_items_per_second": 188.83577160022642,
+            "query_latency_ms": 116.60328879952431,
+            "query_observed_rss_bytes": 1798807552,
+            "query_peak_vram_bytes": 691116544,
+            "query_throughput_items_per_second": 883.3370058462725,
+            "rss_scope": "encoding_observed_not_whole_cell_peak"
+          },
+          "exact_search_seconds": 0.9607646260410547,
+          "query_nnz": {
+            "count": 103,
+            "empty": 0,
+            "max": 262,
+            "mean": 91.83495145631068,
+            "p50": 80.0,
+            "p95": 163.49999999999994,
+            "total": 9459
+          },
+          "representation": {
+            "document_csr_bytes": 14928972,
+            "document_stored_bytes": 10024633,
+            "index_bytes": 14928972,
+            "query_csr_bytes": 76088,
+            "query_stored_bytes": 37573
+          },
+          "track": "economics",
+          "truncation": {
+            "documents": 664,
+            "queries": 1
+          }
+        },
+        {
+          "batch": {
+            "batch1_oom": false,
+            "document_attempted": [
+              8
+            ],
+            "document_used": [
+              8
+            ],
+            "fallback_observed": false,
+            "query_attempted": [
+              8
+            ],
+            "query_used": 8,
+            "requested": 8
+          },
+          "document_nnz": {
+            "count": 7500,
+            "empty": 0,
+            "max": 1601,
+            "mean": 272.3770666666667,
+            "p50": 252.0,
+            "p95": 481.0,
+            "total": 2042828
+          },
+          "encoding": {
+            "document_latency_ms": 36911.36425174773,
+            "document_observed_rss_bytes": 1834524672,
+            "document_peak_vram_bytes": 4163964416,
+            "document_throughput_items_per_second": 203.1894553896062,
+            "query_latency_ms": 110.08686386048794,
+            "query_observed_rss_bytes": 1936977920,
+            "query_peak_vram_bytes": 691113472,
+            "query_throughput_items_per_second": 917.4573283148147,
+            "rss_scope": "encoding_observed_not_whole_cell_peak"
+          },
+          "exact_search_seconds": 0.9346328061074018,
+          "query_nnz": {
+            "count": 101,
+            "empty": 0,
+            "max": 224,
+            "mean": 90.54455445544555,
+            "p50": 83.0,
+            "p95": 168.0,
+            "total": 9145
+          },
+          "representation": {
+            "document_csr_bytes": 16372628,
+            "document_stored_bytes": 11136684,
+            "index_bytes": 16372628,
+            "query_csr_bytes": 73568,
+            "query_stored_bytes": 36375
+          },
+          "track": "psychology",
+          "truncation": {
+            "documents": 397,
+            "queries": 0
+          }
+        }
+      ]
+    }
+  ],
+  "package_version": "bright-learned-sparse-main-v0.1",
+  "publication": {
+    "classification": "research_only",
+    "gate": "closed",
+    "leaderboard_publish": false,
+    "public_export_allowed": false,
+    "publish": false
+  },
+  "schema_version": "bright-learned-sparse-main-resources-v1"
+}
