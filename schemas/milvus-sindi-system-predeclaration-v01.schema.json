@@ -1,0 +1,177 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "milvus-sindi-system-predeclaration-v01.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "story_id",
+    "frozen_before_milvus_results",
+    "official_sources",
+    "source",
+    "deployment",
+    "isolation",
+    "collection_schema",
+    "index_schema",
+    "workloads",
+    "matrix",
+    "correctness",
+    "sealed_index_proof",
+    "safety_caps",
+    "gates",
+    "publication",
+    "boundaries"
+  ],
+  "properties": {
+    "schema_version": {"const": "milvus-sindi-system-predeclaration-v1"},
+    "story_id": {"const": "S-20260814-010"},
+    "frozen_before_milvus_results": {"const": true},
+    "official_sources": {
+      "type": "array",
+      "minItems": 4,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "url", "retrieved_at_utc", "supports"],
+        "properties": {
+          "kind": {"type": "string", "minLength": 1},
+          "url": {"type": "string", "pattern": "^https://"},
+          "retrieved_at_utc": {"type": "string", "format": "date-time"},
+          "supports": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "commit", "tree", "input_contract_sha256", "main_protocol_sha256",
+        "main_manifest_sha256", "raw_manifest_set_sha256", "csr_exact_catalog_sha256",
+        "raw_cells", "models", "tracks", "reuse_mode", "model_loaded"
+      ],
+      "properties": {
+        "commit": {"$ref": "#/$defs/sha1"},
+        "tree": {"$ref": "#/$defs/sha1"},
+        "input_contract_sha256": {"$ref": "#/$defs/sha256"},
+        "main_protocol_sha256": {"$ref": "#/$defs/sha256"},
+        "main_manifest_sha256": {"$ref": "#/$defs/sha256"},
+        "raw_manifest_set_sha256": {"$ref": "#/$defs/sha256"},
+        "csr_exact_catalog_sha256": {"$ref": "#/$defs/sha256"},
+        "raw_cells": {"const": 14},
+        "models": {"const": 7},
+        "tracks": {"const": ["economics", "psychology"]},
+        "reuse_mode": {"const": "read_only_saved_csr_queries_and_exact_top100"},
+        "model_loaded": {"const": false}
+      }
+    },
+    "deployment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "server_release", "server_release_commit", "server_image_tag", "server_image",
+        "server_image_index_sha256", "platform", "pymilvus_version", "mode", "command",
+        "storage", "telemetry", "gpu"
+      ],
+      "properties": {
+        "server_release": {"const": "v3.0.0"},
+        "server_release_commit": {"$ref": "#/$defs/sha1short"},
+        "server_image_tag": {"const": "milvusdb/milvus:v3.0.0"},
+        "server_image": {"type": "string", "pattern": "^milvusdb/milvus@sha256:[0-9a-f]{64}$"},
+        "server_image_index_sha256": {"$ref": "#/$defs/sha256"},
+        "platform": {"const": "linux/amd64"},
+        "pymilvus_version": {"const": "3.0.1"},
+        "mode": {"const": "standalone_embed_etcd_woodpecker_local_wal"},
+        "command": {"const": ["milvus", "run", "standalone"]},
+        "storage": {"const": "story_owned_bind_mount_only"},
+        "telemetry": {"const": "no_external_telemetry_requested"},
+        "gpu": {"const": false}
+      }
+    },
+    "isolation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["container", "network", "data_root", "collection_prefix", "host_bind", "host_ports", "exclusive_names", "existing_services_policy"],
+      "properties": {
+        "container": {"type": "string", "pattern": "^meb-s010-"},
+        "network": {"type": "string", "pattern": "^meb-s010-"},
+        "data_root": {"type": "string", "pattern": "^results/milvus-sindi-system-v0\\.1/runtime/"},
+        "collection_prefix": {"type": "string", "pattern": "^meb_s010_"},
+        "host_bind": {"const": "127.0.0.1"},
+        "host_ports": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["grpc", "webui"],
+          "properties": {"grpc": {"type": "integer", "minimum": 1024, "maximum": 65535}, "webui": {"type": "integer", "minimum": 1024, "maximum": 65535}}
+        },
+        "exclusive_names": {"type": "array", "minItems": 4, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "existing_services_policy": {"const": "observe_only_never_stop_restart_upgrade_exec_write_or_cleanup"}
+      }
+    },
+    "collection_schema": {"$ref": "#/$defs/freeformObject"},
+    "index_schema": {"$ref": "#/$defs/freeformObject"},
+    "workloads": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["selection_rule", "representatives", "native", "system_only"],
+      "properties": {
+        "selection_rule": {"type": "string", "minLength": 1},
+        "representatives": {
+          "type": "array", "minItems": 3, "maxItems": 3,
+          "items": {
+            "type": "object", "additionalProperties": false,
+            "required": ["model_key", "sparsity_band", "mechanism", "dimensions", "native_tracks", "saved_nnz"],
+            "properties": {
+              "model_key": {"type": "string", "minLength": 1},
+              "sparsity_band": {"enum": ["low", "medium", "high"]},
+              "mechanism": {"type": "string", "minLength": 1},
+              "dimensions": {"type": "integer", "minimum": 1},
+              "native_tracks": {"const": ["economics", "psychology"]},
+              "saved_nnz": {"$ref": "#/$defs/freeformObject"}
+            }
+          }
+        },
+        "native": {"$ref": "#/$defs/freeformObject"},
+        "system_only": {"$ref": "#/$defs/freeformObject"}
+      }
+    },
+    "matrix": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["comparators", "index_algorithms", "metric_type", "index_params_common", "search_params", "top_k", "concurrency", "warmup", "measured_trials", "query_order_seed", "cell_order_seed", "concurrency_model", "fair_resources"],
+      "properties": {
+        "comparators": {"const": ["exact_scipy_csr", "SINDI", "DAAT_MAXSCORE"]},
+        "index_algorithms": {"const": ["SINDI", "DAAT_MAXSCORE"]},
+        "metric_type": {"const": "IP"},
+        "index_params_common": {"$ref": "#/$defs/freeformObject"},
+        "search_params": {"$ref": "#/$defs/freeformObject"},
+        "top_k": {"const": [10, 100]},
+        "concurrency": {"const": [1, 4, 16]},
+        "warmup": {"$ref": "#/$defs/freeformObject"},
+        "measured_trials": {"type": "integer", "minimum": 3},
+        "query_order_seed": {"type": "integer"},
+        "cell_order_seed": {"type": "integer"},
+        "concurrency_model": {"type": "string", "minLength": 1},
+        "fair_resources": {"$ref": "#/$defs/freeformObject"}
+      }
+    },
+    "correctness": {"$ref": "#/$defs/freeformObject"},
+    "sealed_index_proof": {"$ref": "#/$defs/freeformObject"},
+    "safety_caps": {"$ref": "#/$defs/freeformObject"},
+    "gates": {"$ref": "#/$defs/freeformObject"},
+    "publication": {
+      "type": "object", "additionalProperties": false,
+      "required": ["classification", "gate", "leaderboard_publish", "public_export_allowed", "publish"],
+      "properties": {
+        "classification": {"const": "research_only"}, "gate": {"const": "closed"},
+        "leaderboard_publish": {"const": false}, "public_export_allowed": {"const": false}, "publish": {"const": false}
+      }
+    },
+    "boundaries": {"type": "array", "minItems": 5, "items": {"type": "string", "minLength": 1}}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "sha1": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "sha1short": {"type": "string", "pattern": "^[0-9a-f]{7,40}$"},
+    "freeformObject": {"type": "object", "minProperties": 1}
+  }
+}

@@ -1,0 +1,251 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "milvus-sindi-formal-summary-v01.schema.json",
+  "title": "Milvus SINDI formal aggregate summary",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "story_id",
+    "classification",
+    "created_at_utc",
+    "source_commit",
+    "predeclaration_sha256",
+    "source_attestation_sha256",
+    "model_loaded",
+    "deployment",
+    "coverage",
+    "aggregate",
+    "strata",
+    "comparisons",
+    "costs",
+    "contains_source_text",
+    "contains_canonical_ids",
+    "contains_raw_rankings",
+    "quality_claims_allowed_for_system_only",
+    "research_only",
+    "publication_gate",
+    "status"
+  ],
+  "properties": {
+    "schema_version": {"const": "milvus-sindi-formal-summary-v1"},
+    "story_id": {"const": "S-20260814-010"},
+    "classification": {"const": "tracked_aggregate_system_evidence"},
+    "created_at_utc": {"type": "string", "format": "date-time"},
+    "source_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "predeclaration_sha256": {"$ref": "#/$defs/sha256"},
+    "source_attestation_sha256": {"$ref": "#/$defs/sha256"},
+    "model_loaded": {"const": false},
+    "deployment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "server_image",
+        "server_version",
+        "pymilvus_version",
+        "target_vector_index_version",
+        "runtime_root_mode",
+        "server_cpuset",
+        "server_memory_bytes",
+        "server_pids_limit"
+      ],
+      "properties": {
+        "server_image": {"const": "milvusdb/milvus@sha256:804b50bc1523a64e3c0f18cf33af7e0f8b33329584698ffee61c606d6fe8ee26"},
+        "server_version": {"const": "3.0.0"},
+        "pymilvus_version": {"const": "3.0.1"},
+        "target_vector_index_version": {"const": 10},
+        "runtime_root_mode": {"const": "0711"},
+        "server_cpuset": {"const": "48-63"},
+        "server_memory_bytes": {"const": 51539607552},
+        "server_pids_limit": {"const": 4096}
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "native_cells",
+        "system_100k_cells",
+        "system_1m_cells",
+        "raw_trial_files_recomputed",
+        "warmup_files_validated",
+        "top_k",
+        "concurrency",
+        "measured_trials",
+        "warmup_passes"
+      ],
+      "properties": {
+        "native_cells": {"const": 18},
+        "system_100k_cells": {"const": 9},
+        "system_1m_cells": {"const": 9},
+        "raw_trial_files_recomputed": {"const": 1296},
+        "warmup_files_validated": {"const": 432},
+        "top_k": {"const": [10, 100]},
+        "concurrency": {"const": [1, 4, 16]},
+        "measured_trials": {"const": 3},
+        "warmup_passes": {"const": 2}
+      }
+    },
+    "aggregate": {"$ref": "#/$defs/aggregate"},
+    "strata": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "comparison_count",
+          "configuration_count",
+          "minimum_sindi_strict_recall",
+          "minimum_daat_maxscore_strict_recall",
+          "median_sindi_over_daat_qps_ratio",
+          "minimum_sindi_over_daat_qps_ratio",
+          "maximum_sindi_over_daat_qps_ratio",
+          "median_sindi_warm_over_cold_qps_ratio",
+          "median_daat_warm_over_cold_qps_ratio"
+        ],
+        "properties": {
+          "name": {"enum": ["native", "system_100k", "system_1m"]},
+          "comparison_count": {"type": "integer", "minimum": 3, "maximum": 6},
+          "configuration_count": {"type": "integer", "minimum": 36, "maximum": 72},
+          "minimum_sindi_strict_recall": {"$ref": "#/$defs/recall"},
+          "minimum_daat_maxscore_strict_recall": {"$ref": "#/$defs/recall"},
+          "median_sindi_over_daat_qps_ratio": {"$ref": "#/$defs/nonnegative"},
+          "minimum_sindi_over_daat_qps_ratio": {"$ref": "#/$defs/nonnegative"},
+          "maximum_sindi_over_daat_qps_ratio": {"$ref": "#/$defs/nonnegative"},
+          "median_sindi_warm_over_cold_qps_ratio": {"$ref": "#/$defs/nonnegative"},
+          "median_daat_warm_over_cold_qps_ratio": {"$ref": "#/$defs/nonnegative"}
+        }
+      }
+    },
+    "comparisons": {
+      "type": "array",
+      "minItems": 12,
+      "maxItems": 12,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["tier", "model_profile", "track", "scale", "configurations"],
+        "properties": {
+          "tier": {"enum": ["native", "system_only"]},
+          "model_profile": {"enum": ["bge-m3", "granite-30m-sparse", "opensearch-multilingual"]},
+          "track": {"type": ["string", "null"]},
+          "scale": {"enum": [7500, 100000, 1000000]},
+          "configurations": {"type": "array", "minItems": 12, "maxItems": 12, "items": {"$ref": "#/$defs/configuration"}}
+        }
+      }
+    },
+    "costs": {
+      "type": "array",
+      "minItems": 36,
+      "maxItems": 36,
+      "items": {"$ref": "#/$defs/cost"}
+    },
+    "contains_source_text": {"const": false},
+    "contains_canonical_ids": {"const": false},
+    "contains_raw_rankings": {"const": false},
+    "quality_claims_allowed_for_system_only": {"const": false},
+    "research_only": {"const": true},
+    "publication_gate": {"const": "closed"},
+    "status": {"const": "pass"}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "nonnegative": {"type": "number", "minimum": 0},
+    "nullable_nonnegative": {"type": ["number", "null"], "minimum": 0},
+    "recall": {"type": "number", "minimum": 0, "maximum": 1},
+    "aggregate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "minimum_sindi_strict_recall",
+        "minimum_daat_maxscore_strict_recall",
+        "maximum_sindi_score_delta",
+        "maximum_daat_maxscore_score_delta",
+        "median_sindi_over_daat_qps_ratio",
+        "minimum_sindi_over_daat_qps_ratio",
+        "maximum_sindi_over_daat_qps_ratio"
+      ],
+      "properties": {
+        "minimum_sindi_strict_recall": {"$ref": "#/$defs/recall"},
+        "minimum_daat_maxscore_strict_recall": {"$ref": "#/$defs/recall"},
+        "maximum_sindi_score_delta": {"$ref": "#/$defs/nonnegative"},
+        "maximum_daat_maxscore_score_delta": {"$ref": "#/$defs/nonnegative"},
+        "median_sindi_over_daat_qps_ratio": {"$ref": "#/$defs/nonnegative"},
+        "minimum_sindi_over_daat_qps_ratio": {"$ref": "#/$defs/nonnegative"},
+        "maximum_sindi_over_daat_qps_ratio": {"$ref": "#/$defs/nonnegative"}
+      }
+    },
+    "configuration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "top_k", "concurrency", "temperature", "exact_qps", "exact_p50_ms", "exact_p95_ms", "exact_p99_ms",
+        "sindi_qps", "daat_maxscore_qps", "sindi_over_daat_qps_ratio", "sindi_over_exact_qps_ratio",
+        "sindi_p50_ms", "sindi_p95_ms", "sindi_p99_ms", "daat_maxscore_p50_ms", "daat_maxscore_p95_ms",
+        "daat_maxscore_p99_ms", "sindi_client_prepare_p50_ms", "sindi_client_prepare_p95_ms", "sindi_rpc_p50_ms",
+        "sindi_rpc_p95_ms", "daat_maxscore_client_prepare_p50_ms", "daat_maxscore_client_prepare_p95_ms",
+        "daat_maxscore_rpc_p50_ms", "daat_maxscore_rpc_p95_ms", "exact_client_cpu_ns", "sindi_client_cpu_ns",
+        "daat_maxscore_client_cpu_ns", "sindi_server_search_mean_ms", "daat_maxscore_server_search_mean_ms",
+        "sindi_network_received_bytes", "sindi_network_sent_bytes", "daat_maxscore_network_received_bytes",
+        "daat_maxscore_network_sent_bytes", "sindi_minimum_strict_recall", "daat_maxscore_minimum_strict_recall",
+        "sindi_maximum_score_delta", "daat_maxscore_maximum_score_delta"
+      ],
+      "properties": {
+        "top_k": {"enum": [10, 100]}, "concurrency": {"enum": [1, 4, 16]}, "temperature": {"enum": ["cold", "warm"]},
+        "exact_qps": {"$ref": "#/$defs/nonnegative"}, "exact_p50_ms": {"$ref": "#/$defs/nonnegative"},
+        "exact_p95_ms": {"$ref": "#/$defs/nonnegative"}, "exact_p99_ms": {"$ref": "#/$defs/nonnegative"},
+        "sindi_qps": {"$ref": "#/$defs/nonnegative"}, "daat_maxscore_qps": {"$ref": "#/$defs/nonnegative"},
+        "sindi_over_daat_qps_ratio": {"$ref": "#/$defs/nonnegative"}, "sindi_over_exact_qps_ratio": {"$ref": "#/$defs/nonnegative"},
+        "sindi_p50_ms": {"$ref": "#/$defs/nonnegative"}, "sindi_p95_ms": {"$ref": "#/$defs/nonnegative"},
+        "sindi_p99_ms": {"$ref": "#/$defs/nonnegative"}, "daat_maxscore_p50_ms": {"$ref": "#/$defs/nonnegative"},
+        "daat_maxscore_p95_ms": {"$ref": "#/$defs/nonnegative"}, "daat_maxscore_p99_ms": {"$ref": "#/$defs/nonnegative"},
+        "sindi_client_prepare_p50_ms": {"$ref": "#/$defs/nonnegative"}, "sindi_client_prepare_p95_ms": {"$ref": "#/$defs/nonnegative"},
+        "sindi_rpc_p50_ms": {"$ref": "#/$defs/nonnegative"}, "sindi_rpc_p95_ms": {"$ref": "#/$defs/nonnegative"},
+        "daat_maxscore_client_prepare_p50_ms": {"$ref": "#/$defs/nonnegative"},
+        "daat_maxscore_client_prepare_p95_ms": {"$ref": "#/$defs/nonnegative"},
+        "daat_maxscore_rpc_p50_ms": {"$ref": "#/$defs/nonnegative"}, "daat_maxscore_rpc_p95_ms": {"$ref": "#/$defs/nonnegative"},
+        "exact_client_cpu_ns": {"type": "integer", "minimum": 0}, "sindi_client_cpu_ns": {"type": "integer", "minimum": 0},
+        "daat_maxscore_client_cpu_ns": {"type": "integer", "minimum": 0},
+        "sindi_server_search_mean_ms": {"$ref": "#/$defs/nullable_nonnegative"},
+        "daat_maxscore_server_search_mean_ms": {"$ref": "#/$defs/nullable_nonnegative"},
+        "sindi_network_received_bytes": {"type": "integer", "minimum": 0}, "sindi_network_sent_bytes": {"type": "integer", "minimum": 0},
+        "daat_maxscore_network_received_bytes": {"type": "integer", "minimum": 0},
+        "daat_maxscore_network_sent_bytes": {"type": "integer", "minimum": 0},
+        "sindi_minimum_strict_recall": {"$ref": "#/$defs/recall"}, "daat_maxscore_minimum_strict_recall": {"$ref": "#/$defs/recall"},
+        "sindi_maximum_score_delta": {"$ref": "#/$defs/nonnegative"}, "daat_maxscore_maximum_score_delta": {"$ref": "#/$defs/nonnegative"}
+      }
+    },
+    "cost": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tier", "model_profile", "track", "scale", "comparator", "build_wall_ns", "load_wall_ns", "insert_wall_ns",
+        "flush_wall_ns", "phase_client_cpu_ns", "incremental_runtime_bytes", "persisted_index_bytes", "document_csr_bytes",
+        "query_csr_bytes", "resources"
+      ],
+      "properties": {
+        "tier": {"enum": ["native", "system_only"]},
+        "model_profile": {"enum": ["bge-m3", "granite-30m-sparse", "opensearch-multilingual"]},
+        "track": {"type": ["string", "null"]}, "scale": {"enum": [7500, 100000, 1000000]},
+        "comparator": {"enum": ["exact_scipy_csr", "SINDI", "DAAT_MAXSCORE"]},
+        "build_wall_ns": {"type": ["integer", "null"], "minimum": 0}, "load_wall_ns": {"type": ["integer", "null"], "minimum": 0},
+        "insert_wall_ns": {"type": ["integer", "null"], "minimum": 0}, "flush_wall_ns": {"type": ["integer", "null"], "minimum": 0},
+        "phase_client_cpu_ns": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+        "incremental_runtime_bytes": {"type": "integer", "minimum": 0}, "persisted_index_bytes": {"type": "integer", "minimum": 0},
+        "document_csr_bytes": {"type": ["integer", "null"], "minimum": 0}, "query_csr_bytes": {"type": ["integer", "null"], "minimum": 0},
+        "resources": {
+          "type": "object", "additionalProperties": false,
+          "required": ["container_peak_memory_bytes", "container_peak_cpu_percent", "container_peak_pids", "client_peak_rss_bytes", "docker_sampler_error_count"],
+          "properties": {
+            "container_peak_memory_bytes": {"type": "integer", "minimum": 0}, "container_peak_cpu_percent": {"$ref": "#/$defs/nonnegative"},
+            "container_peak_pids": {"type": "integer", "minimum": 0}, "client_peak_rss_bytes": {"type": "integer", "minimum": 0},
+            "docker_sampler_error_count": {"type": "integer", "minimum": 0}
+          }
+        }
+      }
+    }
+  }
+}

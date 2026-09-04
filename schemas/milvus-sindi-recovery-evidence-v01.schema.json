@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "milvus-sindi-recovery-evidence-v01.schema.json",
+  "title": "Milvus SINDI hardened restart recovery evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "story_id", "classification", "captured_at_utc",
+    "predeclaration_sha256", "fixture_evidence_sha256", "hardened_deployment_sha256",
+    "prehardening_baseline_sha256", "stopped_baseline_sha256", "container_id",
+    "network_id", "server_image", "pymilvus_version", "formal_performance_executed",
+    "data_persisted_after_restart", "runtime_root_mode", "world_writable", "raw",
+    "algorithms", "compaction_metrics_raw", "compaction", "tie_policy",
+    "publication_gate", "status"
+  ],
+  "properties": {
+    "schema_version": {"const": "milvus-sindi-recovery-evidence-v1"},
+    "story_id": {"const": "S-20260814-010"},
+    "classification": {"const": "private_research_only"},
+    "captured_at_utc": {"type": "string", "format": "date-time"},
+    "predeclaration_sha256": {"$ref": "#/$defs/sha256"},
+    "fixture_evidence_sha256": {"$ref": "#/$defs/sha256"},
+    "hardened_deployment_sha256": {"$ref": "#/$defs/sha256"},
+    "prehardening_baseline_sha256": {"$ref": "#/$defs/sha256"},
+    "stopped_baseline_sha256": {"$ref": "#/$defs/sha256"},
+    "container_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "network_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "server_image": {"type": "string"},
+    "pymilvus_version": {"const": "3.0.1"},
+    "formal_performance_executed": {"const": false},
+    "data_persisted_after_restart": {"const": true},
+    "runtime_root_mode": {"const": "0711"},
+    "world_writable": {"const": false},
+    "raw": {"type": "object", "minProperties": 7, "additionalProperties": {"$ref": "#/$defs/record"}},
+    "algorithms": {
+      "type": "object", "additionalProperties": false,
+      "required": ["SINDI", "DAAT_MAXSCORE"],
+      "properties": {
+        "SINDI": {"$ref": "#/$defs/algorithm"},
+        "DAAT_MAXSCORE": {"$ref": "#/$defs/algorithm"}
+      }
+    },
+    "compaction_metrics_raw": {"$ref": "#/$defs/record"},
+    "compaction": {"type": "object"},
+    "tie_policy": {"type": "object"},
+    "publication_gate": {"const": "closed"},
+    "status": {"const": "pass"}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "record": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "bytes", "sha256"],
+      "properties": {
+        "path": {"type": "string"}, "bytes": {"type": "integer", "minimum": 1},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "algorithm": {
+      "type": "object", "additionalProperties": false,
+      "required": ["collection", "raw", "validation"],
+      "properties": {
+        "collection": {"type": "string", "pattern": "^meb_s010_sindi_v01_fixture_"},
+        "raw": {"type": "object", "minProperties": 8, "additionalProperties": {"$ref": "#/$defs/record"}},
+        "validation": {"type": "object"}
+      }
+    }
+  }
+}

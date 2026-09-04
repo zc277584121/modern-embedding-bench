@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "milvus-sindi-fixture-evidence-v01.schema.json",
+  "title": "Milvus SINDI sparse fixture evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "story_id",
+    "classification",
+    "captured_at_utc",
+    "predeclaration_sha256",
+    "deployment_evidence_sha256",
+    "server_image",
+    "pymilvus_version",
+    "formal_performance_executed",
+    "native_inputs_used",
+    "system_scale_inputs_used",
+    "fixture_rows",
+    "fixture_queries",
+    "top_k",
+    "metric_type",
+    "index_type",
+    "algorithms",
+    "common_raw",
+    "compaction_metrics_raw",
+    "publication_gate",
+    "status"
+  ],
+  "properties": {
+    "schema_version": {"const": "milvus-sindi-fixture-evidence-v1"},
+    "story_id": {"const": "S-20260814-010"},
+    "classification": {"const": "private_research_only"},
+    "captured_at_utc": {"type": "string", "format": "date-time"},
+    "predeclaration_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "deployment_evidence_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "server_image": {"type": "string"},
+    "pymilvus_version": {"const": "3.0.1"},
+    "formal_performance_executed": {"const": false},
+    "native_inputs_used": {"const": false},
+    "system_scale_inputs_used": {"const": false},
+    "fixture_rows": {"const": 12},
+    "fixture_queries": {"const": 4},
+    "top_k": {"const": 5},
+    "metric_type": {"const": "IP"},
+    "index_type": {"const": "SPARSE_INVERTED_INDEX"},
+    "algorithms": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["SINDI", "DAAT_MAXSCORE"],
+      "properties": {
+        "SINDI": {"$ref": "#/$defs/algorithm"},
+        "DAAT_MAXSCORE": {"$ref": "#/$defs/algorithm"}
+      }
+    },
+    "common_raw": {"type": "object", "minProperties": 4, "additionalProperties": {"$ref": "#/$defs/record"}},
+    "compaction_metrics_raw": {"$ref": "#/$defs/record"},
+    "publication_gate": {"const": "closed"},
+    "status": {"enum": ["pending_validation", "pass"]},
+    "validation": {"type": "object"}
+  },
+  "$defs": {
+    "record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "bytes", "sha256"],
+      "properties": {
+        "path": {"type": "string"},
+        "bytes": {"type": "integer", "minimum": 1},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "algorithm": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["collection", "raw"],
+      "properties": {
+        "collection": {"type": "string", "pattern": "^meb_s010_sindi_v01_fixture_"},
+        "raw": {"type": "object", "minProperties": 14, "additionalProperties": {"$ref": "#/$defs/record"}}
+      }
+    }
+  }
+}

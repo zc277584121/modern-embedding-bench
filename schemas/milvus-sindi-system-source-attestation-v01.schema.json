@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "milvus-sindi-system-source-attestation-v01.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "commit", "tree", "input_contract_sha256", "main_protocol_sha256",
+    "main_manifest_sha256", "raw_manifest_set_sha256", "csr_exact_catalog_sha256",
+    "source_replay_sha256", "rebuilt_tracked_files_sha256", "raw_cells", "document_csr_parts",
+    "cpu_only", "model_loaded", "source_artifacts_mutated", "publication_gate",
+    "contains_canonical_ids", "contains_source_text", "contains_raw_rankings"
+  ],
+  "properties": {
+    "schema_version": {"const": "milvus-sindi-system-source-attestation-v1"},
+    "commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "tree": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "input_contract_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "main_protocol_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "main_manifest_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "raw_manifest_set_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "csr_exact_catalog_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "source_replay_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "rebuilt_tracked_files_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "raw_cells": {"const": 14},
+    "document_csr_parts": {"const": 426},
+    "cpu_only": {"const": true},
+    "model_loaded": {"const": false},
+    "source_artifacts_mutated": {"const": false},
+    "publication_gate": {"const": "closed"},
+    "contains_canonical_ids": {"const": false},
+    "contains_source_text": {"const": false},
+    "contains_raw_rankings": {"const": false}
+  }
+}

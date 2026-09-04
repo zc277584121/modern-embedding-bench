@@ -1,0 +1,21 @@
+{
+  "commit": "74635817770023b70b1e9f9e97b3d83d9d11f987",
+  "contains_canonical_ids": false,
+  "contains_raw_rankings": false,
+  "contains_source_text": false,
+  "cpu_only": true,
+  "csr_exact_catalog_sha256": "65ab0b99186b35fb82a4dbd969eeb8a1ca49f47b6faf733d8f7a7dc7bc5f2528",
+  "document_csr_parts": 426,
+  "input_contract_sha256": "18ec21848358fd19a454ed2f7362e1eb6117d6c508ca6f30cc9980d2642d1dc6",
+  "main_manifest_sha256": "3accbed7b2a9961eedff20e601375a23c50167cfc7d8e77adbf91399aed91f47",
+  "main_protocol_sha256": "d6d615a9b753245767f895847a8828e99f1a961a3d8f7247470b9caa4edcbcaf",
+  "model_loaded": false,
+  "publication_gate": "closed",
+  "raw_cells": 14,
+  "raw_manifest_set_sha256": "ac91bc9a62775eace06350ebbd31bd0785210efef0325aded70b90451833043d",
+  "rebuilt_tracked_files_sha256": "ce48f0c62d8da49e69d8b755918127e5084428d42552c73c1a47a6f5af54186e",
+  "schema_version": "milvus-sindi-system-source-attestation-v1",
+  "source_artifacts_mutated": false,
+  "source_replay_sha256": "9e1eb574351d2fe63b0be775ffbc31ed57658b653bbce21589c2d0668c2c4ae2",
+  "tree": "dc4a28d1805c82de5d4e2397fa163275a671638c"
+}

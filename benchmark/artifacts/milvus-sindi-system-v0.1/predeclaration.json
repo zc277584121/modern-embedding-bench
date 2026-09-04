@@ -1,0 +1,420 @@
+{
+  "boundaries": [
+    "Native results answer correctness and end-to-end behavior only for the accepted research-only economics and psychology tracks.",
+    "System-only generated workloads answer scaling and systems questions only and cannot enter model-quality comparisons.",
+    "No Milvus result may be described as a model-quality change.",
+    "No host cache dropping, kernel tuning, driver change, service mutation, or global package change is permitted.",
+    "Official documentation and release claims are context, not project performance results.",
+    "Only measured trials may support faster, slower, smaller, or larger statements."
+  ],
+  "collection_schema": {
+    "auto_id": false,
+    "consistency_level": "Strong",
+    "enable_dynamic_field": false,
+    "fields": [
+      {
+        "datatype": "INT64",
+        "is_primary": true,
+        "name": "pk"
+      },
+      {
+        "datatype": "SPARSE_FLOAT_VECTOR",
+        "name": "sparse_vector",
+        "nullable": false
+      }
+    ]
+  },
+  "correctness": {
+    "exact_backend": "scipy_csr_float32_inner_product_without_dense_materialization",
+    "finite_scores_required": true,
+    "id_uniqueness_required": true,
+    "metrics": [
+      "strict_id_recall_at_k",
+      "tie_aware_recall_at_k",
+      "max_absolute_score_delta",
+      "max_relative_score_delta",
+      "ranking_difference_count"
+    ],
+    "non_unity_recall_policy": "preserve raw evidence and explain reproducibly; never reinterpret an index difference as model quality",
+    "score_tolerance": {
+      "absolute": 1e-05,
+      "relative": 1e-05
+    },
+    "tie_policy": {
+      "exact_order": "descending_float32_ip_score_then_ascending_private_row_ordinal",
+      "milvus_order": "record_returned_order_without_assuming_stable_ties",
+      "strict_metric": "exact ordered top-k ID intersection divided by k",
+      "tie_aware_metric": "expand exact membership at the kth score within the declared tolerance and report separately"
+    }
+  },
+  "deployment": {
+    "command": [
+      "milvus",
+      "run",
+      "standalone"
+    ],
+    "gpu": false,
+    "mode": "standalone_embed_etcd_woodpecker_local_wal",
+    "platform": "linux/amd64",
+    "pymilvus_version": "3.0.1",
+    "server_image": "milvusdb/milvus@sha256:804b50bc1523a64e3c0f18cf33af7e0f8b33329584698ffee61c606d6fe8ee26",
+    "server_image_index_sha256": "49371c30af46b1013e4d3e0b980e691d81376d69cdbe1b372725baf1d7255862",
+    "server_image_tag": "milvusdb/milvus:v3.0.0",
+    "server_release": "v3.0.0",
+    "server_release_commit": "f46a0328558be155d11266a1a2b90602ccc9b366",
+    "storage": "story_owned_bind_mount_only",
+    "telemetry": "no_external_telemetry_requested"
+  },
+  "frozen_before_milvus_results": true,
+  "gates": {
+    "formal_run_requires": [
+      "active predeclaration external SHA256",
+      "S-008 CPU-only replay and source attestation external SHA256",
+      "complete read-only isolation baseline external SHA256",
+      "registry digest recheck equal to the frozen linux/amd64 digest",
+      "PyMilvus version equality",
+      "small fixture proof for both explicit algorithms",
+      "sealed indexed segment proof",
+      "host resource and quiescence preflight"
+    ],
+    "forbidden_before_gate": [
+      "native Milvus performance cell",
+      "system-only Milvus performance cell",
+      "performance result aggregation or comparison"
+    ],
+    "model_download": false,
+    "model_encoding": false,
+    "source_artifact_write": false,
+    "silent_algorithm_fallback": false
+  },
+  "index_schema": {
+    "field_name": "sparse_vector",
+    "index_name": "sparse_ip_idx",
+    "index_type": "SPARSE_INVERTED_INDEX",
+    "metric_type": "IP",
+    "params_by_algorithm": {
+      "DAAT_MAXSCORE": {
+        "drop_ratio_build": 0.0,
+        "inverted_index_algo": "DAAT_MAXSCORE"
+      },
+      "SINDI": {
+        "drop_ratio_build": 0.0,
+        "inverted_index_algo": "SINDI"
+      }
+    },
+    "quantization": false,
+    "mmap": false
+  },
+  "isolation": {
+    "collection_prefix": "meb_s010_sindi_v01_",
+    "container": "meb-s010-milvus-v300-amd64",
+    "data_root": "results/milvus-sindi-system-v0.1/runtime/milvus-v300-amd64",
+    "exclusive_names": [
+      "meb-s010-milvus-v300-amd64",
+      "meb-s010-sindi-net-v01",
+      "results/milvus-sindi-system-v0.1/runtime/milvus-v300-amd64",
+      "meb_s010_sindi_v01_"
+    ],
+    "existing_services_policy": "observe_only_never_stop_restart_upgrade_exec_write_or_cleanup",
+    "host_bind": "127.0.0.1",
+    "host_ports": {
+      "grpc": 49531,
+      "webui": 49092
+    },
+    "network": "meb-s010-sindi-net-v01"
+  },
+  "matrix": {
+    "cell_order_seed": 20260831,
+    "comparators": [
+      "exact_scipy_csr",
+      "SINDI",
+      "DAAT_MAXSCORE"
+    ],
+    "concurrency": [
+      1,
+      4,
+      16
+    ],
+    "concurrency_model": "closed_loop_fixed_workers_each_query_exactly_once_per_pass_no_think_time",
+    "fair_resources": {
+      "client_cpuset": "32-39",
+      "exact_cpuset": "48-63",
+      "gpu_visible": false,
+      "main_comparison_single_active_milvus_cell": true,
+      "server_cpuset": "48-63",
+      "server_memory_bytes": 51539607552,
+      "server_memory_swap_bytes": 51539607552,
+      "server_pids_limit": 4096,
+      "same_container_image_and_configuration": true,
+      "same_vectors_queries_filters_and_schedule": true
+    },
+    "index_algorithms": [
+      "SINDI",
+      "DAAT_MAXSCORE"
+    ],
+    "index_params_common": {
+      "drop_ratio_build": 0.0,
+      "mmap": false,
+      "quantization": false
+    },
+    "measured_trials": 3,
+    "metric_type": "IP",
+    "query_order_seed": 20260830,
+    "search_params": {
+      "metric_type": "IP",
+      "params": {
+        "drop_ratio_search": 0.0
+      }
+    },
+    "top_k": [
+      10,
+      100
+    ],
+    "warmup": {
+      "measured": false,
+      "passes": 2,
+      "schedule": "same deterministic query permutation as the measured cell family"
+    }
+  },
+  "official_sources": [
+    {
+      "kind": "milvus_release",
+      "retrieved_at_utc": "2026-08-30T22:28:00Z",
+      "supports": [
+        "Milvus v3.0.0 GA release commit f46a0328558be155d11266a1a2b90602ccc9b366",
+        "PyMilvus 3.0.1 compatibility",
+        "SINDI sparse index availability"
+      ],
+      "url": "https://github.com/milvus-io/milvus/releases/tag/v3.0.0"
+    },
+    {
+      "kind": "sparse_index_documentation",
+      "retrieved_at_utc": "2026-08-30T22:28:00Z",
+      "supports": [
+        "SPARSE_INVERTED_INDEX with IP",
+        "explicit SINDI and DAAT_MAXSCORE algorithms",
+        "drop_ratio_search parameter"
+      ],
+      "url": "https://milvus.io/docs/sparse-inverted-index.md"
+    },
+    {
+      "kind": "sparse_vector_documentation",
+      "retrieved_at_utc": "2026-08-30T22:28:00Z",
+      "supports": [
+        "SPARSE_FLOAT_VECTOR collection field",
+        "dictionary and SciPy sparse input formats"
+      ],
+      "url": "https://milvus.io/docs/sparse_vector.md"
+    },
+    {
+      "kind": "standalone_deployment_documentation",
+      "retrieved_at_utc": "2026-08-30T22:28:00Z",
+      "supports": [
+        "v3 standalone container architecture",
+        "embedded etcd",
+        "Woodpecker local-filesystem WAL",
+        "19530 and 9091 container ports"
+      ],
+      "url": "https://milvus.io/docs/install_standalone-docker.md"
+    },
+    {
+      "kind": "docker_registry_manifest",
+      "retrieved_at_utc": "2026-08-30T22:28:00Z",
+      "supports": [
+        "multi-architecture index digest",
+        "linux/amd64 child manifest digest"
+      ],
+      "url": "https://hub.docker.com/r/milvusdb/milvus/tags?name=v3.0.0"
+    }
+  ],
+  "publication": {
+    "classification": "research_only",
+    "gate": "closed",
+    "leaderboard_publish": false,
+    "public_export_allowed": false,
+    "publish": false
+  },
+  "safety_caps": {
+    "abort_if_host_available_memory_below_bytes": 206158430208,
+    "abort_if_load1_above": 48.0,
+    "abort_if_story_filesystem_free_below_bytes": 214748364800,
+    "client_rss_cap_bytes": 17179869184,
+    "dedicated_disk_cap_bytes": 128849018880,
+    "formal_cells_parallelism": 1,
+    "generated_input_cap_bytes": 38654705664,
+    "logs_and_timings_cap_bytes": 8589934592,
+    "one_million_policy": {
+      "minimum_completed_scale": 100000,
+      "projection_formula": "1.5 * 10 * observed 100k dedicated bytes for the same profile and algorithm",
+      "skip_if_projected_runtime_bytes_above": 64424509440,
+      "skip_is_not_permission_to_extrapolate": true,
+      "stop_evidence_required": true
+    },
+    "runtime_index_and_wal_cap_bytes": 77309411328,
+    "server_memory_cap_bytes": 51539607552,
+    "swap_allowed": false
+  },
+  "schema_version": "milvus-sindi-system-predeclaration-v1",
+  "sealed_index_proof": {
+    "before_search": [
+      "insert row count equals workload manifest row count",
+      "flush completion recorded",
+      "index state is Finished for the named explicit algorithm",
+      "collection load state is Loaded",
+      "all query segment rows are Sealed",
+      "sum of sealed segment rows equals inserted row count",
+      "growing segment count is zero",
+      "no build or compaction is active"
+    ],
+    "failure_policy": "abort the cell before warmup and save state evidence",
+    "server_fallback_check": "describe index must report the requested inverted_index_algo; client acceptance alone is insufficient"
+  },
+  "source": {
+    "commit": "74635817770023b70b1e9f9e97b3d83d9d11f987",
+    "csr_exact_catalog_sha256": "65ab0b99186b35fb82a4dbd969eeb8a1ca49f47b6faf733d8f7a7dc7bc5f2528",
+    "input_contract_sha256": "18ec21848358fd19a454ed2f7362e1eb6117d6c508ca6f30cc9980d2642d1dc6",
+    "main_manifest_sha256": "3accbed7b2a9961eedff20e601375a23c50167cfc7d8e77adbf91399aed91f47",
+    "main_protocol_sha256": "d6d615a9b753245767f895847a8828e99f1a961a3d8f7247470b9caa4edcbcaf",
+    "model_loaded": false,
+    "models": 7,
+    "raw_cells": 14,
+    "raw_manifest_set_sha256": "ac91bc9a62775eace06350ebbd31bd0785210efef0325aded70b90451833043d",
+    "reuse_mode": "read_only_saved_csr_queries_and_exact_top100",
+    "tracks": [
+      "economics",
+      "psychology"
+    ],
+    "tree": "dc4a28d1805c82de5d4e2397fa163275a671638c"
+  },
+  "story_id": "S-20260814-010",
+  "workloads": {
+    "native": {
+      "documents_per_track": 7500,
+      "exact_top_k_available": 100,
+      "filters": "none",
+      "query_counts": {
+        "economics": 103,
+        "psychology": 101
+      },
+      "source_artifacts": "accepted saved CSR and exact rankings only"
+    },
+    "representatives": [
+      {
+        "dimensions": 250002,
+        "mechanism": "contextual lexical token weighting with neural query and document routes",
+        "model_key": "bge-m3",
+        "native_tracks": [
+          "economics",
+          "psychology"
+        ],
+        "saved_nnz": {
+          "economics": {
+            "document_mean": 51.46026666666667,
+            "document_p50": 34.0,
+            "document_p95": 174.0,
+            "query_mean": 64.27184466019418,
+            "query_p50": 59.0,
+            "query_p95": 115.59999999999997
+          },
+          "psychology": {
+            "document_mean": 47.8748,
+            "document_p50": 33.0,
+            "document_p95": 152.0,
+            "query_mean": 59.722772277227726,
+            "query_p50": 55.0,
+            "query_p95": 103.0
+          }
+        },
+        "sparsity_band": "low"
+      },
+      {
+        "dimensions": 50265,
+        "mechanism": "neural SPLADE expansion with fixed query top-50 and document top-192 pruning",
+        "model_key": "granite-30m-sparse",
+        "native_tracks": [
+          "economics",
+          "psychology"
+        ],
+        "saved_nnz": {
+          "economics": {
+            "document_mean": 163.3032,
+            "document_p50": 192.0,
+            "document_p95": 192.0,
+            "query_mean": 50.0,
+            "query_p50": 50.0,
+            "query_p95": 50.0
+          },
+          "psychology": {
+            "document_mean": 161.35293333333334,
+            "document_p50": 192.0,
+            "document_p95": 192.0,
+            "query_mean": 50.0,
+            "query_p50": 50.0,
+            "query_p95": 50.0
+          }
+        },
+        "sparsity_band": "medium"
+      },
+      {
+        "dimensions": 105879,
+        "mechanism": "static sparse query lookup with multilingual neural document expansion",
+        "model_key": "opensearch-multilingual",
+        "native_tracks": [
+          "economics",
+          "psychology"
+        ],
+        "saved_nnz": {
+          "economics": {
+            "document_mean": 248.31613333333334,
+            "document_p50": 236.0,
+            "document_p95": 430.0,
+            "query_mean": 91.83495145631068,
+            "query_p50": 80.0,
+            "query_p95": 163.49999999999994
+          },
+          "psychology": {
+            "document_mean": 272.3770666666667,
+            "document_p50": 252.0,
+            "document_p95": 481.0,
+            "query_mean": 90.54455445544555,
+            "query_p50": 83.0,
+            "query_p95": 168.0
+          }
+        },
+        "sparsity_band": "high"
+      }
+    ],
+    "selection_rule": "Choose low, medium, and high document mean nnz representatives before any Milvus result, while spanning contextual lexical weighting, pruned neural SPLADE, and static-query document expansion mechanisms.",
+    "system_only": {
+      "document_scales": [
+        100000,
+        1000000
+      ],
+      "exact_top_k": 100,
+      "generator": {
+        "dense_materialization": false,
+        "distribution_source": "pool the two authenticated native tracks within each representative model",
+        "duplicate_policy": "reject the generated workload unless every sparse document vector is unique",
+        "method": "deterministic empirical CSR row resampling with shard-consistent dimension permutations and bounded float32 row scaling",
+        "preserve": [
+          "dimension",
+          "document and query nnz empirical distributions",
+          "nonzero weight empirical distributions",
+          "query-document support-overlap distribution"
+        ],
+        "row_scale_interval": [
+          0.999,
+          1.001
+        ],
+        "seed": 20260830
+      },
+      "quality_claims_allowed": false,
+      "query_count": 256,
+      "query_set": "one fixed per-profile set reused unchanged at 100k and 1M",
+      "source_tracks": [
+        "economics",
+        "psychology"
+      ]
+    }
+  }
+}

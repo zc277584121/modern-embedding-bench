@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "milvus-sindi-deployment-evidence-v02.schema.json",
+  "title": "Milvus SINDI hardened isolated deployment evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "story_id", "classification", "captured_at_utc",
+    "source_commit", "predeclaration_sha256", "server_image", "image_id",
+    "repo_digests", "platform", "container", "container_id", "network",
+    "network_id", "data_root", "data_root_stat", "host_ports",
+    "resource_limits", "raw", "status"
+  ],
+  "properties": {
+    "schema_version": {"const": "milvus-sindi-deployment-evidence-v2"},
+    "story_id": {"const": "S-20260814-010"},
+    "classification": {"const": "private_research_only"},
+    "captured_at_utc": {"type": "string", "format": "date-time"},
+    "source_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "predeclaration_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "server_image": {"type": "string"},
+    "image_id": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "repo_digests": {"type": "array", "minItems": 2, "uniqueItems": true, "items": {"type": "string"}},
+    "platform": {"const": "linux/amd64"},
+    "container": {"const": "meb-s010-milvus-v300-amd64"},
+    "container_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "network": {"const": "meb-s010-sindi-net-v01"},
+    "network_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "data_root": {"type": "string"},
+    "data_root_stat": {"$ref": "#/$defs/data_root_stat"},
+    "host_ports": {
+      "type": "object", "additionalProperties": false,
+      "required": ["grpc", "webui"],
+      "properties": {"grpc": {"const": 49531}, "webui": {"const": 49092}}
+    },
+    "resource_limits": {
+      "type": "object", "additionalProperties": false,
+      "required": ["memory_bytes", "memory_swap_bytes", "cpuset_cpus", "pids_limit", "swap_allowed"],
+      "properties": {
+        "memory_bytes": {"const": 51539607552},
+        "memory_swap_bytes": {"const": 51539607552},
+        "cpuset_cpus": {"const": "48-63"},
+        "pids_limit": {"const": 4096},
+        "swap_allowed": {"const": false}
+      }
+    },
+    "raw": {
+      "type": "object", "additionalProperties": {"$ref": "#/$defs/record"},
+      "required": ["image_inspect", "container_inspect", "network_inspect", "health", "data_root_stat"]
+    },
+    "status": {"const": "pass"}
+  },
+  "$defs": {
+    "record": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "bytes", "sha256"],
+      "properties": {
+        "path": {"type": "string"}, "bytes": {"type": "integer", "minimum": 1},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "data_root_stat": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "mode_octal", "uid", "gid", "inode", "device", "is_directory", "world_writable"],
+      "properties": {
+        "path": {"type": "string"}, "mode_octal": {"const": "0711"},
+        "uid": {"type": "integer", "minimum": 0}, "gid": {"type": "integer", "minimum": 0},
+        "inode": {"type": "integer", "minimum": 1}, "device": {"type": "integer", "minimum": 1},
+        "is_directory": {"const": true}, "world_writable": {"const": false}
+      }
+    }
+  }
+}

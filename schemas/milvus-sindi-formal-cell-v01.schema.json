@@ -1,0 +1,153 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "milvus-sindi-formal-cell-v01.schema.json",
+  "title": "Milvus SINDI formal benchmark cell",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "story_id",
+    "classification",
+    "captured_at_utc",
+    "tier",
+    "scale",
+    "query_count",
+    "dimensions",
+    "comparator",
+    "source_commit",
+    "model_loaded",
+    "cell_order_sha256",
+    "preflight",
+    "lifecycle",
+    "trials",
+    "summary",
+    "formal_performance_executed",
+    "publication_gate",
+    "status"
+  ],
+  "properties": {
+    "schema_version": {"const": "milvus-sindi-formal-cell-v1"},
+    "story_id": {"const": "S-20260814-010"},
+    "classification": {
+      "enum": ["private_research_only", "private_research_only_system_only"]
+    },
+    "captured_at_utc": {"type": "string", "format": "date-time"},
+    "tier": {"enum": ["native", "system_only"]},
+    "model": {"type": "string"},
+    "model_profile": {"type": "string"},
+    "track": {"enum": ["economics", "psychology"]},
+    "scale": {"type": "integer", "minimum": 1},
+    "query_count": {"type": "integer", "minimum": 1},
+    "dimensions": {"type": "integer", "minimum": 1},
+    "comparator": {"enum": ["exact_scipy_csr", "SINDI", "DAAT_MAXSCORE"]},
+    "source_manifest_sha256": {"$ref": "#/$defs/sha256"},
+    "generated_manifest_sha256": {"$ref": "#/$defs/sha256"},
+    "source_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "model_loaded": {"const": false},
+    "exact_ground_truth": {"$ref": "#/$defs/record"},
+    "cell_order_sha256": {"$ref": "#/$defs/sha256"},
+    "preflight": {"type": "object", "required": ["status"], "properties": {"status": {"const": "pass"}}},
+    "lifecycle": {"type": "object"},
+    "trials": {
+      "type": "object",
+      "required": ["configurations"],
+      "properties": {
+        "configurations": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 6,
+          "items": {"$ref": "#/$defs/configuration"}
+        },
+        "state_after_search": {"type": "object"}
+      }
+    },
+    "summary": {
+      "type": "array",
+      "minItems": 12,
+      "maxItems": 12,
+      "items": {"$ref": "#/$defs/summary"}
+    },
+    "quality_claims_allowed": {"const": false},
+    "formal_performance_executed": {"const": true},
+    "publication_gate": {"const": "closed"},
+    "status": {"const": "pass"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"tier": {"const": "native"}}},
+      "then": {"required": ["model", "track", "source_manifest_sha256", "exact_ground_truth"]},
+      "else": {"required": ["model_profile", "generated_manifest_sha256", "quality_claims_allowed"]}
+    },
+    {
+      "if": {"properties": {"comparator": {"enum": ["SINDI", "DAAT_MAXSCORE"]}}},
+      "then": {
+        "properties": {
+          "lifecycle": {
+            "required": ["requested_algorithm", "requested_index", "state_before_search", "persisted_index", "phases"],
+            "properties": {
+              "persisted_index": {
+                "required": ["target_vector_index_version", "server_log", "serialized_bytes"],
+                "properties": {
+                  "target_vector_index_version": {"const": 10},
+                  "server_log": {"$ref": "#/$defs/record"},
+                  "serialized_bytes": {"type": "integer", "minimum": 1}
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "record": {
+      "type": "object",
+      "required": ["path", "bytes", "sha256"],
+      "properties": {
+        "path": {"type": "string"},
+        "bytes": {"type": "integer", "minimum": 1},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "configuration": {
+      "type": "object",
+      "required": ["top_k", "concurrency", "cold_trials", "warmups", "warm_trials"],
+      "properties": {
+        "top_k": {"enum": [10, 100]},
+        "concurrency": {"enum": [1, 4, 16]},
+        "cold_trials": {"type": "array", "minItems": 3, "maxItems": 3},
+        "warmups": {"type": "array", "minItems": 2, "maxItems": 2},
+        "warm_trials": {"type": "array", "minItems": 3, "maxItems": 3}
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "top_k",
+        "concurrency",
+        "temperature",
+        "measured_trials",
+        "qps_median",
+        "p50_ms_median",
+        "p95_ms_median",
+        "p99_ms_median",
+        "minimum_strict_recall",
+        "minimum_tie_aware_recall",
+        "maximum_score_delta"
+      ],
+      "properties": {
+        "top_k": {"enum": [10, 100]},
+        "concurrency": {"enum": [1, 4, 16]},
+        "temperature": {"enum": ["cold", "warm"]},
+        "measured_trials": {"type": "array", "minItems": 3, "maxItems": 3},
+        "qps_median": {"type": "number", "exclusiveMinimum": 0},
+        "p50_ms_median": {"type": "number", "minimum": 0},
+        "p95_ms_median": {"type": "number", "minimum": 0},
+        "p99_ms_median": {"type": "number", "minimum": 0},
+        "minimum_strict_recall": {"type": "number", "minimum": 0, "maximum": 1},
+        "minimum_tie_aware_recall": {"type": "number", "minimum": 0, "maximum": 1},
+        "maximum_score_delta": {"type": "number", "minimum": 0}
+      }
+    }
+  }
+}
