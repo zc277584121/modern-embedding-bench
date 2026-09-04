@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://modern-embedding-bench.local/schemas/learned-sparse-phase-one-evidence-map-v01.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "phase_id", "publication", "accepted_commits", "tracked_artifacts", "private_research_evidence", "claims", "tables", "recommendations", "derivation_protocol", "derivation_protocol_sha256"],
+  "properties": {
+    "schema_version": {"const": "learned-sparse-evidence-map-v1"},
+    "phase_id": {"const": "learned-sparse-phase-one-v0.1"},
+    "publication": {"type": "object"},
+    "accepted_commits": {
+      "type": "object",
+      "minProperties": 4,
+      "additionalProperties": {
+        "type": "object",
+        "required": ["commit", "tree", "ancestor_of_head"],
+        "properties": {
+          "commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+          "tree": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+          "ancestor_of_head": {"const": true}
+        },
+        "additionalProperties": false
+      }
+    },
+    "tracked_artifacts": {
+      "type": "object",
+      "minProperties": 30,
+      "additionalProperties": {
+        "type": "object",
+        "required": ["story_id", "path", "sha256", "bytes"],
+        "properties": {
+          "story_id": {"type": "string"},
+          "path": {"type": "string", "not": {"pattern": "(^|/)(data|results)/"}},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "bytes": {"type": "integer", "minimum": 1}
+        },
+        "additionalProperties": false
+      }
+    },
+    "private_research_evidence": {
+      "type": "object",
+      "minProperties": 10,
+      "additionalProperties": {
+        "type": "object",
+        "required": ["story_id", "sha256", "classification", "path_exposed"],
+        "properties": {
+          "story_id": {"type": "string"},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "classification": {"const": "private_research_only"},
+          "path_exposed": {"const": false}
+        },
+        "additionalProperties": false
+      }
+    },
+    "claims": {
+      "type": "array",
+      "minItems": 18,
+      "items": {
+        "type": "object",
+        "required": ["claim_id", "support", "sources", "scope_or_reason"],
+        "properties": {
+          "claim_id": {"type": "string"},
+          "support": {"enum": ["supported", "limited_anchor", "unsupported"]},
+          "sources": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["artifact_id", "story_id", "accepted_commit", "artifact_sha256", "locator"],
+              "properties": {
+                "artifact_id": {"type": "string"},
+                "story_id": {"type": "string"},
+                "accepted_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+                "artifact_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+                "locator": {"type": "string", "pattern": "^/"}
+              },
+              "additionalProperties": false
+            }
+          },
+          "scope_or_reason": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "tables": {"type": "array", "minItems": 8, "items": {"type": "object"}},
+    "recommendations": {
+      "type": "array",
+      "minItems": 6,
+      "items": {
+        "type": "object",
+        "required": ["recommendation_id", "claim_ids", "sources", "limitations"],
+        "properties": {
+          "recommendation_id": {"type": "string", "pattern": "^REC-"},
+          "claim_ids": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          "sources": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["artifact_id", "story_id", "accepted_commit", "artifact_sha256", "locator"],
+              "properties": {
+                "artifact_id": {"type": "string"},
+                "story_id": {"type": "string"},
+                "accepted_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+                "artifact_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+                "locator": {"type": "string", "pattern": "^/"}
+              },
+              "additionalProperties": false
+            }
+          },
+          "limitations": {"type": "array", "minItems": 1, "items": {"type": "string"}}
+        },
+        "additionalProperties": false
+      }
+    },
+    "derivation_protocol": {"type": "object"},
+    "derivation_protocol_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

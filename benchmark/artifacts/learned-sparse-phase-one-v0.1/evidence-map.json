@@ -1,0 +1,1111 @@
+{
+  "accepted_commits": {
+    "S-20260814-005": {
+      "ancestor_of_head": true,
+      "commit": "10573c1f24975272bd68b61c6bece2ac1a25681e",
+      "tree": "9fb8d6c0db9f8a09efbb2aefced2bf5a09929dd0"
+    },
+    "S-20260814-006": {
+      "ancestor_of_head": true,
+      "commit": "9283a47a49a5d6e6623badf7139ea3ae33360ef4",
+      "tree": "dcffee28bba7f9df38db67989008daa5edbd12cf"
+    },
+    "S-20260814-008": {
+      "ancestor_of_head": true,
+      "commit": "74635817770023b70b1e9f9e97b3d83d9d11f987",
+      "tree": "dc4a28d1805c82de5d4e2397fa163275a671638c"
+    },
+    "S-20260814-010": {
+      "ancestor_of_head": true,
+      "commit": "bad3248b0b704e9f4ddee3333aed1208d4e2b64e",
+      "tree": "8b93654ffa89672525dea7928ebbb6467dc1b303"
+    }
+  },
+  "claims": [
+    {
+      "claim_id": "C-ANCHORS",
+      "scope_or_reason": "Not the complete S-009 cross-paradigm comparison; dense uses a different token cap",
+      "sources": [
+        {
+          "accepted_commit": "10573c1f24975272bd68b61c6bece2ac1a25681e",
+          "artifact_id": "s005-summary",
+          "artifact_sha256": "7aa2f3561263d2f8d82026244841304b26b725caff185b4a21a8a868c610c249",
+          "locator": "/artifact_identities/materialization_manifest_sha256",
+          "story_id": "S-20260814-005"
+        },
+        {
+          "accepted_commit": "10573c1f24975272bd68b61c6bece2ac1a25681e",
+          "artifact_id": "s005-summary",
+          "artifact_sha256": "7aa2f3561263d2f8d82026244841304b26b725caff185b4a21a8a868c610c249",
+          "locator": "/tracks",
+          "story_id": "S-20260814-005"
+        },
+        {
+          "accepted_commit": "9283a47a49a5d6e6623badf7139ea3ae33360ef4",
+          "artifact_id": "s006-manifest",
+          "artifact_sha256": "068dd07e3b080bd6f39ece28793e225893732b92907f1e65ca1e69e9f69df362",
+          "locator": "/protocol",
+          "story_id": "S-20260814-006"
+        },
+        {
+          "accepted_commit": "74635817770023b70b1e9f9e97b3d83d9d11f987",
+          "artifact_id": "s008-manifest",
+          "artifact_sha256": "3accbed7b2a9961eedff20e601375a23c50167cfc7d8e77adbf91399aed91f47",
+          "locator": "/bindings/canonical_data_sha256",
+          "story_id": "S-20260814-008"
+        },
+        {
+          "accepted_commit": "74635817770023b70b1e9f9e97b3d83d9d11f987",
+          "artifact_id": "s008-manifest",
+          "artifact_sha256": "3accbed7b2a9961eedff20e601375a23c50167cfc7d8e77adbf91399aed91f47",
+          "locator": "/protocol/metrics",
+          "story_id": "S-20260814-008"
+        }
+      ],
+      "support": "limited_anchor"
+    },
+    {
+      "claim_id": "C-CASES",
+      "scope_or_reason": "Mechanism-level triage only",
+      "sources": [
+        {
+          "accepted_commit": "74635817770023b70b1e9f9e97b3d83d9d11f987",
+          "artifact_id": "s008-cases",
+          "artifact_sha256": "28da5092c727d62502159972a0bb660fc0807fe642e051c2aa935491f353f46b",
+          "locator": "/counts",
+          "story_id": "S-20260814-008"
+        }
+      ],
+      "support": "supported"
+    },
+    {
+      "claim_id": "C-CROSS-TRACK",
+      "scope_or_reason": "Independent candidate pools and explicit no-aggregation policy",
+      "sources": [
+        {
+          "accepted_commit": "74635817770023b70b1e9f9e97b3d83d9d11f987",
+          "artifact_id": "s008-summary",
+          "artifact_sha256": "80e57e7648047753d21639660d89aa3676c084f5c8107f1a538a4cfbb4598a79",
+          "locator": "/track_aggregation",
+          "story_id": "S-20260814-008"
+        }
+      ],
+      "support": "unsupported"
+    },
+    {
+      "claim_id": "C-DATA",
+      "scope_or_reason": "Fixed v0.2 pilot only",
+      "sources": [
+        {
+          "accepted_commit": "10573c1f24975272bd68b61c6bece2ac1a25681e",
+          "artifact_id": "s005-summary",
+          "artifact_sha256": "7aa2f3561263d2f8d82026244841304b26b725caff185b4a21a8a868c610c249",
+          "locator": "/scope",
+          "story_id": "S-20260814-005"
+        },
+        {
+          "accepted_commit": "10573c1f24975272bd68b61c6bece2ac1a25681e",
+          "artifact_id": "s005-summary",
+          "artifact_sha256": "7aa2f3561263d2f8d82026244841304b26b725caff185b4a21a8a868c610c249",
+          "locator": "/tracks",
+          "story_id": "S-20260814-005"
+        }
+      ],
+      "support": "supported"
+    },
+    {
+      "claim_id": "C-EXACT",
+      "scope_or_reason": "Small native corpus and CPU implementation",
+      "sources": [
+        {
+          "accepted_commit": "9283a47a49a5d6e6623badf7139ea3ae33360ef4",
+          "artifact_id": "s006-manifest",
+          "artifact_sha256": "068dd07e3b080bd6f39ece28793e225893732b92907f1e65ca1e69e9f69df362",
+          "locator": "/protocol/search",
+          "story_id": "S-20260814-006"
+        },
+        {
+          "accepted_commit": "74635817770023b70b1e9f9e97b3d83d9d11f987",
+          "artifact_id": "s008-manifest",
+          "artifact_sha256": "3accbed7b2a9961eedff20e601375a23c50167cfc7d8e77adbf91399aed91f47",
+          "locator": "/protocol",
+          "story_id": "S-20260814-008"
+        },
+        {
+          "accepted_commit": "bad3248b0b704e9f4ddee3333aed1208d4e2b64e",
+          "artifact_id": "s010-source-attestation",
+          "artifact_sha256": "dce7e8c088954bfc5d689cea1017f13b088dc417532d5b5a9a312abe6cf46f65",
+          "locator": "/csr_exact_catalog_sha256",
+          "story_id": "S-20260814-010"
+        }
+      ],
+      "support": "supported"
+    },
+    {
+      "claim_id": "C-INDEX-BYTES",
+      "scope_or_reason": "Serialized index bytes, not total cost",
+      "sources": [
+        {
+          "accepted_commit": "bad3248b0b704e9f4ddee3333aed1208d4e2b64e",
+          "artifact_id": "s010-summary",
+          "artifact_sha256": "d2735fec05c7d49bfcdc767bad37e59d2a00fae2aafa885d061bb82139c761d3",
+          "locator": "/costs",
+          "story_id": "S-20260814-010"
+        }
+      ],
+      "support": "supported"
+    },
+    {
+      "claim_id": "C-LICENSE",
+      "scope_or_reason": "No weight or dataset redistribution authorization",
+      "sources": [
+        {
+          "accepted_commit": "74635817770023b70b1e9f9e97b3d83d9d11f987",
+          "artifact_id": "s008-resources",
+          "artifact_sha256": "ad0e7b4d2a0ba9bc91899fc91aa181b412eafebf56cb54b84cfeb3d889c9964f",
+          "locator": "/models",
+          "story_id": "S-20260814-008"
+        },
+        {
+          "accepted_commit": "10573c1f24975272bd68b61c6bece2ac1a25681e",
+          "artifact_id": "s005-summary",
+          "artifact_sha256": "7aa2f3561263d2f8d82026244841304b26b725caff185b4a21a8a868c610c249",
+          "locator": "/publication",
+          "story_id": "S-20260814-005"
+        }
+      ],
+      "support": "supported"
+    },
+    {
+      "claim_id": "C-MULTILINGUAL-GAP",
+      "scope_or_reason": "Both tracks are English and training overlap is unknown",
+      "sources": [
+        {
+          "accepted_commit": "10573c1f24975272bd68b61c6bece2ac1a25681e",
+          "artifact_id": "s005-summary",
+          "artifact_sha256": "7aa2f3561263d2f8d82026244841304b26b725caff185b4a21a8a868c610c249",
+          "locator": "/source",
+          "story_id": "S-20260814-005"
+        },
+        {
+          "accepted_commit": "10573c1f24975272bd68b61c6bece2ac1a25681e",
+          "artifact_id": "s005-summary",
+          "artifact_sha256": "7aa2f3561263d2f8d82026244841304b26b725caff185b4a21a8a868c610c249",
+          "locator": "/tracks/*/governance_audit/provenance_and_time/training_overlap_status",
+          "story_id": "S-20260814-005"
+        },
+        {
+          "accepted_commit": "74635817770023b70b1e9f9e97b3d83d9d11f987",
+          "artifact_id": "s008-summary",
+          "artifact_sha256": "80e57e7648047753d21639660d89aa3676c084f5c8107f1a538a4cfbb4598a79",
+          "locator": "/publication",
+          "story_id": "S-20260814-008"
+        }
+      ],
+      "support": "unsupported"
+    },
+    {
+      "claim_id": "C-PRODUCTION",
+      "scope_or_reason": "No production environment or SLA study",
+      "sources": [
+        {
+          "accepted_commit": "bad3248b0b704e9f4ddee3333aed1208d4e2b64e",
+          "artifact_id": "s010-summary",
+          "artifact_sha256": "d2735fec05c7d49bfcdc767bad37e59d2a00fae2aafa885d061bb82139c761d3",
+          "locator": "/deployment",
+          "story_id": "S-20260814-010"
+        },
+        {
+          "accepted_commit": "bad3248b0b704e9f4ddee3333aed1208d4e2b64e",
+          "artifact_id": "s010-report",
+          "artifact_sha256": "e4d6be9987bc0ede99e6cd81b645b38080135b1410bb380aff85b8ba3ca28e03",
+          "locator": "/lines/67-71",
+          "story_id": "S-20260814-010"
+        }
+      ],
+      "support": "unsupported"
+    },
+    {
+      "claim_id": "C-QUALITY",
+      "scope_or_reason": "Same-paradigm, two-track comparison",
+      "sources": [
+        {
+          "accepted_commit": "74635817770023b70b1e9f9e97b3d83d9d11f987",
+          "artifact_id": "s008-summary",
+          "artifact_sha256": "80e57e7648047753d21639660d89aa3676c084f5c8107f1a538a4cfbb4598a79",
+          "locator": "/tracks",
+          "story_id": "S-20260814-008"
+        }
+      ],
+      "support": "supported"
+    },
+    {
+      "claim_id": "C-RESOURCES",
+      "scope_or_reason": "RSS is not a whole-cell peak; no production SLA",
+      "sources": [
+        {
+          "accepted_commit": "74635817770023b70b1e9f9e97b3d83d9d11f987",
+          "artifact_id": "s008-resources",
+          "artifact_sha256": "ad0e7b4d2a0ba9bc91899fc91aa181b412eafebf56cb54b84cfeb3d889c9964f",
+          "locator": "/models",
+          "story_id": "S-20260814-008"
+        }
+      ],
+      "support": "supported"
+    },
+    {
+      "claim_id": "C-ROUTING",
+      "scope_or_reason": "Measured at the frozen revisions and protocol",
+      "sources": [
+        {
+          "accepted_commit": "9283a47a49a5d6e6623badf7139ea3ae33360ef4",
+          "artifact_id": "s006-inventory",
+          "artifact_sha256": "a4b1ff3c9e5f4e308c9c64a9a8c7e0d3dc207372b0e0429c4c2abd72a8a7f303",
+          "locator": "/models",
+          "story_id": "S-20260814-006"
+        },
+        {
+          "accepted_commit": "74635817770023b70b1e9f9e97b3d83d9d11f987",
+          "artifact_id": "s008-resources",
+          "artifact_sha256": "ad0e7b4d2a0ba9bc91899fc91aa181b412eafebf56cb54b84cfeb3d889c9964f",
+          "locator": "/models",
+          "story_id": "S-20260814-008"
+        }
+      ],
+      "support": "supported"
+    },
+    {
+      "claim_id": "C-SLICES",
+      "scope_or_reason": "No post-hoc semantic categories",
+      "sources": [
+        {
+          "accepted_commit": "74635817770023b70b1e9f9e97b3d83d9d11f987",
+          "artifact_id": "s008-slices",
+          "artifact_sha256": "d0ce5981dea7ba5c510dc9c68f54356cec0a37b050d559429ac0fa2f2cac410b",
+          "locator": "/tracks",
+          "story_id": "S-20260814-008"
+        },
+        {
+          "accepted_commit": "74635817770023b70b1e9f9e97b3d83d9d11f987",
+          "artifact_id": "s008-predeclaration",
+          "artifact_sha256": "2d30ac69b58e7bbd217550418619bab085e2c8b73e1453ee02e0d237827a32ef",
+          "locator": "/slices",
+          "story_id": "S-20260814-008"
+        }
+      ],
+      "support": "supported"
+    },
+    {
+      "claim_id": "C-SYSTEM",
+      "scope_or_reason": "Pinned build, hardware, and matrix only",
+      "sources": [
+        {
+          "accepted_commit": "bad3248b0b704e9f4ddee3333aed1208d4e2b64e",
+          "artifact_id": "s010-summary",
+          "artifact_sha256": "d2735fec05c7d49bfcdc767bad37e59d2a00fae2aafa885d061bb82139c761d3",
+          "locator": "/coverage",
+          "story_id": "S-20260814-010"
+        },
+        {
+          "accepted_commit": "bad3248b0b704e9f4ddee3333aed1208d4e2b64e",
+          "artifact_id": "s010-summary",
+          "artifact_sha256": "d2735fec05c7d49bfcdc767bad37e59d2a00fae2aafa885d061bb82139c761d3",
+          "locator": "/deployment",
+          "story_id": "S-20260814-010"
+        },
+        {
+          "accepted_commit": "bad3248b0b704e9f4ddee3333aed1208d4e2b64e",
+          "artifact_id": "s010-summary",
+          "artifact_sha256": "d2735fec05c7d49bfcdc767bad37e59d2a00fae2aafa885d061bb82139c761d3",
+          "locator": "/aggregate",
+          "story_id": "S-20260814-010"
+        },
+        {
+          "accepted_commit": "bad3248b0b704e9f4ddee3333aed1208d4e2b64e",
+          "artifact_id": "s010-summary",
+          "artifact_sha256": "d2735fec05c7d49bfcdc767bad37e59d2a00fae2aafa885d061bb82139c761d3",
+          "locator": "/strata",
+          "story_id": "S-20260814-010"
+        },
+        {
+          "accepted_commit": "bad3248b0b704e9f4ddee3333aed1208d4e2b64e",
+          "artifact_id": "s010-report",
+          "artifact_sha256": "e4d6be9987bc0ede99e6cd81b645b38080135b1410bb380aff85b8ba3ca28e03",
+          "locator": "/lines/26-27",
+          "story_id": "S-20260814-010"
+        }
+      ],
+      "support": "supported"
+    },
+    {
+      "claim_id": "C-SYSTEM-QUALITY",
+      "scope_or_reason": "System-only near-tie workloads are quality-ineligible",
+      "sources": [
+        {
+          "accepted_commit": "bad3248b0b704e9f4ddee3333aed1208d4e2b64e",
+          "artifact_id": "s010-summary",
+          "artifact_sha256": "d2735fec05c7d49bfcdc767bad37e59d2a00fae2aafa885d061bb82139c761d3",
+          "locator": "/quality_claims_allowed_for_system_only",
+          "story_id": "S-20260814-010"
+        }
+      ],
+      "support": "unsupported"
+    },
+    {
+      "claim_id": "C-UNCERTAINTY",
+      "scope_or_reason": "Per track and metric only",
+      "sources": [
+        {
+          "accepted_commit": "74635817770023b70b1e9f9e97b3d83d9d11f987",
+          "artifact_id": "s008-pairwise",
+          "artifact_sha256": "f2933b1d4979e8ea37c13b3f68ec3c3f21ba985cd4b8d6bef9bf6ebe736fe74d",
+          "locator": "/method",
+          "story_id": "S-20260814-008"
+        },
+        {
+          "accepted_commit": "74635817770023b70b1e9f9e97b3d83d9d11f987",
+          "artifact_id": "s008-pairwise",
+          "artifact_sha256": "f2933b1d4979e8ea37c13b3f68ec3c3f21ba985cd4b8d6bef9bf6ebe736fe74d",
+          "locator": "/tracks",
+          "story_id": "S-20260814-008"
+        }
+      ],
+      "support": "supported"
+    },
+    {
+      "claim_id": "C-UNIVERSAL-MODEL",
+      "scope_or_reason": "Track/metric orders differ and many intervals cross zero",
+      "sources": [
+        {
+          "accepted_commit": "74635817770023b70b1e9f9e97b3d83d9d11f987",
+          "artifact_id": "s008-summary",
+          "artifact_sha256": "80e57e7648047753d21639660d89aa3676c084f5c8107f1a538a4cfbb4598a79",
+          "locator": "/tracks",
+          "story_id": "S-20260814-008"
+        },
+        {
+          "accepted_commit": "74635817770023b70b1e9f9e97b3d83d9d11f987",
+          "artifact_id": "s008-pairwise",
+          "artifact_sha256": "f2933b1d4979e8ea37c13b3f68ec3c3f21ba985cd4b8d6bef9bf6ebe736fe74d",
+          "locator": "/tracks",
+          "story_id": "S-20260814-008"
+        }
+      ],
+      "support": "unsupported"
+    },
+    {
+      "claim_id": "C-UNIVERSAL-SINDI",
+      "scope_or_reason": "QPS ratios cross one and every measured SINDI index is larger",
+      "sources": [
+        {
+          "accepted_commit": "bad3248b0b704e9f4ddee3333aed1208d4e2b64e",
+          "artifact_id": "s010-summary",
+          "artifact_sha256": "d2735fec05c7d49bfcdc767bad37e59d2a00fae2aafa885d061bb82139c761d3",
+          "locator": "/aggregate",
+          "story_id": "S-20260814-010"
+        },
+        {
+          "accepted_commit": "bad3248b0b704e9f4ddee3333aed1208d4e2b64e",
+          "artifact_id": "s010-summary",
+          "artifact_sha256": "d2735fec05c7d49bfcdc767bad37e59d2a00fae2aafa885d061bb82139c761d3",
+          "locator": "/costs",
+          "story_id": "S-20260814-010"
+        }
+      ],
+      "support": "unsupported"
+    }
+  ],
+  "derivation_protocol": {
+    "accepted_inputs_only": true,
+    "anchor_rule": "BM25 and dense are contextual anchors only after shared data, candidate, qrel, and metric identity checks",
+    "milvus_connected": false,
+    "model_loaded": false,
+    "small_slice_rule": "n<10 is descriptive only",
+    "system_only_rule": "system-only workloads support system scaling and cost claims, never quality claims",
+    "track_aggregation": "none",
+    "uncertainty_rule": "support a pairwise direction only when the paired 95% interval excludes zero"
+  },
+  "derivation_protocol_sha256": "921eb68e1150397f83891f4b6d98ce8e31702263a60878eef49a4ae4c31f44ec",
+  "phase_id": "learned-sparse-phase-one-v0.1",
+  "private_research_evidence": {
+    "s005-audit-pack": {
+      "classification": "private_research_only",
+      "path_exposed": false,
+      "sha256": "9549525cbd35e0a3c520ad16b5961b3f5e8658ff7cb4b5061e9edd39bc96c956",
+      "story_id": "S-20260814-005"
+    },
+    "s005-materialization-manifest": {
+      "classification": "private_research_only",
+      "path_exposed": false,
+      "sha256": "8174b0c01a32e977cf0c5d89522356c485196b0aa0571251cfe1595c5579cb1f",
+      "story_id": "S-20260814-005"
+    },
+    "s005-review-plan": {
+      "classification": "private_research_only",
+      "path_exposed": false,
+      "sha256": "93848a826c12acf9cb6fed50d71dd9490be7baebfcea1122dd4fffb4881fdc4e",
+      "story_id": "S-20260814-005"
+    },
+    "s008-private-package-replay": {
+      "classification": "private_research_only",
+      "path_exposed": false,
+      "sha256": "9e1eb574351d2fe63b0be775ffbc31ed57658b653bbce21589c2d0668c2c4ae2",
+      "story_id": "S-20260814-008"
+    },
+    "s008-raw-manifest-set": {
+      "classification": "private_research_only",
+      "path_exposed": false,
+      "sha256": "ac91bc9a62775eace06350ebbd31bd0785210efef0325aded70b90451833043d",
+      "story_id": "S-20260814-008"
+    },
+    "s010-100k-run-manifest": {
+      "classification": "private_research_only",
+      "path_exposed": false,
+      "sha256": "29418222dddc6fec61c0609338f142a864fe700d8ce3284bdbec3f3bf94f617a",
+      "story_id": "S-20260814-010"
+    },
+    "s010-1m-run-manifest": {
+      "classification": "private_research_only",
+      "path_exposed": false,
+      "sha256": "87c152bcf45780ec2d97e751684efef083e029edf9b54f0b1dee6d5f8fa9e9ac",
+      "story_id": "S-20260814-010"
+    },
+    "s010-csr-exact-catalog": {
+      "classification": "private_research_only",
+      "path_exposed": false,
+      "sha256": "bb16544edd6469fcb6a4d8fdc54298b61a5209d9754a6cd4c3a3d45b00437840",
+      "story_id": "S-20260814-010"
+    },
+    "s010-formal-file-manifest": {
+      "classification": "private_research_only",
+      "path_exposed": false,
+      "sha256": "63c44107e4c07b80ef089a9a527a6a5c11e3305d3b8ef2cec42e895e6c5f8726",
+      "story_id": "S-20260814-010"
+    },
+    "s010-native-run-manifest": {
+      "classification": "private_research_only",
+      "path_exposed": false,
+      "sha256": "a6982b48d6be8651f8060a8667a1a0c4aec7487b893032a464b198f77b179ab2",
+      "story_id": "S-20260814-010"
+    }
+  },
+  "publication": {
+    "classification": "research_only",
+    "contains_canonical_ids": false,
+    "contains_private_paths": false,
+    "contains_raw_rankings": false,
+    "contains_source_text": false,
+    "gate": "closed",
+    "leaderboard_publish": false,
+    "public_export_allowed": false
+  },
+  "recommendations": [
+    {
+      "claim_ids": [
+        "C-QUALITY",
+        "C-UNCERTAINTY"
+      ],
+      "limitations": [
+        "No universal model winner",
+        "Training overlap is unknown",
+        "Only two English tracks"
+      ],
+      "recommendation_id": "REC-QUALITY",
+      "sources": [
+        {
+          "accepted_commit": "74635817770023b70b1e9f9e97b3d83d9d11f987",
+          "artifact_id": "s008-pairwise",
+          "artifact_sha256": "f2933b1d4979e8ea37c13b3f68ec3c3f21ba985cd4b8d6bef9bf6ebe736fe74d",
+          "locator": "/method",
+          "story_id": "S-20260814-008"
+        },
+        {
+          "accepted_commit": "74635817770023b70b1e9f9e97b3d83d9d11f987",
+          "artifact_id": "s008-pairwise",
+          "artifact_sha256": "f2933b1d4979e8ea37c13b3f68ec3c3f21ba985cd4b8d6bef9bf6ebe736fe74d",
+          "locator": "/tracks",
+          "story_id": "S-20260814-008"
+        },
+        {
+          "accepted_commit": "74635817770023b70b1e9f9e97b3d83d9d11f987",
+          "artifact_id": "s008-summary",
+          "artifact_sha256": "80e57e7648047753d21639660d89aa3676c084f5c8107f1a538a4cfbb4598a79",
+          "locator": "/tracks",
+          "story_id": "S-20260814-008"
+        }
+      ]
+    },
+    {
+      "claim_ids": [
+        "C-RESOURCES",
+        "C-LICENSE"
+      ],
+      "limitations": [
+        "Encoding-observed RSS is not whole-cell peak",
+        "Local research-only use for SPLADE-Tiny"
+      ],
+      "recommendation_id": "REC-LIGHTWEIGHT",
+      "sources": [
+        {
+          "accepted_commit": "10573c1f24975272bd68b61c6bece2ac1a25681e",
+          "artifact_id": "s005-summary",
+          "artifact_sha256": "7aa2f3561263d2f8d82026244841304b26b725caff185b4a21a8a868c610c249",
+          "locator": "/publication",
+          "story_id": "S-20260814-005"
+        },
+        {
+          "accepted_commit": "74635817770023b70b1e9f9e97b3d83d9d11f987",
+          "artifact_id": "s008-resources",
+          "artifact_sha256": "ad0e7b4d2a0ba9bc91899fc91aa181b412eafebf56cb54b84cfeb3d889c9964f",
+          "locator": "/models",
+          "story_id": "S-20260814-008"
+        }
+      ]
+    },
+    {
+      "claim_ids": [
+        "C-ROUTING",
+        "C-RESOURCES"
+      ],
+      "limitations": [
+        "No production SLA",
+        "No multilingual effectiveness evidence"
+      ],
+      "recommendation_id": "REC-STATIC",
+      "sources": [
+        {
+          "accepted_commit": "9283a47a49a5d6e6623badf7139ea3ae33360ef4",
+          "artifact_id": "s006-inventory",
+          "artifact_sha256": "a4b1ff3c9e5f4e308c9c64a9a8c7e0d3dc207372b0e0429c4c2abd72a8a7f303",
+          "locator": "/models",
+          "story_id": "S-20260814-006"
+        },
+        {
+          "accepted_commit": "74635817770023b70b1e9f9e97b3d83d9d11f987",
+          "artifact_id": "s008-resources",
+          "artifact_sha256": "ad0e7b4d2a0ba9bc91899fc91aa181b412eafebf56cb54b84cfeb3d889c9964f",
+          "locator": "/models",
+          "story_id": "S-20260814-008"
+        }
+      ]
+    },
+    {
+      "claim_ids": [
+        "C-MULTILINGUAL-GAP"
+      ],
+      "limitations": [
+        "No multilingual track",
+        "No verified zero-shot evidence"
+      ],
+      "recommendation_id": "REC-MULTILINGUAL",
+      "sources": [
+        {
+          "accepted_commit": "10573c1f24975272bd68b61c6bece2ac1a25681e",
+          "artifact_id": "s005-summary",
+          "artifact_sha256": "7aa2f3561263d2f8d82026244841304b26b725caff185b4a21a8a868c610c249",
+          "locator": "/source",
+          "story_id": "S-20260814-005"
+        },
+        {
+          "accepted_commit": "10573c1f24975272bd68b61c6bece2ac1a25681e",
+          "artifact_id": "s005-summary",
+          "artifact_sha256": "7aa2f3561263d2f8d82026244841304b26b725caff185b4a21a8a868c610c249",
+          "locator": "/tracks/*/governance_audit/provenance_and_time/training_overlap_status",
+          "story_id": "S-20260814-005"
+        },
+        {
+          "accepted_commit": "74635817770023b70b1e9f9e97b3d83d9d11f987",
+          "artifact_id": "s008-summary",
+          "artifact_sha256": "80e57e7648047753d21639660d89aa3676c084f5c8107f1a538a4cfbb4598a79",
+          "locator": "/publication",
+          "story_id": "S-20260814-008"
+        }
+      ]
+    },
+    {
+      "claim_ids": [
+        "C-EXACT",
+        "C-SYSTEM"
+      ],
+      "limitations": [
+        "Small native corpus",
+        "No production availability or network layer"
+      ],
+      "recommendation_id": "REC-EXACT",
+      "sources": [
+        {
+          "accepted_commit": "9283a47a49a5d6e6623badf7139ea3ae33360ef4",
+          "artifact_id": "s006-manifest",
+          "artifact_sha256": "068dd07e3b080bd6f39ece28793e225893732b92907f1e65ca1e69e9f69df362",
+          "locator": "/protocol/search",
+          "story_id": "S-20260814-006"
+        },
+        {
+          "accepted_commit": "74635817770023b70b1e9f9e97b3d83d9d11f987",
+          "artifact_id": "s008-manifest",
+          "artifact_sha256": "3accbed7b2a9961eedff20e601375a23c50167cfc7d8e77adbf91399aed91f47",
+          "locator": "/protocol",
+          "story_id": "S-20260814-008"
+        },
+        {
+          "accepted_commit": "bad3248b0b704e9f4ddee3333aed1208d4e2b64e",
+          "artifact_id": "s010-report",
+          "artifact_sha256": "e4d6be9987bc0ede99e6cd81b645b38080135b1410bb380aff85b8ba3ca28e03",
+          "locator": "/lines/26-27",
+          "story_id": "S-20260814-010"
+        },
+        {
+          "accepted_commit": "bad3248b0b704e9f4ddee3333aed1208d4e2b64e",
+          "artifact_id": "s010-source-attestation",
+          "artifact_sha256": "dce7e8c088954bfc5d689cea1017f13b088dc417532d5b5a9a312abe6cf46f65",
+          "locator": "/csr_exact_catalog_sha256",
+          "story_id": "S-20260814-010"
+        },
+        {
+          "accepted_commit": "bad3248b0b704e9f4ddee3333aed1208d4e2b64e",
+          "artifact_id": "s010-summary",
+          "artifact_sha256": "d2735fec05c7d49bfcdc767bad37e59d2a00fae2aafa885d061bb82139c761d3",
+          "locator": "/aggregate",
+          "story_id": "S-20260814-010"
+        },
+        {
+          "accepted_commit": "bad3248b0b704e9f4ddee3333aed1208d4e2b64e",
+          "artifact_id": "s010-summary",
+          "artifact_sha256": "d2735fec05c7d49bfcdc767bad37e59d2a00fae2aafa885d061bb82139c761d3",
+          "locator": "/coverage",
+          "story_id": "S-20260814-010"
+        },
+        {
+          "accepted_commit": "bad3248b0b704e9f4ddee3333aed1208d4e2b64e",
+          "artifact_id": "s010-summary",
+          "artifact_sha256": "d2735fec05c7d49bfcdc767bad37e59d2a00fae2aafa885d061bb82139c761d3",
+          "locator": "/deployment",
+          "story_id": "S-20260814-010"
+        },
+        {
+          "accepted_commit": "bad3248b0b704e9f4ddee3333aed1208d4e2b64e",
+          "artifact_id": "s010-summary",
+          "artifact_sha256": "d2735fec05c7d49bfcdc767bad37e59d2a00fae2aafa885d061bb82139c761d3",
+          "locator": "/strata",
+          "story_id": "S-20260814-010"
+        }
+      ]
+    },
+    {
+      "claim_ids": [
+        "C-SYSTEM",
+        "C-INDEX-BYTES"
+      ],
+      "limitations": [
+        "Pinned Milvus 3.0.0 build only",
+        "System-only scaling is not quality evidence",
+        "No production SLA"
+      ],
+      "recommendation_id": "REC-MILVUS",
+      "sources": [
+        {
+          "accepted_commit": "bad3248b0b704e9f4ddee3333aed1208d4e2b64e",
+          "artifact_id": "s010-report",
+          "artifact_sha256": "e4d6be9987bc0ede99e6cd81b645b38080135b1410bb380aff85b8ba3ca28e03",
+          "locator": "/lines/26-27",
+          "story_id": "S-20260814-010"
+        },
+        {
+          "accepted_commit": "bad3248b0b704e9f4ddee3333aed1208d4e2b64e",
+          "artifact_id": "s010-summary",
+          "artifact_sha256": "d2735fec05c7d49bfcdc767bad37e59d2a00fae2aafa885d061bb82139c761d3",
+          "locator": "/aggregate",
+          "story_id": "S-20260814-010"
+        },
+        {
+          "accepted_commit": "bad3248b0b704e9f4ddee3333aed1208d4e2b64e",
+          "artifact_id": "s010-summary",
+          "artifact_sha256": "d2735fec05c7d49bfcdc767bad37e59d2a00fae2aafa885d061bb82139c761d3",
+          "locator": "/costs",
+          "story_id": "S-20260814-010"
+        },
+        {
+          "accepted_commit": "bad3248b0b704e9f4ddee3333aed1208d4e2b64e",
+          "artifact_id": "s010-summary",
+          "artifact_sha256": "d2735fec05c7d49bfcdc767bad37e59d2a00fae2aafa885d061bb82139c761d3",
+          "locator": "/coverage",
+          "story_id": "S-20260814-010"
+        },
+        {
+          "accepted_commit": "bad3248b0b704e9f4ddee3333aed1208d4e2b64e",
+          "artifact_id": "s010-summary",
+          "artifact_sha256": "d2735fec05c7d49bfcdc767bad37e59d2a00fae2aafa885d061bb82139c761d3",
+          "locator": "/deployment",
+          "story_id": "S-20260814-010"
+        },
+        {
+          "accepted_commit": "bad3248b0b704e9f4ddee3333aed1208d4e2b64e",
+          "artifact_id": "s010-summary",
+          "artifact_sha256": "d2735fec05c7d49bfcdc767bad37e59d2a00fae2aafa885d061bb82139c761d3",
+          "locator": "/strata",
+          "story_id": "S-20260814-010"
+        }
+      ]
+    }
+  ],
+  "schema_version": "learned-sparse-evidence-map-v1",
+  "tables": [
+    {
+      "artifact_refs": [
+        "s005-summary"
+      ],
+      "claim_ids": [
+        "C-DATA"
+      ],
+      "report_section": "Data contract and governance",
+      "table_id": "T-DATA"
+    },
+    {
+      "artifact_refs": [
+        "s008-summary",
+        "s008-pairwise"
+      ],
+      "claim_ids": [
+        "C-QUALITY",
+        "C-UNCERTAINTY"
+      ],
+      "report_section": "Economics quality",
+      "table_id": "T-QUALITY-ECONOMICS"
+    },
+    {
+      "artifact_refs": [
+        "s008-summary",
+        "s008-pairwise"
+      ],
+      "claim_ids": [
+        "C-QUALITY",
+        "C-UNCERTAINTY"
+      ],
+      "report_section": "Psychology quality",
+      "table_id": "T-QUALITY-PSYCHOLOGY"
+    },
+    {
+      "artifact_refs": [
+        "s005-summary",
+        "s006-manifest",
+        "s008-manifest"
+      ],
+      "claim_ids": [
+        "C-ANCHORS"
+      ],
+      "report_section": "Limited contextual anchors",
+      "table_id": "T-ANCHORS"
+    },
+    {
+      "artifact_refs": [
+        "s006-inventory",
+        "s008-resources"
+      ],
+      "claim_ids": [
+        "C-ROUTING",
+        "C-RESOURCES"
+      ],
+      "report_section": "Model routes and resource envelope",
+      "table_id": "T-MODEL-PORTFOLIO"
+    },
+    {
+      "artifact_refs": [
+        "s006-manifest",
+        "s008-resources"
+      ],
+      "claim_ids": [
+        "C-RESOURCES",
+        "C-EXACT"
+      ],
+      "report_section": "Encoding, sparsity, and exact retrieval",
+      "table_id": "T-ENCODING-EXACT"
+    },
+    {
+      "artifact_refs": [
+        "s008-slices",
+        "s008-predeclaration"
+      ],
+      "claim_ids": [
+        "C-SLICES"
+      ],
+      "report_section": "Predeclared slices",
+      "table_id": "T-SLICES"
+    },
+    {
+      "artifact_refs": [
+        "s010-summary",
+        "s010-report"
+      ],
+      "claim_ids": [
+        "C-EXACT",
+        "C-SYSTEM",
+        "C-SYSTEM-QUALITY"
+      ],
+      "report_section": "Sparse-system evidence: coverage",
+      "table_id": "T-SYSTEM-COVERAGE"
+    },
+    {
+      "artifact_refs": [
+        "s010-summary"
+      ],
+      "claim_ids": [
+        "C-SYSTEM",
+        "C-INDEX-BYTES",
+        "C-UNIVERSAL-SINDI"
+      ],
+      "report_section": "Sparse-system evidence: QPS and serialized index results",
+      "table_id": "T-SYSTEM-RESULTS"
+    },
+    {
+      "artifact_refs": [
+        "s005-summary",
+        "s006-inventory",
+        "s006-manifest",
+        "s008-cases",
+        "s008-manifest",
+        "s008-pairwise",
+        "s008-predeclaration",
+        "s008-resources",
+        "s008-slices",
+        "s008-summary",
+        "s010-report",
+        "s010-source-attestation",
+        "s010-summary"
+      ],
+      "claim_ids": [
+        "C-DATA",
+        "C-QUALITY",
+        "C-UNCERTAINTY",
+        "C-SLICES",
+        "C-CASES",
+        "C-ROUTING",
+        "C-RESOURCES",
+        "C-EXACT",
+        "C-SYSTEM",
+        "C-INDEX-BYTES",
+        "C-LICENSE",
+        "C-ANCHORS",
+        "C-MULTILINGUAL-GAP",
+        "C-UNIVERSAL-MODEL",
+        "C-UNIVERSAL-SINDI",
+        "C-SYSTEM-QUALITY",
+        "C-PRODUCTION",
+        "C-CROSS-TRACK"
+      ],
+      "report_section": "Claim boundary matrix",
+      "table_id": "T-CLAIM-BOUNDARY"
+    }
+  ],
+  "tracked_artifacts": {
+    "s005-manifest": {
+      "bytes": 493,
+      "path": "benchmark/artifacts/bright-nontechnical-pilot-v0.2/manifest.json",
+      "sha256": "6b48e45d4f8332a5386729898845c1a62b02b2fd1481b4665d501947a082fd86",
+      "story_id": "S-20260814-005"
+    },
+    "s005-materialization-schema": {
+      "bytes": 12951,
+      "path": "schemas/bright-multidomain-materialization-v02.schema.json",
+      "sha256": "9c9ab271140ef61c9e997af8f19f11387e269a1046c58c84840151823d4aad4a",
+      "story_id": "S-20260814-005"
+    },
+    "s005-report": {
+      "bytes": 12565,
+      "path": "benchmark/research/bright_multidomain_pilot_v02.md",
+      "sha256": "6314edf84419bfd98dbc3a0651d9de5cae39e1f1922da012f3d673ff58c6fa8b",
+      "story_id": "S-20260814-005"
+    },
+    "s005-result-schema": {
+      "bytes": 14876,
+      "path": "schemas/bright-multidomain-result-v02.schema.json",
+      "sha256": "7219d66bb584b9f1054c389af9aeac6de8a5faff885be58250b1ec84045f8ff2",
+      "story_id": "S-20260814-005"
+    },
+    "s005-summary": {
+      "bytes": 35626,
+      "path": "benchmark/artifacts/bright-nontechnical-pilot-v0.2/summary.json",
+      "sha256": "7aa2f3561263d2f8d82026244841304b26b725caff185b4a21a8a868c610c249",
+      "story_id": "S-20260814-005"
+    },
+    "s006-inventory": {
+      "bytes": 20763,
+      "path": "benchmark/artifacts/bright-learned-sparse-batch-a-v0.1/inventory.json",
+      "sha256": "a4b1ff3c9e5f4e308c9c64a9a8c7e0d3dc207372b0e0429c4c2abd72a8a7f303",
+      "story_id": "S-20260814-006"
+    },
+    "s006-inventory-schema": {
+      "bytes": 3802,
+      "path": "schemas/learned-sparse-inventory-v01.schema.json",
+      "sha256": "941610063e60ecff5d0ac687a7eae60f7f5e7e03319f89f51ae571f5b36d3d18",
+      "story_id": "S-20260814-006"
+    },
+    "s006-manifest": {
+      "bytes": 4774,
+      "path": "benchmark/artifacts/bright-learned-sparse-batch-a-v0.1/manifest.json",
+      "sha256": "068dd07e3b080bd6f39ece28793e225893732b92907f1e65ca1e69e9f69df362",
+      "story_id": "S-20260814-006"
+    },
+    "s006-manifest-schema": {
+      "bytes": 3937,
+      "path": "schemas/bright-learned-sparse-artifact-manifest-v01.schema.json",
+      "sha256": "d08a0be1ff86379d0b2359938f54a2cb70a62576421db449e7589f0c377b22c6",
+      "story_id": "S-20260814-006"
+    },
+    "s006-report": {
+      "bytes": 16410,
+      "path": "benchmark/research/learned_sparse_batch_a_20260828.md",
+      "sha256": "ad233f499322f3e5a55d1cf0453983cbe0969615fe35cea262b2df0af55a4734",
+      "story_id": "S-20260814-006"
+    },
+    "s006-summary": {
+      "bytes": 29152,
+      "path": "benchmark/artifacts/bright-learned-sparse-batch-a-v0.1/summary.json",
+      "sha256": "904000f96b4290904b014bdd50043f8651bb4b42c19cc5b88fa71874ef991716",
+      "story_id": "S-20260814-006"
+    },
+    "s006-summary-schema": {
+      "bytes": 8674,
+      "path": "schemas/bright-learned-sparse-summary-v01.schema.json",
+      "sha256": "84338230341dfecf629e38eac26ede87532f4e218f9753859aa4c5df269cd73e",
+      "story_id": "S-20260814-006"
+    },
+    "s008-cases": {
+      "bytes": 12345,
+      "path": "benchmark/artifacts/bright-learned-sparse-main-v0.1/cases.json",
+      "sha256": "28da5092c727d62502159972a0bb660fc0807fe642e051c2aa935491f353f46b",
+      "story_id": "S-20260814-008"
+    },
+    "s008-cases-schema": {
+      "bytes": 1508,
+      "path": "schemas/bright-learned-sparse-main-cases-v01.schema.json",
+      "sha256": "06131b06668b66b80b7ffa2cde0d9bcc258394b9bd56f2113c91b0c33ada19ed",
+      "story_id": "S-20260814-008"
+    },
+    "s008-input-contract": {
+      "bytes": 3135,
+      "path": "benchmark/contracts/bright-learned-sparse-main-v0.1-inputs.json",
+      "sha256": "18ec21848358fd19a454ed2f7362e1eb6117d6c508ca6f30cc9980d2642d1dc6",
+      "story_id": "S-20260814-008"
+    },
+    "s008-input-schema": {
+      "bytes": 1414,
+      "path": "schemas/bright-learned-sparse-main-inputs-v01.schema.json",
+      "sha256": "7722c17d0520c74f05653a4b844de5813c8cb211f30c81d2bff0677f0c5be3e9",
+      "story_id": "S-20260814-008"
+    },
+    "s008-manifest": {
+      "bytes": 6300,
+      "path": "benchmark/artifacts/bright-learned-sparse-main-v0.1/manifest.json",
+      "sha256": "3accbed7b2a9961eedff20e601375a23c50167cfc7d8e77adbf91399aed91f47",
+      "story_id": "S-20260814-008"
+    },
+    "s008-manifest-schema": {
+      "bytes": 1340,
+      "path": "schemas/bright-learned-sparse-main-manifest-v01.schema.json",
+      "sha256": "926316c1a4ec8d3dacaa315b1f15378940ed4aa60b30b7b8505ce922df2e98e1",
+      "story_id": "S-20260814-008"
+    },
+    "s008-pairwise": {
+      "bytes": 61386,
+      "path": "benchmark/artifacts/bright-learned-sparse-main-v0.1/pairwise.json",
+      "sha256": "f2933b1d4979e8ea37c13b3f68ec3c3f21ba985cd4b8d6bef9bf6ebe736fe74d",
+      "story_id": "S-20260814-008"
+    },
+    "s008-pairwise-schema": {
+      "bytes": 1516,
+      "path": "schemas/bright-learned-sparse-main-pairwise-v01.schema.json",
+      "sha256": "662c1babb578ca14c544139471d7075dcad4a0225060a5d99169ec8212225bfc",
+      "story_id": "S-20260814-008"
+    },
+    "s008-predeclaration": {
+      "bytes": 13021,
+      "path": "benchmark/artifacts/bright-learned-sparse-batch-b-v0.1/predeclaration.json",
+      "sha256": "2d30ac69b58e7bbd217550418619bab085e2c8b73e1453ee02e0d237827a32ef",
+      "story_id": "S-20260814-008"
+    },
+    "s008-report": {
+      "bytes": 8728,
+      "path": "benchmark/research/learned_sparse_main_20260829.md",
+      "sha256": "3388f028445fdaa2e989f7753e2614af4fe7cedaaf2842e995294a1640339389",
+      "story_id": "S-20260814-008"
+    },
+    "s008-resources": {
+      "bytes": 31481,
+      "path": "benchmark/artifacts/bright-learned-sparse-main-v0.1/resources.json",
+      "sha256": "ad0e7b4d2a0ba9bc91899fc91aa181b412eafebf56cb54b84cfeb3d889c9964f",
+      "story_id": "S-20260814-008"
+    },
+    "s008-resources-schema": {
+      "bytes": 2085,
+      "path": "schemas/bright-learned-sparse-main-resources-v01.schema.json",
+      "sha256": "1c5f0b98bd143d276235e3d807c169a9761bf4f1bb001ff46f3449c8cadeef0f",
+      "story_id": "S-20260814-008"
+    },
+    "s008-slices": {
+      "bytes": 960401,
+      "path": "benchmark/artifacts/bright-learned-sparse-main-v0.1/slices.json",
+      "sha256": "d0ce5981dea7ba5c510dc9c68f54356cec0a37b050d559429ac0fa2f2cac410b",
+      "story_id": "S-20260814-008"
+    },
+    "s008-slices-schema": {
+      "bytes": 2594,
+      "path": "schemas/bright-learned-sparse-main-slices-v01.schema.json",
+      "sha256": "78de44bdef250efc166023818541d98194fea618811f79c22dbe0da13786dfdf",
+      "story_id": "S-20260814-008"
+    },
+    "s008-summary": {
+      "bytes": 9448,
+      "path": "benchmark/artifacts/bright-learned-sparse-main-v0.1/summary.json",
+      "sha256": "80e57e7648047753d21639660d89aa3676c084f5c8107f1a538a4cfbb4598a79",
+      "story_id": "S-20260814-008"
+    },
+    "s008-summary-schema": {
+      "bytes": 2303,
+      "path": "schemas/bright-learned-sparse-main-summary-v01.schema.json",
+      "sha256": "0536958ecb55de28e1de38a31e227d82b3bad29a90276389ada6d0cab9762865",
+      "story_id": "S-20260814-008"
+    },
+    "s010-predeclaration": {
+      "bytes": 14403,
+      "path": "benchmark/artifacts/milvus-sindi-system-v0.1/predeclaration.json",
+      "sha256": "d1c3e3c9c2ad1e7e4b79bf37b0088e480058196a570f56d21ccc1a4bd2ff47d1",
+      "story_id": "S-20260814-010"
+    },
+    "s010-predeclaration-schema": {
+      "bytes": 7879,
+      "path": "schemas/milvus-sindi-system-predeclaration-v01.schema.json",
+      "sha256": "e28b7b239d489b25e584c7b52380c8e1b90c37264086b918d871559a07e57cb0",
+      "story_id": "S-20260814-010"
+    },
+    "s010-report": {
+      "bytes": 19573,
+      "path": "benchmark/research/milvus_sindi_system_report_20260904.md",
+      "sha256": "e4d6be9987bc0ede99e6cd81b645b38080135b1410bb380aff85b8ba3ca28e03",
+      "story_id": "S-20260814-010"
+    },
+    "s010-source-attestation": {
+      "bytes": 1116,
+      "path": "benchmark/artifacts/milvus-sindi-system-v0.1/source-attestation.json",
+      "sha256": "dce7e8c088954bfc5d689cea1017f13b088dc417532d5b5a9a312abe6cf46f65",
+      "story_id": "S-20260814-010"
+    },
+    "s010-source-schema": {
+      "bytes": 1790,
+      "path": "schemas/milvus-sindi-system-source-attestation-v01.schema.json",
+      "sha256": "f5cadf99d35ce1eafe8da4ed8ac9e85fb53976136eb5599e267e1ee5a91996bb",
+      "story_id": "S-20260814-010"
+    },
+    "s010-summary": {
+      "bytes": 303038,
+      "path": "benchmark/artifacts/milvus-sindi-system-v0.1/formal-summary.json",
+      "sha256": "d2735fec05c7d49bfcdc767bad37e59d2a00fae2aafa885d061bb82139c761d3",
+      "story_id": "S-20260814-010"
+    },
+    "s010-summary-schema": {
+      "bytes": 12302,
+      "path": "schemas/milvus-sindi-formal-summary-v01.schema.json",
+      "sha256": "c3900de5294cd2a67e68839f4d3fd53fd630926edc55bd83cc477d2b7f081e2f",
+      "story_id": "S-20260814-010"
+    }
+  }
+}

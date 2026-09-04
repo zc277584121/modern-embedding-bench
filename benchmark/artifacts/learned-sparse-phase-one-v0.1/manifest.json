@@ -1,0 +1,56 @@
+{
+  "accepted_commits": {
+    "S-20260814-005": {
+      "commit": "10573c1f24975272bd68b61c6bece2ac1a25681e",
+      "tree": "9fb8d6c0db9f8a09efbb2aefced2bf5a09929dd0"
+    },
+    "S-20260814-006": {
+      "commit": "9283a47a49a5d6e6623badf7139ea3ae33360ef4",
+      "tree": "dcffee28bba7f9df38db67989008daa5edbd12cf"
+    },
+    "S-20260814-008": {
+      "commit": "74635817770023b70b1e9f9e97b3d83d9d11f987",
+      "tree": "dc4a28d1805c82de5d4e2397fa163275a671638c"
+    },
+    "S-20260814-010": {
+      "commit": "bad3248b0b704e9f4ddee3333aed1208d4e2b64e",
+      "tree": "8b93654ffa89672525dea7928ebbb6467dc1b303"
+    }
+  },
+  "derivation_protocol_sha256": "921eb68e1150397f83891f4b6d98ce8e31702263a60878eef49a4ae4c31f44ec",
+  "outputs": {
+    "claim-support-matrix.json": {
+      "bytes": 6484,
+      "path": "benchmark/artifacts/learned-sparse-phase-one-v0.1/claim-support-matrix.json",
+      "sha256": "c11776b23ed50c0fa055becab430270057b5ed61f0efda569fd979a0d1cdfd48"
+    },
+    "evidence-map.json": {
+      "bytes": 40419,
+      "path": "benchmark/artifacts/learned-sparse-phase-one-v0.1/evidence-map.json",
+      "sha256": "3bed4799909e82dd8d2bce317a949fcce2906e1061d8a1182ba9e03b9b3670ca"
+    },
+    "report": {
+      "bytes": 19586,
+      "path": "benchmark/research/learned_sparse_phase_one_20260904.md",
+      "sha256": "4d708aa895b61bac400c5ccd25093c6f75abed9b6355d16283f9e4f216bdba9c"
+    },
+    "summary.json": {
+      "bytes": 55865,
+      "path": "benchmark/artifacts/learned-sparse-phase-one-v0.1/summary.json",
+      "sha256": "b811ce579b24cd407dc6f452eb32cec3de433acaf953f48f3169dddd2bf4555a"
+    }
+  },
+  "phase_id": "learned-sparse-phase-one-v0.1",
+  "publication": {
+    "classification": "research_only",
+    "contains_canonical_ids": false,
+    "contains_private_paths": false,
+    "contains_raw_rankings": false,
+    "contains_source_text": false,
+    "gate": "closed",
+    "leaderboard_publish": false,
+    "public_export_allowed": false
+  },
+  "schema_version": "learned-sparse-phase-one-manifest-v1",
+  "story_id": "S-20260814-011"
+}

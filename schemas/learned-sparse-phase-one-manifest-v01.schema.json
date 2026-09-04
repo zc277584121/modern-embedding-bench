@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://modern-embedding-bench.local/schemas/learned-sparse-phase-one-manifest-v01.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "phase_id", "story_id", "publication", "accepted_commits", "derivation_protocol_sha256", "outputs"],
+  "properties": {
+    "schema_version": {"const": "learned-sparse-phase-one-manifest-v1"},
+    "phase_id": {"const": "learned-sparse-phase-one-v0.1"},
+    "story_id": {"const": "S-20260814-011"},
+    "publication": {"type": "object"},
+    "accepted_commits": {"type": "object", "minProperties": 4, "maxProperties": 4},
+    "derivation_protocol_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "outputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["summary.json", "evidence-map.json", "claim-support-matrix.json", "report"],
+      "properties": {
+        "summary.json": {"$ref": "#/$defs/file"},
+        "evidence-map.json": {"$ref": "#/$defs/file"},
+        "claim-support-matrix.json": {"$ref": "#/$defs/file"},
+        "report": {"$ref": "#/$defs/file"}
+      }
+    }
+  },
+  "$defs": {
+    "file": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "bytes", "sha256"],
+      "properties": {
+        "path": {"type": "string"},
+        "bytes": {"type": "integer", "minimum": 1},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    }
+  }
+}

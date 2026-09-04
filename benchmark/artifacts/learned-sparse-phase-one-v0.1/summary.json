@@ -1,0 +1,1593 @@
+{
+  "anchors": {
+    "fairness_checks": {
+      "candidate_pools_are_track_specific": true,
+      "canonical_data_identity_equal": true,
+      "same_grade_1_qrels_and_candidate_filtering": true,
+      "same_quality_metrics": true,
+      "same_retrieval_unit_chunking_and_selection": true,
+      "same_top_100_depth": true,
+      "source_revision_equal": true,
+      "tracks_equal": true
+    },
+    "limitations": [
+      "This is not the multi-baseline cross-paradigm study reserved for S-20260814-009.",
+      "The dense BGE-M3 route uses a predeclared 1,024-token cap while learned-sparse cells use 512 tokens.",
+      "Training overlap remains unknown, so the anchor supports no verified zero-shot claim."
+    ],
+    "role": "limited_contextual_anchor",
+    "tracks": {
+      "economics": {
+        "bge_m3_dense_minus_bm25_paired": {
+          "map@100": {
+            "high": 0.0561939218267081,
+            "low": -0.02586625721668414,
+            "mean": 0.01398853486496047,
+            "samples": 10000,
+            "seed": 20260826
+          },
+          "mrr@10": {
+            "high": 0.0405532439513022,
+            "low": -0.0931380027739251,
+            "mean": -0.026687471104946847,
+            "samples": 10000,
+            "seed": 20260826
+          },
+          "ndcg@10": {
+            "high": 0.05151360234277912,
+            "low": -0.045751436911940835,
+            "mean": 0.0015833008753958152,
+            "samples": 10000,
+            "seed": 20260826
+          },
+          "recall@10": {
+            "high": 0.08564392412693374,
+            "low": -0.03283027024499942,
+            "mean": 0.024995358285357986,
+            "samples": 10000,
+            "seed": 20260826
+          },
+          "recall@100": {
+            "high": 0.22654897017486078,
+            "low": 0.06365835851699357,
+            "mean": 0.1443349364691795,
+            "samples": 10000,
+            "seed": 20260826
+          }
+        },
+        "bge_m3_long_dense": {
+          "map@100": 0.20298451133871412,
+          "mrr@10": 0.2692209893666204,
+          "ndcg@10": 0.25435245932509953,
+          "recall@10": 0.30249885206075655,
+          "recall@100": 0.6491597537705875
+        },
+        "bm25": {
+          "map@100": 0.18899597647375369,
+          "mrr@10": 0.29590846047156727,
+          "ndcg@10": 0.2527691584497037,
+          "recall@10": 0.27750349377539857,
+          "recall@100": 0.504824817301408
+        }
+      },
+      "psychology": {
+        "bge_m3_dense_minus_bm25_paired": {
+          "map@100": {
+            "high": 0.16890080149031006,
+            "low": 0.06108822787235887,
+            "mean": 0.11309716790707021,
+            "samples": 10000,
+            "seed": 20260826
+          },
+          "mrr@10": {
+            "high": 0.20524241709885274,
+            "low": 0.06429337576614802,
+            "mean": 0.1352899575671853,
+            "samples": 10000,
+            "seed": 20260826
+          },
+          "ndcg@10": {
+            "high": 0.20018633862985474,
+            "low": 0.07765517591603037,
+            "mean": 0.13743911606370177,
+            "samples": 10000,
+            "seed": 20260826
+          },
+          "recall@10": {
+            "high": 0.26838490368031287,
+            "low": 0.10143165099424077,
+            "mean": 0.1831615694804953,
+            "samples": 10000,
+            "seed": 20260826
+          },
+          "recall@100": {
+            "high": 0.34307097610043386,
+            "low": 0.18059144432558358,
+            "mean": 0.2621723432331577,
+            "samples": 10000,
+            "seed": 20260826
+          }
+        },
+        "bge_m3_long_dense": {
+          "map@100": 0.24704779760502482,
+          "mrr@10": 0.3327950652208078,
+          "ndcg@10": 0.29706376755175073,
+          "recall@10": 0.36312451837180765,
+          "recall@100": 0.6785259363106766
+        },
+        "bm25": {
+          "map@100": 0.1339506296979546,
+          "mrr@10": 0.1975051076536225,
+          "ndcg@10": 0.15962465148804902,
+          "recall@10": 0.1799629488913123,
+          "recall@100": 0.41635359307751896
+        }
+      }
+    }
+  },
+  "cases": {
+    "counts": {
+      "per_track_disagreement": 6,
+      "per_track_failure": 6,
+      "total": 24
+    },
+    "opaque_only": true
+  },
+  "data": {
+    "governance": {
+      "manual_review_plan_queries": 120,
+      "public_export_allowed": false,
+      "research_only": true,
+      "review_completed": false,
+      "training_overlap": "unknown_not_zero_shot_verified",
+      "unjudged_are_negatives": false
+    },
+    "scope": {
+      "comparison_to_full_corpus_biology_or_official_bright_allowed": false,
+      "documents": 15000,
+      "independent_candidate_pools": true,
+      "positive_qrels": 1492,
+      "queries": 204,
+      "tracks": [
+        "economics",
+        "psychology"
+      ]
+    },
+    "selection": {
+      "exact_content_deduplication": true,
+      "model_score_used": false,
+      "policy": "Keep all queries and positive-qrel documents, then select one representative per remaining exact content SHA256 group in fixed salted track-specific order.",
+      "salt": "bright-nontechnical-pilot-v0.2",
+      "target_documents_per_track": 7500
+    },
+    "source": {
+      "dataset": "xlangai/BRIGHT",
+      "revision": "3066d29c9651a576c8aba4832d249807b181ecae",
+      "trust_remote_code": false
+    },
+    "tracks": [
+      {
+        "documents": 7500,
+        "positive_qrels": 800,
+        "qrel_density": 0.001035598705501618,
+        "queries": 103,
+        "single_positive_queries": 35,
+        "track": "economics"
+      },
+      {
+        "documents": 7500,
+        "positive_qrels": 692,
+        "qrel_density": 0.0009135313531353135,
+        "queries": 101,
+        "single_positive_queries": 35,
+        "track": "psychology"
+      }
+    ]
+  },
+  "derivation": {
+    "accepted_inputs_only": true,
+    "milvus_connected": false,
+    "model_loaded": false,
+    "protocol_sha256": "921eb68e1150397f83891f4b6d98ce8e31702263a60878eef49a4ae4c31f44ec"
+  },
+  "models": [
+    {
+      "dimensions": 250002,
+      "document_route": "neural",
+      "license_boundary": "MIT",
+      "mechanism": "contextual lexical token-weight projection with max pooling",
+      "model_key": "bge-m3",
+      "parameter_count": null,
+      "query_route": "neural",
+      "revision": "5617a9f61b028005a4858fdac845db406aefb181",
+      "snapshot_bytes": 3221225472,
+      "snapshot_bytes_kind": "frozen_estimate",
+      "tracks": {
+        "economics": {
+          "document_csr_bytes": 3117620,
+          "document_nnz_mean": 51.46026666666667,
+          "document_peak_vram_bytes": 1248534016,
+          "document_throughput_items_per_second": 167.5047080035378,
+          "exact_search_seconds": 0.8319750502705574,
+          "observed_peak_rss_bytes": 3993358336,
+          "query_csr_bytes": 53376,
+          "query_nnz_mean": 64.27184466019418,
+          "query_throughput_items_per_second": 158.85073545112888,
+          "rss_scope": "encoding_observed_not_whole_cell_peak"
+        },
+        "psychology": {
+          "document_csr_bytes": 2902492,
+          "document_nnz_mean": 47.8748,
+          "document_peak_vram_bytes": 1248157184,
+          "document_throughput_items_per_second": 171.24285700492285,
+          "exact_search_seconds": 0.7680287379771471,
+          "observed_peak_rss_bytes": 3963809792,
+          "query_csr_bytes": 48664,
+          "query_nnz_mean": 59.722772277227726,
+          "query_throughput_items_per_second": 173.27133597262343,
+          "rss_scope": "encoding_observed_not_whole_cell_peak"
+        }
+      }
+    },
+    {
+      "dimensions": 50265,
+      "document_route": "neural",
+      "license_boundary": "Apache-2.0",
+      "mechanism": "neural SPLADE masked-language-model expansion with role-specific top-k pruning",
+      "model_key": "granite-30m-sparse",
+      "parameter_count": null,
+      "query_route": "neural",
+      "revision": "ad82b1fd09541c998c8d45045d601c51fdb8a9b7",
+      "snapshot_bytes": 63318503,
+      "snapshot_bytes_kind": "frozen_estimate",
+      "tracks": {
+        "economics": {
+          "document_csr_bytes": 9828196,
+          "document_nnz_mean": 163.3032,
+          "document_peak_vram_bytes": 898789888,
+          "document_throughput_items_per_second": 513.4487506960319,
+          "exact_search_seconds": 0.8694914001971483,
+          "observed_peak_rss_bytes": 1952841728,
+          "query_csr_bytes": 41616,
+          "query_nnz_mean": 50.0,
+          "query_throughput_items_per_second": 439.4010127191533,
+          "rss_scope": "encoding_observed_not_whole_cell_peak"
+        },
+        "psychology": {
+          "document_csr_bytes": 9711180,
+          "document_nnz_mean": 161.35293333333334,
+          "document_peak_vram_bytes": 898789888,
+          "document_throughput_items_per_second": 527.837070274553,
+          "exact_search_seconds": 0.8548063822090626,
+          "observed_peak_rss_bytes": 2039848960,
+          "query_csr_bytes": 40808,
+          "query_nnz_mean": 50.0,
+          "query_throughput_items_per_second": 518.3897675998654,
+          "rss_scope": "encoding_observed_not_whole_cell_peak"
+        }
+      }
+    },
+    {
+      "dimensions": 30522,
+      "document_route": "neural",
+      "license_boundary": "Apache-2.0 model-card/API and repository LICENSE evidence; safetensors allowlist excludes the repository pytorch_model.bin duplicate.",
+      "mechanism": "distilled neural SPLADE query and document expansion",
+      "model_key": "opensearch-doc-v2-distill",
+      "parameter_count": 66985530,
+      "query_route": "neural",
+      "revision": "269e6638b2c4f648996691f6d751495285d8f330",
+      "snapshot_bytes": 268899492,
+      "snapshot_bytes_kind": "frozen_estimate",
+      "tracks": {
+        "economics": {
+          "document_csr_bytes": 10042700,
+          "document_nnz_mean": 166.87826666666666,
+          "document_peak_vram_bytes": 1282925056,
+          "document_throughput_items_per_second": 378.4754415063277,
+          "exact_search_seconds": 0.8444756716489792,
+          "observed_peak_rss_bytes": 1701404672,
+          "query_csr_bytes": 154888,
+          "query_nnz_mean": 187.46601941747574,
+          "query_throughput_items_per_second": 329.58004707969314,
+          "rss_scope": "encoding_observed_not_whole_cell_peak"
+        },
+        "psychology": {
+          "document_csr_bytes": 10174476,
+          "document_nnz_mean": 169.07453333333333,
+          "document_peak_vram_bytes": 1282925056,
+          "document_throughput_items_per_second": 393.4769753330365,
+          "exact_search_seconds": 0.8238263595849276,
+          "observed_peak_rss_bytes": 1812668416,
+          "query_csr_bytes": 161240,
+          "query_nnz_mean": 199.04950495049505,
+          "query_throughput_items_per_second": 374.43480831937217,
+          "rss_scope": "encoding_observed_not_whole_cell_peak"
+        }
+      }
+    },
+    {
+      "dimensions": 30522,
+      "document_route": "document_expansion",
+      "license_boundary": "Apache-2.0",
+      "mechanism": "static sparse query lookup plus neural document expansion",
+      "model_key": "opensearch-doc-v2-mini",
+      "parameter_count": null,
+      "query_route": "static_lookup",
+      "revision": "4af867a426867dfdd744097531046f4289a32fdd",
+      "snapshot_bytes": 94631975,
+      "snapshot_bytes_kind": "frozen_estimate",
+      "tracks": {
+        "economics": {
+          "document_csr_bytes": 12351604,
+          "document_nnz_mean": 205.36,
+          "document_peak_vram_bytes": 1104987648,
+          "document_throughput_items_per_second": 482.3241870961112,
+          "exact_search_seconds": 0.9225831795483828,
+          "observed_peak_rss_bytes": 1731256320,
+          "query_csr_bytes": 72760,
+          "query_nnz_mean": 87.79611650485437,
+          "query_throughput_items_per_second": 926.8941774448151,
+          "rss_scope": "encoding_observed_not_whole_cell_peak"
+        },
+        "psychology": {
+          "document_csr_bytes": 12252524,
+          "document_nnz_mean": 203.70866666666666,
+          "document_peak_vram_bytes": 1104987648,
+          "document_throughput_items_per_second": 479.34963426393074,
+          "exact_search_seconds": 0.9162330124527216,
+          "observed_peak_rss_bytes": 1863614464,
+          "query_csr_bytes": 69560,
+          "query_nnz_mean": 85.58415841584159,
+          "query_throughput_items_per_second": 1076.8832523803499,
+          "rss_scope": "encoding_observed_not_whole_cell_peak"
+        }
+      }
+    },
+    {
+      "dimensions": 30522,
+      "document_route": "document_expansion",
+      "license_boundary": "Apache-2.0",
+      "mechanism": "static sparse query lookup plus distilled neural document expansion",
+      "model_key": "opensearch-doc-v3",
+      "parameter_count": null,
+      "query_route": "static_lookup",
+      "revision": "babf71f3c48695e2e53a978208e8aba48335e3c0",
+      "snapshot_bytes": 271581184,
+      "snapshot_bytes_kind": "frozen_estimate",
+      "tracks": {
+        "economics": {
+          "document_csr_bytes": 10992180,
+          "document_nnz_mean": 182.70293333333333,
+          "document_peak_vram_bytes": 1283808768,
+          "document_throughput_items_per_second": 332.82090178125856,
+          "exact_search_seconds": 0.9276151247322559,
+          "observed_peak_rss_bytes": 1839198208,
+          "query_csr_bytes": 72760,
+          "query_nnz_mean": 87.79611650485437,
+          "query_throughput_items_per_second": 889.7360905184611,
+          "rss_scope": "encoding_observed_not_whole_cell_peak"
+        },
+        "psychology": {
+          "document_csr_bytes": 10968460,
+          "document_nnz_mean": 182.3076,
+          "document_peak_vram_bytes": 1283392000,
+          "document_throughput_items_per_second": 339.1900808120367,
+          "exact_search_seconds": 0.886179743334651,
+          "observed_peak_rss_bytes": 1892409344,
+          "query_csr_bytes": 69560,
+          "query_nnz_mean": 85.58415841584159,
+          "query_throughput_items_per_second": 814.343761558346,
+          "rss_scope": "encoding_observed_not_whole_cell_peak"
+        }
+      }
+    },
+    {
+      "dimensions": 105879,
+      "document_route": "document_expansion",
+      "license_boundary": "Apache-2.0 model-card/API and repository LICENSE evidence; local research-only until the independent Validator accepts the full package.",
+      "mechanism": "static sparse query lookup plus multilingual neural document expansion",
+      "model_key": "opensearch-multilingual",
+      "parameter_count": 167463831,
+      "query_route": "static_lookup",
+      "revision": "1e0f096c2b51c234f1d20725c793e1b5b6d556db",
+      "snapshot_bytes": 683815451,
+      "snapshot_bytes_kind": "frozen_estimate",
+      "tracks": {
+        "economics": {
+          "document_csr_bytes": 14928972,
+          "document_nnz_mean": 248.31613333333334,
+          "document_peak_vram_bytes": 4163964416,
+          "document_throughput_items_per_second": 188.83577160022642,
+          "exact_search_seconds": 0.9607646260410547,
+          "observed_peak_rss_bytes": 1798807552,
+          "query_csr_bytes": 76088,
+          "query_nnz_mean": 91.83495145631068,
+          "query_throughput_items_per_second": 883.3370058462725,
+          "rss_scope": "encoding_observed_not_whole_cell_peak"
+        },
+        "psychology": {
+          "document_csr_bytes": 16372628,
+          "document_nnz_mean": 272.3770666666667,
+          "document_peak_vram_bytes": 4163964416,
+          "document_throughput_items_per_second": 203.1894553896062,
+          "exact_search_seconds": 0.9346328061074018,
+          "observed_peak_rss_bytes": 1936977920,
+          "query_csr_bytes": 73568,
+          "query_nnz_mean": 90.54455445544555,
+          "query_throughput_items_per_second": 917.4573283148147,
+          "rss_scope": "encoding_observed_not_whole_cell_peak"
+        }
+      }
+    },
+    {
+      "dimensions": 30522,
+      "document_route": "neural",
+      "license_boundary": "MIT is frozen only from the pinned model card and Hub API. The repository has no standalone LICENSE file. Use is local research-only, weight redistribution is forbidden, and independent Validator license recheck is mandatory.",
+      "mechanism": "lightweight neural SPLADE masked-language-model expansion",
+      "model_key": "splade-tiny",
+      "parameter_count": 4416698,
+      "query_route": "neural",
+      "revision": "7391972eac4411e33efff5fad27b886ec97895c0",
+      "snapshot_bytes": 18618173,
+      "snapshot_bytes_kind": "frozen_estimate",
+      "tracks": {
+        "economics": {
+          "document_csr_bytes": 7417484,
+          "document_nnz_mean": 123.12466666666667,
+          "document_peak_vram_bytes": 1031410688,
+          "document_throughput_items_per_second": 696.8564053385187,
+          "exact_search_seconds": 0.9050662871450186,
+          "observed_peak_rss_bytes": 1721094144,
+          "query_csr_bytes": 141416,
+          "query_nnz_mean": 171.11650485436894,
+          "query_throughput_items_per_second": 604.5793764010998,
+          "rss_scope": "encoding_observed_not_whole_cell_peak"
+        },
+        "psychology": {
+          "document_csr_bytes": 7286932,
+          "document_nnz_mean": 120.9488,
+          "document_peak_vram_bytes": 1031410688,
+          "document_throughput_items_per_second": 675.4756505820425,
+          "exact_search_seconds": 0.8702317085117102,
+          "observed_peak_rss_bytes": 1792749568,
+          "query_csr_bytes": 133104,
+          "query_nnz_mean": 164.22772277227722,
+          "query_throughput_items_per_second": 657.1984418529626,
+          "rss_scope": "encoding_observed_not_whole_cell_peak"
+        }
+      }
+    }
+  ],
+  "phase_id": "learned-sparse-phase-one-v0.1",
+  "publication": {
+    "classification": "research_only",
+    "contains_canonical_ids": false,
+    "contains_private_paths": false,
+    "contains_raw_rankings": false,
+    "contains_source_text": false,
+    "gate": "closed",
+    "leaderboard_publish": false,
+    "public_export_allowed": false
+  },
+  "quality": {
+    "metrics": [
+      "ndcg@10",
+      "map@100",
+      "mrr@10",
+      "recall@10",
+      "recall@100"
+    ],
+    "models": 7,
+    "paired_uncertainty": {
+      "method": {
+        "decisive_rule": "95_percentile_interval_excludes_zero",
+        "method": "query_aligned_paired_bootstrap_left_minus_right",
+        "otherwise": "tie_or_uncertain",
+        "pairs_per_track": 21,
+        "samples": 10000,
+        "seed": 20260826
+      },
+      "tracks": {
+        "economics": {
+          "bootstrap_samples_each": 10000,
+          "metric_comparisons": 105,
+          "pairs": 21,
+          "significant": [
+            {
+              "ci_high": 0.07260629488725964,
+              "ci_low": 0.0003933457979460762,
+              "loser": "opensearch-doc-v2-mini",
+              "mean_delta": 0.034570013733774205,
+              "metric": "map@100",
+              "n": 103,
+              "samples": 10000,
+              "winner": "opensearch-doc-v2-distill"
+            },
+            {
+              "ci_high": 0.06818922705005738,
+              "ci_low": 0.005317089809706789,
+              "loser": "opensearch-doc-v3",
+              "mean_delta": 0.03532293628179215,
+              "metric": "map@100",
+              "n": 103,
+              "samples": 10000,
+              "winner": "opensearch-doc-v2-distill"
+            },
+            {
+              "ci_high": 0.07025641891452881,
+              "ci_low": 0.006125916673559934,
+              "loser": "opensearch-doc-v3",
+              "mean_delta": 0.03694324608645525,
+              "metric": "ndcg@10",
+              "n": 103,
+              "samples": 10000,
+              "winner": "opensearch-doc-v2-distill"
+            },
+            {
+              "ci_high": 0.08773792120008879,
+              "ci_low": 0.005461002548070809,
+              "loser": "opensearch-doc-v3",
+              "mean_delta": 0.0457495053570588,
+              "metric": "recall@10",
+              "n": 103,
+              "samples": 10000,
+              "winner": "opensearch-doc-v2-distill"
+            },
+            {
+              "ci_high": 0.1764764701445997,
+              "ci_low": 0.051773534385745515,
+              "loser": "opensearch-doc-v2-mini",
+              "mean_delta": 0.11213942399074271,
+              "metric": "recall@100",
+              "n": 103,
+              "samples": 10000,
+              "winner": "bge-m3"
+            },
+            {
+              "ci_high": 0.13113753901905684,
+              "ci_low": 0.019674943321922756,
+              "loser": "opensearch-doc-v3",
+              "mean_delta": 0.07404079554148751,
+              "metric": "recall@100",
+              "n": 103,
+              "samples": 10000,
+              "winner": "bge-m3"
+            },
+            {
+              "ci_high": 0.11555305229769448,
+              "ci_low": 0.008014534600508024,
+              "loser": "opensearch-multilingual",
+              "mean_delta": 0.060426325550014266,
+              "metric": "recall@100",
+              "n": 103,
+              "samples": 10000,
+              "winner": "bge-m3"
+            },
+            {
+              "ci_high": 0.19428194627370782,
+              "ci_low": 0.06913290619775114,
+              "loser": "splade-tiny",
+              "mean_delta": 0.13025000432977177,
+              "metric": "recall@100",
+              "n": 103,
+              "samples": 10000,
+              "winner": "bge-m3"
+            },
+            {
+              "ci_high": 0.1986169109398471,
+              "ci_low": 0.07487051728806031,
+              "loser": "opensearch-doc-v2-mini",
+              "mean_delta": 0.13453524848726284,
+              "metric": "recall@100",
+              "n": 103,
+              "samples": 10000,
+              "winner": "granite-30m-sparse"
+            },
+            {
+              "ci_high": 0.1613438961898211,
+              "ci_low": 0.03356718695313869,
+              "loser": "opensearch-doc-v3",
+              "mean_delta": 0.09643662003800768,
+              "metric": "recall@100",
+              "n": 103,
+              "samples": 10000,
+              "winner": "granite-30m-sparse"
+            },
+            {
+              "ci_high": 0.1435914187054235,
+              "ci_low": 0.021953714475644582,
+              "loser": "opensearch-multilingual",
+              "mean_delta": 0.0828221500465344,
+              "metric": "recall@100",
+              "n": 103,
+              "samples": 10000,
+              "winner": "granite-30m-sparse"
+            },
+            {
+              "ci_high": 0.2165591383832864,
+              "ci_low": 0.09025882826746617,
+              "loser": "splade-tiny",
+              "mean_delta": 0.1526458288262919,
+              "metric": "recall@100",
+              "n": 103,
+              "samples": 10000,
+              "winner": "granite-30m-sparse"
+            },
+            {
+              "ci_high": 0.20716310402357976,
+              "ci_low": 0.09006610675931785,
+              "loser": "opensearch-doc-v2-mini",
+              "mean_delta": 0.14616937497344507,
+              "metric": "recall@100",
+              "n": 103,
+              "samples": 10000,
+              "winner": "opensearch-doc-v2-distill"
+            },
+            {
+              "ci_high": 0.16837044777731497,
+              "ci_low": 0.048952205235358086,
+              "loser": "opensearch-doc-v3",
+              "mean_delta": 0.10807074652418991,
+              "metric": "recall@100",
+              "n": 103,
+              "samples": 10000,
+              "winner": "opensearch-doc-v2-distill"
+            },
+            {
+              "ci_high": 0.1545296393145563,
+              "ci_low": 0.03588426500950335,
+              "loser": "opensearch-multilingual",
+              "mean_delta": 0.09445627653271667,
+              "metric": "recall@100",
+              "n": 103,
+              "samples": 10000,
+              "winner": "opensearch-doc-v2-distill"
+            },
+            {
+              "ci_high": 0.2256816280245626,
+              "ci_low": 0.10627210354618001,
+              "loser": "splade-tiny",
+              "mean_delta": 0.16427995531247416,
+              "metric": "recall@100",
+              "n": 103,
+              "samples": 10000,
+              "winner": "opensearch-doc-v2-distill"
+            },
+            {
+              "ci_high": 0.10565395436042986,
+              "ci_low": 0.0021873114354576447,
+              "loser": "opensearch-doc-v2-mini",
+              "mean_delta": 0.05171309844072842,
+              "metric": "recall@100",
+              "n": 103,
+              "samples": 10000,
+              "winner": "opensearch-multilingual"
+            },
+            {
+              "ci_high": 0.13597891768154718,
+              "ci_low": 0.00538714377024163,
+              "loser": "splade-tiny",
+              "mean_delta": 0.06982367877975748,
+              "metric": "recall@100",
+              "n": 103,
+              "samples": 10000,
+              "winner": "opensearch-multilingual"
+            }
+          ],
+          "verdict_counts": {
+            "left_wins": 17,
+            "right_wins": 1,
+            "tie_or_uncertain": 87
+          }
+        },
+        "psychology": {
+          "bootstrap_samples_each": 10000,
+          "metric_comparisons": 105,
+          "pairs": 21,
+          "significant": [
+            {
+              "ci_high": 0.1301597770933199,
+              "ci_low": 0.025423266484928788,
+              "loser": "opensearch-doc-v2-mini",
+              "mean_delta": 0.07607179189250218,
+              "metric": "map@100",
+              "n": 101,
+              "samples": 10000,
+              "winner": "bge-m3"
+            },
+            {
+              "ci_high": 0.1287791830529133,
+              "ci_low": 0.036664484660403424,
+              "loser": "opensearch-doc-v3",
+              "mean_delta": 0.08101080047307309,
+              "metric": "map@100",
+              "n": 101,
+              "samples": 10000,
+              "winner": "bge-m3"
+            },
+            {
+              "ci_high": 0.07049524901420758,
+              "ci_low": 0.0014433476750053283,
+              "loser": "opensearch-multilingual",
+              "mean_delta": 0.03560962613279955,
+              "metric": "map@100",
+              "n": 101,
+              "samples": 10000,
+              "winner": "bge-m3"
+            },
+            {
+              "ci_high": 0.11873703401401259,
+              "ci_low": 0.024006722742853096,
+              "loser": "splade-tiny",
+              "mean_delta": 0.06927623222082825,
+              "metric": "map@100",
+              "n": 101,
+              "samples": 10000,
+              "winner": "bge-m3"
+            },
+            {
+              "ci_high": 0.10303060532360314,
+              "ci_low": 0.009351849245632536,
+              "loser": "opensearch-doc-v2-mini",
+              "mean_delta": 0.05476777850562234,
+              "metric": "map@100",
+              "n": 101,
+              "samples": 10000,
+              "winner": "granite-30m-sparse"
+            },
+            {
+              "ci_high": 0.10563580269585117,
+              "ci_low": 0.01631481528316378,
+              "loser": "opensearch-doc-v3",
+              "mean_delta": 0.05970678708619325,
+              "metric": "map@100",
+              "n": 101,
+              "samples": 10000,
+              "winner": "granite-30m-sparse"
+            },
+            {
+              "ci_high": 0.10489278185185345,
+              "ci_low": 0.018461602445188057,
+              "loser": "opensearch-doc-v2-mini",
+              "mean_delta": 0.05911292055356569,
+              "metric": "map@100",
+              "n": 101,
+              "samples": 10000,
+              "winner": "opensearch-doc-v2-distill"
+            },
+            {
+              "ci_high": 0.10839178169254106,
+              "ci_low": 0.024436682032956777,
+              "loser": "opensearch-doc-v3",
+              "mean_delta": 0.0640519291341366,
+              "metric": "map@100",
+              "n": 101,
+              "samples": 10000,
+              "winner": "opensearch-doc-v2-distill"
+            },
+            {
+              "ci_high": 0.10494933293729206,
+              "ci_low": 0.0019866700034403633,
+              "loser": "splade-tiny",
+              "mean_delta": 0.05231736088189172,
+              "metric": "map@100",
+              "n": 101,
+              "samples": 10000,
+              "winner": "opensearch-doc-v2-distill"
+            },
+            {
+              "ci_high": 0.08916455688308181,
+              "ci_low": 0.005351146415865228,
+              "loser": "opensearch-doc-v3",
+              "mean_delta": 0.04540117434027356,
+              "metric": "map@100",
+              "n": 101,
+              "samples": 10000,
+              "winner": "opensearch-multilingual"
+            },
+            {
+              "ci_high": 0.12656441537010843,
+              "ci_low": 0.0031957213578500737,
+              "loser": "granite-30m-sparse",
+              "mean_delta": 0.063994970925664,
+              "metric": "mrr@10",
+              "n": 101,
+              "samples": 10000,
+              "winner": "bge-m3"
+            },
+            {
+              "ci_high": 0.11820210592487818,
+              "ci_low": 0.001480924878202106,
+              "loser": "opensearch-doc-v2-distill",
+              "mean_delta": 0.05865550840798366,
+              "metric": "mrr@10",
+              "n": 101,
+              "samples": 10000,
+              "winner": "bge-m3"
+            },
+            {
+              "ci_high": 0.1587541254125412,
+              "ci_low": 0.015254400440044003,
+              "loser": "opensearch-doc-v2-mini",
+              "mean_delta": 0.08719157630048718,
+              "metric": "mrr@10",
+              "n": 101,
+              "samples": 10000,
+              "winner": "bge-m3"
+            },
+            {
+              "ci_high": 0.17571183011158256,
+              "ci_low": 0.042730924878202105,
+              "loser": "opensearch-doc-v3",
+              "mean_delta": 0.10890303316045888,
+              "metric": "mrr@10",
+              "n": 101,
+              "samples": 10000,
+              "winner": "bge-m3"
+            },
+            {
+              "ci_high": 0.1616731494578029,
+              "ci_low": 0.02375658101524438,
+              "loser": "splade-tiny",
+              "mean_delta": 0.09156451359421655,
+              "metric": "mrr@10",
+              "n": 101,
+              "samples": 10000,
+              "winner": "bge-m3"
+            },
+            {
+              "ci_high": 0.14285134763476343,
+              "ci_low": 0.009123349834983613,
+              "loser": "opensearch-doc-v3",
+              "mean_delta": 0.07552255225522553,
+              "metric": "mrr@10",
+              "n": 101,
+              "samples": 10000,
+              "winner": "opensearch-multilingual"
+            },
+            {
+              "ci_high": 0.12405280129292703,
+              "ci_low": 0.0221870195048507,
+              "loser": "opensearch-doc-v2-mini",
+              "mean_delta": 0.07191233949525101,
+              "metric": "ndcg@10",
+              "n": 101,
+              "samples": 10000,
+              "winner": "bge-m3"
+            },
+            {
+              "ci_high": 0.134168488837358,
+              "ci_low": 0.03692186631137067,
+              "loser": "opensearch-doc-v3",
+              "mean_delta": 0.08403383314212666,
+              "metric": "ndcg@10",
+              "n": 101,
+              "samples": 10000,
+              "winner": "bge-m3"
+            },
+            {
+              "ci_high": 0.11796447185560956,
+              "ci_low": 0.017421147871632472,
+              "loser": "splade-tiny",
+              "mean_delta": 0.06567107361179533,
+              "metric": "ndcg@10",
+              "n": 101,
+              "samples": 10000,
+              "winner": "bge-m3"
+            },
+            {
+              "ci_high": 0.09277687398815786,
+              "ci_low": 0.001162282593647173,
+              "loser": "opensearch-doc-v2-mini",
+              "mean_delta": 0.04556729883387074,
+              "metric": "ndcg@10",
+              "n": 101,
+              "samples": 10000,
+              "winner": "granite-30m-sparse"
+            },
+            {
+              "ci_high": 0.1069472201536898,
+              "ci_low": 0.010914102530198947,
+              "loser": "opensearch-doc-v3",
+              "mean_delta": 0.057688792480746404,
+              "metric": "ndcg@10",
+              "n": 101,
+              "samples": 10000,
+              "winner": "granite-30m-sparse"
+            },
+            {
+              "ci_high": 0.09641191975179783,
+              "ci_low": 0.0066601395142594855,
+              "loser": "opensearch-doc-v3",
+              "mean_delta": 0.04896775356722706,
+              "metric": "ndcg@10",
+              "n": 101,
+              "samples": 10000,
+              "winner": "opensearch-doc-v2-distill"
+            },
+            {
+              "ci_high": 0.098297766836057,
+              "ci_low": 0.005262054695189869,
+              "loser": "opensearch-doc-v3",
+              "mean_delta": 0.05036293481776397,
+              "metric": "ndcg@10",
+              "n": 101,
+              "samples": 10000,
+              "winner": "opensearch-multilingual"
+            },
+            {
+              "ci_high": 0.11479489556751647,
+              "ci_low": 0.008896181498766052,
+              "loser": "opensearch-doc-v2-mini",
+              "mean_delta": 0.05974772916095551,
+              "metric": "recall@10",
+              "n": 101,
+              "samples": 10000,
+              "winner": "bge-m3"
+            },
+            {
+              "ci_high": 0.12161022019995942,
+              "ci_low": 0.011168259503753202,
+              "loser": "opensearch-doc-v3",
+              "mean_delta": 0.065135580740294,
+              "metric": "recall@10",
+              "n": 101,
+              "samples": 10000,
+              "winner": "bge-m3"
+            },
+            {
+              "ci_high": 0.1019114008002599,
+              "ci_low": 0.0010891695733024215,
+              "loser": "opensearch-doc-v2-mini",
+              "mean_delta": 0.050505042195178505,
+              "metric": "recall@10",
+              "n": 101,
+              "samples": 10000,
+              "winner": "granite-30m-sparse"
+            },
+            {
+              "ci_high": 0.1106329934479076,
+              "ci_low": 0.0031624143272553857,
+              "loser": "opensearch-doc-v3",
+              "mean_delta": 0.05589289377451701,
+              "metric": "recall@10",
+              "n": 101,
+              "samples": 10000,
+              "winner": "granite-30m-sparse"
+            },
+            {
+              "ci_high": 0.1092942598047067,
+              "ci_low": 0.003738094199005083,
+              "loser": "opensearch-doc-v2-mini",
+              "mean_delta": 0.05512551422934305,
+              "metric": "recall@100",
+              "n": 101,
+              "samples": 10000,
+              "winner": "granite-30m-sparse"
+            },
+            {
+              "ci_high": 0.13003397934417343,
+              "ci_low": 0.02166637100761415,
+              "loser": "opensearch-doc-v2-mini",
+              "mean_delta": 0.07458537920801565,
+              "metric": "recall@100",
+              "n": 101,
+              "samples": 10000,
+              "winner": "opensearch-doc-v2-distill"
+            },
+            {
+              "ci_high": 0.12419891863331085,
+              "ci_low": 0.009472987646277672,
+              "loser": "opensearch-doc-v3",
+              "mean_delta": 0.06473345316346064,
+              "metric": "recall@100",
+              "n": 101,
+              "samples": 10000,
+              "winner": "opensearch-doc-v2-distill"
+            },
+            {
+              "ci_high": 0.15770196591236643,
+              "ci_low": 0.022943403613827858,
+              "loser": "splade-tiny",
+              "mean_delta": 0.09026138923786141,
+              "metric": "recall@100",
+              "n": 101,
+              "samples": 10000,
+              "winner": "opensearch-doc-v2-distill"
+            }
+          ],
+          "verdict_counts": {
+            "left_wins": 28,
+            "right_wins": 3,
+            "tie_or_uncertain": 74
+          }
+        }
+      }
+    },
+    "track_aggregation": "none",
+    "tracks": {
+      "economics": {
+        "point_order_ndcg_at_10": [
+          "opensearch-doc-v2-distill",
+          "bge-m3",
+          "granite-30m-sparse",
+          "splade-tiny",
+          "opensearch-multilingual",
+          "opensearch-doc-v2-mini",
+          "opensearch-doc-v3"
+        ],
+        "rows": [
+          {
+            "metrics": {
+              "map@100": 0.21527040957490312,
+              "mrr@10": 0.32577824009862844,
+              "ndcg@10": 0.2806269377375966,
+              "recall@10": 0.3184928701849075,
+              "recall@100": 0.6543185531218195
+            },
+            "model_key": "bge-m3",
+            "raw_manifest_sha256": "e022c394f09812b81c40f71128e18b2e799e9dd6dab2a6c294ab9d6ebf7c6b56"
+          },
+          {
+            "metrics": {
+              "map@100": 0.2070928106390444,
+              "mrr@10": 0.2932963476652797,
+              "ndcg@10": 0.25953280926367644,
+              "recall@10": 0.2952049380383892,
+              "recall@100": 0.6767143776183396
+            },
+            "model_key": "granite-30m-sparse",
+            "raw_manifest_sha256": "e8a8f9ac2aa59e2e819b64dbc3cc189b04b880330658aedf5d9ad5b218daeca1"
+          },
+          {
+            "metrics": {
+              "map@100": 0.23100006847568855,
+              "mrr@10": 0.29080366774541533,
+              "ndcg@10": 0.2813086427961599,
+              "recall@10": 0.3094360835398647,
+              "recall@100": 0.6883485041045219
+            },
+            "model_key": "opensearch-doc-v2-distill",
+            "raw_manifest_sha256": "221ee4f320395385556d000b1eb5903363ae3fdc580b2a95523045992872fc47"
+          },
+          {
+            "metrics": {
+              "map@100": 0.19643005474191436,
+              "mrr@10": 0.28720141778394204,
+              "ndcg@10": 0.2484155572580241,
+              "recall@10": 0.2701597957745148,
+              "recall@100": 0.5421791291310768
+            },
+            "model_key": "opensearch-doc-v2-mini",
+            "raw_manifest_sha256": "7d2caaf6f3659ca896e6406b597f40594baf804472ccdfd45feb0995ce3c3d88"
+          },
+          {
+            "metrics": {
+              "map@100": 0.19567713219389643,
+              "mrr@10": 0.2820388349514563,
+              "ndcg@10": 0.24436539670970464,
+              "recall@10": 0.2636865781828059,
+              "recall@100": 0.580277757580332
+            },
+            "model_key": "opensearch-doc-v3",
+            "raw_manifest_sha256": "09b1de1954e36f65aec38e8a0580b9523663a1b9e5ac053b8af00fe858f889ed"
+          },
+          {
+            "metrics": {
+              "map@100": 0.19491647036825224,
+              "mrr@10": 0.2943712436430883,
+              "ndcg@10": 0.24969348354731802,
+              "recall@10": 0.28721308763164544,
+              "recall@100": 0.5938922275718053
+            },
+            "model_key": "opensearch-multilingual",
+            "raw_manifest_sha256": "aa93b60bd8b17e036e3e537f59d121836d4b3608a7f692324d89883a53563779"
+          },
+          {
+            "metrics": {
+              "map@100": 0.1931687787759186,
+              "mrr@10": 0.2993912775466174,
+              "ndcg@10": 0.2526775331418246,
+              "recall@10": 0.26823989465164105,
+              "recall@100": 0.5240685487920478
+            },
+            "model_key": "splade-tiny",
+            "raw_manifest_sha256": "60d3e647a638f88b8f259ac21d5f90087ee1b2e2282671bd8e0f0102b738c702"
+          }
+        ]
+      },
+      "psychology": {
+        "point_order_ndcg_at_10": [
+          "bge-m3",
+          "granite-30m-sparse",
+          "opensearch-multilingual",
+          "opensearch-doc-v2-distill",
+          "splade-tiny",
+          "opensearch-doc-v2-mini",
+          "opensearch-doc-v3"
+        ],
+        "rows": [
+          {
+            "metrics": {
+              "map@100": 0.2773825879223076,
+              "mrr@10": 0.3916863114882917,
+              "ndcg@10": 0.3226636394003219,
+              "recall@10": 0.33531673549620633,
+              "recall@100": 0.6108259628077215
+            },
+            "model_key": "bge-m3",
+            "raw_manifest_sha256": "a15cc88c80b2a25411c5f82e173e19633b5f668b56eab5831fff01a145e9bffa"
+          },
+          {
+            "metrics": {
+              "map@100": 0.25607857453542776,
+              "mrr@10": 0.32769134056262766,
+              "ndcg@10": 0.2963185987389416,
+              "recall@10": 0.3260740485304294,
+              "recall@100": 0.625039980342922
+            },
+            "model_key": "granite-30m-sparse",
+            "raw_manifest_sha256": "8db4c46b6e379fcd1a932789bd72eb1dc33c28acd35c0c9aac62eaccfaa6174c"
+          },
+          {
+            "metrics": {
+              "map@100": 0.26042371658337105,
+              "mrr@10": 0.333030803080308,
+              "ndcg@10": 0.2875975598254223,
+              "recall@10": 0.3051432301291932,
+              "recall@100": 0.6444998453215945
+            },
+            "model_key": "opensearch-doc-v2-distill",
+            "raw_manifest_sha256": "cc2d98e239ad583829ba9d71ffd65b56cce67d82a3aae6929d0052a4834c01a3"
+          },
+          {
+            "metrics": {
+              "map@100": 0.20131079602980542,
+              "mrr@10": 0.3044947351878045,
+              "ndcg@10": 0.2507512999050709,
+              "recall@10": 0.27556900633525083,
+              "recall@100": 0.569914466113579
+            },
+            "model_key": "opensearch-doc-v2-mini",
+            "raw_manifest_sha256": "6d8ab1a65881a75c313678fd7a530252c15f60f7cc6e3e4df31b07c14f21b7b2"
+          },
+          {
+            "metrics": {
+              "map@100": 0.1963717874492345,
+              "mrr@10": 0.2827832783278328,
+              "ndcg@10": 0.23862980625819524,
+              "recall@10": 0.27018115475591237,
+              "recall@100": 0.579766392158134
+            },
+            "model_key": "opensearch-doc-v3",
+            "raw_manifest_sha256": "567425dffa5f829373675de97901400f150c031abd9d71e0174c31331151730e"
+          },
+          {
+            "metrics": {
+              "map@100": 0.24177296178950805,
+              "mrr@10": 0.3583058305830583,
+              "ndcg@10": 0.2889927410759592,
+              "recall@10": 0.3046986984716463,
+              "recall@100": 0.6133296942347848
+            },
+            "model_key": "opensearch-multilingual",
+            "raw_manifest_sha256": "99d6f3754fc698612ff416b5f9ca1a6ad601b50b76920e580f1de1ac063d8b55"
+          },
+          {
+            "metrics": {
+              "map@100": 0.20810635570147937,
+              "mrr@10": 0.3001217978940751,
+              "ndcg@10": 0.2569925657885266,
+              "recall@10": 0.2937924839686596,
+              "recall@100": 0.5542384560837331
+            },
+            "model_key": "splade-tiny",
+            "raw_manifest_sha256": "8e2bd3e5ffb378852396821301027860cf7eafb1a83ad37b089687ea561422ca"
+          }
+        ]
+      }
+    }
+  },
+  "recommendations": [
+    {
+      "guidance": "Shortlist by track and target metric, then require a paired interval that excludes zero before claiming an advantage. Economics and psychology point orders differ, so do not collapse them.",
+      "id": "REC-QUALITY",
+      "limitations": [
+        "No universal model winner",
+        "Training overlap is unknown",
+        "Only two English tracks"
+      ],
+      "scenario": "Quality-first selection",
+      "support_claims": [
+        "C-QUALITY",
+        "C-UNCERTAINTY"
+      ]
+    },
+    {
+      "guidance": "Use snapshot size, document/query throughput, CSR bytes, and paired quality together. SPLADE-Tiny is the smallest and fastest-document option measured here, but its standalone license evidence is incomplete and its quality trade-offs are track/metric specific.",
+      "id": "REC-LIGHTWEIGHT",
+      "limitations": [
+        "Encoding-observed RSS is not whole-cell peak",
+        "Local research-only use for SPLADE-Tiny"
+      ],
+      "scenario": "Lightweight or encoding-throughput priority",
+      "support_claims": [
+        "C-RESOURCES",
+        "C-LICENSE"
+      ]
+    },
+    {
+      "guidance": "Compare the three OpenSearch static-query routes when inexpensive query-side execution matters, but budget document-side expansion and index density separately. The English measurements do not establish multilingual behavior.",
+      "id": "REC-STATIC",
+      "limitations": [
+        "No production SLA",
+        "No multilingual effectiveness evidence"
+      ],
+      "scenario": "Static-query lookup with document expansion",
+      "support_claims": [
+        "C-ROUTING",
+        "C-RESOURCES"
+      ]
+    },
+    {
+      "guidance": "Keep OpenSearch multilingual as a candidate because its architecture is multilingual; treat every effectiveness number here as English-only evidence and schedule a multilingual track before deployment claims.",
+      "id": "REC-MULTILINGUAL",
+      "limitations": [
+        "No multilingual track",
+        "No verified zero-shot evidence"
+      ],
+      "scenario": "Multilingual candidate selection",
+      "support_claims": [
+        "C-MULTILINGUAL-GAP"
+      ]
+    },
+    {
+      "guidance": "Keep SciPy CSR exact inner product as the quality ground truth and simplest 7,500-document maintenance path. Its system cost is a CPU implementation anchor, not a universal production baseline.",
+      "id": "REC-EXACT",
+      "limitations": [
+        "Small native corpus",
+        "No production availability or network layer"
+      ],
+      "scenario": "Exact retrieval and quality evaluation",
+      "support_claims": [
+        "C-EXACT",
+        "C-SYSTEM"
+      ]
+    },
+    {
+      "guidance": "Benchmark SINDI and DAAT_MAXSCORE on the intended workload rather than selecting from the algorithm name. The accepted matrix crosses over by workload/configuration, and SINDI serialized indexes were larger in every paired cell.",
+      "id": "REC-MILVUS",
+      "limitations": [
+        "Pinned Milvus 3.0.0 build only",
+        "System-only scaling is not quality evidence",
+        "No production SLA"
+      ],
+      "scenario": "Milvus deployment choice",
+      "support_claims": [
+        "C-SYSTEM",
+        "C-INDEX-BYTES"
+      ]
+    }
+  ],
+  "remaining_gaps": [
+    "No complete cross-paradigm comparison with multiple representative dense, BM25, and multi-vector baselines.",
+    "No multilingual effectiveness or verified zero-shot evaluation.",
+    "No production SLA, failure-domain, cost-of-operations, or current-version Milvus validation.",
+    "No document-level upstream redistribution-rights clearance; publication gate remains closed.",
+    "The fixed pilot covers 204 queries and 15,000 passages in two English tracks, below the longer-term 3-5-domain target.",
+    "The planned 120-query manual audit has not been represented as completed evidence."
+  ],
+  "schema_version": "learned-sparse-phase-one-summary-v1",
+  "slices": {
+    "economics": [
+      {
+        "bins": [
+          {
+            "empty": false,
+            "inference": "paired_ci_allowed",
+            "label": "<=64",
+            "n": 15,
+            "small_sample": false
+          },
+          {
+            "empty": false,
+            "inference": "paired_ci_allowed",
+            "label": "65-128",
+            "n": 46,
+            "small_sample": false
+          },
+          {
+            "empty": false,
+            "inference": "paired_ci_allowed",
+            "label": ">128",
+            "n": 42,
+            "small_sample": false
+          }
+        ],
+        "dimension": "query_length"
+      },
+      {
+        "bins": [
+          {
+            "empty": true,
+            "inference": "point_estimates_only_no_win_claim",
+            "label": "0",
+            "n": 0,
+            "small_sample": false
+          },
+          {
+            "empty": false,
+            "inference": "paired_ci_allowed",
+            "label": "(0,0.25]",
+            "n": 31,
+            "small_sample": false
+          },
+          {
+            "empty": false,
+            "inference": "paired_ci_allowed",
+            "label": "(0.25,0.50]",
+            "n": 64,
+            "small_sample": false
+          },
+          {
+            "empty": false,
+            "inference": "point_estimates_only_no_win_claim",
+            "label": ">0.50",
+            "n": 8,
+            "small_sample": true
+          }
+        ],
+        "dimension": "positive_lexical_overlap"
+      },
+      {
+        "bins": [
+          {
+            "empty": false,
+            "inference": "paired_ci_allowed",
+            "label": "<=128",
+            "n": 18,
+            "small_sample": false
+          },
+          {
+            "empty": false,
+            "inference": "paired_ci_allowed",
+            "label": "129-512",
+            "n": 69,
+            "small_sample": false
+          },
+          {
+            "empty": false,
+            "inference": "paired_ci_allowed",
+            "label": ">512",
+            "n": 16,
+            "small_sample": false
+          }
+        ],
+        "dimension": "positive_document_length"
+      },
+      {
+        "bins": [
+          {
+            "empty": false,
+            "inference": "paired_ci_allowed",
+            "label": "1",
+            "n": 35,
+            "small_sample": false
+          },
+          {
+            "empty": false,
+            "inference": "paired_ci_allowed",
+            "label": "2-4",
+            "n": 30,
+            "small_sample": false
+          },
+          {
+            "empty": false,
+            "inference": "paired_ci_allowed",
+            "label": ">=5",
+            "n": 38,
+            "small_sample": false
+          }
+        ],
+        "dimension": "positive_qrel_density"
+      }
+    ],
+    "psychology": [
+      {
+        "bins": [
+          {
+            "empty": false,
+            "inference": "paired_ci_allowed",
+            "label": "<=64",
+            "n": 17,
+            "small_sample": false
+          },
+          {
+            "empty": false,
+            "inference": "paired_ci_allowed",
+            "label": "65-128",
+            "n": 48,
+            "small_sample": false
+          },
+          {
+            "empty": false,
+            "inference": "paired_ci_allowed",
+            "label": ">128",
+            "n": 36,
+            "small_sample": false
+          }
+        ],
+        "dimension": "query_length"
+      },
+      {
+        "bins": [
+          {
+            "empty": true,
+            "inference": "point_estimates_only_no_win_claim",
+            "label": "0",
+            "n": 0,
+            "small_sample": false
+          },
+          {
+            "empty": false,
+            "inference": "paired_ci_allowed",
+            "label": "(0,0.25]",
+            "n": 30,
+            "small_sample": false
+          },
+          {
+            "empty": false,
+            "inference": "paired_ci_allowed",
+            "label": "(0.25,0.50]",
+            "n": 60,
+            "small_sample": false
+          },
+          {
+            "empty": false,
+            "inference": "paired_ci_allowed",
+            "label": ">0.50",
+            "n": 11,
+            "small_sample": false
+          }
+        ],
+        "dimension": "positive_lexical_overlap"
+      },
+      {
+        "bins": [
+          {
+            "empty": false,
+            "inference": "paired_ci_allowed",
+            "label": "<=128",
+            "n": 16,
+            "small_sample": false
+          },
+          {
+            "empty": false,
+            "inference": "paired_ci_allowed",
+            "label": "129-512",
+            "n": 66,
+            "small_sample": false
+          },
+          {
+            "empty": false,
+            "inference": "paired_ci_allowed",
+            "label": ">512",
+            "n": 19,
+            "small_sample": false
+          }
+        ],
+        "dimension": "positive_document_length"
+      },
+      {
+        "bins": [
+          {
+            "empty": false,
+            "inference": "paired_ci_allowed",
+            "label": "1",
+            "n": 35,
+            "small_sample": false
+          },
+          {
+            "empty": false,
+            "inference": "paired_ci_allowed",
+            "label": "2-4",
+            "n": 32,
+            "small_sample": false
+          },
+          {
+            "empty": false,
+            "inference": "paired_ci_allowed",
+            "label": ">=5",
+            "n": 34,
+            "small_sample": false
+          }
+        ],
+        "dimension": "positive_qrel_density"
+      }
+    ]
+  },
+  "story_id": "S-20260814-011",
+  "system": {
+    "boundaries": [
+      "Native results cover three predeclared model profiles on economics and psychology; they do not cover all seven models.",
+      "The 100k and 1M workloads are deterministic system-only expansions and cannot support model-quality claims.",
+      "Cold means collection release and reload; host page caches were not dropped.",
+      "The result is specific to the pinned Milvus 3.0.0 build, vector index version 10, hardware allocation, and tested matrix.",
+      "A pass status means evidence and execution checks passed, not that an algorithm or model was good."
+    ],
+    "correctness": {
+      "all_tiers_minimum_strict_recall": 0.2,
+      "native_fp16_aware_maximum_score_delta": 1.52587890625e-05,
+      "native_fp16_aware_tie_recall": 1.0,
+      "native_minimum_strict_recall": 0.9,
+      "native_persisted_fp16_minimum_strict_recall": 0.9,
+      "system_only_near_tie_is_quality_evidence": false
+    },
+    "coverage": {
+      "concurrency": [
+        1,
+        4,
+        16
+      ],
+      "measured_trials": 3,
+      "native_cells": 18,
+      "raw_trial_files_recomputed": 1296,
+      "system_100k_cells": 9,
+      "system_1m_cells": 9,
+      "top_k": [
+        10,
+        100
+      ],
+      "warmup_files_validated": 432,
+      "warmup_passes": 2
+    },
+    "deployment": {
+      "pymilvus_version": "3.0.1",
+      "runtime_root_mode": "0711",
+      "server_cpuset": "48-63",
+      "server_image": "milvusdb/milvus@sha256:804b50bc1523a64e3c0f18cf33af7e0f8b33329584698ffee61c606d6fe8ee26",
+      "server_memory_bytes": 51539607552,
+      "server_pids_limit": 4096,
+      "server_version": "3.0.0",
+      "target_vector_index_version": 10
+    },
+    "persisted_index": {
+      "pairs": 12,
+      "sindi_larger_pairs": 12,
+      "sindi_over_daat_ratio_max": 1.232598122143686,
+      "sindi_over_daat_ratio_min": 1.0999350483699675
+    },
+    "qps": {
+      "crosses_one": true,
+      "sindi_over_daat_max": 8.214810477118926,
+      "sindi_over_daat_median": 1.0039278072919964,
+      "sindi_over_daat_min": 0.9675978332611602,
+      "strata": [
+        {
+          "maximum_sindi_over_daat": 1.0356735406361246,
+          "median_daat_warm_over_cold": 1.0783265494077,
+          "median_sindi_over_daat": 1.0010191128208024,
+          "median_sindi_warm_over_cold": 1.0903404180272678,
+          "minimum_sindi_over_daat": 0.9718048857248364,
+          "name": "native"
+        },
+        {
+          "maximum_sindi_over_daat": 2.6002370674708493,
+          "median_daat_warm_over_cold": 1.0870353145194915,
+          "median_sindi_over_daat": 1.0076737273801921,
+          "median_sindi_warm_over_cold": 1.0916596598184118,
+          "minimum_sindi_over_daat": 0.9675978332611602,
+          "name": "system_100k"
+        },
+        {
+          "maximum_sindi_over_daat": 8.214810477118926,
+          "median_daat_warm_over_cold": 1.0406499815068904,
+          "median_sindi_over_daat": 2.2322946262395664,
+          "median_sindi_warm_over_cold": 1.0924755724244106,
+          "minimum_sindi_over_daat": 0.9814819550163804,
+          "name": "system_1m"
+        }
+      ]
+    }
+  }
+}

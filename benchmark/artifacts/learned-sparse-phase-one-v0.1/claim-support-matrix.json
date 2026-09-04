@@ -1,0 +1,186 @@
+{
+  "claims": [
+    {
+      "claim": "The fixed research pilot contains 204 queries, 15,000 passages, and 1,492 grade-1 qrels across independent economics and psychology tracks.",
+      "claim_id": "C-DATA",
+      "evidence_refs": [
+        "s005-summary"
+      ],
+      "scope_or_reason": "Fixed v0.2 pilot only",
+      "support": "supported"
+    },
+    {
+      "claim": "Seven learned-sparse models have per-track results for five quality metrics on the shared pilot.",
+      "claim_id": "C-QUALITY",
+      "evidence_refs": [
+        "s008-summary"
+      ],
+      "scope_or_reason": "Same-paradigm, two-track comparison",
+      "support": "supported"
+    },
+    {
+      "claim": "Pairwise statements require query-aligned 10,000-sample intervals that exclude zero; intervals crossing zero remain uncertain.",
+      "claim_id": "C-UNCERTAINTY",
+      "evidence_refs": [
+        "s008-pairwise"
+      ],
+      "scope_or_reason": "Per track and metric only",
+      "support": "supported"
+    },
+    {
+      "claim": "Four predeclared slice dimensions and 13 bins per track are available; bins with n<10 are descriptive only.",
+      "claim_id": "C-SLICES",
+      "evidence_refs": [
+        "s008-slices",
+        "s008-predeclaration"
+      ],
+      "scope_or_reason": "No post-hoc semantic categories",
+      "support": "supported"
+    },
+    {
+      "claim": "The tracked package contains 24 opaque disagreement/failure cases without canonical identifiers or source text.",
+      "claim_id": "C-CASES",
+      "evidence_refs": [
+        "s008-cases"
+      ],
+      "scope_or_reason": "Mechanism-level triage only",
+      "support": "supported"
+    },
+    {
+      "claim": "The portfolio covers neural/neural and static-query/document-expansion routes with distinct sparsity and encoding profiles.",
+      "claim_id": "C-ROUTING",
+      "evidence_refs": [
+        "s008-resources",
+        "s006-inventory"
+      ],
+      "scope_or_reason": "Measured at the frozen revisions and protocol",
+      "support": "supported"
+    },
+    {
+      "claim": "Snapshot, nnz, encoding throughput, CSR bytes, exact-search time, VRAM, and encoding-observed RSS can inform bounded maintenance choices.",
+      "claim_id": "C-RESOURCES",
+      "evidence_refs": [
+        "s008-resources"
+      ],
+      "scope_or_reason": "RSS is not a whole-cell peak; no production SLA",
+      "support": "supported"
+    },
+    {
+      "claim": "SciPy CSR exact sparse inner product is the quality ground truth for the fixed pilot.",
+      "claim_id": "C-EXACT",
+      "evidence_refs": [
+        "s006-manifest",
+        "s008-manifest",
+        "s010-source-attestation"
+      ],
+      "scope_or_reason": "Small native corpus and CPU implementation",
+      "support": "supported"
+    },
+    {
+      "claim": "On the pinned Milvus 3.0.0 matrix, SINDI and DAAT_MAXSCORE exhibit workload/configuration-dependent QPS crossovers.",
+      "claim_id": "C-SYSTEM",
+      "evidence_refs": [
+        "s010-summary"
+      ],
+      "scope_or_reason": "Pinned build, hardware, and matrix only",
+      "support": "supported"
+    },
+    {
+      "claim": "SINDI serialized indexes are larger in all 12 paired accepted system cells.",
+      "claim_id": "C-INDEX-BYTES",
+      "evidence_refs": [
+        "s010-summary"
+      ],
+      "scope_or_reason": "Serialized index bytes, not total cost",
+      "support": "supported"
+    },
+    {
+      "claim": "SPLADE-Tiny remains local research-only because standalone license evidence is incomplete; the dataset publication gate is closed.",
+      "claim_id": "C-LICENSE",
+      "evidence_refs": [
+        "s008-resources",
+        "s005-summary"
+      ],
+      "scope_or_reason": "No weight or dataset redistribution authorization",
+      "support": "supported"
+    },
+    {
+      "claim": "BM25 and BGE-M3 long-dense results provide contextual anchors on the same raw pilot, candidates, qrels, and metrics.",
+      "claim_id": "C-ANCHORS",
+      "evidence_refs": [
+        "s005-summary",
+        "s006-manifest",
+        "s008-manifest"
+      ],
+      "scope_or_reason": "Not the complete S-009 cross-paradigm comparison; dense uses a different token cap",
+      "support": "limited_anchor"
+    },
+    {
+      "claim": "The measured results establish multilingual effectiveness or verified zero-shot behavior.",
+      "claim_id": "C-MULTILINGUAL-GAP",
+      "evidence_refs": [
+        "s008-summary"
+      ],
+      "scope_or_reason": "Both tracks are English and training overlap is unknown",
+      "support": "unsupported"
+    },
+    {
+      "claim": "One model is the universal learned-sparse winner.",
+      "claim_id": "C-UNIVERSAL-MODEL",
+      "evidence_refs": [
+        "s008-summary",
+        "s008-pairwise"
+      ],
+      "scope_or_reason": "Track/metric orders differ and many intervals cross zero",
+      "support": "unsupported"
+    },
+    {
+      "claim": "SINDI is universally faster or smaller than DAAT_MAXSCORE.",
+      "claim_id": "C-UNIVERSAL-SINDI",
+      "evidence_refs": [
+        "s010-summary"
+      ],
+      "scope_or_reason": "QPS ratios cross one and every measured SINDI index is larger",
+      "support": "unsupported"
+    },
+    {
+      "claim": "The 100k/1M generated workloads demonstrate model-quality gains.",
+      "claim_id": "C-SYSTEM-QUALITY",
+      "evidence_refs": [
+        "s010-summary"
+      ],
+      "scope_or_reason": "System-only near-tie workloads are quality-ineligible",
+      "support": "unsupported"
+    },
+    {
+      "claim": "The phase-one results establish a production SLA or deployment recommendation valid across systems.",
+      "claim_id": "C-PRODUCTION",
+      "evidence_refs": [
+        "s010-summary"
+      ],
+      "scope_or_reason": "No production environment or SLA study",
+      "support": "unsupported"
+    },
+    {
+      "claim": "A cross-track micro-average or total ordering is valid.",
+      "claim_id": "C-CROSS-TRACK",
+      "evidence_refs": [
+        "s008-summary"
+      ],
+      "scope_or_reason": "Independent candidate pools and explicit no-aggregation policy",
+      "support": "unsupported"
+    }
+  ],
+  "phase_id": "learned-sparse-phase-one-v0.1",
+  "publication": {
+    "classification": "research_only",
+    "contains_canonical_ids": false,
+    "contains_private_paths": false,
+    "contains_raw_rankings": false,
+    "contains_source_text": false,
+    "gate": "closed",
+    "leaderboard_publish": false,
+    "public_export_allowed": false
+  },
+  "schema_version": "learned-sparse-claim-support-v1"
+}

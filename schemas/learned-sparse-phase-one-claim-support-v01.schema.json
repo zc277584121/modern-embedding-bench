@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://modern-embedding-bench.local/schemas/learned-sparse-phase-one-claim-support-v01.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "phase_id", "publication", "claims"],
+  "properties": {
+    "schema_version": {"const": "learned-sparse-claim-support-v1"},
+    "phase_id": {"const": "learned-sparse-phase-one-v0.1"},
+    "publication": {"$ref": "#/$defs/publication"},
+    "claims": {
+      "type": "array",
+      "minItems": 18,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["claim_id", "support", "claim", "evidence_refs", "scope_or_reason"],
+        "properties": {
+          "claim_id": {"type": "string", "pattern": "^C-[A-Z0-9-]+$"},
+          "support": {"enum": ["supported", "limited_anchor", "unsupported"]},
+          "claim": {"type": "string", "minLength": 20},
+          "evidence_refs": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          "scope_or_reason": {"type": "string", "minLength": 10}
+        }
+      }
+    }
+  },
+  "$defs": {
+    "publication": {
+      "type": "object",
+      "required": ["classification", "gate", "public_export_allowed", "leaderboard_publish", "contains_source_text", "contains_canonical_ids", "contains_raw_rankings", "contains_private_paths"],
+      "properties": {
+        "classification": {"const": "research_only"},
+        "gate": {"const": "closed"},
+        "public_export_allowed": {"const": false},
+        "leaderboard_publish": {"const": false},
+        "contains_source_text": {"const": false},
+        "contains_canonical_ids": {"const": false},
+        "contains_raw_rankings": {"const": false},
+        "contains_private_paths": {"const": false}
+      },
+      "additionalProperties": false
+    }
+  }
+}
