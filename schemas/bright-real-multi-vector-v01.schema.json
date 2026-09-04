@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://modern-embedding-bench.local/schemas/bright-real-multi-vector-v01.schema.json",
+  "title": "BRIGHT real multi-vector evidence artifact",
+  "type": "object",
+  "required": ["schema_version"],
+  "properties": {
+    "schema_version": {
+      "enum": [
+        "bright-real-multi-vector-inventory-v1",
+        "bright-real-multi-vector-predeclaration-v1",
+        "bright-real-multi-vector-predeclaration-v2",
+        "bright-real-multi-vector-chronology-v1",
+        "bright-real-multi-vector-gate-summary-v1",
+        "bright-real-multi-vector-summary-v1",
+        "bright-real-multi-vector-pairwise-v1",
+        "bright-real-multi-vector-slices-v1",
+        "bright-real-multi-vector-cases-v1",
+        "bright-real-multi-vector-resources-v1",
+        "bright-real-multi-vector-candidate-v1",
+        "bright-real-multi-vector-validator-candidate-v1"
+      ]
+    },
+    "publication": {
+      "type": "object",
+      "required": ["classification", "gate", "publish", "leaderboard_publish", "public_export_allowed"],
+      "properties": {
+        "classification": {"const": "research_only"},
+        "gate": {"const": "closed"},
+        "publish": {"const": false},
+        "leaderboard_publish": {"const": false},
+        "public_export_allowed": {"const": false}
+      },
+      "additionalProperties": true
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"schema_version": {"const": "bright-real-multi-vector-inventory-v1"}}},
+      "then": {"required": ["selected_keys", "policy", "models"]}
+    },
+    {
+      "if": {"properties": {"schema_version": {"const": "bright-real-multi-vector-predeclaration-v1"}}},
+      "then": {"required": ["story_id", "formal_scores_observed", "models", "protocol", "uncertainty", "slices", "publication"]}
+    },
+    {
+      "if": {"properties": {"schema_version": {"const": "bright-real-multi-vector-predeclaration-v2"}}},
+      "then": {"required": ["story_id", "formal_scores_observed", "chronology", "models", "protocol", "uncertainty", "slices", "publication"]}
+    },
+    {
+      "if": {"properties": {"schema_version": {"const": "bright-real-multi-vector-chronology-v1"}}},
+      "then": {"required": ["story_id", "status", "reissued_at", "original_pre_score_artifact", "first_gate", "correction", "publication"]}
+    },
+    {
+      "if": {"properties": {"schema_version": {"const": "bright-real-multi-vector-gate-summary-v1"}}},
+      "then": {"required": ["story_id", "predeclaration_sha256", "models", "formal_scoring_authorized", "publication"]}
+    },
+    {
+      "if": {"properties": {"schema_version": {"const": "bright-real-multi-vector-summary-v1"}}},
+      "then": {"required": ["package_version", "story_id", "tracks", "publication"]}
+    },
+    {
+      "if": {"properties": {"schema_version": {"const": "bright-real-multi-vector-pairwise-v1"}}},
+      "then": {"required": ["package_version", "method", "tracks", "publication"]}
+    },
+    {
+      "if": {"properties": {"schema_version": {"const": "bright-real-multi-vector-slices-v1"}}},
+      "then": {"required": ["package_version", "active_predeclaration_sha256", "small_slice_policy", "tracks", "publication"]}
+    },
+    {
+      "if": {"properties": {"schema_version": {"const": "bright-real-multi-vector-cases-v1"}}},
+      "then": {"required": ["package_version", "counts", "local_mapping_sha256", "cases", "publication"]}
+    },
+    {
+      "if": {"properties": {"schema_version": {"const": "bright-real-multi-vector-resources-v1"}}},
+      "then": {"required": ["package_version", "download", "models", "boundaries", "publication"]}
+    },
+    {
+      "if": {"properties": {"schema_version": {"const": "bright-real-multi-vector-candidate-v1"}}},
+      "then": {"required": ["package_version", "story_id", "status", "bindings", "tracked_files", "privacy_scan", "validator", "publication"]}
+    },
+    {
+      "if": {"properties": {"schema_version": {"const": "bright-real-multi-vector-validator-candidate-v1"}}},
+      "then": {"required": ["story_id", "status", "candidate_file_count", "candidate_set_sha256", "files", "publication"]}
+    }
+  ],
+  "additionalProperties": true
+}

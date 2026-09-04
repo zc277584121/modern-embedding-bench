@@ -1,0 +1,235 @@
+{
+  "cases": [
+    {
+      "category": "disagreement",
+      "local_evidence_sha256": "4384716980033abd4ae3934eb564dc52b1480b51a375a1d63553f2166b182ae2",
+      "mechanism_summary": "Frozen late-interaction checkpoints materially disagree on positive placement.",
+      "opaque_case_id": "economics-disagreement-01",
+      "restricted_content_included": false,
+      "selection_rule": "frozen_score_only_with_query_id_hash_tie_break",
+      "track": "economics"
+    },
+    {
+      "category": "disagreement",
+      "local_evidence_sha256": "5e261130a4463a969670edc82301b8623f2f691bddb763bfb31143a79dbb347f",
+      "mechanism_summary": "Frozen late-interaction checkpoints materially disagree on positive placement.",
+      "opaque_case_id": "economics-disagreement-02",
+      "restricted_content_included": false,
+      "selection_rule": "frozen_score_only_with_query_id_hash_tie_break",
+      "track": "economics"
+    },
+    {
+      "category": "disagreement",
+      "local_evidence_sha256": "4dae8ff36b2a3c7bc9cc2dff97f23c8df80d2bdab47eb4445a95ff7de75559e7",
+      "mechanism_summary": "Frozen late-interaction checkpoints materially disagree on positive placement.",
+      "opaque_case_id": "economics-disagreement-03",
+      "restricted_content_included": false,
+      "selection_rule": "frozen_score_only_with_query_id_hash_tie_break",
+      "track": "economics"
+    },
+    {
+      "category": "disagreement",
+      "local_evidence_sha256": "29b2a0596015ef1be8fadd00fffa7f5b63ed1d99d9c0850b96a40f2f5cc57272",
+      "mechanism_summary": "Frozen late-interaction checkpoints materially disagree on positive placement.",
+      "opaque_case_id": "economics-disagreement-04",
+      "restricted_content_included": false,
+      "selection_rule": "frozen_score_only_with_query_id_hash_tie_break",
+      "track": "economics"
+    },
+    {
+      "category": "disagreement",
+      "local_evidence_sha256": "b5077e8bdd3f8a39e181dd3e1e7dc888fb0b6c7440f9816ca51484ef3878fe06",
+      "mechanism_summary": "Frozen late-interaction checkpoints materially disagree on positive placement.",
+      "opaque_case_id": "economics-disagreement-05",
+      "restricted_content_included": false,
+      "selection_rule": "frozen_score_only_with_query_id_hash_tie_break",
+      "track": "economics"
+    },
+    {
+      "category": "disagreement",
+      "local_evidence_sha256": "fd19f163cc60afa5b3ae48475b25de4cd8139bf7b6934e908b6e27a302e036be",
+      "mechanism_summary": "Frozen late-interaction checkpoints materially disagree on positive placement.",
+      "opaque_case_id": "economics-disagreement-06",
+      "restricted_content_included": false,
+      "selection_rule": "frozen_score_only_with_query_id_hash_tie_break",
+      "track": "economics"
+    },
+    {
+      "category": "failure",
+      "local_evidence_sha256": "641a5855702c16de61233130632a29015dbdee996a3f60bdbbe3d2ae0953314a",
+      "mechanism_summary": "All frozen late-interaction checkpoints have low effectiveness for this query.",
+      "opaque_case_id": "economics-failure-01",
+      "restricted_content_included": false,
+      "selection_rule": "frozen_score_only_with_query_id_hash_tie_break",
+      "track": "economics"
+    },
+    {
+      "category": "failure",
+      "local_evidence_sha256": "433079da73754844ae19d823d6bf1a219cbb50f32b45fdf05f04aeb0f7d7f335",
+      "mechanism_summary": "All frozen late-interaction checkpoints have low effectiveness for this query.",
+      "opaque_case_id": "economics-failure-02",
+      "restricted_content_included": false,
+      "selection_rule": "frozen_score_only_with_query_id_hash_tie_break",
+      "track": "economics"
+    },
+    {
+      "category": "failure",
+      "local_evidence_sha256": "2cb2caad9c837aea2a99e2210afa03bd07162938a66795973262f779fefa0063",
+      "mechanism_summary": "All frozen late-interaction checkpoints have low effectiveness for this query.",
+      "opaque_case_id": "economics-failure-03",
+      "restricted_content_included": false,
+      "selection_rule": "frozen_score_only_with_query_id_hash_tie_break",
+      "track": "economics"
+    },
+    {
+      "category": "failure",
+      "local_evidence_sha256": "f122750cd2af59aafd0564395c0b571896f2b14a065c6d39dfae959b9e065d17",
+      "mechanism_summary": "All frozen late-interaction checkpoints have low effectiveness for this query.",
+      "opaque_case_id": "economics-failure-04",
+      "restricted_content_included": false,
+      "selection_rule": "frozen_score_only_with_query_id_hash_tie_break",
+      "track": "economics"
+    },
+    {
+      "category": "failure",
+      "local_evidence_sha256": "e142acabab56571a984c17d750fc3fe58bc6c03b14ac68003ae175de1b25c1cd",
+      "mechanism_summary": "All frozen late-interaction checkpoints have low effectiveness for this query.",
+      "opaque_case_id": "economics-failure-05",
+      "restricted_content_included": false,
+      "selection_rule": "frozen_score_only_with_query_id_hash_tie_break",
+      "track": "economics"
+    },
+    {
+      "category": "failure",
+      "local_evidence_sha256": "77f153fd798d883035a902be1dd22660585107009662ed03f80fe831aba716d2",
+      "mechanism_summary": "All frozen late-interaction checkpoints have low effectiveness for this query.",
+      "opaque_case_id": "economics-failure-06",
+      "restricted_content_included": false,
+      "selection_rule": "frozen_score_only_with_query_id_hash_tie_break",
+      "track": "economics"
+    },
+    {
+      "category": "disagreement",
+      "local_evidence_sha256": "f87f8f50d24559511261ba4dfc8671f03e54fb52cf418a22cc58bcc71b86c1dd",
+      "mechanism_summary": "Frozen late-interaction checkpoints materially disagree on positive placement.",
+      "opaque_case_id": "psychology-disagreement-01",
+      "restricted_content_included": false,
+      "selection_rule": "frozen_score_only_with_query_id_hash_tie_break",
+      "track": "psychology"
+    },
+    {
+      "category": "disagreement",
+      "local_evidence_sha256": "b8027a4909c5722c08b4c0e9f3d6860c842cb2f67b52904d8e0e30a35f1657a0",
+      "mechanism_summary": "Frozen late-interaction checkpoints materially disagree on positive placement.",
+      "opaque_case_id": "psychology-disagreement-02",
+      "restricted_content_included": false,
+      "selection_rule": "frozen_score_only_with_query_id_hash_tie_break",
+      "track": "psychology"
+    },
+    {
+      "category": "disagreement",
+      "local_evidence_sha256": "edcd19ed2c8da6ea5efd375cb6e92e0789aac8fb88e2d771d0237ee91f77bf57",
+      "mechanism_summary": "Frozen late-interaction checkpoints materially disagree on positive placement.",
+      "opaque_case_id": "psychology-disagreement-03",
+      "restricted_content_included": false,
+      "selection_rule": "frozen_score_only_with_query_id_hash_tie_break",
+      "track": "psychology"
+    },
+    {
+      "category": "disagreement",
+      "local_evidence_sha256": "97ad838834462229e21ee86ad0e4f4b0bb4a40d11e694c36d4386711cc03ed81",
+      "mechanism_summary": "Frozen late-interaction checkpoints materially disagree on positive placement.",
+      "opaque_case_id": "psychology-disagreement-04",
+      "restricted_content_included": false,
+      "selection_rule": "frozen_score_only_with_query_id_hash_tie_break",
+      "track": "psychology"
+    },
+    {
+      "category": "disagreement",
+      "local_evidence_sha256": "64dbbb27f346b6771363573d1075195c63713c0d602b50aae8014032fb444e74",
+      "mechanism_summary": "Frozen late-interaction checkpoints materially disagree on positive placement.",
+      "opaque_case_id": "psychology-disagreement-05",
+      "restricted_content_included": false,
+      "selection_rule": "frozen_score_only_with_query_id_hash_tie_break",
+      "track": "psychology"
+    },
+    {
+      "category": "disagreement",
+      "local_evidence_sha256": "189cfb21cd2e8dc3e3125802b6728eae7d9266ea476da4c8af3febb6b7cbfed6",
+      "mechanism_summary": "Frozen late-interaction checkpoints materially disagree on positive placement.",
+      "opaque_case_id": "psychology-disagreement-06",
+      "restricted_content_included": false,
+      "selection_rule": "frozen_score_only_with_query_id_hash_tie_break",
+      "track": "psychology"
+    },
+    {
+      "category": "failure",
+      "local_evidence_sha256": "35cb30e996c4530414efcd1c476fc206f18379d0bb16c73da6419cc0fcedf5a8",
+      "mechanism_summary": "All frozen late-interaction checkpoints have low effectiveness for this query.",
+      "opaque_case_id": "psychology-failure-01",
+      "restricted_content_included": false,
+      "selection_rule": "frozen_score_only_with_query_id_hash_tie_break",
+      "track": "psychology"
+    },
+    {
+      "category": "failure",
+      "local_evidence_sha256": "4ffbe33cdf3edd13e132d5a25790637618c63ab2cc4423dae13ae2a3ecf390d8",
+      "mechanism_summary": "All frozen late-interaction checkpoints have low effectiveness for this query.",
+      "opaque_case_id": "psychology-failure-02",
+      "restricted_content_included": false,
+      "selection_rule": "frozen_score_only_with_query_id_hash_tie_break",
+      "track": "psychology"
+    },
+    {
+      "category": "failure",
+      "local_evidence_sha256": "40f6e1b77e73aa3b7460acb649fdb37e502b4d278edb66962a0b44eae65dc79d",
+      "mechanism_summary": "All frozen late-interaction checkpoints have low effectiveness for this query.",
+      "opaque_case_id": "psychology-failure-03",
+      "restricted_content_included": false,
+      "selection_rule": "frozen_score_only_with_query_id_hash_tie_break",
+      "track": "psychology"
+    },
+    {
+      "category": "failure",
+      "local_evidence_sha256": "05cfb892e351c6996cc2fa2fea9b337ee0a1f081d10c770307c3747fe1553daf",
+      "mechanism_summary": "All frozen late-interaction checkpoints have low effectiveness for this query.",
+      "opaque_case_id": "psychology-failure-04",
+      "restricted_content_included": false,
+      "selection_rule": "frozen_score_only_with_query_id_hash_tie_break",
+      "track": "psychology"
+    },
+    {
+      "category": "failure",
+      "local_evidence_sha256": "9715f7c107bf3ee323c0fbb54a228509470a11314f7ae974b50e027655b45823",
+      "mechanism_summary": "All frozen late-interaction checkpoints have low effectiveness for this query.",
+      "opaque_case_id": "psychology-failure-05",
+      "restricted_content_included": false,
+      "selection_rule": "frozen_score_only_with_query_id_hash_tie_break",
+      "track": "psychology"
+    },
+    {
+      "category": "failure",
+      "local_evidence_sha256": "fe5c3e09b7a0bf137ca7113ad1fa177482c0ef94a360b6e35cfd598bc710fc6c",
+      "mechanism_summary": "All frozen late-interaction checkpoints have low effectiveness for this query.",
+      "opaque_case_id": "psychology-failure-06",
+      "restricted_content_included": false,
+      "selection_rule": "frozen_score_only_with_query_id_hash_tie_break",
+      "track": "psychology"
+    }
+  ],
+  "counts": {
+    "per_track_disagreement": 6,
+    "per_track_failure": 6,
+    "total": 24
+  },
+  "local_mapping_sha256": "eb9e1057c6e06a1f0fede2be14423fcf2f7c22e0c2fc553613310f11cf3efeca",
+  "package_version": "bright-multi-vector-v0.2",
+  "publication": {
+    "classification": "research_only",
+    "gate": "closed",
+    "leaderboard_publish": false,
+    "public_export_allowed": false,
+    "publish": false
+  },
+  "schema_version": "bright-real-multi-vector-cases-v1"
+}

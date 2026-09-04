@@ -1,0 +1,84 @@
+{
+  "formal_scoring_authorized": true,
+  "models": [
+    {
+      "dimension": 128,
+      "document_token_vectors": [
+        22,
+        16,
+        16,
+        19
+      ],
+      "incremental_download_bytes": 0,
+      "key": "colbert-v2",
+      "license": "mit",
+      "maxsim_max_abs_delta": 0.0,
+      "passed": true,
+      "peak_vram_bytes": 454116352,
+      "positive_margin": 6.560487747192383,
+      "positive_rank": 1,
+      "query_token_vectors": 32,
+      "repo_id": "colbert-ir/colbertv2.0",
+      "revision": "c1e84128e85ef755c096a95bdb06b47793b13acf",
+      "snapshot_bytes": 439060705,
+      "snapshot_identity_sha256": "9c6543efa377c830da013da2d07246a157c5f01f89568ea703272d902ac75210",
+      "wall_seconds": 10.257992519065738
+    },
+    {
+      "dimension": 96,
+      "document_token_vectors": [
+        22,
+        16,
+        16,
+        19
+      ],
+      "incremental_download_bytes": 0,
+      "key": "answerai-colbert-small",
+      "license": "apache-2.0",
+      "maxsim_max_abs_delta": 0.0,
+      "passed": true,
+      "peak_vram_bytes": 144792064,
+      "positive_margin": 0.6858749389648438,
+      "positive_rank": 1,
+      "query_token_vectors": 32,
+      "repo_id": "answerdotai/answerai-colbert-small-v1",
+      "revision": "934fa8bb4ce2284f4c2baa232d81aca4d076fa5e",
+      "snapshot_bytes": 134566215,
+      "snapshot_identity_sha256": "dc7f723cf56098f88a755742503f24b13e1ad406450d75f8990815ff605a3652",
+      "wall_seconds": 8.407498693093657
+    },
+    {
+      "dimension": 128,
+      "document_token_vectors": [
+        20,
+        15,
+        15,
+        15
+      ],
+      "incremental_download_bytes": 0,
+      "key": "gte-modern-colbert",
+      "license": "apache-2.0",
+      "maxsim_max_abs_delta": 0.0,
+      "passed": true,
+      "peak_vram_bytes": 628618752,
+      "positive_margin": 0.34842681884765625,
+      "positive_rank": 1,
+      "query_token_vectors": 17,
+      "repo_id": "lightonai/GTE-ModernColBERT-v1",
+      "revision": "25f6f7bb8237b7ae25ae1d9b805ce17c0d1cc639",
+      "snapshot_bytes": 600463163,
+      "snapshot_identity_sha256": "34ac97a354fa6f209d13c55cbaa0f2d64656e1d64be7ba148bfc9b8bdfcb9ab7",
+      "wall_seconds": 10.861572358757257
+    }
+  ],
+  "predeclaration_sha256": "2ef6bbc245d9f196d71adcd8498575b14ecd650c29242fb9d0eb284704c16f05",
+  "publication": {
+    "classification": "research_only",
+    "gate": "closed",
+    "leaderboard_publish": false,
+    "public_export_allowed": false,
+    "publish": false
+  },
+  "schema_version": "bright-real-multi-vector-gate-summary-v1",
+  "story_id": "S-20260814-012"
+}

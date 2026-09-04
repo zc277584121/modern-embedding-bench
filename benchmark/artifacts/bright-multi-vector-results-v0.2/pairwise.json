@@ -1,0 +1,305 @@
+{
+  "method": {
+    "decisive_rule": "95_percentile_interval_excludes_zero",
+    "name": "query_aligned_paired_percentile_bootstrap_left_minus_right",
+    "samples": 10000,
+    "seed": 20260826
+  },
+  "package_version": "bright-multi-vector-v0.2",
+  "publication": {
+    "classification": "research_only",
+    "gate": "closed",
+    "leaderboard_publish": false,
+    "public_export_allowed": false,
+    "publish": false
+  },
+  "schema_version": "bright-real-multi-vector-pairwise-v1",
+  "tracks": {
+    "economics": [
+      {
+        "left": "colbert-v2",
+        "metrics": {
+          "map@100": {
+            "high": -0.025149657383152158,
+            "low": -0.09711678512580486,
+            "mean": -0.059683122669608894,
+            "samples": 10000,
+            "seed": 20260826,
+            "verdict": "right_wins"
+          },
+          "mrr@10": {
+            "high": -0.013752022653721704,
+            "low": -0.12063309061488674,
+            "mean": -0.06553398058252428,
+            "samples": 10000,
+            "seed": 20260826,
+            "verdict": "right_wins"
+          },
+          "ndcg@10": {
+            "high": -0.01813634437162454,
+            "low": -0.08711720239266685,
+            "mean": -0.05159442657463643,
+            "samples": 10000,
+            "seed": 20260826,
+            "verdict": "right_wins"
+          },
+          "recall@10": {
+            "high": -0.0056604007018758555,
+            "low": -0.06241146683942694,
+            "mean": -0.03333741900804593,
+            "samples": 10000,
+            "seed": 20260826,
+            "verdict": "right_wins"
+          },
+          "recall@100": {
+            "high": -0.050938025160895704,
+            "low": -0.1589613782306565,
+            "mean": -0.10197162665232562,
+            "samples": 10000,
+            "seed": 20260826,
+            "verdict": "right_wins"
+          }
+        },
+        "n": 103,
+        "right": "answerai-colbert-small"
+      },
+      {
+        "left": "colbert-v2",
+        "metrics": {
+          "map@100": {
+            "high": -0.01471733381108778,
+            "low": -0.08509469208035692,
+            "mean": -0.05014659310643943,
+            "samples": 10000,
+            "seed": 20260826,
+            "verdict": "right_wins"
+          },
+          "mrr@10": {
+            "high": -0.010231930960086314,
+            "low": -0.09447988904299585,
+            "mean": -0.052396363075974714,
+            "samples": 10000,
+            "seed": 20260826,
+            "verdict": "right_wins"
+          },
+          "ndcg@10": {
+            "high": -0.011724963146262294,
+            "low": -0.0869814412475847,
+            "mean": -0.04962280097758392,
+            "samples": 10000,
+            "seed": 20260826,
+            "verdict": "right_wins"
+          },
+          "recall@10": {
+            "high": -0.0017209249807114907,
+            "low": -0.10859740905787983,
+            "mean": -0.054986301445500305,
+            "samples": 10000,
+            "seed": 20260826,
+            "verdict": "right_wins"
+          },
+          "recall@100": {
+            "high": -0.10810432302008545,
+            "low": -0.22660324896617134,
+            "mean": -0.16336334912624106,
+            "samples": 10000,
+            "seed": 20260826,
+            "verdict": "right_wins"
+          }
+        },
+        "n": 103,
+        "right": "gte-modern-colbert"
+      },
+      {
+        "left": "answerai-colbert-small",
+        "metrics": {
+          "map@100": {
+            "high": 0.04774622819361395,
+            "low": -0.025663995738402487,
+            "mean": 0.00953652956316946,
+            "samples": 10000,
+            "seed": 20260826,
+            "verdict": "tie_or_uncertain"
+          },
+          "mrr@10": {
+            "high": 0.06391662813992911,
+            "low": -0.034870068577592846,
+            "mean": 0.013137617506549546,
+            "samples": 10000,
+            "seed": 20260826,
+            "verdict": "tie_or_uncertain"
+          },
+          "ndcg@10": {
+            "high": 0.03864700887486784,
+            "low": -0.0315622993785175,
+            "mean": 0.0019716255970524924,
+            "samples": 10000,
+            "seed": 20260826,
+            "verdict": "tie_or_uncertain"
+          },
+          "recall@10": {
+            "high": 0.025203259262988283,
+            "low": -0.06948817009577402,
+            "mean": -0.02164888243745438,
+            "samples": 10000,
+            "seed": 20260826,
+            "verdict": "tie_or_uncertain"
+          },
+          "recall@100": {
+            "high": -0.02546636379697612,
+            "low": -0.10079060688876819,
+            "mean": -0.06139172247391548,
+            "samples": 10000,
+            "seed": 20260826,
+            "verdict": "right_wins"
+          }
+        },
+        "n": 103,
+        "right": "gte-modern-colbert"
+      }
+    ],
+    "psychology": [
+      {
+        "left": "colbert-v2",
+        "metrics": {
+          "map@100": {
+            "high": -0.003722725101102956,
+            "low": -0.08740646557080552,
+            "mean": -0.045912444326766784,
+            "samples": 10000,
+            "seed": 20260826,
+            "verdict": "right_wins"
+          },
+          "mrr@10": {
+            "high": 0.03160203520352033,
+            "low": -0.0859346023888103,
+            "mean": -0.026995913877102002,
+            "samples": 10000,
+            "seed": 20260826,
+            "verdict": "tie_or_uncertain"
+          },
+          "ndcg@10": {
+            "high": 0.011220503318911487,
+            "low": -0.07568644123347115,
+            "mean": -0.032941243521046146,
+            "samples": 10000,
+            "seed": 20260826,
+            "verdict": "tie_or_uncertain"
+          },
+          "recall@10": {
+            "high": 0.02764536121517775,
+            "low": -0.07596471254268282,
+            "mean": -0.023798330256346936,
+            "samples": 10000,
+            "seed": 20260826,
+            "verdict": "tie_or_uncertain"
+          },
+          "recall@100": {
+            "high": -0.03757708649016162,
+            "low": -0.14138518734767927,
+            "mean": -0.0872631333433528,
+            "samples": 10000,
+            "seed": 20260826,
+            "verdict": "right_wins"
+          }
+        },
+        "n": 101,
+        "right": "answerai-colbert-small"
+      },
+      {
+        "left": "colbert-v2",
+        "metrics": {
+          "map@100": {
+            "high": -0.027815762668749446,
+            "low": -0.11432822905942411,
+            "mean": -0.07014283838410036,
+            "samples": 10000,
+            "seed": 20260826,
+            "verdict": "right_wins"
+          },
+          "mrr@10": {
+            "high": -0.011530626276913418,
+            "low": -0.13778543925821155,
+            "mean": -0.07345984598459848,
+            "samples": 10000,
+            "seed": 20260826,
+            "verdict": "right_wins"
+          },
+          "ndcg@10": {
+            "high": -0.028357779584689883,
+            "low": -0.12263082146269177,
+            "mean": -0.07493654039175937,
+            "samples": 10000,
+            "seed": 20260826,
+            "verdict": "right_wins"
+          },
+          "recall@10": {
+            "high": -0.01997462997819904,
+            "low": -0.1336037925059474,
+            "mean": -0.07473737356971016,
+            "samples": 10000,
+            "seed": 20260826,
+            "verdict": "right_wins"
+          },
+          "recall@100": {
+            "high": -0.02139738779031031,
+            "low": -0.13773904848553103,
+            "mean": -0.07913956517096753,
+            "samples": 10000,
+            "seed": 20260826,
+            "verdict": "right_wins"
+          }
+        },
+        "n": 101,
+        "right": "gte-modern-colbert"
+      },
+      {
+        "left": "answerai-colbert-small",
+        "metrics": {
+          "map@100": {
+            "high": 0.01054726664575846,
+            "low": -0.06035812243183342,
+            "mean": -0.024230394057333616,
+            "samples": 10000,
+            "seed": 20260826,
+            "verdict": "tie_or_uncertain"
+          },
+          "mrr@10": {
+            "high": 0.009135431400282877,
+            "low": -0.10589914348577716,
+            "mean": -0.046463932107496456,
+            "samples": 10000,
+            "seed": 20260826,
+            "verdict": "tie_or_uncertain"
+          },
+          "ndcg@10": {
+            "high": 0.00012523408949477528,
+            "low": -0.08664558864519363,
+            "mean": -0.04199529687071324,
+            "samples": 10000,
+            "seed": 20260826,
+            "verdict": "tie_or_uncertain"
+          },
+          "recall@10": {
+            "high": 0.011852262970199458,
+            "low": -0.11487715350239674,
+            "mean": -0.05093904331336324,
+            "samples": 10000,
+            "seed": 20260826,
+            "verdict": "tie_or_uncertain"
+          },
+          "recall@100": {
+            "high": 0.05516500266332047,
+            "low": -0.038341970752440446,
+            "mean": 0.008123568172385298,
+            "samples": 10000,
+            "seed": 20260826,
+            "verdict": "tie_or_uncertain"
+          }
+        },
+        "n": 101,
+        "right": "gte-modern-colbert"
+      }
+    ]
+  }
+}

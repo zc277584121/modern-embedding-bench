@@ -45,6 +45,9 @@ local = [
     "torchvision>=0.25.0",
     "einops>=0.8.2",
 ]
+multi-vector = [
+    "sentence-transformers>=6.0.0,<7",
+]
 qwen-vl = ["qwen-vl-utils>=0.0.14"]
 milvus-sindi = ["pymilvus==3.0.1"]
 all = [

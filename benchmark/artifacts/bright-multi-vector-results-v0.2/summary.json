@@ -1,0 +1,375 @@
+{
+  "package_version": "bright-multi-vector-v0.2",
+  "publication": {
+    "classification": "research_only",
+    "gate": "closed",
+    "leaderboard_publish": false,
+    "public_export_allowed": false,
+    "publish": false
+  },
+  "schema_version": "bright-real-multi-vector-summary-v1",
+  "story_id": "S-20260814-012",
+  "track_aggregation": "independent_no_cross_track_micro_average_or_overall_rank",
+  "tracks": {
+    "economics": {
+      "metric_orders": {
+        "map@100": [
+          "answerai-colbert-small",
+          "gte-modern-colbert",
+          "colbert-v2"
+        ],
+        "mrr@10": [
+          "answerai-colbert-small",
+          "gte-modern-colbert",
+          "colbert-v2"
+        ],
+        "ndcg@10": [
+          "answerai-colbert-small",
+          "gte-modern-colbert",
+          "colbert-v2"
+        ],
+        "recall@10": [
+          "gte-modern-colbert",
+          "answerai-colbert-small",
+          "colbert-v2"
+        ],
+        "recall@100": [
+          "gte-modern-colbert",
+          "answerai-colbert-small",
+          "colbert-v2"
+        ]
+      },
+      "primary_order": [
+        "answerai-colbert-small",
+        "gte-modern-colbert",
+        "colbert-v2"
+      ],
+      "rows": [
+        {
+          "confidence_intervals": {
+            "map@100": {
+              "high": 0.25437411417552386,
+              "low": 0.14443144096002786,
+              "mean": 0.19670922836842109,
+              "samples": 10000,
+              "seed": 20260826
+            },
+            "mrr@10": {
+              "high": 0.37071399676375405,
+              "low": 0.22200444983818768,
+              "mean": 0.2941747572815534,
+              "samples": 10000,
+              "seed": 20260826
+            },
+            "ndcg@10": {
+              "high": 0.3168903274396904,
+              "low": 0.18946864153196502,
+              "mean": 0.2510821811608304,
+              "samples": 10000,
+              "seed": 20260826
+            },
+            "recall@10": {
+              "high": 0.33942054074649436,
+              "low": 0.19907360697270546,
+              "mean": 0.2669986345713325,
+              "samples": 10000,
+              "seed": 20260826
+            },
+            "recall@100": {
+              "high": 0.6007201739438833,
+              "low": 0.4406600024413529,
+              "mean": 0.5229221846638243,
+              "samples": 10000,
+              "seed": 20260826
+            }
+          },
+          "formal_cell_sha256": "8067efa1401c45387b12f0148a5c60d39cc75ba4118f61900f14b26c2758f0ec",
+          "metrics": {
+            "map@100": 0.19670922836842109,
+            "mrr@10": 0.2941747572815534,
+            "ndcg@10": 0.2510821811608304,
+            "recall@10": 0.2669986345713325,
+            "recall@100": 0.5229221846638243
+          },
+          "model_key": "colbert-v2"
+        },
+        {
+          "confidence_intervals": {
+            "map@100": {
+              "high": 0.3210971080452933,
+              "low": 0.19562128619762392,
+              "mean": 0.2563923510380299,
+              "samples": 10000,
+              "seed": 20260826
+            },
+            "mrr@10": {
+              "high": 0.44377224919093855,
+              "low": 0.27823624595469254,
+              "mean": 0.35970873786407764,
+              "samples": 10000,
+              "seed": 20260826
+            },
+            "ndcg@10": {
+              "high": 0.3750614318489038,
+              "low": 0.23395100624292678,
+              "mean": 0.3026766077354669,
+              "samples": 10000,
+              "seed": 20260826
+            },
+            "recall@10": {
+              "high": 0.37554664172131214,
+              "low": 0.2287024184561845,
+              "mean": 0.3003360535793784,
+              "samples": 10000,
+              "seed": 20260826
+            },
+            "recall@100": {
+              "high": 0.6972592431411526,
+              "low": 0.5489548650691793,
+              "mean": 0.62489381131615,
+              "samples": 10000,
+              "seed": 20260826
+            }
+          },
+          "formal_cell_sha256": "feb065838630077e63ca00df29156afdb162c35a43dcf2049143cc344a68462e",
+          "metrics": {
+            "map@100": 0.25639235103803,
+            "mrr@10": 0.35970873786407764,
+            "ndcg@10": 0.30267660773546684,
+            "recall@10": 0.3003360535793784,
+            "recall@100": 0.62489381131615
+          },
+          "model_key": "answerai-colbert-small"
+        },
+        {
+          "confidence_intervals": {
+            "map@100": {
+              "high": 0.3078826134640916,
+              "low": 0.18975840394624618,
+              "mean": 0.24685582147486057,
+              "samples": 10000,
+              "seed": 20260826
+            },
+            "mrr@10": {
+              "high": 0.42761615811373094,
+              "low": 0.26913025889967634,
+              "mean": 0.34657112035752813,
+              "samples": 10000,
+              "seed": 20260826
+            },
+            "ndcg@10": {
+              "high": 0.37101420572667226,
+              "low": 0.23338939713547008,
+              "mean": 0.30070498213841435,
+              "samples": 10000,
+              "seed": 20260826
+            },
+            "recall@10": {
+              "high": 0.3988278288261568,
+              "low": 0.2490181845705209,
+              "mean": 0.3219849360168328,
+              "samples": 10000,
+              "seed": 20260826
+            },
+            "recall@100": {
+              "high": 0.7572749042749106,
+              "low": 0.6119081230478909,
+              "mean": 0.6862855337900653,
+              "samples": 10000,
+              "seed": 20260826
+            }
+          },
+          "formal_cell_sha256": "fdbfe070e83a3141ce29dcdadb790bc339b611a9e013fca99ceace6229f373ef",
+          "metrics": {
+            "map@100": 0.24685582147486054,
+            "mrr@10": 0.34657112035752813,
+            "ndcg@10": 0.3007049821384144,
+            "recall@10": 0.3219849360168328,
+            "recall@100": 0.6862855337900653
+          },
+          "model_key": "gte-modern-colbert"
+        }
+      ]
+    },
+    "psychology": {
+      "metric_orders": {
+        "map@100": [
+          "gte-modern-colbert",
+          "answerai-colbert-small",
+          "colbert-v2"
+        ],
+        "mrr@10": [
+          "gte-modern-colbert",
+          "answerai-colbert-small",
+          "colbert-v2"
+        ],
+        "ndcg@10": [
+          "gte-modern-colbert",
+          "answerai-colbert-small",
+          "colbert-v2"
+        ],
+        "recall@10": [
+          "gte-modern-colbert",
+          "answerai-colbert-small",
+          "colbert-v2"
+        ],
+        "recall@100": [
+          "answerai-colbert-small",
+          "gte-modern-colbert",
+          "colbert-v2"
+        ]
+      },
+      "primary_order": [
+        "gte-modern-colbert",
+        "answerai-colbert-small",
+        "colbert-v2"
+      ],
+      "rows": [
+        {
+          "confidence_intervals": {
+            "map@100": {
+              "high": 0.32717650100699824,
+              "low": 0.20016742876582438,
+              "mean": 0.2614545763065221,
+              "samples": 10000,
+              "seed": 20260826
+            },
+            "mrr@10": {
+              "high": 0.4379948530567343,
+              "low": 0.2768656687097281,
+              "mean": 0.35526481219550526,
+              "samples": 10000,
+              "seed": 20260826
+            },
+            "ndcg@10": {
+              "high": 0.39187111334968355,
+              "low": 0.25297351984615074,
+              "mean": 0.3214657975785782,
+              "samples": 10000,
+              "seed": 20260826
+            },
+            "recall@10": {
+              "high": 0.47025286220175555,
+              "low": 0.30524433323123257,
+              "mean": 0.38527972065551785,
+              "samples": 10000,
+              "seed": 20260826
+            },
+            "recall@100": {
+              "high": 0.7623683361170398,
+              "low": 0.6081151892651937,
+              "mean": 0.6866966197463236,
+              "samples": 10000,
+              "seed": 20260826
+            }
+          },
+          "formal_cell_sha256": "67714a1aefe3488be59311daf3035764dd7d199ef3ce767a3584a3cbbcc2bdba",
+          "metrics": {
+            "map@100": 0.261454576306522,
+            "mrr@10": 0.35526481219550526,
+            "ndcg@10": 0.32146579757857807,
+            "recall@10": 0.3852797206555179,
+            "recall@100": 0.6866966197463236
+          },
+          "model_key": "colbert-v2"
+        },
+        {
+          "confidence_intervals": {
+            "map@100": {
+              "high": 0.37664666443851047,
+              "low": 0.24294572554177396,
+              "mean": 0.30736702063328886,
+              "samples": 10000,
+              "seed": 20260826
+            },
+            "mrr@10": {
+              "high": 0.46405940594059425,
+              "low": 0.3032446369636964,
+              "mean": 0.38226072607260725,
+              "samples": 10000,
+              "seed": 20260826
+            },
+            "ndcg@10": {
+              "high": 0.42665534871067534,
+              "low": 0.2841873698852932,
+              "mean": 0.35440704109962406,
+              "samples": 10000,
+              "seed": 20260826
+            },
+            "recall@10": {
+              "high": 0.49103659917641695,
+              "low": 0.3296557313015133,
+              "mean": 0.40907805091186483,
+              "samples": 10000,
+              "seed": 20260826
+            },
+            "recall@100": {
+              "high": 0.838981823505709,
+              "low": 0.7053752797698871,
+              "mean": 0.7739597530896765,
+              "samples": 10000,
+              "seed": 20260826
+            }
+          },
+          "formal_cell_sha256": "c6133948d0ebbc0bedc1dce60cea7e1a5a6d230f16e7bcfe3cd95dba378de917",
+          "metrics": {
+            "map@100": 0.3073670206332888,
+            "mrr@10": 0.38226072607260725,
+            "ndcg@10": 0.35440704109962423,
+            "recall@10": 0.40907805091186483,
+            "recall@100": 0.7739597530896765
+          },
+          "model_key": "answerai-colbert-small"
+        },
+        {
+          "confidence_intervals": {
+            "map@100": {
+              "high": 0.40119570252916226,
+              "low": 0.26582509021373735,
+              "mean": 0.33159741469062237,
+              "samples": 10000,
+              "seed": 20260826
+            },
+            "mrr@10": {
+              "high": 0.5114023455917022,
+              "low": 0.34837311409712407,
+              "mean": 0.4287246581801038,
+              "samples": 10000,
+              "seed": 20260826
+            },
+            "ndcg@10": {
+              "high": 0.46924893271744983,
+              "low": 0.3249186540540683,
+              "mean": 0.39640233797033736,
+              "samples": 10000,
+              "seed": 20260826
+            },
+            "recall@10": {
+              "high": 0.5441219510606524,
+              "low": 0.37880015740746664,
+              "mean": 0.4600170942252281,
+              "samples": 10000,
+              "seed": 20260826
+            },
+            "recall@100": {
+              "high": 0.8333024001155127,
+              "low": 0.6952184116448591,
+              "mean": 0.7658361849172914,
+              "samples": 10000,
+              "seed": 20260826
+            }
+          },
+          "formal_cell_sha256": "ff7c04328e4ad8d3bac0656e81d5eb546142635ea155d02ab37cd003d59c8af8",
+          "metrics": {
+            "map@100": 0.33159741469062237,
+            "mrr@10": 0.42872465818010375,
+            "ndcg@10": 0.3964023379703374,
+            "recall@10": 0.4600170942252281,
+            "recall@100": 0.7658361849172911
+          },
+          "model_key": "gte-modern-colbert"
+        }
+      ]
+    }
+  }
+}

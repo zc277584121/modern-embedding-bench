@@ -1941,6 +1941,9 @@ local = [
 milvus-sindi = [
     { name = "pymilvus" },
 ]
+multi-vector = [
+    { name = "sentence-transformers" },
+]
 openai = [
     { name = "openai" },
 ]
@@ -1991,6 +1994,7 @@ requires-dist = [
     { name = "rich", specifier = ">=13.0" },
     { name = "scipy", specifier = ">=1.12" },
     { name = "sentence-transformers", marker = "extra == 'local'", specifier = ">=3.0" },
+    { name = "sentence-transformers", marker = "extra == 'multi-vector'", specifier = ">=6.0.0,<7" },
     { name = "torch", marker = "extra == 'local'", specifier = ">=2.0" },
     { name = "torchvision", marker = "extra == 'local'", specifier = ">=0.25.0" },
     { name = "tqdm", specifier = ">=4.66" },
@@ -2001,7 +2005,7 @@ requires-dist = [
     { name = "voyageai", marker = "extra == 'all'", specifier = ">=0.3" },
     { name = "voyageai", marker = "extra == 'voyage'", specifier = ">=0.3" },
 ]
-provides-extras = ["data", "dashscope", "volcengine", "gemini", "voyage", "cohere", "openai", "jina", "local", "qwen-vl", "milvus-sindi", "all"]
+provides-extras = ["data", "dashscope", "volcengine", "gemini", "voyage", "cohere", "openai", "jina", "local", "multi-vector", "qwen-vl", "milvus-sindi", "all"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -4089,7 +4093,7 @@ wheels = [
 
 [[package]]
 name = "sentence-transformers"
-version = "5.2.3"
+version = "6.0.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "huggingface-hub" },
@@ -4099,14 +4103,15 @@ dependencies = [
     { name = "scikit-learn", version = "1.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "tokenizers" },
     { name = "torch" },
     { name = "tqdm" },
     { name = "transformers" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/5b/30/21664028fc0776eb1ca024879480bbbab36f02923a8ff9e4cae5a150fa35/sentence_transformers-5.2.3.tar.gz", hash = "sha256:3cd3044e1f3fe859b6a1b66336aac502eaae5d3dd7d5c8fc237f37fbf58137c7", size = 381623, upload-time = "2026-02-17T14:05:20.238Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/d9/ef/87681678d0aa91a1e77f0ffdd2e5d900aaf358aac644dd14bead8d95ec4c/sentence_transformers-6.0.1.tar.gz", hash = "sha256:1c3b8d9403f87ad0c879638554f36cc85744f38a6a70d150fd7e964ca0e9935b", size = 575395, upload-time = "2026-08-31T07:50:43.518Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/46/9f/dba4b3e18ebbe1eaa29d9f1764fbc7da0cd91937b83f2b7928d15c5d2d36/sentence_transformers-5.2.3-py3-none-any.whl", hash = "sha256:6437c62d4112b615ddebda362dfc16a4308d604c5b68125ed586e3e95d5b2e30", size = 494225, upload-time = "2026-02-17T14:05:18.596Z" },
+    { url = "https://files.pythonhosted.org/packages/31/ab/dc6031faf1b6bba08076fbf457b21a5c51ba7928a77916915e093c16b8c7/sentence_transformers-6.0.1-py3-none-any.whl", hash = "sha256:b8888d72c707ba33c63aa30845850702dd5acadf1dd0d051436380bcebe4fd0f", size = 739832, upload-time = "2026-08-31T07:50:41.635Z" },
 ]
 
 [[package]]

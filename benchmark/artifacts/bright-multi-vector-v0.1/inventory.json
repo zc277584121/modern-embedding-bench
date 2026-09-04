@@ -1,0 +1,337 @@
+{
+  "models": [
+    {
+      "allowlist": [
+        "README.md",
+        "artifact.metadata",
+        "config.json",
+        "model.safetensors",
+        "special_tokens_map.json",
+        "tokenizer.json",
+        "tokenizer_config.json",
+        "vocab.txt"
+      ],
+      "backbone": "BERT-base, 12 layers, hidden size 768",
+      "call_stack": [
+        "sentence-transformers==6.0.1 MultiVectorEncoder",
+        "transformers==5.3.0",
+        "torch==2.10.0+cu128",
+        "project exact MaxSim and max_passage aggregation"
+      ],
+      "dimensions": 128,
+      "document_length": 180,
+      "document_route": "encode_document with [D]/[unused1] marker",
+      "download_cap_bytes": 536870912,
+      "estimated_snapshot_bytes": 439062205,
+      "gated": false,
+      "key": "colbert-v2",
+      "languages": [
+        "English"
+      ],
+      "license": "MIT",
+      "lineage": "Official ColBERTv2 checkpoint trained with distillation on MS MARCO passages.",
+      "mask_policy": "document punctuation is removed from the scoring mask; query expansion positions remain valid",
+      "model_weight_bytes": 438349816,
+      "padding_policy": "ragged scoring-mask compaction; any adapter padding is zero with an explicit boolean mask",
+      "parameters": 110000000,
+      "primary_sources": [
+        {
+          "evidence": "immutable revision, MIT, ungated, file sizes",
+          "kind": "hub_api",
+          "url": "https://huggingface.co/api/models/colbert-ir/colbertv2.0/revision/c1e84128e85ef755c096a95bdb06b47793b13acf"
+        },
+        {
+          "evidence": "44e68292037d4fac7db91b9b24ae36535ae5807eef2b323adcc83a615b91751d",
+          "kind": "model_card",
+          "url": "https://huggingface.co/colbert-ir/colbertv2.0/raw/c1e84128e85ef755c096a95bdb06b47793b13acf/README.md"
+        },
+        {
+          "evidence": "0ddc5a54234cff6d13bc9411250a5479d9d96f3ffbace76d8a1884144377e434",
+          "kind": "artifact_metadata",
+          "url": "https://huggingface.co/colbert-ir/colbertv2.0/raw/c1e84128e85ef755c096a95bdb06b47793b13acf/artifact.metadata"
+        }
+      ],
+      "private": false,
+      "query_expansion": "fixed to 32 scoring positions; expansion masks are scored but not attended",
+      "query_length": 32,
+      "query_route": "encode_query with [Q]/[unused0] marker and fixed mask-token expansion",
+      "reason": "Canonical 110M BERT-base ColBERTv2 baseline with the original 128-dimensional late interaction.",
+      "remote_code_risk": "No Python files or auto_map; only safetensors and tokenizer/config metadata are allowlisted.",
+      "repo_id": "colbert-ir/colbertv2.0",
+      "revision": "c1e84128e85ef755c096a95bdb06b47793b13acf",
+      "status": "selected",
+      "trust_remote_code": false
+    },
+    {
+      "allowlist": [
+        "README.md",
+        "artifact.metadata",
+        "config.json",
+        "model.safetensors",
+        "special_tokens_map.json",
+        "tokenizer.json",
+        "tokenizer_config.json",
+        "vocab.txt"
+      ],
+      "backbone": "narrow BERT, 12 layers, hidden size 384",
+      "call_stack": [
+        "sentence-transformers==6.0.1 MultiVectorEncoder",
+        "transformers==5.3.0",
+        "torch==2.10.0+cu128",
+        "project exact MaxSim and max_passage aggregation"
+      ],
+      "dimensions": 96,
+      "document_length": 300,
+      "document_route": "encode_document with [D]/[unused1] marker",
+      "download_cap_bytes": 167772160,
+      "estimated_snapshot_bytes": 134567234,
+      "gated": false,
+      "key": "answerai-colbert-small",
+      "languages": [
+        "English"
+      ],
+      "license": "Apache-2.0",
+      "lineage": "Answer.AI English small ColBERT trained with a JaColBERTv2.5-derived recipe.",
+      "mask_policy": "document punctuation is removed from the scoring mask; query expansion positions remain valid",
+      "model_weight_bytes": 133610664,
+      "padding_policy": "ragged scoring-mask compaction; any adapter padding is zero with an explicit boolean mask",
+      "parameters": 33000000,
+      "primary_sources": [
+        {
+          "evidence": "immutable revision, Apache-2.0, ungated, file sizes",
+          "kind": "hub_api",
+          "url": "https://huggingface.co/api/models/answerdotai/answerai-colbert-small-v1/revision/934fa8bb4ce2284f4c2baa232d81aca4d076fa5e"
+        },
+        {
+          "evidence": "5852bad161ce37c95108ffd1b1d862abdff536f2c9efb66bdc37db688571a7a1",
+          "kind": "model_card",
+          "url": "https://huggingface.co/answerdotai/answerai-colbert-small-v1/raw/934fa8bb4ce2284f4c2baa232d81aca4d076fa5e/README.md"
+        },
+        {
+          "evidence": "f09c7e00cde4fda0b272b47e07d537d7b698756d0d5ffcf8b82ec17553d1b4e4",
+          "kind": "artifact_metadata",
+          "url": "https://huggingface.co/answerdotai/answerai-colbert-small-v1/raw/934fa8bb4ce2284f4c2baa232d81aca4d076fa5e/artifact.metadata"
+        }
+      ],
+      "private": false,
+      "query_expansion": "fixed to 32 scoring positions; expansion masks are scored but not attended",
+      "query_length": 32,
+      "query_route": "encode_query with [Q]/[unused0] marker and fixed mask-token expansion",
+      "reason": "A 33M narrow BERT checkpoint using the JaColBERTv2.5 recipe and a smaller 96-dimensional index.",
+      "remote_code_risk": "No Python files or auto_map; only safetensors and tokenizer/config metadata are allowlisted.",
+      "repo_id": "answerdotai/answerai-colbert-small-v1",
+      "revision": "934fa8bb4ce2284f4c2baa232d81aca4d076fa5e",
+      "status": "selected",
+      "trust_remote_code": false
+    },
+    {
+      "allowlist": [
+        "1_Dense/config.json",
+        "1_Dense/model.safetensors",
+        "README.md",
+        "config.json",
+        "config_sentence_transformers.json",
+        "model.safetensors",
+        "modules.json",
+        "sentence_bert_config.json",
+        "special_tokens_map.json",
+        "tokenizer.json",
+        "tokenizer_config.json"
+      ],
+      "backbone": "ModernBERT-base, 22 layers, hidden size 768",
+      "call_stack": [
+        "sentence-transformers==6.0.1 MultiVectorEncoder",
+        "transformers==5.3.0",
+        "torch==2.10.0+cu128",
+        "project exact MaxSim and max_passage aggregation"
+      ],
+      "dimensions": 128,
+      "document_length": 300,
+      "document_route": "encode_document with saved document route",
+      "download_cap_bytes": 734003200,
+      "estimated_snapshot_bytes": 600484363,
+      "gated": false,
+      "key": "gte-modern-colbert",
+      "languages": [
+        "English"
+      ],
+      "license": "Apache-2.0",
+      "lineage": "PyLate checkpoint based on Alibaba-NLP/gte-modernbert-base and distilled on MS MARCO.",
+      "mask_policy": "document punctuation is removed from the scoring mask; ordinary attention padding is excluded",
+      "model_weight_bytes": 596469584,
+      "padding_policy": "ragged scoring-mask compaction; any adapter padding is zero with an explicit boolean mask",
+      "parameters": 149000000,
+      "primary_sources": [
+        {
+          "evidence": "immutable revision, Apache-2.0, ungated, file sizes",
+          "kind": "hub_api",
+          "url": "https://huggingface.co/api/models/lightonai/GTE-ModernColBERT-v1/revision/25f6f7bb8237b7ae25ae1d9b805ce17c0d1cc639"
+        },
+        {
+          "evidence": "8bac6a7e2d6c2de129f643aeb75e6f19e350d6c180e50362d86c0212a8c07b6c",
+          "kind": "model_card",
+          "url": "https://huggingface.co/lightonai/GTE-ModernColBERT-v1/raw/25f6f7bb8237b7ae25ae1d9b805ce17c0d1cc639/README.md"
+        },
+        {
+          "evidence": "edbe6fd9b4ef756645baf9c979c3d8fe4307351fd8c1963018d0457deaedfed1",
+          "kind": "saved_config",
+          "url": "https://huggingface.co/lightonai/GTE-ModernColBERT-v1/raw/25f6f7bb8237b7ae25ae1d9b805ce17c0d1cc639/config_sentence_transformers.json"
+        }
+      ],
+      "private": false,
+      "query_expansion": "disabled; queries retain only the saved scoring-mask positions up to 48 tokens",
+      "query_length": 48,
+      "query_route": "encode_query with saved query route and no mask-token expansion",
+      "reason": "A larger ModernBERT checkpoint with knowledge distillation, native ragged queries, and 128-dimensional output.",
+      "remote_code_risk": "No Python files or auto_map; standard ModernBERT plus saved Sentence Transformers modules.",
+      "repo_id": "lightonai/GTE-ModernColBERT-v1",
+      "revision": "25f6f7bb8237b7ae25ae1d9b805ce17c0d1cc639",
+      "status": "selected",
+      "trust_remote_code": false
+    },
+    {
+      "allowlist": [],
+      "backbone": "ModernBERT-style Ettin-17M, 7 layers, hidden size 256",
+      "call_stack": [
+        "sentence-transformers==6.0.1 MultiVectorEncoder",
+        "transformers==5.3.0",
+        "torch==2.10.0+cu128",
+        "project exact MaxSim and max_passage aggregation"
+      ],
+      "dimensions": 48,
+      "document_length": 512,
+      "document_route": "encode_document",
+      "download_cap_bytes": null,
+      "estimated_snapshot_bytes": 71500000,
+      "gated": false,
+      "key": "mxbai-edge-colbert-17m",
+      "languages": [
+        "English"
+      ],
+      "license": "Apache-2.0",
+      "lineage": "Mixedbread edge ColBERT based on the 17M Ettin ModernBERT family.",
+      "mask_policy": "saved multi-vector scoring mask",
+      "model_weight_bytes": 67818744,
+      "padding_policy": "ragged",
+      "parameters": 17000000,
+      "primary_sources": [
+        {
+          "evidence": "immutable metadata",
+          "kind": "hub_api",
+          "url": "https://huggingface.co/api/models/mixedbread-ai/mxbai-edge-colbert-v0-17m/revision/592c6417c1c6687572043408ed1ae5196bce16b1"
+        }
+      ],
+      "private": false,
+      "query_expansion": "disabled",
+      "query_length": 48,
+      "query_route": "encode_query",
+      "reason": "The 17M/48D edge checkpoint is a useful later resource lower bound, but overlaps the selected lightweight role and its 32K card claim exceeds the pinned 7,999-position config.",
+      "remote_code_risk": "No repository Python or auto_map at the pinned revision.",
+      "repo_id": "mixedbread-ai/mxbai-edge-colbert-v0-17m",
+      "revision": "592c6417c1c6687572043408ed1ae5196bce16b1",
+      "status": "deferred",
+      "trust_remote_code": false
+    },
+    {
+      "allowlist": [],
+      "backbone": "24-layer XLM-RoBERTa-flash, hidden size 1024",
+      "call_stack": [
+        "sentence-transformers==6.0.1 MultiVectorEncoder",
+        "transformers==5.3.0",
+        "torch==2.10.0+cu128",
+        "project exact MaxSim and max_passage aggregation"
+      ],
+      "dimensions": 128,
+      "document_length": 8192,
+      "document_route": "custom document marker",
+      "download_cap_bytes": null,
+      "estimated_snapshot_bytes": 1120000000,
+      "gated": false,
+      "key": "jina-colbert-v2",
+      "languages": [
+        "Multilingual"
+      ],
+      "license": "CC-BY-NC-4.0",
+      "lineage": "Jina multilingual XLM-RoBERTa-flash late-interaction checkpoint.",
+      "mask_policy": "model-specific",
+      "model_weight_bytes": 1119027888,
+      "padding_policy": "ragged",
+      "parameters": 560000000,
+      "primary_sources": [
+        {
+          "evidence": "c2f5c279bba7b5ec7a8a9bd591564b3ee90ce4a7cd97f0b66d03779c433f817b",
+          "kind": "model_card",
+          "url": "https://huggingface.co/jinaai/jina-colbert-v2/raw/a9dc5cd7293d4c71dbbba04829923ba4d0e4f6ea/README.md"
+        }
+      ],
+      "private": false,
+      "query_expansion": "model-specific",
+      "query_length": 32,
+      "query_route": "custom query marker",
+      "reason": "The pinned config delegates through auto_map and the primary usage requires trust_remote_code=True; the default fail-closed policy excludes it.",
+      "remote_code_risk": "Pinned auto_map references jinaai/xlm-roberta-flash-implementation and the model card explicitly requests trust_remote_code=True.",
+      "repo_id": "jinaai/jina-colbert-v2",
+      "revision": "a9dc5cd7293d4c71dbbba04829923ba4d0e4f6ea",
+      "status": "excluded",
+      "trust_remote_code": true
+    },
+    {
+      "allowlist": [],
+      "backbone": "BERT-base ColBERTv2 conversion",
+      "call_stack": [
+        "sentence-transformers==6.0.1 MultiVectorEncoder",
+        "transformers==5.3.0",
+        "torch==2.10.0+cu128",
+        "project exact MaxSim and max_passage aggregation"
+      ],
+      "dimensions": 128,
+      "document_length": 180,
+      "document_route": "encode_document",
+      "download_cap_bytes": null,
+      "estimated_snapshot_bytes": 439297945,
+      "gated": false,
+      "key": "lighton-colbert-v2-wrapper",
+      "languages": [
+        "English"
+      ],
+      "license": "MIT",
+      "lineage": "Converted wrapper whose model card declares colbert-ir/colbertv2.0 as its fine-tuned base.",
+      "mask_policy": "punctuation skiplist",
+      "model_weight_bytes": 438344632,
+      "padding_policy": "ragged",
+      "parameters": 110000000,
+      "primary_sources": [
+        {
+          "evidence": "base-model lineage metadata",
+          "kind": "hub_api",
+          "url": "https://huggingface.co/api/models/lightonai/colbertv2.0/revision/0b9b1e380096a3b72b6b4877f68d59effb62e0f2"
+        }
+      ],
+      "private": false,
+      "query_expansion": "fixed",
+      "query_length": 32,
+      "query_route": "encode_query",
+      "reason": "This is a Sentence Transformers/PyLate conversion of the selected colbert-ir checkpoint, not an independent checkpoint identity.",
+      "remote_code_risk": "No remote code, but checkpoint-lineage duplication makes it ineligible.",
+      "repo_id": "lightonai/colbertv2.0",
+      "revision": "0b9b1e380096a3b72b6b4877f68d59effb62e0f2",
+      "status": "excluded",
+      "trust_remote_code": false
+    }
+  ],
+  "policy": {
+    "fixed_revision": "40-character lowercase hexadecimal commit",
+    "model_vram_cap_bytes": 11811160064,
+    "publication_gate": "closed",
+    "story_artifact_cap_bytes": 12884901888,
+    "story_download_cap_bytes": 2147483648,
+    "trust_remote_code": false,
+    "weights": "allowlisted safetensors only"
+  },
+  "schema_version": "bright-real-multi-vector-inventory-v1",
+  "selected_keys": [
+    "colbert-v2",
+    "answerai-colbert-small",
+    "gte-modern-colbert"
+  ]
+}

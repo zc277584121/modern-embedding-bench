@@ -1,0 +1,1464 @@
+{
+  "boundaries": [
+    "Process ru_maxrss is a per-process observed peak, not an externally sampled machine-lifetime peak.",
+    "Exact search uses saved float32 token vectors; no approximate index is used.",
+    "Effectiveness applies only to the two fixed English research tracks.",
+    "Training overlap is unknown; no verified zero-shot claim is allowed."
+  ],
+  "download": {
+    "boundary": "The successful ColBERT gate recorded zero incremental bytes because its snapshot was downloaded by an earlier failed semantic-validation attempt; conservative snapshot bytes are the defensible story total.",
+    "conservative_snapshot_bytes": 1174090083,
+    "recorded_incremental_successful_gate_bytes": 0
+  },
+  "models": [
+    {
+      "dimensions": 128,
+      "document_length": 180,
+      "document_route": "encode_document with [D]/[unused1] marker",
+      "gate_peak_vram_bytes": 454116352,
+      "languages": [
+        "English"
+      ],
+      "license": "MIT",
+      "license_evidence": "Pinned primary-source Hub API and model-card evidence in inventory.json",
+      "lineage": "Official ColBERTv2 checkpoint trained with distillation on MS MARCO passages.",
+      "mask_policy": "document punctuation is removed from the scoring mask; query expansion positions remain valid",
+      "model_key": "colbert-v2",
+      "padding_policy": "ragged scoring-mask compaction; any adapter padding is zero with an explicit boolean mask",
+      "parameters": 110000000,
+      "query_length": 32,
+      "query_route": "encode_query with [Q]/[unused0] marker and fixed mask-token expansion",
+      "repo_id": "colbert-ir/colbertv2.0",
+      "revision": "c1e84128e85ef755c096a95bdb06b47793b13acf",
+      "snapshot_bytes": 439060705,
+      "snapshot_identity_sha256": "9c6543efa377c830da013da2d07246a157c5f01f89568ea703272d902ac75210",
+      "tracks": [
+        {
+          "batch_fallback": {
+            "documents": {
+              "attempt_counts": {
+                "32": 45
+              },
+              "chunk_amortized_per_item_ms": {
+                "max": 4.180122217803728,
+                "mean": 2.1971164516471724,
+                "p50": 2.1409512410173193,
+                "p95": 2.6957669906551014,
+                "p99": 3.561249537160623
+              },
+              "chunk_wall_ms": {
+                "max": 1070.1112877577543,
+                "mean": 560.9953995794058,
+                "p50": 545.4378202557564,
+                "p95": 690.116349607706,
+                "p99": 911.6798815131195
+              },
+              "chunks": 45,
+              "failure": {
+                "oom_count": 0,
+                "other_failure_count": 0,
+                "terminal_failure": null
+              },
+              "fallback_triggered": false,
+              "items": 11490,
+              "latency_scope": "Each observation is one chunk wall time divided by items in that chunk; these are not individually timed items.",
+              "peak_vram_bytes": 648853504,
+              "requested_batch": 32,
+              "retry_count": 0,
+              "successful_batch_counts": {
+                "32": 45
+              },
+              "throughput_per_second": 455.14336396477404,
+              "used_batch_min": 32,
+              "wall_ms": 25244.79298107326
+            },
+            "queries": {
+              "attempt_counts": {
+                "64": 1
+              },
+              "chunk_amortized_per_item_ms": {
+                "max": 0.8217834153221649,
+                "mean": 0.8217834153221649,
+                "p50": 0.8217834153221649,
+                "p95": 0.8217834153221649,
+                "p99": 0.8217834153221649
+              },
+              "chunk_wall_ms": {
+                "max": 84.64369177818298,
+                "mean": 84.64369177818298,
+                "p50": 84.64369177818298,
+                "p95": 84.64369177818298,
+                "p99": 84.64369177818298
+              },
+              "chunks": 1,
+              "failure": {
+                "oom_count": 0,
+                "other_failure_count": 0,
+                "terminal_failure": null
+              },
+              "fallback_triggered": false,
+              "items": 103,
+              "latency_scope": "Each observation is one chunk wall time divided by items in that chunk; these are not individually timed items.",
+              "peak_vram_bytes": 518288896,
+              "requested_batch": 64,
+              "retry_count": 0,
+              "successful_batch_counts": {
+                "64": 1
+              },
+              "throughput_per_second": 1216.8656380196826,
+              "used_batch_min": 64,
+              "wall_ms": 84.64369177818298
+            }
+          },
+          "build_load_seconds": 2.995769055560231,
+          "document_encoding_units": {
+            "canonical_passage_amortized_ms": 3.3659723974764346,
+            "canonical_passage_throughput_per_second": 297.09096864541385,
+            "canonical_passages": 7500,
+            "model_input_windows": 11490
+          },
+          "encoding": {
+            "documents": {
+              "attempt_counts": {
+                "32": 45
+              },
+              "chunk_amortized_per_item_ms": {
+                "max": 4.180122217803728,
+                "mean": 2.1971164516471724,
+                "p50": 2.1409512410173193,
+                "p95": 2.6957669906551014,
+                "p99": 3.561249537160623
+              },
+              "chunk_wall_ms": {
+                "max": 1070.1112877577543,
+                "mean": 560.9953995794058,
+                "p50": 545.4378202557564,
+                "p95": 690.116349607706,
+                "p99": 911.6798815131195
+              },
+              "chunks": 45,
+              "failure": {
+                "oom_count": 0,
+                "other_failure_count": 0,
+                "terminal_failure": null
+              },
+              "fallback_triggered": false,
+              "items": 11490,
+              "latency_scope": "Each observation is one chunk wall time divided by items in that chunk; these are not individually timed items.",
+              "peak_vram_bytes": 648853504,
+              "requested_batch": 32,
+              "retry_count": 0,
+              "successful_batch_counts": {
+                "32": 45
+              },
+              "throughput_per_second": 455.14336396477404,
+              "used_batch_min": 32,
+              "wall_ms": 25244.79298107326
+            },
+            "process_maxrss_bytes": 2727260160,
+            "queries": {
+              "attempt_counts": {
+                "64": 1
+              },
+              "chunk_amortized_per_item_ms": {
+                "max": 0.8217834153221649,
+                "mean": 0.8217834153221649,
+                "p50": 0.8217834153221649,
+                "p95": 0.8217834153221649,
+                "p99": 0.8217834153221649
+              },
+              "chunk_wall_ms": {
+                "max": 84.64369177818298,
+                "mean": 84.64369177818298,
+                "p50": 84.64369177818298,
+                "p95": 84.64369177818298,
+                "p99": 84.64369177818298
+              },
+              "chunks": 1,
+              "failure": {
+                "oom_count": 0,
+                "other_failure_count": 0,
+                "terminal_failure": null
+              },
+              "fallback_triggered": false,
+              "items": 103,
+              "latency_scope": "Each observation is one chunk wall time divided by items in that chunk; these are not individually timed items.",
+              "peak_vram_bytes": 518288896,
+              "requested_batch": 64,
+              "retry_count": 0,
+              "successful_batch_counts": {
+                "64": 1
+              },
+              "throughput_per_second": 1216.8656380196826,
+              "used_batch_min": 64,
+              "wall_ms": 84.64369177818298
+            },
+            "track_wall_seconds": 30.852459171786904
+          },
+          "end_to_end_seconds": 100.23464812710881,
+          "exact_search_latency_ms": {
+            "max": 1220.4538136720657,
+            "mean": 659.5644449580063,
+            "p50": 573.3003485947847,
+            "p95": 901.5690762549639,
+            "p99": 957.4179102107882
+          },
+          "exact_search_seconds": 69.38218895532191,
+          "execution_outcome": {
+            "document_attempt_counts": {
+              "32": 45
+            },
+            "failure_count": 0,
+            "fallback_attempt_count": 0,
+            "fallback_triggered": false,
+            "formal_cell_finalized": true,
+            "formal_search_attempt_count": 1,
+            "formal_search_failure_count": 0,
+            "no_failure_observed": true,
+            "oom_count": 0,
+            "other_failure_count": 0,
+            "query_attempt_counts": {
+              "64": 1
+            },
+            "retry_count": 0,
+            "terminal_failure": null
+          },
+          "process_maxrss_bytes": 1900404736,
+          "query_throughput_per_second": 1.4845308507969677,
+          "representation_storage": {
+            "complete_replayable_non_sidecar_bytes": 487085783,
+            "complete_replayable_with_sidecars_bytes": 487086498,
+            "mapping_identity_bytes": 496626,
+            "representation_manifest_bytes": 9008,
+            "sidecar_bytes": 715,
+            "token_array_bytes": 486580149
+          },
+          "search_peak_vram_bytes": 139560448,
+          "token_vectors": {
+            "canonical_passages": {
+              "max": 4441.0,
+              "mean": 126.0028,
+              "p50": 37.5,
+              "p95": 596.0499999999993,
+              "p99": 1012.0100000000002
+            },
+            "document_total": 945021,
+            "document_windows": {
+              "max": 179.0,
+              "mean": 82.24725848563969,
+              "p50": 92.0,
+              "p95": 150.0,
+              "p99": 158.0
+            },
+            "queries": {
+              "max": 32.0,
+              "mean": 32.0,
+              "p50": 32.0,
+              "p95": 32.0,
+              "p99": 32.0
+            },
+            "query_total": 3296
+          },
+          "track": "economics"
+        },
+        {
+          "batch_fallback": {
+            "documents": {
+              "attempt_counts": {
+                "32": 45
+              },
+              "chunk_amortized_per_item_ms": {
+                "max": 2.6014359755208716,
+                "mean": 2.128232824386178,
+                "p50": 2.1083578758407384,
+                "p95": 2.5527752470225096,
+                "p99": 2.585554124379996
+              },
+              "chunk_wall_ms": {
+                "max": 665.9676097333431,
+                "mean": 533.6380864597029,
+                "p50": 538.7606862932444,
+                "p95": 653.5104632377625,
+                "p99": 661.901855841279
+              },
+              "chunks": 45,
+              "failure": {
+                "oom_count": 0,
+                "other_failure_count": 0,
+                "terminal_failure": null
+              },
+              "fallback_triggered": false,
+              "items": 11282,
+              "latency_scope": "Each observation is one chunk wall time divided by items in that chunk; these are not individually timed items.",
+              "peak_vram_bytes": 648853504,
+              "requested_batch": 32,
+              "retry_count": 0,
+              "successful_batch_counts": {
+                "32": 45
+              },
+              "throughput_per_second": 469.81487542314557,
+              "used_batch_min": 32,
+              "wall_ms": 24013.71389068663
+            },
+            "queries": {
+              "attempt_counts": {
+                "64": 1
+              },
+              "chunk_amortized_per_item_ms": {
+                "max": 0.7915507706970272,
+                "mean": 0.7915507706970272,
+                "p50": 0.7915507706970272,
+                "p95": 0.7915507706970272,
+                "p99": 0.7915507706970272
+              },
+              "chunk_wall_ms": {
+                "max": 79.94662784039974,
+                "mean": 79.94662784039974,
+                "p50": 79.94662784039974,
+                "p95": 79.94662784039974,
+                "p99": 79.94662784039974
+              },
+              "chunks": 1,
+              "failure": {
+                "oom_count": 0,
+                "other_failure_count": 0,
+                "terminal_failure": null
+              },
+              "fallback_triggered": false,
+              "items": 101,
+              "latency_scope": "Each observation is one chunk wall time divided by items in that chunk; these are not individually timed items.",
+              "peak_vram_bytes": 518288896,
+              "requested_batch": 64,
+              "retry_count": 0,
+              "successful_batch_counts": {
+                "64": 1
+              },
+              "throughput_per_second": 1263.3428416972113,
+              "used_batch_min": 64,
+              "wall_ms": 79.94662784039974
+            }
+          },
+          "build_load_seconds": 2.9606150910258293,
+          "document_encoding_units": {
+            "canonical_passage_amortized_ms": 3.2018285187582176,
+            "canonical_passage_throughput_per_second": 312.32153569168514,
+            "canonical_passages": 7500,
+            "model_input_windows": 11282
+          },
+          "encoding": {
+            "documents": {
+              "attempt_counts": {
+                "32": 45
+              },
+              "chunk_amortized_per_item_ms": {
+                "max": 2.6014359755208716,
+                "mean": 2.128232824386178,
+                "p50": 2.1083578758407384,
+                "p95": 2.5527752470225096,
+                "p99": 2.585554124379996
+              },
+              "chunk_wall_ms": {
+                "max": 665.9676097333431,
+                "mean": 533.6380864597029,
+                "p50": 538.7606862932444,
+                "p95": 653.5104632377625,
+                "p99": 661.901855841279
+              },
+              "chunks": 45,
+              "failure": {
+                "oom_count": 0,
+                "other_failure_count": 0,
+                "terminal_failure": null
+              },
+              "fallback_triggered": false,
+              "items": 11282,
+              "latency_scope": "Each observation is one chunk wall time divided by items in that chunk; these are not individually timed items.",
+              "peak_vram_bytes": 648853504,
+              "requested_batch": 32,
+              "retry_count": 0,
+              "successful_batch_counts": {
+                "32": 45
+              },
+              "throughput_per_second": 469.81487542314557,
+              "used_batch_min": 32,
+              "wall_ms": 24013.71389068663
+            },
+            "process_maxrss_bytes": 3157565440,
+            "queries": {
+              "attempt_counts": {
+                "64": 1
+              },
+              "chunk_amortized_per_item_ms": {
+                "max": 0.7915507706970272,
+                "mean": 0.7915507706970272,
+                "p50": 0.7915507706970272,
+                "p95": 0.7915507706970272,
+                "p99": 0.7915507706970272
+              },
+              "chunk_wall_ms": {
+                "max": 79.94662784039974,
+                "mean": 79.94662784039974,
+                "p50": 79.94662784039974,
+                "p95": 79.94662784039974,
+                "p99": 79.94662784039974
+              },
+              "chunks": 1,
+              "failure": {
+                "oom_count": 0,
+                "other_failure_count": 0,
+                "terminal_failure": null
+              },
+              "fallback_triggered": false,
+              "items": 101,
+              "latency_scope": "Each observation is one chunk wall time divided by items in that chunk; these are not individually timed items.",
+              "peak_vram_bytes": 518288896,
+              "requested_batch": 64,
+              "retry_count": 0,
+              "successful_batch_counts": {
+                "64": 1
+              },
+              "throughput_per_second": 1263.3428416972113,
+              "used_batch_min": 64,
+              "wall_ms": 79.94662784039974
+            },
+            "track_wall_seconds": 29.63091221638024
+          },
+          "end_to_end_seconds": 86.61848245747387,
+          "exact_search_latency_ms": {
+            "max": 834.7776718437672,
+            "mean": 550.7253148399367,
+            "p50": 492.2736268490553,
+            "p95": 751.3193041086197,
+            "p99": 774.5299320667982
+          },
+          "exact_search_seconds": 56.987570241093636,
+          "execution_outcome": {
+            "document_attempt_counts": {
+              "32": 45
+            },
+            "failure_count": 0,
+            "fallback_attempt_count": 0,
+            "fallback_triggered": false,
+            "formal_cell_finalized": true,
+            "formal_search_attempt_count": 1,
+            "formal_search_failure_count": 0,
+            "no_failure_observed": true,
+            "oom_count": 0,
+            "other_failure_count": 0,
+            "query_attempt_counts": {
+              "64": 1
+            },
+            "retry_count": 0,
+            "terminal_failure": null
+          },
+          "process_maxrss_bytes": 1850314752,
+          "query_throughput_per_second": 1.7723163063928822,
+          "representation_storage": {
+            "complete_replayable_non_sidecar_bytes": 456023817,
+            "complete_replayable_with_sidecars_bytes": 456024532,
+            "mapping_identity_bytes": 465645,
+            "representation_manifest_bytes": 9021,
+            "sidecar_bytes": 715,
+            "token_array_bytes": 455549151
+          },
+          "search_peak_vram_bytes": 139560448,
+          "token_vectors": {
+            "canonical_passages": {
+              "max": 32685.0,
+              "mean": 117.94653333333333,
+              "p50": 38.0,
+              "p95": 432.0499999999993,
+              "p99": 1051.0700000000015
+            },
+            "document_total": 884599,
+            "document_windows": {
+              "max": 180.0,
+              "mean": 78.40799503634108,
+              "p50": 88.5,
+              "p95": 151.0,
+              "p99": 160.0
+            },
+            "queries": {
+              "max": 32.0,
+              "mean": 32.0,
+              "p50": 32.0,
+              "p95": 32.0,
+              "p99": 32.0
+            },
+            "query_total": 3232
+          },
+          "track": "psychology"
+        }
+      ]
+    },
+    {
+      "dimensions": 96,
+      "document_length": 300,
+      "document_route": "encode_document with [D]/[unused1] marker",
+      "gate_peak_vram_bytes": 144792064,
+      "languages": [
+        "English"
+      ],
+      "license": "Apache-2.0",
+      "license_evidence": "Pinned primary-source Hub API and model-card evidence in inventory.json",
+      "lineage": "Answer.AI English small ColBERT trained with a JaColBERTv2.5-derived recipe.",
+      "mask_policy": "document punctuation is removed from the scoring mask; query expansion positions remain valid",
+      "model_key": "answerai-colbert-small",
+      "padding_policy": "ragged scoring-mask compaction; any adapter padding is zero with an explicit boolean mask",
+      "parameters": 33000000,
+      "query_length": 32,
+      "query_route": "encode_query with [Q]/[unused0] marker and fixed mask-token expansion",
+      "repo_id": "answerdotai/answerai-colbert-small-v1",
+      "revision": "934fa8bb4ce2284f4c2baa232d81aca4d076fa5e",
+      "snapshot_bytes": 134566215,
+      "snapshot_identity_sha256": "dc7f723cf56098f88a755742503f24b13e1ad406450d75f8990815ff605a3652",
+      "tracks": [
+        {
+          "batch_fallback": {
+            "documents": {
+              "attempt_counts": {
+                "32": 45
+              },
+              "chunk_amortized_per_item_ms": {
+                "max": 3.525969514157623,
+                "mean": 1.5888587599639683,
+                "p50": 1.5454061795026064,
+                "p95": 1.89017589436844,
+                "p99": 2.8372204181505403
+              },
+              "chunk_wall_ms": {
+                "max": 902.6481956243515,
+                "mean": 405.69553954733743,
+                "p50": 393.9379323273897,
+                "p95": 483.8850289583206,
+                "p99": 726.3284270465383
+              },
+              "chunks": 45,
+              "failure": {
+                "oom_count": 0,
+                "other_failure_count": 0,
+                "terminal_failure": null
+              },
+              "fallback_triggered": false,
+              "items": 11490,
+              "latency_scope": "Each observation is one chunk wall time divided by items in that chunk; these are not individually timed items.",
+              "peak_vram_bytes": 312174592,
+              "requested_batch": 32,
+              "retry_count": 0,
+              "successful_batch_counts": {
+                "32": 45
+              },
+              "throughput_per_second": 629.371803343528,
+              "used_batch_min": 32,
+              "wall_ms": 18256.299279630184
+            },
+            "queries": {
+              "attempt_counts": {
+                "64": 1
+              },
+              "chunk_amortized_per_item_ms": {
+                "max": 0.6541564735104737,
+                "mean": 0.6541564735104737,
+                "p50": 0.6541564735104737,
+                "p95": 0.6541564735104737,
+                "p99": 0.6541564735104737
+              },
+              "chunk_wall_ms": {
+                "max": 67.37811677157879,
+                "mean": 67.37811677157879,
+                "p50": 67.37811677157879,
+                "p95": 67.37811677157879,
+                "p99": 67.37811677157879
+              },
+              "chunks": 1,
+              "failure": {
+                "oom_count": 0,
+                "other_failure_count": 0,
+                "terminal_failure": null
+              },
+              "fallback_triggered": false,
+              "items": 103,
+              "latency_scope": "Each observation is one chunk wall time divided by items in that chunk; these are not individually timed items.",
+              "peak_vram_bytes": 178867200,
+              "requested_batch": 64,
+              "retry_count": 0,
+              "successful_batch_counts": {
+                "64": 1
+              },
+              "throughput_per_second": 1528.6862402103693,
+              "used_batch_min": 64,
+              "wall_ms": 67.37811677157879
+            }
+          },
+          "build_load_seconds": 2.939329393208027,
+          "document_encoding_units": {
+            "canonical_passage_amortized_ms": 2.4341732372840243,
+            "canonical_passage_throughput_per_second": 410.8171040101358,
+            "canonical_passages": 7500,
+            "model_input_windows": 11490
+          },
+          "encoding": {
+            "documents": {
+              "attempt_counts": {
+                "32": 45
+              },
+              "chunk_amortized_per_item_ms": {
+                "max": 3.525969514157623,
+                "mean": 1.5888587599639683,
+                "p50": 1.5454061795026064,
+                "p95": 1.89017589436844,
+                "p99": 2.8372204181505403
+              },
+              "chunk_wall_ms": {
+                "max": 902.6481956243515,
+                "mean": 405.69553954733743,
+                "p50": 393.9379323273897,
+                "p95": 483.8850289583206,
+                "p99": 726.3284270465383
+              },
+              "chunks": 45,
+              "failure": {
+                "oom_count": 0,
+                "other_failure_count": 0,
+                "terminal_failure": null
+              },
+              "fallback_triggered": false,
+              "items": 11490,
+              "latency_scope": "Each observation is one chunk wall time divided by items in that chunk; these are not individually timed items.",
+              "peak_vram_bytes": 312174592,
+              "requested_batch": 32,
+              "retry_count": 0,
+              "successful_batch_counts": {
+                "32": 45
+              },
+              "throughput_per_second": 629.371803343528,
+              "used_batch_min": 32,
+              "wall_ms": 18256.299279630184
+            },
+            "process_maxrss_bytes": 2587959296,
+            "queries": {
+              "attempt_counts": {
+                "64": 1
+              },
+              "chunk_amortized_per_item_ms": {
+                "max": 0.6541564735104737,
+                "mean": 0.6541564735104737,
+                "p50": 0.6541564735104737,
+                "p95": 0.6541564735104737,
+                "p99": 0.6541564735104737
+              },
+              "chunk_wall_ms": {
+                "max": 67.37811677157879,
+                "mean": 67.37811677157879,
+                "p50": 67.37811677157879,
+                "p95": 67.37811677157879,
+                "p99": 67.37811677157879
+              },
+              "chunks": 1,
+              "failure": {
+                "oom_count": 0,
+                "other_failure_count": 0,
+                "terminal_failure": null
+              },
+              "fallback_triggered": false,
+              "items": 103,
+              "latency_scope": "Each observation is one chunk wall time divided by items in that chunk; these are not individually timed items.",
+              "peak_vram_bytes": 178867200,
+              "requested_batch": 64,
+              "retry_count": 0,
+              "successful_batch_counts": {
+                "64": 1
+              },
+              "throughput_per_second": 1528.6862402103693,
+              "used_batch_min": 64,
+              "wall_ms": 67.37811677157879
+            },
+            "track_wall_seconds": 22.98883243650198
+          },
+          "end_to_end_seconds": 76.8427582513541,
+          "exact_search_latency_ms": {
+            "max": 842.8156226873398,
+            "mean": 510.67282572316316,
+            "p50": 497.9105703532696,
+            "p95": 585.0211098790168,
+            "p99": 737.9460105299952
+          },
+          "exact_search_seconds": 53.85392581485212,
+          "execution_outcome": {
+            "document_attempt_counts": {
+              "32": 45
+            },
+            "failure_count": 0,
+            "fallback_attempt_count": 0,
+            "fallback_triggered": false,
+            "formal_cell_finalized": true,
+            "formal_search_attempt_count": 1,
+            "formal_search_failure_count": 0,
+            "no_failure_observed": true,
+            "oom_count": 0,
+            "other_failure_count": 0,
+            "query_attempt_counts": {
+              "64": 1
+            },
+            "retry_count": 0,
+            "terminal_failure": null
+          },
+          "process_maxrss_bytes": 1811955712,
+          "query_throughput_per_second": 1.912581087479311,
+          "representation_storage": {
+            "complete_replayable_non_sidecar_bytes": 414833391,
+            "complete_replayable_with_sidecars_bytes": 414834106,
+            "mapping_identity_bytes": 496626,
+            "representation_manifest_bytes": 9032,
+            "sidecar_bytes": 715,
+            "token_array_bytes": 414327733
+          },
+          "search_peak_vram_bytes": 131417600,
+          "token_vectors": {
+            "canonical_passages": {
+              "max": 5993.0,
+              "mean": 143.01826666666668,
+              "p50": 37.5,
+              "p95": 711.0999999999985,
+              "p99": 1082.0300000000007
+            },
+            "document_total": 1072637,
+            "document_windows": {
+              "max": 287.0,
+              "mean": 93.35395996518712,
+              "p50": 116.0,
+              "p95": 178.0,
+              "p99": 206.0
+            },
+            "queries": {
+              "max": 32.0,
+              "mean": 32.0,
+              "p50": 32.0,
+              "p95": 32.0,
+              "p99": 32.0
+            },
+            "query_total": 3296
+          },
+          "track": "economics"
+        },
+        {
+          "batch_fallback": {
+            "documents": {
+              "attempt_counts": {
+                "32": 45
+              },
+              "chunk_amortized_per_item_ms": {
+                "max": 2.0747698872582987,
+                "mean": 1.5876331278029543,
+                "p50": 1.5330745300161652,
+                "p95": 1.9942963626817798,
+                "p99": 2.0596389871207066
+              },
+              "chunk_wall_ms": {
+                "max": 531.1410911381245,
+                "mean": 398.3259338057703,
+                "p50": 392.4670796841383,
+                "p95": 510.5398688465356,
+                "p99": 527.2675807029009
+              },
+              "chunks": 45,
+              "failure": {
+                "oom_count": 0,
+                "other_failure_count": 0,
+                "terminal_failure": null
+              },
+              "fallback_triggered": false,
+              "items": 11282,
+              "latency_scope": "Each observation is one chunk wall time divided by items in that chunk; these are not individually timed items.",
+              "peak_vram_bytes": 312174592,
+              "requested_batch": 32,
+              "retry_count": 0,
+              "successful_batch_counts": {
+                "32": 45
+              },
+              "throughput_per_second": 629.4119710351613,
+              "used_batch_min": 32,
+              "wall_ms": 17924.667021259665
+            },
+            "queries": {
+              "attempt_counts": {
+                "64": 1
+              },
+              "chunk_amortized_per_item_ms": {
+                "max": 0.6271063506898313,
+                "mean": 0.6271063506898313,
+                "p50": 0.6271063506898313,
+                "p95": 0.6271063506898313,
+                "p99": 0.6271063506898313
+              },
+              "chunk_wall_ms": {
+                "max": 63.337741419672966,
+                "mean": 63.337741419672966,
+                "p50": 63.337741419672966,
+                "p95": 63.337741419672966,
+                "p99": 63.337741419672966
+              },
+              "chunks": 1,
+              "failure": {
+                "oom_count": 0,
+                "other_failure_count": 0,
+                "terminal_failure": null
+              },
+              "fallback_triggered": false,
+              "items": 101,
+              "latency_scope": "Each observation is one chunk wall time divided by items in that chunk; these are not individually timed items.",
+              "peak_vram_bytes": 178867200,
+              "requested_batch": 64,
+              "retry_count": 0,
+              "successful_batch_counts": {
+                "64": 1
+              },
+              "throughput_per_second": 1594.6258539719413,
+              "used_batch_min": 64,
+              "wall_ms": 63.337741419672966
+            }
+          },
+          "build_load_seconds": 2.8968127220869064,
+          "document_encoding_units": {
+            "canonical_passage_amortized_ms": 2.3899556028346223,
+            "canonical_passage_throughput_per_second": 418.4178144623037,
+            "canonical_passages": 7500,
+            "model_input_windows": 11282
+          },
+          "encoding": {
+            "documents": {
+              "attempt_counts": {
+                "32": 45
+              },
+              "chunk_amortized_per_item_ms": {
+                "max": 2.0747698872582987,
+                "mean": 1.5876331278029543,
+                "p50": 1.5330745300161652,
+                "p95": 1.9942963626817798,
+                "p99": 2.0596389871207066
+              },
+              "chunk_wall_ms": {
+                "max": 531.1410911381245,
+                "mean": 398.3259338057703,
+                "p50": 392.4670796841383,
+                "p95": 510.5398688465356,
+                "p99": 527.2675807029009
+              },
+              "chunks": 45,
+              "failure": {
+                "oom_count": 0,
+                "other_failure_count": 0,
+                "terminal_failure": null
+              },
+              "fallback_triggered": false,
+              "items": 11282,
+              "latency_scope": "Each observation is one chunk wall time divided by items in that chunk; these are not individually timed items.",
+              "peak_vram_bytes": 312174592,
+              "requested_batch": 32,
+              "retry_count": 0,
+              "successful_batch_counts": {
+                "32": 45
+              },
+              "throughput_per_second": 629.4119710351613,
+              "used_batch_min": 32,
+              "wall_ms": 17924.667021259665
+            },
+            "process_maxrss_bytes": 2996391936,
+            "queries": {
+              "attempt_counts": {
+                "64": 1
+              },
+              "chunk_amortized_per_item_ms": {
+                "max": 0.6271063506898313,
+                "mean": 0.6271063506898313,
+                "p50": 0.6271063506898313,
+                "p95": 0.6271063506898313,
+                "p99": 0.6271063506898313
+              },
+              "chunk_wall_ms": {
+                "max": 63.337741419672966,
+                "mean": 63.337741419672966,
+                "p50": 63.337741419672966,
+                "p95": 63.337741419672966,
+                "p99": 63.337741419672966
+              },
+              "chunks": 1,
+              "failure": {
+                "oom_count": 0,
+                "other_failure_count": 0,
+                "terminal_failure": null
+              },
+              "fallback_triggered": false,
+              "items": 101,
+              "latency_scope": "Each observation is one chunk wall time divided by items in that chunk; these are not individually timed items.",
+              "peak_vram_bytes": 178867200,
+              "requested_batch": 64,
+              "retry_count": 0,
+              "successful_batch_counts": {
+                "64": 1
+              },
+              "throughput_per_second": 1594.6258539719413,
+              "used_batch_min": 64,
+              "wall_ms": 63.337741419672966
+            },
+            "track_wall_seconds": 23.647787349298596
+          },
+          "end_to_end_seconds": 74.1687175463885,
+          "exact_search_latency_ms": {
+            "max": 561.1857902258635,
+            "mean": 487.31372267524205,
+            "p50": 482.30767995119095,
+            "p95": 552.0672686398029,
+            "p99": 561.048312112689
+          },
+          "exact_search_seconds": 50.52093019708991,
+          "execution_outcome": {
+            "document_attempt_counts": {
+              "32": 45
+            },
+            "failure_count": 0,
+            "fallback_attempt_count": 0,
+            "fallback_triggered": false,
+            "formal_cell_finalized": true,
+            "formal_search_attempt_count": 1,
+            "formal_search_failure_count": 0,
+            "no_failure_observed": true,
+            "oom_count": 0,
+            "other_failure_count": 0,
+            "query_attempt_counts": {
+              "64": 1
+            },
+            "retry_count": 0,
+            "terminal_failure": null
+          },
+          "process_maxrss_bytes": 1797636096,
+          "query_throughput_per_second": 1.999171424714143,
+          "representation_storage": {
+            "complete_replayable_non_sidecar_bytes": 405844124,
+            "complete_replayable_with_sidecars_bytes": 405844839,
+            "mapping_identity_bytes": 465645,
+            "representation_manifest_bytes": 9066,
+            "sidecar_bytes": 715,
+            "token_array_bytes": 405369413
+          },
+          "search_peak_vram_bytes": 131417600,
+          "token_vectors": {
+            "canonical_passages": {
+              "max": 53243.0,
+              "mean": 139.92493333333334,
+              "p50": 38.0,
+              "p95": 515.2499999999964,
+              "p99": 1301.0600000000013
+            },
+            "document_total": 1049437,
+            "document_windows": {
+              "max": 298.0,
+              "mean": 93.018702357738,
+              "p50": 99.0,
+              "p95": 179.0,
+              "p99": 199.1900000000005
+            },
+            "queries": {
+              "max": 32.0,
+              "mean": 32.0,
+              "p50": 32.0,
+              "p95": 32.0,
+              "p99": 32.0
+            },
+            "query_total": 3232
+          },
+          "track": "psychology"
+        }
+      ]
+    },
+    {
+      "dimensions": 128,
+      "document_length": 300,
+      "document_route": "encode_document with saved document route",
+      "gate_peak_vram_bytes": 628618752,
+      "languages": [
+        "English"
+      ],
+      "license": "Apache-2.0",
+      "license_evidence": "Pinned primary-source Hub API and model-card evidence in inventory.json",
+      "lineage": "PyLate checkpoint based on Alibaba-NLP/gte-modernbert-base and distilled on MS MARCO.",
+      "mask_policy": "document punctuation is removed from the scoring mask; ordinary attention padding is excluded",
+      "model_key": "gte-modern-colbert",
+      "padding_policy": "ragged scoring-mask compaction; any adapter padding is zero with an explicit boolean mask",
+      "parameters": 149000000,
+      "query_length": 48,
+      "query_route": "encode_query with saved query route and no mask-token expansion",
+      "repo_id": "lightonai/GTE-ModernColBERT-v1",
+      "revision": "25f6f7bb8237b7ae25ae1d9b805ce17c0d1cc639",
+      "snapshot_bytes": 600463163,
+      "snapshot_identity_sha256": "34ac97a354fa6f209d13c55cbaa0f2d64656e1d64be7ba148bfc9b8bdfcb9ab7",
+      "tracks": [
+        {
+          "batch_fallback": {
+            "documents": {
+              "attempt_counts": {
+                "32": 45
+              },
+              "chunk_amortized_per_item_ms": {
+                "max": 6.522184223285876,
+                "mean": 4.455781376817274,
+                "p50": 4.3922357726842165,
+                "p95": 5.712698350544087,
+                "p99": 6.3615631803986625
+              },
+              "chunk_wall_ms": {
+                "max": 1669.6791611611843,
+                "mean": 1137.4316802869241,
+                "p50": 1118.939584121108,
+                "p95": 1462.4507777392862,
+                "p99": 1628.5601741820576
+              },
+              "chunks": 45,
+              "failure": {
+                "oom_count": 0,
+                "other_failure_count": 0,
+                "terminal_failure": null
+              },
+              "fallback_triggered": false,
+              "items": 11490,
+              "latency_scope": "Each observation is one chunk wall time divided by items in that chunk; these are not individually timed items.",
+              "peak_vram_bytes": 962012160,
+              "requested_batch": 32,
+              "retry_count": 0,
+              "successful_batch_counts": {
+                "32": 45
+              },
+              "throughput_per_second": 224.48234716736917,
+              "used_batch_min": 32,
+              "wall_ms": 51184.42561291158
+            },
+            "queries": {
+              "attempt_counts": {
+                "64": 1
+              },
+              "chunk_amortized_per_item_ms": {
+                "max": 1.4728960011479924,
+                "mean": 1.4728960011479924,
+                "p50": 1.4728960011479924,
+                "p95": 1.4728960011479924,
+                "p99": 1.4728960011479924
+              },
+              "chunk_wall_ms": {
+                "max": 151.70828811824322,
+                "mean": 151.70828811824322,
+                "p50": 151.70828811824322,
+                "p95": 151.70828811824322,
+                "p99": 151.70828811824322
+              },
+              "chunks": 1,
+              "failure": {
+                "oom_count": 0,
+                "other_failure_count": 0,
+                "terminal_failure": null
+              },
+              "fallback_triggered": false,
+              "items": 103,
+              "latency_scope": "Each observation is one chunk wall time divided by items in that chunk; these are not individually timed items.",
+              "peak_vram_bytes": 729523712,
+              "requested_batch": 64,
+              "retry_count": 0,
+              "successful_batch_counts": {
+                "64": 1
+              },
+              "throughput_per_second": 678.934561042048,
+              "used_batch_min": 64,
+              "wall_ms": 151.70828811824322
+            }
+          },
+          "build_load_seconds": 4.456939784809947,
+          "document_encoding_units": {
+            "canonical_passage_amortized_ms": 6.824590081721544,
+            "canonical_passage_throughput_per_second": 146.52894723718615,
+            "canonical_passages": 7500,
+            "model_input_windows": 11490
+          },
+          "encoding": {
+            "documents": {
+              "attempt_counts": {
+                "32": 45
+              },
+              "chunk_amortized_per_item_ms": {
+                "max": 6.522184223285876,
+                "mean": 4.455781376817274,
+                "p50": 4.3922357726842165,
+                "p95": 5.712698350544087,
+                "p99": 6.3615631803986625
+              },
+              "chunk_wall_ms": {
+                "max": 1669.6791611611843,
+                "mean": 1137.4316802869241,
+                "p50": 1118.939584121108,
+                "p95": 1462.4507777392862,
+                "p99": 1628.5601741820576
+              },
+              "chunks": 45,
+              "failure": {
+                "oom_count": 0,
+                "other_failure_count": 0,
+                "terminal_failure": null
+              },
+              "fallback_triggered": false,
+              "items": 11490,
+              "latency_scope": "Each observation is one chunk wall time divided by items in that chunk; these are not individually timed items.",
+              "peak_vram_bytes": 962012160,
+              "requested_batch": 32,
+              "retry_count": 0,
+              "successful_batch_counts": {
+                "32": 45
+              },
+              "throughput_per_second": 224.48234716736917,
+              "used_batch_min": 32,
+              "wall_ms": 51184.42561291158
+            },
+            "process_maxrss_bytes": 3207839744,
+            "queries": {
+              "attempt_counts": {
+                "64": 1
+              },
+              "chunk_amortized_per_item_ms": {
+                "max": 1.4728960011479924,
+                "mean": 1.4728960011479924,
+                "p50": 1.4728960011479924,
+                "p95": 1.4728960011479924,
+                "p99": 1.4728960011479924
+              },
+              "chunk_wall_ms": {
+                "max": 151.70828811824322,
+                "mean": 151.70828811824322,
+                "p50": 151.70828811824322,
+                "p95": 151.70828811824322,
+                "p99": 151.70828811824322
+              },
+              "chunks": 1,
+              "failure": {
+                "oom_count": 0,
+                "other_failure_count": 0,
+                "terminal_failure": null
+              },
+              "fallback_triggered": false,
+              "items": 103,
+              "latency_scope": "Each observation is one chunk wall time divided by items in that chunk; these are not individually timed items.",
+              "peak_vram_bytes": 729523712,
+              "requested_batch": 64,
+              "retry_count": 0,
+              "successful_batch_counts": {
+                "64": 1
+              },
+              "throughput_per_second": 678.934561042048,
+              "used_batch_min": 64,
+              "wall_ms": 151.70828811824322
+            },
+            "track_wall_seconds": 57.017827209085226
+          },
+          "end_to_end_seconds": 129.3439324889332,
+          "exact_search_latency_ms": {
+            "max": 915.8456418663263,
+            "mean": 690.9163309062279,
+            "p50": 674.033535644412,
+            "p95": 784.0082038193941,
+            "p99": 847.3908960074189
+          },
+          "exact_search_seconds": 72.32610527984798,
+          "execution_outcome": {
+            "document_attempt_counts": {
+              "32": 45
+            },
+            "failure_count": 0,
+            "fallback_attempt_count": 0,
+            "fallback_triggered": false,
+            "formal_cell_finalized": true,
+            "formal_search_attempt_count": 1,
+            "formal_search_failure_count": 0,
+            "no_failure_observed": true,
+            "oom_count": 0,
+            "other_failure_count": 0,
+            "query_attempt_counts": {
+              "64": 1
+            },
+            "retry_count": 0,
+            "terminal_failure": null
+          },
+          "process_maxrss_bytes": 2100510720,
+          "query_throughput_per_second": 1.424105440234435,
+          "representation_storage": {
+            "complete_replayable_non_sidecar_bytes": 681097178,
+            "complete_replayable_with_sidecars_bytes": 681097893,
+            "mapping_identity_bytes": 496626,
+            "representation_manifest_bytes": 8933,
+            "sidecar_bytes": 715,
+            "token_array_bytes": 680591619
+          },
+          "search_peak_vram_bytes": 132086784,
+          "token_vectors": {
+            "canonical_passages": {
+              "max": 8222.0,
+              "mean": 176.21013333333335,
+              "p50": 45.0,
+              "p95": 861.0,
+              "p99": 1325.0100000000002
+            },
+            "document_total": 1321576,
+            "document_windows": {
+              "max": 300.0,
+              "mean": 115.01966927763273,
+              "p50": 138.0,
+              "p95": 240.0,
+              "p99": 272.0
+            },
+            "queries": {
+              "max": 48.0,
+              "mean": 47.87378640776699,
+              "p50": 48.0,
+              "p95": 48.0,
+              "p99": 48.0
+            },
+            "query_total": 4931
+          },
+          "track": "economics"
+        },
+        {
+          "batch_fallback": {
+            "documents": {
+              "attempt_counts": {
+                "32": 45
+              },
+              "chunk_amortized_per_item_ms": {
+                "max": 6.062301734345965,
+                "mean": 4.282387972641938,
+                "p50": 4.257910652086139,
+                "p95": 5.744240047351923,
+                "p99": 5.975063914956991
+              },
+              "chunk_wall_ms": {
+                "max": 1551.949243992567,
+                "mean": 1081.4999816732275,
+                "p50": 1090.0251269340515,
+                "p95": 1470.5254521220922,
+                "p99": 1529.6163622289896
+              },
+              "chunks": 45,
+              "failure": {
+                "oom_count": 0,
+                "other_failure_count": 0,
+                "terminal_failure": null
+              },
+              "fallback_triggered": false,
+              "items": 11282,
+              "latency_scope": "Each observation is one chunk wall time divided by items in that chunk; these are not individually timed items.",
+              "peak_vram_bytes": 962012160,
+              "requested_batch": 32,
+              "retry_count": 0,
+              "successful_batch_counts": {
+                "32": 45
+              },
+              "throughput_per_second": 231.81795225111975,
+              "used_batch_min": 32,
+              "wall_ms": 48667.499175295234
+            },
+            "queries": {
+              "attempt_counts": {
+                "64": 1
+              },
+              "chunk_amortized_per_item_ms": {
+                "max": 1.4000950510254,
+                "mean": 1.4000950510254,
+                "p50": 1.4000950510254,
+                "p95": 1.4000950510254,
+                "p99": 1.4000950510254
+              },
+              "chunk_wall_ms": {
+                "max": 141.4096001535654,
+                "mean": 141.4096001535654,
+                "p50": 141.4096001535654,
+                "p95": 141.4096001535654,
+                "p99": 141.4096001535654
+              },
+              "chunks": 1,
+              "failure": {
+                "oom_count": 0,
+                "other_failure_count": 0,
+                "terminal_failure": null
+              },
+              "fallback_triggered": false,
+              "items": 101,
+              "latency_scope": "Each observation is one chunk wall time divided by items in that chunk; these are not individually timed items.",
+              "peak_vram_bytes": 729523712,
+              "requested_batch": 64,
+              "retry_count": 0,
+              "successful_batch_counts": {
+                "64": 1
+              },
+              "throughput_per_second": 714.2372221568965,
+              "used_batch_min": 64,
+              "wall_ms": 141.4096001535654
+            }
+          },
+          "build_load_seconds": 3.302127966657281,
+          "document_encoding_units": {
+            "canonical_passage_amortized_ms": 6.488999890039365,
+            "canonical_passage_throughput_per_second": 154.106952834905,
+            "canonical_passages": 7500,
+            "model_input_windows": 11282
+          },
+          "encoding": {
+            "documents": {
+              "attempt_counts": {
+                "32": 45
+              },
+              "chunk_amortized_per_item_ms": {
+                "max": 6.062301734345965,
+                "mean": 4.282387972641938,
+                "p50": 4.257910652086139,
+                "p95": 5.744240047351923,
+                "p99": 5.975063914956991
+              },
+              "chunk_wall_ms": {
+                "max": 1551.949243992567,
+                "mean": 1081.4999816732275,
+                "p50": 1090.0251269340515,
+                "p95": 1470.5254521220922,
+                "p99": 1529.6163622289896
+              },
+              "chunks": 45,
+              "failure": {
+                "oom_count": 0,
+                "other_failure_count": 0,
+                "terminal_failure": null
+              },
+              "fallback_triggered": false,
+              "items": 11282,
+              "latency_scope": "Each observation is one chunk wall time divided by items in that chunk; these are not individually timed items.",
+              "peak_vram_bytes": 962012160,
+              "requested_batch": 32,
+              "retry_count": 0,
+              "successful_batch_counts": {
+                "32": 45
+              },
+              "throughput_per_second": 231.81795225111975,
+              "used_batch_min": 32,
+              "wall_ms": 48667.499175295234
+            },
+            "process_maxrss_bytes": 3847053312,
+            "queries": {
+              "attempt_counts": {
+                "64": 1
+              },
+              "chunk_amortized_per_item_ms": {
+                "max": 1.4000950510254,
+                "mean": 1.4000950510254,
+                "p50": 1.4000950510254,
+                "p95": 1.4000950510254,
+                "p99": 1.4000950510254
+              },
+              "chunk_wall_ms": {
+                "max": 141.4096001535654,
+                "mean": 141.4096001535654,
+                "p50": 141.4096001535654,
+                "p95": 141.4096001535654,
+                "p99": 141.4096001535654
+              },
+              "chunks": 1,
+              "failure": {
+                "oom_count": 0,
+                "other_failure_count": 0,
+                "terminal_failure": null
+              },
+              "fallback_triggered": false,
+              "items": 101,
+              "latency_scope": "Each observation is one chunk wall time divided by items in that chunk; these are not individually timed items.",
+              "peak_vram_bytes": 729523712,
+              "requested_batch": 64,
+              "retry_count": 0,
+              "successful_batch_counts": {
+                "64": 1
+              },
+              "throughput_per_second": 714.2372221568965,
+              "used_batch_min": 64,
+              "wall_ms": 141.4096001535654
+            },
+            "track_wall_seconds": 58.02087043225765
+          },
+          "end_to_end_seconds": 125.89857965521514,
+          "exact_search_latency_ms": {
+            "max": 753.8822498172522,
+            "mean": 660.6231692366966,
+            "p50": 658.895593136549,
+            "p95": 694.1212508827448,
+            "p99": 753.4778174012899
+          },
+          "exact_search_seconds": 67.87770922295749,
+          "execution_outcome": {
+            "document_attempt_counts": {
+              "32": 45
+            },
+            "failure_count": 0,
+            "fallback_attempt_count": 0,
+            "fallback_triggered": false,
+            "formal_cell_finalized": true,
+            "formal_search_attempt_count": 1,
+            "formal_search_failure_count": 0,
+            "no_failure_observed": true,
+            "oom_count": 0,
+            "other_failure_count": 0,
+            "query_attempt_counts": {
+              "64": 1
+            },
+            "retry_count": 0,
+            "terminal_failure": null
+          },
+          "process_maxrss_bytes": 2086256640,
+          "query_throughput_per_second": 1.4879700737726125,
+          "representation_storage": {
+            "complete_replayable_non_sidecar_bytes": 655992148,
+            "complete_replayable_with_sidecars_bytes": 655992863,
+            "mapping_identity_bytes": 465645,
+            "representation_manifest_bytes": 8926,
+            "sidecar_bytes": 715,
+            "token_array_bytes": 655517577
+          },
+          "search_peak_vram_bytes": 135343616,
+          "token_vectors": {
+            "canonical_passages": {
+              "max": 74467.0,
+              "mean": 169.7076,
+              "p50": 44.0,
+              "p95": 630.0499999999993,
+              "p99": 1570.1700000000037
+            },
+            "document_total": 1272807,
+            "document_windows": {
+              "max": 300.0,
+              "mean": 112.81749689771317,
+              "p50": 115.0,
+              "p95": 237.0,
+              "p99": 250.0
+            },
+            "queries": {
+              "max": 48.0,
+              "mean": 47.78217821782178,
+              "p50": 48.0,
+              "p95": 48.0,
+              "p99": 48.0
+            },
+            "query_total": 4826
+          },
+          "track": "psychology"
+        }
+      ]
+    }
+  ],
+  "package_version": "bright-multi-vector-v0.2",
+  "publication": {
+    "classification": "research_only",
+    "gate": "closed",
+    "leaderboard_publish": false,
+    "public_export_allowed": false,
+    "publish": false
+  },
+  "schema_version": "bright-real-multi-vector-resources-v1"
+}
