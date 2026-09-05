@@ -1,0 +1,145 @@
+{
+  "decision": "pass",
+  "dense": {
+    "allowlist_exact": true,
+    "architecture": [
+      "BertModel"
+    ],
+    "auto_map": null,
+    "gated": false,
+    "hidden_size": 384,
+    "library_name": "sentence-transformers",
+    "license_tag_present": true,
+    "local_only_gate_required": true,
+    "local_snapshot": {
+      "aggregate_sha256": "04c1a2ae6a1c7299745f8eb7f8db75456a7df9652dd4f48a40be2ee59d7c37c1",
+      "files": [
+        {
+          "bytes": 190,
+          "path": "1_Pooling/config.json",
+          "sha256": "4be450dde3b0273bb9787637cfbd28fe04a7ba6ab9d36ac48e92b11e350ffc23"
+        },
+        {
+          "bytes": 10454,
+          "path": "README.md",
+          "sha256": "7dfc82496ec33f906b5b0d6750c1e2397da6530c74d1ae3568c55bc2739125e7"
+        },
+        {
+          "bytes": 612,
+          "path": "config.json",
+          "sha256": "953f9c0d463486b10a6871cc2fd59f223b2c70184f49815e7efbcab5d8908b41"
+        },
+        {
+          "bytes": 116,
+          "path": "config_sentence_transformers.json",
+          "sha256": "061ca9d39661d6c6d6de5ba27f79a1cd5770ea247f8d46412a68a498dc5ac9f3"
+        },
+        {
+          "bytes": 90868376,
+          "path": "model.safetensors",
+          "sha256": "53aa51172d142c89d9012cce15ae4d6cc0ca6895895114379cacb4fab128d9db"
+        },
+        {
+          "bytes": 349,
+          "path": "modules.json",
+          "sha256": "84e40c8e006c9b1d6c122e02cba9b02458120b5fb0c87b746c41e0207cf642cf"
+        },
+        {
+          "bytes": 53,
+          "path": "sentence_bert_config.json",
+          "sha256": "fc1993fde0a95c24ec6c022539d41cf6e2f7c9721e5415d6fb6897472a9cd4b7"
+        },
+        {
+          "bytes": 112,
+          "path": "special_tokens_map.json",
+          "sha256": "303df45a03609e4ead04bc3dc1536d0ab19b5358db685b6f3da123d05ec200e3"
+        },
+        {
+          "bytes": 466247,
+          "path": "tokenizer.json",
+          "sha256": "be50c3628f2bf5bb5e3a7f17b1f74611b2561a3a27eeab05e5aa30f411572037"
+        },
+        {
+          "bytes": 350,
+          "path": "tokenizer_config.json",
+          "sha256": "acb92769e8195aabd29b7b2137a9e6d6e25c476a4f15aa4355c233426c61576b"
+        },
+        {
+          "bytes": 231508,
+          "path": "vocab.txt",
+          "sha256": "07eced375cec144d27c900241f3e339478dec958f92fddbc551f295c992038a3"
+        }
+      ],
+      "total_bytes": 91578367
+    },
+    "max_sequence_length": 256,
+    "module_types": [
+      "sentence_transformers.models.Transformer",
+      "sentence_transformers.models.Pooling",
+      "sentence_transformers.models.Normalize"
+    ],
+    "pipeline_tag": "sentence-similarity",
+    "pooling": {
+      "cls": false,
+      "dimension": 384,
+      "max": false,
+      "mean": true
+    },
+    "private": false,
+    "remote_python_files_not_loaded": [
+      "train_script.py"
+    ],
+    "remote_repository_files": [
+      ".gitattributes",
+      "1_Pooling/config.json",
+      "README.md",
+      "config.json",
+      "config_sentence_transformers.json",
+      "data_config.json",
+      "model.safetensors",
+      "modules.json",
+      "onnx/model.onnx",
+      "onnx/model_O1.onnx",
+      "onnx/model_O2.onnx",
+      "onnx/model_O3.onnx",
+      "onnx/model_O4.onnx",
+      "onnx/model_qint8_arm64.onnx",
+      "onnx/model_qint8_avx512.onnx",
+      "onnx/model_qint8_avx512_vnni.onnx",
+      "onnx/model_quint8_avx2.onnx",
+      "openvino/openvino_model.bin",
+      "openvino/openvino_model.xml",
+      "openvino/openvino_model_qint8_quantized.bin",
+      "openvino/openvino_model_qint8_quantized.xml",
+      "pytorch_model.bin",
+      "rust_model.ot",
+      "sentence_bert_config.json",
+      "special_tokens_map.json",
+      "tf_model.h5",
+      "tokenizer.json",
+      "tokenizer_config.json",
+      "train_script.py",
+      "vocab.txt"
+    ],
+    "repo_id": "sentence-transformers/all-MiniLM-L6-v2",
+    "requested_revision": "c9745ed1d9f207416be6d2e6f8de32d1f16199bf",
+    "resolved_revision": "c9745ed1d9f207416be6d2e6f8de32d1f16199bf",
+    "safetensors_parameters": {
+      "F32": 22713216,
+      "I64": 512
+    },
+    "trust_remote_code": false
+  },
+  "lexical": {
+    "external_service": false,
+    "implementation": "sklearn.feature_extraction.text.TfidfVectorizer",
+    "installed_before_freeze": true,
+    "license_expression": "BSD-3-Clause",
+    "package": "scikit-learn",
+    "version": "1.8.0"
+  },
+  "network_policy": "Metadata API only; no model files were downloaded.",
+  "observed_at": "2026-09-05T13:22:09Z",
+  "schema_version": "bright-cross-paradigm-metadata-preflight-v1",
+  "story_id": "S-20260814-009"
+}

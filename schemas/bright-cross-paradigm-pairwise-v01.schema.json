@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema_version", "story_id", "publication", "method", "samples", "seed", "tracks"],
+  "properties": {
+    "schema_version": {"const": "bright-cross-paradigm-pairwise-v1"}, "story_id": {"const": "S-20260814-009"},
+    "publication": {"$ref": "#/$defs/publication"}, "method": {"const": "paired_percentile_bootstrap_over_matched_queries"},
+    "samples": {"const": 10000}, "seed": {"const": 20260826},
+    "tracks": {"type": "object", "additionalProperties": false, "required": ["economics", "psychology"], "properties": {"economics": {"type": "array", "minItems": 91, "maxItems": 91, "items": {"allOf": [{"$ref": "#/$defs/pair"}, {"properties": {"n": {"const": 103}}}]}}, "psychology": {"type": "array", "minItems": 91, "maxItems": 91, "items": {"allOf": [{"$ref": "#/$defs/pair"}, {"properties": {"n": {"const": 101}}}]}}}}
+  },
+  "$defs": {
+    "publication": {"const": {"publish": false, "leaderboard_publish": false, "public_export_allowed": false, "gate": "closed", "classification": "research_only", "restricted_content_allowed": false}},
+    "method_key": {"enum": ["bm25-unicode", "tfidf-word-sublinear", "bge-m3-dense", "all-minilm-l6-v2", "granite-30m-sparse", "opensearch-doc-v2-mini", "opensearch-doc-v3", "bge-m3", "splade-tiny", "opensearch-doc-v2-distill", "opensearch-multilingual", "colbert-v2", "answerai-colbert-small", "gte-modern-colbert"]},
+    "interval": {"type": "object", "additionalProperties": false, "required": ["mean", "low", "high", "samples", "seed", "verdict"], "properties": {"mean": {"type": "number"}, "low": {"type": "number"}, "high": {"type": "number"}, "samples": {"const": 10000}, "seed": {"const": 20260826}, "verdict": {"enum": ["left_wins", "right_wins", "tie_or_uncertain"]}}},
+    "metric_set": {"type": "object", "additionalProperties": false, "minProperties": 5, "maxProperties": 5, "required": ["ndcg@10", "map@100", "mrr@10", "recall@10", "recall@100"], "properties": {"ndcg@10": {"$ref": "#/$defs/interval"}, "map@100": {"$ref": "#/$defs/interval"}, "mrr@10": {"$ref": "#/$defs/interval"}, "recall@10": {"$ref": "#/$defs/interval"}, "recall@100": {"$ref": "#/$defs/interval"}}},
+    "pair": {"type": "object", "additionalProperties": false, "required": ["left", "right", "n", "metrics"], "properties": {"left": {"$ref": "#/$defs/method_key"}, "right": {"$ref": "#/$defs/method_key"}, "n": {"type": "integer"}, "metrics": {"$ref": "#/$defs/metric_set"}}}
+  }
+}

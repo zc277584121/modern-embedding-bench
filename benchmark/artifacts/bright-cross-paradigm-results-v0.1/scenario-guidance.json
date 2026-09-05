@@ -1,0 +1,532 @@
+{
+  "publication": {
+    "classification": "research_only",
+    "gate": "closed",
+    "leaderboard_publish": false,
+    "public_export_allowed": false,
+    "publish": false,
+    "restricted_content_allowed": false
+  },
+  "resource_coverage": {
+    "complete": true,
+    "failed_closed": 6,
+    "passed": 22,
+    "planned": 28
+  },
+  "scenarios": [
+    {
+      "instruction": "Prefer the point leader only when the paired verdict is decisive; otherwise choose among tied methods using successful within-track resource measurements.",
+      "metric": "ndcg@10",
+      "n": 103,
+      "ordered_methods": [
+        "answerai-colbert-small",
+        "gte-modern-colbert",
+        "opensearch-doc-v2-distill",
+        "bge-m3",
+        "all-minilm-l6-v2",
+        "granite-30m-sparse",
+        "bge-m3-dense",
+        "bm25-unicode",
+        "splade-tiny",
+        "colbert-v2",
+        "opensearch-multilingual",
+        "opensearch-doc-v2-mini",
+        "opensearch-doc-v3",
+        "tfidf-word-sublinear"
+      ],
+      "paired_evidence": {
+        "alternative": "gte-modern-colbert",
+        "high": 0.03864700887486784,
+        "low": -0.0315622993785175,
+        "mean": 0.0019716255970524924,
+        "metric": "ndcg@10",
+        "samples": 10000,
+        "seed": 20260826,
+        "verdict": "tie_or_uncertain"
+      },
+      "recommended_method": "answerai-colbert-small",
+      "scenario": "overall_exact_quality",
+      "successful_resource_tradeoffs": [
+        {
+          "document_encoding_seconds": 17.852584306150675,
+          "family": "multi_vector",
+          "median_queries_per_second": 2.526566910304445,
+          "method_key": "answerai-colbert-small",
+          "query_encoding_seconds": 0.07137502357363701,
+          "representation_bytes": 413250192,
+          "representation_stratum": "multi_vector"
+        },
+        {
+          "document_encoding_seconds": 50.66358809545636,
+          "family": "multi_vector",
+          "median_queries_per_second": 1.853907334584699,
+          "method_key": "gte-modern-colbert",
+          "query_encoding_seconds": 0.146337503567338,
+          "representation_bytes": 679263504,
+          "representation_stratum": "multi_vector"
+        },
+        {
+          "document_encoding_seconds": 20.498531833291054,
+          "family": "learned_sparse",
+          "median_queries_per_second": 44.14612257998092,
+          "method_key": "opensearch-doc-v2-distill",
+          "query_encoding_seconds": 0.33912339247763157,
+          "representation_bytes": 10197580,
+          "representation_stratum": "learned_sparse"
+        }
+      ],
+      "track": "economics"
+    },
+    {
+      "instruction": "Use the paired slice verdict for the top two point estimates, then apply successful unified resource evidence as a separate operational filter.",
+      "metric": "ndcg@10",
+      "n": 31,
+      "ordered_methods": [
+        "all-minilm-l6-v2",
+        "bge-m3-dense",
+        "answerai-colbert-small",
+        "granite-30m-sparse",
+        "opensearch-multilingual",
+        "bge-m3",
+        "gte-modern-colbert",
+        "opensearch-doc-v2-distill",
+        "opensearch-doc-v2-mini",
+        "colbert-v2",
+        "opensearch-doc-v3",
+        "splade-tiny",
+        "bm25-unicode",
+        "tfidf-word-sublinear"
+      ],
+      "paired_evidence": {
+        "alternative": "bge-m3-dense",
+        "high": 0.036019025374432405,
+        "low": -0.013672983527355157,
+        "mean": 0.007968497969730044,
+        "metric": "ndcg@10",
+        "samples": 10000,
+        "seed": 20260826,
+        "verdict": "tie_or_uncertain"
+      },
+      "recommended_method": "all-minilm-l6-v2",
+      "scenario": "positive_lexical_overlap:(0,0.25]",
+      "successful_resource_tradeoffs": [
+        {
+          "document_encoding_seconds": 4.848835369572043,
+          "family": "dense",
+          "median_queries_per_second": 121.13285179849854,
+          "method_key": "all-minilm-l6-v2",
+          "query_encoding_seconds": 0.09945222549140453,
+          "representation_bytes": 11678208,
+          "representation_stratum": "dense"
+        },
+        {
+          "document_encoding_seconds": 77.07673550024629,
+          "family": "dense",
+          "median_queries_per_second": 132.26329543425965,
+          "method_key": "bge-m3-dense",
+          "query_encoding_seconds": 1.0959694553166628,
+          "representation_bytes": 31141888,
+          "representation_stratum": "dense"
+        },
+        {
+          "document_encoding_seconds": 17.852584306150675,
+          "family": "multi_vector",
+          "median_queries_per_second": 2.526566910304445,
+          "method_key": "answerai-colbert-small",
+          "query_encoding_seconds": 0.07137502357363701,
+          "representation_bytes": 413250192,
+          "representation_stratum": "multi_vector"
+        }
+      ],
+      "track": "economics"
+    },
+    {
+      "instruction": "Use the paired slice verdict for the top two point estimates, then apply successful unified resource evidence as a separate operational filter.",
+      "metric": "ndcg@10",
+      "n": 16,
+      "ordered_methods": [
+        "answerai-colbert-small",
+        "gte-modern-colbert",
+        "splade-tiny",
+        "bge-m3",
+        "bm25-unicode",
+        "colbert-v2",
+        "all-minilm-l6-v2",
+        "opensearch-doc-v2-mini",
+        "opensearch-multilingual",
+        "opensearch-doc-v2-distill",
+        "opensearch-doc-v3",
+        "bge-m3-dense",
+        "granite-30m-sparse",
+        "tfidf-word-sublinear"
+      ],
+      "paired_evidence": {
+        "alternative": "gte-modern-colbert",
+        "high": 0.0728767558836172,
+        "low": -0.08124934613125771,
+        "mean": 0.002897160530386182,
+        "metric": "ndcg@10",
+        "samples": 10000,
+        "seed": 20260826,
+        "verdict": "tie_or_uncertain"
+      },
+      "recommended_method": "answerai-colbert-small",
+      "scenario": "positive_passage_length:>512",
+      "successful_resource_tradeoffs": [
+        {
+          "document_encoding_seconds": 17.852584306150675,
+          "family": "multi_vector",
+          "median_queries_per_second": 2.526566910304445,
+          "method_key": "answerai-colbert-small",
+          "query_encoding_seconds": 0.07137502357363701,
+          "representation_bytes": 413250192,
+          "representation_stratum": "multi_vector"
+        },
+        {
+          "document_encoding_seconds": 50.66358809545636,
+          "family": "multi_vector",
+          "median_queries_per_second": 1.853907334584699,
+          "method_key": "gte-modern-colbert",
+          "query_encoding_seconds": 0.146337503567338,
+          "representation_bytes": 679263504,
+          "representation_stratum": "multi_vector"
+        },
+        {
+          "document_encoding_seconds": 11.79694214835763,
+          "family": "learned_sparse",
+          "median_queries_per_second": 55.25608571531225,
+          "method_key": "splade-tiny",
+          "query_encoding_seconds": 0.18098178505897522,
+          "representation_bytes": 7558900,
+          "representation_stratum": "learned_sparse"
+        }
+      ],
+      "track": "economics"
+    },
+    {
+      "instruction": "Use the paired slice verdict for the top two point estimates, then apply successful unified resource evidence as a separate operational filter.",
+      "metric": "ndcg@10",
+      "n": 38,
+      "ordered_methods": [
+        "gte-modern-colbert",
+        "bge-m3",
+        "opensearch-doc-v2-distill",
+        "answerai-colbert-small",
+        "splade-tiny",
+        "granite-30m-sparse",
+        "bm25-unicode",
+        "colbert-v2",
+        "opensearch-doc-v3",
+        "all-minilm-l6-v2",
+        "opensearch-doc-v2-mini",
+        "bge-m3-dense",
+        "opensearch-multilingual",
+        "tfidf-word-sublinear"
+      ],
+      "paired_evidence": {
+        "alternative": "bge-m3",
+        "high": 0.07597463426683027,
+        "low": -0.059061819161114,
+        "mean": 0.008362978409455043,
+        "metric": "ndcg@10",
+        "samples": 10000,
+        "seed": 20260826,
+        "verdict": "tie_or_uncertain"
+      },
+      "recommended_method": "gte-modern-colbert",
+      "scenario": "qrel_density:>=5",
+      "successful_resource_tradeoffs": [
+        {
+          "document_encoding_seconds": 50.66358809545636,
+          "family": "multi_vector",
+          "median_queries_per_second": 1.853907334584699,
+          "method_key": "gte-modern-colbert",
+          "query_encoding_seconds": 0.146337503567338,
+          "representation_bytes": 679263504,
+          "representation_stratum": "multi_vector"
+        },
+        {
+          "document_encoding_seconds": 43.48491021245718,
+          "family": "learned_sparse",
+          "median_queries_per_second": 64.4394262037029,
+          "method_key": "bge-m3",
+          "query_encoding_seconds": 0.6497053969651461,
+          "representation_bytes": 3170996,
+          "representation_stratum": "learned_sparse"
+        },
+        {
+          "document_encoding_seconds": 20.498531833291054,
+          "family": "learned_sparse",
+          "median_queries_per_second": 44.14612257998092,
+          "method_key": "opensearch-doc-v2-distill",
+          "query_encoding_seconds": 0.33912339247763157,
+          "representation_bytes": 10197580,
+          "representation_stratum": "learned_sparse"
+        }
+      ],
+      "track": "economics"
+    },
+    {
+      "instruction": "Prefer the point leader only when the paired verdict is decisive; otherwise choose among tied methods using successful within-track resource measurements.",
+      "metric": "ndcg@10",
+      "n": 101,
+      "ordered_methods": [
+        "gte-modern-colbert",
+        "answerai-colbert-small",
+        "bge-m3",
+        "colbert-v2",
+        "bge-m3-dense",
+        "granite-30m-sparse",
+        "opensearch-multilingual",
+        "opensearch-doc-v2-distill",
+        "all-minilm-l6-v2",
+        "splade-tiny",
+        "opensearch-doc-v2-mini",
+        "opensearch-doc-v3",
+        "bm25-unicode",
+        "tfidf-word-sublinear"
+      ],
+      "paired_evidence": {
+        "alternative": "answerai-colbert-small",
+        "high": 0.08664558864519363,
+        "low": -0.00012523408949477528,
+        "mean": 0.04199529687071324,
+        "metric": "ndcg@10",
+        "samples": 10000,
+        "seed": 20260826,
+        "verdict": "tie_or_uncertain"
+      },
+      "recommended_method": "gte-modern-colbert",
+      "scenario": "overall_exact_quality",
+      "successful_resource_tradeoffs": [
+        {
+          "document_encoding_seconds": 48.13763600960374,
+          "family": "multi_vector",
+          "median_queries_per_second": 1.980713292807658,
+          "method_key": "gte-modern-colbert",
+          "query_encoding_seconds": 0.13630218617618084,
+          "representation_bytes": 654238352,
+          "representation_stratum": "multi_vector"
+        },
+        {
+          "document_encoding_seconds": 17.63409391976893,
+          "family": "multi_vector",
+          "median_queries_per_second": 2.6371413225454727,
+          "method_key": "answerai-colbert-small",
+          "query_encoding_seconds": 0.06136782839894295,
+          "representation_bytes": 404315152,
+          "representation_stratum": "multi_vector"
+        },
+        {
+          "document_encoding_seconds": 43.54442139901221,
+          "family": "learned_sparse",
+          "median_queries_per_second": 62.287374845497645,
+          "method_key": "bge-m3",
+          "query_encoding_seconds": 0.588278753682971,
+          "representation_bytes": 2951156,
+          "representation_stratum": "learned_sparse"
+        }
+      ],
+      "track": "psychology"
+    },
+    {
+      "instruction": "Use the paired slice verdict for the top two point estimates, then apply successful unified resource evidence as a separate operational filter.",
+      "metric": "ndcg@10",
+      "n": 30,
+      "ordered_methods": [
+        "gte-modern-colbert",
+        "all-minilm-l6-v2",
+        "granite-30m-sparse",
+        "bge-m3-dense",
+        "answerai-colbert-small",
+        "bge-m3",
+        "opensearch-doc-v2-distill",
+        "splade-tiny",
+        "opensearch-doc-v2-mini",
+        "opensearch-doc-v3",
+        "colbert-v2",
+        "opensearch-multilingual",
+        "tfidf-word-sublinear",
+        "bm25-unicode"
+      ],
+      "paired_evidence": {
+        "alternative": "all-minilm-l6-v2",
+        "high": 0.15244098647052012,
+        "low": -0.05564050392186723,
+        "mean": 0.04292858944319675,
+        "metric": "ndcg@10",
+        "samples": 10000,
+        "seed": 20260826,
+        "verdict": "tie_or_uncertain"
+      },
+      "recommended_method": "gte-modern-colbert",
+      "scenario": "positive_lexical_overlap:(0,0.25]",
+      "successful_resource_tradeoffs": [
+        {
+          "document_encoding_seconds": 48.13763600960374,
+          "family": "multi_vector",
+          "median_queries_per_second": 1.980713292807658,
+          "method_key": "gte-modern-colbert",
+          "query_encoding_seconds": 0.13630218617618084,
+          "representation_bytes": 654238352,
+          "representation_stratum": "multi_vector"
+        },
+        {
+          "document_encoding_seconds": 4.792389988899231,
+          "family": "dense",
+          "median_queries_per_second": 136.12593222033954,
+          "method_key": "all-minilm-l6-v2",
+          "query_encoding_seconds": 0.09896249510347843,
+          "representation_bytes": 11675136,
+          "representation_stratum": "dense"
+        },
+        {
+          "document_encoding_seconds": 66.88715907372534,
+          "family": "dense",
+          "median_queries_per_second": 196.22667433392968,
+          "method_key": "bge-m3-dense",
+          "query_encoding_seconds": 0.9451362360268831,
+          "representation_bytes": 31133696,
+          "representation_stratum": "dense"
+        }
+      ],
+      "track": "psychology"
+    },
+    {
+      "instruction": "Use the paired slice verdict for the top two point estimates, then apply successful unified resource evidence as a separate operational filter.",
+      "metric": "ndcg@10",
+      "n": 19,
+      "ordered_methods": [
+        "gte-modern-colbert",
+        "answerai-colbert-small",
+        "colbert-v2",
+        "opensearch-doc-v2-mini",
+        "opensearch-doc-v2-distill",
+        "splade-tiny",
+        "bge-m3",
+        "granite-30m-sparse",
+        "bm25-unicode",
+        "all-minilm-l6-v2",
+        "bge-m3-dense",
+        "opensearch-multilingual",
+        "opensearch-doc-v3",
+        "tfidf-word-sublinear"
+      ],
+      "paired_evidence": {
+        "alternative": "answerai-colbert-small",
+        "high": 0.13950769949429692,
+        "low": -0.056490107367818516,
+        "mean": 0.041642460104904244,
+        "metric": "ndcg@10",
+        "samples": 10000,
+        "seed": 20260826,
+        "verdict": "tie_or_uncertain"
+      },
+      "recommended_method": "gte-modern-colbert",
+      "scenario": "positive_passage_length:>512",
+      "successful_resource_tradeoffs": [
+        {
+          "document_encoding_seconds": 48.13763600960374,
+          "family": "multi_vector",
+          "median_queries_per_second": 1.980713292807658,
+          "method_key": "gte-modern-colbert",
+          "query_encoding_seconds": 0.13630218617618084,
+          "representation_bytes": 654238352,
+          "representation_stratum": "multi_vector"
+        },
+        {
+          "document_encoding_seconds": 17.63409391976893,
+          "family": "multi_vector",
+          "median_queries_per_second": 2.6371413225454727,
+          "method_key": "answerai-colbert-small",
+          "query_encoding_seconds": 0.06136782839894295,
+          "representation_bytes": 404315152,
+          "representation_stratum": "multi_vector"
+        },
+        {
+          "document_encoding_seconds": 24.154018096625805,
+          "family": "multi_vector",
+          "median_queries_per_second": 2.5843029382182774,
+          "method_key": "colbert-v2",
+          "query_encoding_seconds": 0.08539724349975586,
+          "representation_bytes": 454659728,
+          "representation_stratum": "multi_vector"
+        }
+      ],
+      "track": "psychology"
+    },
+    {
+      "instruction": "Use the paired slice verdict for the top two point estimates, then apply successful unified resource evidence as a separate operational filter.",
+      "metric": "ndcg@10",
+      "n": 34,
+      "ordered_methods": [
+        "gte-modern-colbert",
+        "answerai-colbert-small",
+        "all-minilm-l6-v2",
+        "granite-30m-sparse",
+        "bge-m3",
+        "colbert-v2",
+        "opensearch-multilingual",
+        "opensearch-doc-v2-distill",
+        "bge-m3-dense",
+        "opensearch-doc-v2-mini",
+        "splade-tiny",
+        "opensearch-doc-v3",
+        "bm25-unicode",
+        "tfidf-word-sublinear"
+      ],
+      "paired_evidence": {
+        "alternative": "answerai-colbert-small",
+        "high": 0.05748967065401657,
+        "low": -0.03233966538252293,
+        "mean": 0.013913592293021956,
+        "metric": "ndcg@10",
+        "samples": 10000,
+        "seed": 20260826,
+        "verdict": "tie_or_uncertain"
+      },
+      "recommended_method": "gte-modern-colbert",
+      "scenario": "qrel_density:>=5",
+      "successful_resource_tradeoffs": [
+        {
+          "document_encoding_seconds": 48.13763600960374,
+          "family": "multi_vector",
+          "median_queries_per_second": 1.980713292807658,
+          "method_key": "gte-modern-colbert",
+          "query_encoding_seconds": 0.13630218617618084,
+          "representation_bytes": 654238352,
+          "representation_stratum": "multi_vector"
+        },
+        {
+          "document_encoding_seconds": 17.63409391976893,
+          "family": "multi_vector",
+          "median_queries_per_second": 2.6371413225454727,
+          "method_key": "answerai-colbert-small",
+          "query_encoding_seconds": 0.06136782839894295,
+          "representation_bytes": 404315152,
+          "representation_stratum": "multi_vector"
+        },
+        {
+          "document_encoding_seconds": 4.792389988899231,
+          "family": "dense",
+          "median_queries_per_second": 136.12593222033954,
+          "method_key": "all-minilm-l6-v2",
+          "query_encoding_seconds": 0.09896249510347843,
+          "representation_bytes": 11675136,
+          "representation_stratum": "dense"
+        }
+      ],
+      "track": "psychology"
+    }
+  ],
+  "schema_version": "bright-cross-paradigm-guidance-v1",
+  "selection_notes": [
+    "Keep economics and psychology separate.",
+    "Use quality, latency, and representation storage as separate decision dimensions.",
+    "Do not compare representation bytes across paradigms without the supplied stratification.",
+    "Treat failed-closed resource cells as unavailable, not as zero cost.",
+    "A tie_or_uncertain verdict means the resource tradeoff may decide; it is not evidence of equivalence."
+  ],
+  "story_id": "S-20260814-009",
+  "universal_winner_claim": false
+}

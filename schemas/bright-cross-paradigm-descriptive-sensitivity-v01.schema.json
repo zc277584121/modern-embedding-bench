@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema_version", "story_id", "publication", "analysis_type", "method_intrinsic_caps", "observations", "limitations"],
+  "properties": {
+    "schema_version": {"const": "bright-cross-paradigm-descriptive-sensitivity-v1"},
+    "story_id": {"const": "S-20260814-009"},
+    "publication": {"const": {"publish": false, "leaderboard_publish": false, "public_export_allowed": false, "gate": "closed", "classification": "research_only", "restricted_content_allowed": false}},
+    "analysis_type": {"const": "descriptive_slice_and_representation_sensitivity_no_protocol_deviation"},
+    "method_intrinsic_caps": {"type": "array", "minItems": 14, "maxItems": 14, "items": {"type": "object", "required": ["method_key", "family", "max_length", "windowed"]}},
+    "observations": {"type": "array", "minItems": 112, "maxItems": 112, "items": {"type": "object", "required": ["track", "slice", "method_key", "bins", "range_ndcg@10", "all_frozen_bins_present"]}},
+    "limitations": {"type": "array", "minItems": 3, "items": {"type": "string"}}
+  }
+}

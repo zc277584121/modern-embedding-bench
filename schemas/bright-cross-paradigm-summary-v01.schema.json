@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "story_id", "publication", "matrix", "track_aggregation", "tracks"],
+  "properties": {
+    "schema_version": {"const": "bright-cross-paradigm-summary-v1"},
+    "story_id": {"const": "S-20260814-009"},
+    "publication": {"$ref": "#/$defs/publication"},
+    "matrix": {
+      "const": {"methods": 14, "tracks": 2, "cells": 28, "complete": true}
+    },
+    "track_aggregation": {"const": "independent_no_cross_track_micro_average_or_universal_winner"},
+    "tracks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["economics", "psychology"],
+      "properties": {
+        "economics": {"allOf": [{"$ref": "#/$defs/track"}, {"properties": {"queries": {"const": 103}}}]},
+        "psychology": {"allOf": [{"$ref": "#/$defs/track"}, {"properties": {"queries": {"const": 101}}}]}
+      }
+    }
+  },
+  "$defs": {
+    "publication": {
+      "const": {"publish": false, "leaderboard_publish": false, "public_export_allowed": false, "gate": "closed", "classification": "research_only", "restricted_content_allowed": false}
+    },
+    "metrics": {
+      "type": "object", "additionalProperties": false,
+      "required": ["ndcg@10", "map@100", "mrr@10", "recall@10", "recall@100"],
+      "properties": {
+        "ndcg@10": {"type": "number", "minimum": 0, "maximum": 1}, "map@100": {"type": "number", "minimum": 0, "maximum": 1},
+        "mrr@10": {"type": "number", "minimum": 0, "maximum": 1}, "recall@10": {"type": "number", "minimum": 0, "maximum": 1},
+        "recall@100": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
+    "interval": {
+      "type": "object", "additionalProperties": false, "required": ["mean", "low", "high", "samples", "seed"],
+      "properties": {"mean": {"type": "number"}, "low": {"type": "number"}, "high": {"type": "number"}, "samples": {"const": 10000}, "seed": {"const": 20260826}}
+    },
+    "intervals": {
+      "type": "object", "additionalProperties": false,
+      "required": ["ndcg@10", "map@100", "mrr@10", "recall@10", "recall@100"],
+      "properties": {"ndcg@10": {"$ref": "#/$defs/interval"}, "map@100": {"$ref": "#/$defs/interval"}, "mrr@10": {"$ref": "#/$defs/interval"}, "recall@10": {"$ref": "#/$defs/interval"}, "recall@100": {"$ref": "#/$defs/interval"}}
+    },
+    "method": {
+      "type": "object", "additionalProperties": false,
+      "required": ["method_key", "family", "quality_origin", "cell_sha256", "metrics", "confidence_intervals"],
+      "properties": {"method_key": {"$ref": "#/$defs/method_key"}, "family": {"enum": ["lexical", "dense", "learned_sparse", "multi_vector"]}, "quality_origin": {"type": "string", "minLength": 1}, "cell_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "metrics": {"$ref": "#/$defs/metrics"}, "confidence_intervals": {"$ref": "#/$defs/intervals"}}
+    },
+    "method_key": {"enum": ["bm25-unicode", "tfidf-word-sublinear", "bge-m3-dense", "all-minilm-l6-v2", "granite-30m-sparse", "opensearch-doc-v2-mini", "opensearch-doc-v3", "bge-m3", "splade-tiny", "opensearch-doc-v2-distill", "opensearch-multilingual", "colbert-v2", "answerai-colbert-small", "gte-modern-colbert"]},
+    "orders": {
+      "type": "object", "additionalProperties": false,
+      "required": ["ndcg@10", "map@100", "mrr@10", "recall@10", "recall@100"],
+      "properties": {"ndcg@10": {"$ref": "#/$defs/order"}, "map@100": {"$ref": "#/$defs/order"}, "mrr@10": {"$ref": "#/$defs/order"}, "recall@10": {"$ref": "#/$defs/order"}, "recall@100": {"$ref": "#/$defs/order"}}
+    },
+    "order": {"type": "array", "minItems": 14, "maxItems": 14, "uniqueItems": true, "items": {"$ref": "#/$defs/method_key"}},
+    "track": {"type": "object", "additionalProperties": false, "required": ["queries", "methods", "metric_orders"], "properties": {"queries": {"type": "integer"}, "methods": {"type": "array", "minItems": 14, "maxItems": 14, "items": {"$ref": "#/$defs/method"}}, "metric_orders": {"$ref": "#/$defs/orders"}}}
+  }
+}

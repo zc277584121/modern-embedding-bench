@@ -1,0 +1,92 @@
+{
+  "bindings": {
+    "chronology_sha256": "079f2bc981b53e996aecb835e03f9d93c7dd165b56ce96e5e969f86457222182",
+    "gate_summary_sha256": "c7e823bb0462ef135b4028ca4a29d21076f9eeb0fc3653cd25b425d6f0b8f781",
+    "inventory_sha256": "084568b59134b1e71764018d4e5fb5a444265afb8d04f6b284bd4617ebe952db",
+    "local_mapping_sha256": "a4fa0349d3c3c039b351bf1a2bebcbc1733a34e5794de7ffedbfe3bf58e0c949",
+    "predeclaration_sha256": "e1f6ca4bc069ef8ffb05b5dbf673c9515ddff3403e2614e9f782abfb2c25ca30",
+    "resource_summary_sha256": "8701a06918c70b6d48c1da1a88974d1a1361ea9d3aeacd4d0b3beb9865da62f7"
+  },
+  "candidate_order": [
+    "manifest.json",
+    "summary.json",
+    "pairwise.json",
+    "slices.json",
+    "cases.json",
+    "lineage.json",
+    "resources.json",
+    "descriptive-sensitivity.json",
+    "scenario-guidance.json",
+    "benchmark/research/bright_cross_paradigm_20260905.md"
+  ],
+  "matrix": {
+    "cells": 28,
+    "complete": true,
+    "methods": 14,
+    "tracks": 2
+  },
+  "privacy": {
+    "canonical_ids": 15103,
+    "files_scanned": 8,
+    "private_paths_absent": true,
+    "restricted_keys_absent": true,
+    "secret_scan_required_externally": true,
+    "short_ambiguous_ids_covered_by_forbidden_key_scan": 103,
+    "short_source_fragments_excluded_from_literal_scan": 3731,
+    "source_rows": 15179,
+    "status": "pass"
+  },
+  "publication": {
+    "classification": "research_only",
+    "gate": "closed",
+    "leaderboard_publish": false,
+    "public_export_allowed": false,
+    "publish": false,
+    "restricted_content_allowed": false
+  },
+  "schema_version": "bright-cross-paradigm-results-manifest-v1",
+  "statistics": {
+    "pairs_per_track": 91,
+    "samples": 10000,
+    "seed": 20260826
+  },
+  "story_id": "S-20260814-009",
+  "tracked_files": {
+    "benchmark/research/bright_cross_paradigm_20260905.md": {
+      "bytes": 8016,
+      "sha256": "a0622da09eb502d97790a802b560a08993f61c7306556ed8d28217c95945fdca"
+    },
+    "cases.json": {
+      "bytes": 11047,
+      "sha256": "29454fcac3e8b788defda69ef0057fc045a709b22b7dee6559322b155e763619"
+    },
+    "descriptive-sensitivity.json": {
+      "bytes": 63603,
+      "sha256": "98d1d67006d77837682c7dcf61a592d66a37bec3f743c40eeaf12a5b5f941636"
+    },
+    "lineage.json": {
+      "bytes": 21815,
+      "sha256": "b296a9b311bbd6a770b5fb3e076f0b9736cb7590211a31d7939edc0d8c4c44db"
+    },
+    "pairwise.json": {
+      "bytes": 261874,
+      "sha256": "777d33d4cdadbb3e17aaf4337fc7d7e17ec0ef9cdc278ee930266f6abf2ab171"
+    },
+    "resources.json": {
+      "bytes": 94381,
+      "sha256": "d298e4fec2671012ae86f027ab59530e32c2b48f87b6bdbd651fc7cfd3663527"
+    },
+    "scenario-guidance.json": {
+      "bytes": 18939,
+      "sha256": "e2ff729a01ec4bbf033227ad182c60023c0230cb13d3b85f1a64155a9c29ce31"
+    },
+    "slices.json": {
+      "bytes": 3935891,
+      "sha256": "2be8d1164f81a974299ab0047bfc4a16db3b71880052d02f73d7c6ebff3f297b"
+    },
+    "summary.json": {
+      "bytes": 52962,
+      "sha256": "cd3033afc59761f3c9cc3eb84bc06778ed94d4e01aa6e616a1db21ba49e33415"
+    }
+  }
+}

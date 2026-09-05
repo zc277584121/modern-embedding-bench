@@ -1,0 +1,540 @@
+{
+  "bindings": {
+    "accepted_commits": {
+      "s005": "10573c1f24975272bd68b61c6bece2ac1a25681e",
+      "s008": "74635817770023b70b1e9f9e97b3d83d9d11f987",
+      "s011": "082e1adccb2fc389290e44c3db4d420d5428318e",
+      "s012": "3c414af21f0713cf0d440bb2e951a45302ff0259"
+    },
+    "canonical_data": {
+      "dataset_version": "bright-nontechnical-pilot-v0.2",
+      "manifest_sha256": "8174b0c01a32e977cf0c5d89522356c485196b0aa0571251cfe1595c5579cb1f",
+      "source_revision": "3066d29c9651a576c8aba4832d249807b181ecae",
+      "tracks": {
+        "economics": {
+          "corpus_sha256": "697bf4deb34bcac5423a7dfcaf60ce27ea0c961190c0931d189a1620a703e188",
+          "documents": 7500,
+          "qrels": 800,
+          "qrels_sha256": "e09a3c96a3b112d4233e26baacf5d0f021b6025378fded32478f94e4a2bf3fa3",
+          "queries": 103,
+          "queries_sha256": "34f8dfb6ddb616be14582c20f291fa286f8548fe797af09e37bf444b8fb34665",
+          "selection_ids_sha256": "13e2bf56644a8d5b8d8701be74ead7b0f147057bbda34e6a8f246b515f4b1398"
+        },
+        "psychology": {
+          "corpus_sha256": "a7513e2a67d2fb9b80504d12253f041863fba895637c40d6ae7efbcba1700089",
+          "documents": 7500,
+          "qrels": 692,
+          "qrels_sha256": "52360d1c95984d8db2b04e018f68e99737063836e889bf3e7f6865b76d26bc44",
+          "queries": 101,
+          "queries_sha256": "ead6a7004ea306ca90e8db58f5c6809d05cb448e34c276834aebf7bbe0c90d9d",
+          "selection_ids_sha256": "d56ba2a26cc69163b412c35ebea5c1fa5141ab03fe54215a19abd053d516d3e4"
+        }
+      }
+    },
+    "identity_audit_sha256": "2456ed3f20002b634dcd935fbc27c4d1c69fdb3ccf29c1bd9539bc54b7006628",
+    "inventory_sha256": "084568b59134b1e71764018d4e5fb5a444265afb8d04f6b284bd4617ebe952db",
+    "metadata_preflight_sha256": "47c58095b4051ec3aca0ea53c76c151559a431415e0ca2b095ff310930c536ad"
+  },
+  "bounded_gate": {
+    "documents": 4,
+    "must_follow_freeze": true,
+    "queries": 1,
+    "requirements": [
+      "frozen artifact sidecars and protected files verify",
+      "exactly one query and four documents",
+      "all representations and similarities are finite",
+      "the predeclared positive is uniquely rank one",
+      "dense output is 384-dimensional float32 and L2-normalized",
+      "dense model loads from the pinned local snapshot with trust_remote_code=false"
+    ],
+    "selected_methods": [
+      "tfidf-word-sublinear",
+      "all-minilm-l6-v2"
+    ],
+    "source": "Project-authored synthetic English facts without benchmark text or identifiers.",
+    "wall_cap_seconds_per_method": 600
+  },
+  "failure_cases": {
+    "content": "Restricted local evidence only; tracked artifacts use opaque case hashes and aggregate descriptions.",
+    "per_track": {
+      "disagreement": 6,
+      "failure": 6
+    },
+    "selection": "After all cells, choose largest rank spread and lowest best-method nDCG@10 contribution with query-hash tie breaks."
+  },
+  "formal_new_baseline_scores_observed": false,
+  "frozen_at": "2026-09-05T13:22:14Z",
+  "matrix": {
+    "cells": [
+      {
+        "cell_id": "bm25-unicode:economics",
+        "family": "lexical",
+        "formal_status_at_freeze": "accepted_source",
+        "method_key": "bm25-unicode",
+        "quality_action": "certify_read_only_reuse",
+        "resource_action": "remeasure_unified_harness",
+        "source_cell_sha256": "1ebde57cd64dd1a8386a99edd93881e0d599f4355606e769df03166e7b7c1e8a",
+        "track": "economics"
+      },
+      {
+        "cell_id": "bm25-unicode:psychology",
+        "family": "lexical",
+        "formal_status_at_freeze": "accepted_source",
+        "method_key": "bm25-unicode",
+        "quality_action": "certify_read_only_reuse",
+        "resource_action": "remeasure_unified_harness",
+        "source_cell_sha256": "de849fb10d10f314c0049ae33581c4fe961f61a40f3bee6114d729815b18e65e",
+        "track": "psychology"
+      },
+      {
+        "cell_id": "tfidf-word-sublinear:economics",
+        "family": "lexical",
+        "formal_status_at_freeze": "planned_not_run",
+        "method_key": "tfidf-word-sublinear",
+        "quality_action": "run_after_gate",
+        "resource_action": "remeasure_unified_harness",
+        "source_cell_sha256": null,
+        "track": "economics"
+      },
+      {
+        "cell_id": "tfidf-word-sublinear:psychology",
+        "family": "lexical",
+        "formal_status_at_freeze": "planned_not_run",
+        "method_key": "tfidf-word-sublinear",
+        "quality_action": "run_after_gate",
+        "resource_action": "remeasure_unified_harness",
+        "source_cell_sha256": null,
+        "track": "psychology"
+      },
+      {
+        "cell_id": "bge-m3-dense:economics",
+        "family": "dense",
+        "formal_status_at_freeze": "accepted_source",
+        "method_key": "bge-m3-dense",
+        "quality_action": "certify_read_only_reuse",
+        "resource_action": "remeasure_unified_harness",
+        "source_cell_sha256": "0d4547191ad302ccb9df7501c7b343f3e25aec00b457a58cc76bf5cc5c8207c1",
+        "track": "economics"
+      },
+      {
+        "cell_id": "bge-m3-dense:psychology",
+        "family": "dense",
+        "formal_status_at_freeze": "accepted_source",
+        "method_key": "bge-m3-dense",
+        "quality_action": "certify_read_only_reuse",
+        "resource_action": "remeasure_unified_harness",
+        "source_cell_sha256": "dc83435b0684dba719fe9d190813bda8b3028f07f7513ce6cb09b8ee51a7e577",
+        "track": "psychology"
+      },
+      {
+        "cell_id": "all-minilm-l6-v2:economics",
+        "family": "dense",
+        "formal_status_at_freeze": "planned_not_run",
+        "method_key": "all-minilm-l6-v2",
+        "quality_action": "run_after_gate",
+        "resource_action": "remeasure_unified_harness",
+        "source_cell_sha256": null,
+        "track": "economics"
+      },
+      {
+        "cell_id": "all-minilm-l6-v2:psychology",
+        "family": "dense",
+        "formal_status_at_freeze": "planned_not_run",
+        "method_key": "all-minilm-l6-v2",
+        "quality_action": "run_after_gate",
+        "resource_action": "remeasure_unified_harness",
+        "source_cell_sha256": null,
+        "track": "psychology"
+      },
+      {
+        "cell_id": "granite-30m-sparse:economics",
+        "family": "learned_sparse",
+        "formal_status_at_freeze": "accepted_source",
+        "method_key": "granite-30m-sparse",
+        "quality_action": "certify_read_only_reuse",
+        "resource_action": "remeasure_unified_harness",
+        "source_cell_sha256": "e8a8f9ac2aa59e2e819b64dbc3cc189b04b880330658aedf5d9ad5b218daeca1",
+        "track": "economics"
+      },
+      {
+        "cell_id": "granite-30m-sparse:psychology",
+        "family": "learned_sparse",
+        "formal_status_at_freeze": "accepted_source",
+        "method_key": "granite-30m-sparse",
+        "quality_action": "certify_read_only_reuse",
+        "resource_action": "remeasure_unified_harness",
+        "source_cell_sha256": "8db4c46b6e379fcd1a932789bd72eb1dc33c28acd35c0c9aac62eaccfaa6174c",
+        "track": "psychology"
+      },
+      {
+        "cell_id": "opensearch-doc-v2-mini:economics",
+        "family": "learned_sparse",
+        "formal_status_at_freeze": "accepted_source",
+        "method_key": "opensearch-doc-v2-mini",
+        "quality_action": "certify_read_only_reuse",
+        "resource_action": "remeasure_unified_harness",
+        "source_cell_sha256": "7d2caaf6f3659ca896e6406b597f40594baf804472ccdfd45feb0995ce3c3d88",
+        "track": "economics"
+      },
+      {
+        "cell_id": "opensearch-doc-v2-mini:psychology",
+        "family": "learned_sparse",
+        "formal_status_at_freeze": "accepted_source",
+        "method_key": "opensearch-doc-v2-mini",
+        "quality_action": "certify_read_only_reuse",
+        "resource_action": "remeasure_unified_harness",
+        "source_cell_sha256": "6d8ab1a65881a75c313678fd7a530252c15f60f7cc6e3e4df31b07c14f21b7b2",
+        "track": "psychology"
+      },
+      {
+        "cell_id": "opensearch-doc-v3:economics",
+        "family": "learned_sparse",
+        "formal_status_at_freeze": "accepted_source",
+        "method_key": "opensearch-doc-v3",
+        "quality_action": "certify_read_only_reuse",
+        "resource_action": "remeasure_unified_harness",
+        "source_cell_sha256": "09b1de1954e36f65aec38e8a0580b9523663a1b9e5ac053b8af00fe858f889ed",
+        "track": "economics"
+      },
+      {
+        "cell_id": "opensearch-doc-v3:psychology",
+        "family": "learned_sparse",
+        "formal_status_at_freeze": "accepted_source",
+        "method_key": "opensearch-doc-v3",
+        "quality_action": "certify_read_only_reuse",
+        "resource_action": "remeasure_unified_harness",
+        "source_cell_sha256": "567425dffa5f829373675de97901400f150c031abd9d71e0174c31331151730e",
+        "track": "psychology"
+      },
+      {
+        "cell_id": "bge-m3:economics",
+        "family": "learned_sparse",
+        "formal_status_at_freeze": "accepted_source",
+        "method_key": "bge-m3",
+        "quality_action": "certify_read_only_reuse",
+        "resource_action": "remeasure_unified_harness",
+        "source_cell_sha256": "e022c394f09812b81c40f71128e18b2e799e9dd6dab2a6c294ab9d6ebf7c6b56",
+        "track": "economics"
+      },
+      {
+        "cell_id": "bge-m3:psychology",
+        "family": "learned_sparse",
+        "formal_status_at_freeze": "accepted_source",
+        "method_key": "bge-m3",
+        "quality_action": "certify_read_only_reuse",
+        "resource_action": "remeasure_unified_harness",
+        "source_cell_sha256": "a15cc88c80b2a25411c5f82e173e19633b5f668b56eab5831fff01a145e9bffa",
+        "track": "psychology"
+      },
+      {
+        "cell_id": "splade-tiny:economics",
+        "family": "learned_sparse",
+        "formal_status_at_freeze": "accepted_source",
+        "method_key": "splade-tiny",
+        "quality_action": "certify_read_only_reuse",
+        "resource_action": "remeasure_unified_harness",
+        "source_cell_sha256": "60d3e647a638f88b8f259ac21d5f90087ee1b2e2282671bd8e0f0102b738c702",
+        "track": "economics"
+      },
+      {
+        "cell_id": "splade-tiny:psychology",
+        "family": "learned_sparse",
+        "formal_status_at_freeze": "accepted_source",
+        "method_key": "splade-tiny",
+        "quality_action": "certify_read_only_reuse",
+        "resource_action": "remeasure_unified_harness",
+        "source_cell_sha256": "8e2bd3e5ffb378852396821301027860cf7eafb1a83ad37b089687ea561422ca",
+        "track": "psychology"
+      },
+      {
+        "cell_id": "opensearch-doc-v2-distill:economics",
+        "family": "learned_sparse",
+        "formal_status_at_freeze": "accepted_source",
+        "method_key": "opensearch-doc-v2-distill",
+        "quality_action": "certify_read_only_reuse",
+        "resource_action": "remeasure_unified_harness",
+        "source_cell_sha256": "221ee4f320395385556d000b1eb5903363ae3fdc580b2a95523045992872fc47",
+        "track": "economics"
+      },
+      {
+        "cell_id": "opensearch-doc-v2-distill:psychology",
+        "family": "learned_sparse",
+        "formal_status_at_freeze": "accepted_source",
+        "method_key": "opensearch-doc-v2-distill",
+        "quality_action": "certify_read_only_reuse",
+        "resource_action": "remeasure_unified_harness",
+        "source_cell_sha256": "cc2d98e239ad583829ba9d71ffd65b56cce67d82a3aae6929d0052a4834c01a3",
+        "track": "psychology"
+      },
+      {
+        "cell_id": "opensearch-multilingual:economics",
+        "family": "learned_sparse",
+        "formal_status_at_freeze": "accepted_source",
+        "method_key": "opensearch-multilingual",
+        "quality_action": "certify_read_only_reuse",
+        "resource_action": "remeasure_unified_harness",
+        "source_cell_sha256": "aa93b60bd8b17e036e3e537f59d121836d4b3608a7f692324d89883a53563779",
+        "track": "economics"
+      },
+      {
+        "cell_id": "opensearch-multilingual:psychology",
+        "family": "learned_sparse",
+        "formal_status_at_freeze": "accepted_source",
+        "method_key": "opensearch-multilingual",
+        "quality_action": "certify_read_only_reuse",
+        "resource_action": "remeasure_unified_harness",
+        "source_cell_sha256": "99d6f3754fc698612ff416b5f9ca1a6ad601b50b76920e580f1de1ac063d8b55",
+        "track": "psychology"
+      },
+      {
+        "cell_id": "colbert-v2:economics",
+        "family": "multi_vector",
+        "formal_status_at_freeze": "accepted_source",
+        "method_key": "colbert-v2",
+        "quality_action": "certify_read_only_reuse",
+        "resource_action": "remeasure_unified_harness",
+        "source_cell_sha256": "8067efa1401c45387b12f0148a5c60d39cc75ba4118f61900f14b26c2758f0ec",
+        "track": "economics"
+      },
+      {
+        "cell_id": "colbert-v2:psychology",
+        "family": "multi_vector",
+        "formal_status_at_freeze": "accepted_source",
+        "method_key": "colbert-v2",
+        "quality_action": "certify_read_only_reuse",
+        "resource_action": "remeasure_unified_harness",
+        "source_cell_sha256": "67714a1aefe3488be59311daf3035764dd7d199ef3ce767a3584a3cbbcc2bdba",
+        "track": "psychology"
+      },
+      {
+        "cell_id": "answerai-colbert-small:economics",
+        "family": "multi_vector",
+        "formal_status_at_freeze": "accepted_source",
+        "method_key": "answerai-colbert-small",
+        "quality_action": "certify_read_only_reuse",
+        "resource_action": "remeasure_unified_harness",
+        "source_cell_sha256": "feb065838630077e63ca00df29156afdb162c35a43dcf2049143cc344a68462e",
+        "track": "economics"
+      },
+      {
+        "cell_id": "answerai-colbert-small:psychology",
+        "family": "multi_vector",
+        "formal_status_at_freeze": "accepted_source",
+        "method_key": "answerai-colbert-small",
+        "quality_action": "certify_read_only_reuse",
+        "resource_action": "remeasure_unified_harness",
+        "source_cell_sha256": "c6133948d0ebbc0bedc1dce60cea7e1a5a6d230f16e7bcfe3cd95dba378de917",
+        "track": "psychology"
+      },
+      {
+        "cell_id": "gte-modern-colbert:economics",
+        "family": "multi_vector",
+        "formal_status_at_freeze": "accepted_source",
+        "method_key": "gte-modern-colbert",
+        "quality_action": "certify_read_only_reuse",
+        "resource_action": "remeasure_unified_harness",
+        "source_cell_sha256": "fdbfe070e83a3141ce29dcdadb790bc339b611a9e013fca99ceace6229f373ef",
+        "track": "economics"
+      },
+      {
+        "cell_id": "gte-modern-colbert:psychology",
+        "family": "multi_vector",
+        "formal_status_at_freeze": "accepted_source",
+        "method_key": "gte-modern-colbert",
+        "quality_action": "certify_read_only_reuse",
+        "resource_action": "remeasure_unified_harness",
+        "source_cell_sha256": "ff7c04328e4ad8d3bac0656e81d5eb546142635ea155d02ab37cd003d59c8af8",
+        "track": "psychology"
+      }
+    ],
+    "formal_quality_cells": 28,
+    "methods": 14,
+    "tracks": [
+      "economics",
+      "psychology"
+    ]
+  },
+  "new_method_protocol": {
+    "all-minilm-l6-v2": {
+      "batch_fallback": {
+        "documents": [
+          128,
+          64,
+          32,
+          16,
+          8,
+          4,
+          2,
+          1
+        ],
+        "queries": [
+          256,
+          128,
+          64,
+          32,
+          16,
+          8,
+          4,
+          2,
+          1
+        ]
+      },
+      "dtype": "float32",
+      "local_files_only": true,
+      "max_length": 256,
+      "normalize_embeddings": true,
+      "ranking": "Exact cosine through blocked float32 matrix multiplication; no approximate index.",
+      "revision": "c9745ed1d9f207416be6d2e6f8de32d1f16199bf",
+      "snapshot_sha256": "04c1a2ae6a1c7299745f8eb7f8db75456a7df9652dd4f48a40be2ee59d7c37c1",
+      "trust_remote_code": false
+    },
+    "tfidf-word-sublinear": {
+      "configuration": {
+        "analyzer": "word",
+        "dtype": "float32",
+        "lowercase": true,
+        "norm": "l2",
+        "smooth_idf": true,
+        "sublinear_tf": true,
+        "token_pattern": "(?u)\\b\\w+\\b",
+        "use_idf": true
+      },
+      "empty_query": "All-zero score vector; canonical passage ID tie order.",
+      "ranking": "Exact scipy CSR cosine from L2-normalized float32 TF-IDF; no pruning or vocabulary cap."
+    }
+  },
+  "prior_score_visibility": {
+    "mitigation": "Retain all accepted sparse/multi-vector identities and select new methods only by the frozen non-score criteria.",
+    "s005_anchor_scores": true,
+    "s005_minilm_diagnostic_scores": true,
+    "s008_learned_sparse_scores": true,
+    "s012_multi_vector_scores": true
+  },
+  "publication": {
+    "classification": "research_only",
+    "gate": "closed",
+    "leaderboard_publish": false,
+    "public_export_allowed": false,
+    "publish": false,
+    "restricted_content_allowed": false
+  },
+  "quality_protocol": {
+    "candidate_policy": "Exact full independent 7,500-passage pool per track; no candidate generator or approximate index.",
+    "filtering": "Apply query excluded IDs before ranking; fail if the accepted zero-exclusion identity changes.",
+    "metrics": [
+      "ndcg@10",
+      "map@100",
+      "mrr@10",
+      "recall@10",
+      "recall@100"
+    ],
+    "missing_labels": "Unjudged passages remain unjudged and are never treated as confirmed negatives in claims.",
+    "recomputation": "Persist restricted top-100 and per-query metrics sufficient for deterministic metric recomputation.",
+    "representation_policy": "Keep each frozen method-native tokenizer, route, cap, normalization, scoring, window, and aggregation; disclose them per cell.",
+    "retrieval_unit": "Canonical BRIGHT pilot passage; method-intrinsic windows must aggregate to this unit before ranking.",
+    "tie_policy": "Descending native float32 score, then canonical passage ID ascending.",
+    "top_k": 100,
+    "track_reporting": "Report economics and psychology separately; no cross-track micro-average or universal winner."
+  },
+  "resource_protocol": {
+    "batch_fallback": "Use each accepted method's frozen fallback; MiniLM uses its new-method fallback; log every OOM/retry and final batch.",
+    "comparability": "Compare timing only within the unified rerun; report representation bytes stratified by paradigm without synthetic normalization.",
+    "encoding_trials": "One complete document encoding and one complete query encoding per method-track, timed separately after warmup.",
+    "hardware": {
+      "device": "cuda:0 for neural methods; same host CPU for lexical methods",
+      "driver": "565.57.01",
+      "gpu": "NVIDIA GeForce RTX 3080 Ti",
+      "gpu_memory_bytes": 12884901888,
+      "gpu_uuid": "GPU-435154a8-568c-35a7-ee5f-da29fbf97a39",
+      "numpy": "2.4.3",
+      "python": "3.12.9",
+      "scikit_learn": "1.8.0",
+      "scipy": "1.17.1",
+      "sentence_transformers": "6.0.1",
+      "torch": "2.10.0+cu128",
+      "transformers": "5.3.0"
+    },
+    "measurements": [
+      "document_encoding",
+      "query_encoding",
+      "representation_or_index_bytes",
+      "build",
+      "load",
+      "search",
+      "throughput",
+      "p50",
+      "p95",
+      "p99",
+      "process_peak_rss",
+      "cuda_peak_vram",
+      "network_bytes",
+      "end_to_end"
+    ],
+    "network": "Zero during measured runs; all snapshots local-only.",
+    "process_isolation": "Fresh process per method; one track at a time; no concurrent benchmark workload on cuda:0.",
+    "scope": "Remeasure all 14 methods on both tracks; historical resource figures remain contextual anchors.",
+    "search_trials": "Three complete ordered query sweeps per method-track; report each trial and median throughput plus pooled P50/P95/P99 per-query latency.",
+    "warmup": "Run the frozen synthetic 1-query/4-document gate once before measured work; run one unrecorded query search before each measured search series."
+  },
+  "schema_version": "bright-cross-paradigm-predeclaration-v1",
+  "slices": [
+    {
+      "bins": [
+        "<=64",
+        "65-128",
+        ">128"
+      ],
+      "key": "query_length",
+      "unit": "lowercase Unicode word tokens"
+    },
+    {
+      "bins": [
+        "0",
+        "(0,0.25]",
+        "(0.25,0.50]",
+        ">0.50"
+      ],
+      "key": "positive_lexical_overlap",
+      "unit": "max unique-token overlap across positives"
+    },
+    {
+      "bins": [
+        "<=128",
+        "129-512",
+        ">512"
+      ],
+      "key": "positive_passage_length",
+      "unit": "median positive Unicode word-token count"
+    },
+    {
+      "bins": [
+        "1",
+        "2-4",
+        ">=5"
+      ],
+      "key": "qrel_density",
+      "unit": "unique positive passages per query"
+    }
+  ],
+  "statistics": {
+    "comparisons": "All 91 method pairs within each track; never pool tracks.",
+    "decisive_rule": "95% interval excludes zero; otherwise tie/uncertain.",
+    "interval": 0.95,
+    "paired_uncertainty": "paired percentile bootstrap over matched queries",
+    "samples": 10000,
+    "seed": 20260826,
+    "small_slice_policy": "n=0 is NA; n=1-9 point estimate only; n>=10 paired intervals; never merge bins post-score."
+  },
+  "stopping_conditions": [
+    "Stop before any formal run if a frozen file, accepted artifact, canonical input, or protected file hash drifts.",
+    "Stop if metadata becomes gated/private, license becomes unclear, remote code is required, or an allowlist changes.",
+    "Stop a method if its 1-query/4-document gate fails or outputs empty, non-finite, or wrong-shaped representations.",
+    "Stop after exhausting the frozen batch fallback on OOM; never reduce token caps, windows, candidate pools, dtype, or metrics silently.",
+    "Stop a formal cell at 3600 seconds and a method at 7200 seconds; preserve failure evidence without filling the matrix.",
+    "Stop if cuda:0 is materially occupied by an unrelated process at launch; do not terminate or alter that process.",
+    "Stop if new downloads would exceed 2 GiB for this Story phase or private artifacts would exceed 12 GiB.",
+    "Stop if tracked/public artifacts contain source text, canonical IDs, rankings, reversible mappings, private paths, or secrets.",
+    "Never open publication, leaderboard, or export gates in this Story."
+  ],
+  "story_id": "S-20260814-009"
+}

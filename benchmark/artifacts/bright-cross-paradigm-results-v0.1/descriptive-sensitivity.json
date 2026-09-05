@@ -1,0 +1,2794 @@
+{
+  "analysis_type": "descriptive_slice_and_representation_sensitivity_no_protocol_deviation",
+  "limitations": [
+    "Slice differences are descriptive and not causal estimates.",
+    "No protocol, cap, seed, slice, candidate pool, or stopping condition was changed after scores became visible.",
+    "The accepted S-005 MiniLM diagnostic is not relabeled or included as a formal cell."
+  ],
+  "method_intrinsic_caps": [
+    {
+      "family": "lexical",
+      "max_length": null,
+      "method_key": "bm25-unicode",
+      "windowed": false
+    },
+    {
+      "family": "lexical",
+      "max_length": null,
+      "method_key": "tfidf-word-sublinear",
+      "windowed": false
+    },
+    {
+      "family": "dense",
+      "max_length": 1024,
+      "method_key": "bge-m3-dense",
+      "windowed": false
+    },
+    {
+      "family": "dense",
+      "max_length": 256,
+      "method_key": "all-minilm-l6-v2",
+      "windowed": false
+    },
+    {
+      "family": "learned_sparse",
+      "max_length": 512,
+      "method_key": "granite-30m-sparse",
+      "windowed": false
+    },
+    {
+      "family": "learned_sparse",
+      "max_length": 512,
+      "method_key": "opensearch-doc-v2-mini",
+      "windowed": false
+    },
+    {
+      "family": "learned_sparse",
+      "max_length": 512,
+      "method_key": "opensearch-doc-v3",
+      "windowed": false
+    },
+    {
+      "family": "learned_sparse",
+      "max_length": 512,
+      "method_key": "bge-m3",
+      "windowed": false
+    },
+    {
+      "family": "learned_sparse",
+      "max_length": 512,
+      "method_key": "splade-tiny",
+      "windowed": false
+    },
+    {
+      "family": "learned_sparse",
+      "max_length": 512,
+      "method_key": "opensearch-doc-v2-distill",
+      "windowed": false
+    },
+    {
+      "family": "learned_sparse",
+      "max_length": 512,
+      "method_key": "opensearch-multilingual",
+      "windowed": false
+    },
+    {
+      "family": "multi_vector",
+      "max_length": null,
+      "method_key": "colbert-v2",
+      "windowed": true
+    },
+    {
+      "family": "multi_vector",
+      "max_length": null,
+      "method_key": "answerai-colbert-small",
+      "windowed": true
+    },
+    {
+      "family": "multi_vector",
+      "max_length": null,
+      "method_key": "gte-modern-colbert",
+      "windowed": true
+    }
+  ],
+  "observations": [
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=64",
+          "n": 15,
+          "ndcg@10": 0.26257116142908765
+        },
+        {
+          "bin": "65-128",
+          "n": 46,
+          "ndcg@10": 0.28040764620163705
+        },
+        {
+          "bin": ">128",
+          "n": 42,
+          "ndcg@10": 0.21899771841923485
+        }
+      ],
+      "method_key": "bm25-unicode",
+      "range_ndcg@10": 0.0614099277824022,
+      "slice": "query_length",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=64",
+          "n": 15,
+          "ndcg@10": 0.18499289624038923
+        },
+        {
+          "bin": "65-128",
+          "n": 46,
+          "ndcg@10": 0.14083312218918176
+        },
+        {
+          "bin": ">128",
+          "n": 42,
+          "ndcg@10": 0.16940144261174253
+        }
+      ],
+      "method_key": "tfidf-word-sublinear",
+      "range_ndcg@10": 0.04415977405120747,
+      "slice": "query_length",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=64",
+          "n": 15,
+          "ndcg@10": 0.2969605302960979
+        },
+        {
+          "bin": "65-128",
+          "n": 46,
+          "ndcg@10": 0.30258447201794963
+        },
+        {
+          "bin": ">128",
+          "n": 42,
+          "ndcg@10": 0.18630975340995476
+        }
+      ],
+      "method_key": "bge-m3-dense",
+      "range_ndcg@10": 0.11627471860799488,
+      "slice": "query_length",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=64",
+          "n": 15,
+          "ndcg@10": 0.2925459480150462
+        },
+        {
+          "bin": "65-128",
+          "n": 46,
+          "ndcg@10": 0.32542638777823985
+        },
+        {
+          "bin": ">128",
+          "n": 42,
+          "ndcg@10": 0.1845592266779136
+        }
+      ],
+      "method_key": "all-minilm-l6-v2",
+      "range_ndcg@10": 0.14086716110032624,
+      "slice": "query_length",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=64",
+          "n": 15,
+          "ndcg@10": 0.23474107439682484
+        },
+        {
+          "bin": "65-128",
+          "n": 46,
+          "ndcg@10": 0.3387811416475444
+        },
+        {
+          "bin": ">128",
+          "n": 42,
+          "ndcg@10": 0.18159120767664905
+        }
+      ],
+      "method_key": "granite-30m-sparse",
+      "range_ndcg@10": 0.15718993397089537,
+      "slice": "query_length",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=64",
+          "n": 15,
+          "ndcg@10": 0.15758021380162038
+        },
+        {
+          "bin": "65-128",
+          "n": 46,
+          "ndcg@10": 0.2717907809719773
+        },
+        {
+          "bin": ">128",
+          "n": 42,
+          "ndcg@10": 0.2552553158533624
+        }
+      ],
+      "method_key": "opensearch-doc-v2-mini",
+      "range_ndcg@10": 0.11421056717035691,
+      "slice": "query_length",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=64",
+          "n": 15,
+          "ndcg@10": 0.20286890454819417
+        },
+        {
+          "bin": "65-128",
+          "n": 46,
+          "ndcg@10": 0.26690606254625854
+        },
+        {
+          "bin": ">128",
+          "n": 42,
+          "ndcg@10": 0.23449817656544694
+        }
+      ],
+      "method_key": "opensearch-doc-v3",
+      "range_ndcg@10": 0.06403715799806436,
+      "slice": "query_length",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=64",
+          "n": 15,
+          "ndcg@10": 0.17649224811332315
+        },
+        {
+          "bin": "65-128",
+          "n": 46,
+          "ndcg@10": 0.33353895402317296
+        },
+        {
+          "bin": ">128",
+          "n": 42,
+          "ndcg@10": 0.25986664238587254
+        }
+      ],
+      "method_key": "bge-m3",
+      "range_ndcg@10": 0.15704670590984982,
+      "slice": "query_length",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=64",
+          "n": 15,
+          "ndcg@10": 0.23796996413952134
+        },
+        {
+          "bin": "65-128",
+          "n": 46,
+          "ndcg@10": 0.2848193411105626
+        },
+        {
+          "bin": ">128",
+          "n": 42,
+          "ndcg@10": 0.22272730381974373
+        }
+      ],
+      "method_key": "splade-tiny",
+      "range_ndcg@10": 0.062092037290818886,
+      "slice": "query_length",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=64",
+          "n": 15,
+          "ndcg@10": 0.24783749121377477
+        },
+        {
+          "bin": "65-128",
+          "n": 46,
+          "ndcg@10": 0.33114380667822213
+        },
+        {
+          "bin": ">128",
+          "n": 42,
+          "ndcg@10": 0.23868125553808645
+        }
+      ],
+      "method_key": "opensearch-doc-v2-distill",
+      "range_ndcg@10": 0.09246255114013568,
+      "slice": "query_length",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=64",
+          "n": 15,
+          "ndcg@10": 0.24182091610389786
+        },
+        {
+          "bin": "65-128",
+          "n": 46,
+          "ndcg@10": 0.24835981048684905
+        },
+        {
+          "bin": ">128",
+          "n": 42,
+          "ndcg@10": 0.2539658043195293
+        }
+      ],
+      "method_key": "opensearch-multilingual",
+      "range_ndcg@10": 0.01214488821563145,
+      "slice": "query_length",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=64",
+          "n": 15,
+          "ndcg@10": 0.3352915461591689
+        },
+        {
+          "bin": "65-128",
+          "n": 46,
+          "ndcg@10": 0.28151273626423307
+        },
+        {
+          "bin": ">128",
+          "n": 42,
+          "ndcg@10": 0.1876787047386495
+        }
+      ],
+      "method_key": "colbert-v2",
+      "range_ndcg@10": 0.1476128414205194,
+      "slice": "query_length",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=64",
+          "n": 15,
+          "ndcg@10": 0.32135081660329057
+        },
+        {
+          "bin": "65-128",
+          "n": 46,
+          "ndcg@10": 0.340286216754882
+        },
+        {
+          "bin": ">128",
+          "n": 42,
+          "ndcg@10": 0.25481577088045604
+        }
+      ],
+      "method_key": "answerai-colbert-small",
+      "range_ndcg@10": 0.08547044587442598,
+      "slice": "query_length",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=64",
+          "n": 15,
+          "ndcg@10": 0.2649116427189894
+        },
+        {
+          "bin": "65-128",
+          "n": 46,
+          "ndcg@10": 0.3526505649493701
+        },
+        {
+          "bin": ">128",
+          "n": 42,
+          "ndcg@10": 0.25659553647144795
+        }
+      ],
+      "method_key": "gte-modern-colbert",
+      "range_ndcg@10": 0.09605502847792213,
+      "slice": "query_length",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "(0,0.25]",
+          "n": 31,
+          "ndcg@10": 0.02091916392231461
+        },
+        {
+          "bin": "(0.25,0.50]",
+          "n": 64,
+          "ndcg@10": 0.3164458191697615
+        },
+        {
+          "bin": ">0.50",
+          "n": 8,
+          "ndcg@10": 0.6417746014828744
+        }
+      ],
+      "method_key": "bm25-unicode",
+      "range_ndcg@10": 0.6208554375605597,
+      "slice": "positive_lexical_overlap",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "(0,0.25]",
+          "n": 31,
+          "ndcg@10": 0.011674156354966984
+        },
+        {
+          "bin": "(0.25,0.50]",
+          "n": 64,
+          "ndcg@10": 0.2067394288603047
+        },
+        {
+          "bin": ">0.50",
+          "n": 8,
+          "ndcg@10": 0.3468569199922386
+        }
+      ],
+      "method_key": "tfidf-word-sublinear",
+      "range_ndcg@10": 0.3351827636372716,
+      "slice": "positive_lexical_overlap",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "(0,0.25]",
+          "n": 31,
+          "ndcg@10": 0.10945256074849823
+        },
+        {
+          "bin": "(0.25,0.50]",
+          "n": 64,
+          "ndcg@10": 0.30378148195805643
+        },
+        {
+          "bin": ">0.50",
+          "n": 8,
+          "ndcg@10": 0.4204073852457746
+        }
+      ],
+      "method_key": "bge-m3-dense",
+      "range_ndcg@10": 0.31095482449727635,
+      "slice": "positive_lexical_overlap",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "(0,0.25]",
+          "n": 31,
+          "ndcg@10": 0.11742105871822826
+        },
+        {
+          "bin": "(0.25,0.50]",
+          "n": 64,
+          "ndcg@10": 0.31383425038831747
+        },
+        {
+          "bin": ">0.50",
+          "n": 8,
+          "ndcg@10": 0.422980716672463
+        }
+      ],
+      "method_key": "all-minilm-l6-v2",
+      "range_ndcg@10": 0.30555965795423473,
+      "slice": "positive_lexical_overlap",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "(0,0.25]",
+          "n": 31,
+          "ndcg@10": 0.096114763451739
+        },
+        {
+          "bin": "(0.25,0.50]",
+          "n": 64,
+          "ndcg@10": 0.3242183999950394
+        },
+        {
+          "bin": ">0.50",
+          "n": 8,
+          "ndcg@10": 0.3752930109340311
+        }
+      ],
+      "method_key": "granite-30m-sparse",
+      "range_ndcg@10": 0.27917824748229214,
+      "slice": "positive_lexical_overlap",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "(0,0.25]",
+          "n": 31,
+          "ndcg@10": 0.05830538164565188
+        },
+        {
+          "bin": "(0.25,0.50]",
+          "n": 64,
+          "ndcg@10": 0.3068793585708161
+        },
+        {
+          "bin": ">0.50",
+          "n": 8,
+          "ndcg@10": 0.5173820772536306
+        }
+      ],
+      "method_key": "opensearch-doc-v2-mini",
+      "range_ndcg@10": 0.4590766956079787,
+      "slice": "positive_lexical_overlap",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "(0,0.25]",
+          "n": 31,
+          "ndcg@10": 0.05520092967029727
+        },
+        {
+          "bin": "(0.25,0.50]",
+          "n": 64,
+          "ndcg@10": 0.30957935952573634
+        },
+        {
+          "bin": ">0.50",
+          "n": 8,
+          "ndcg@10": 0.45566600395915463
+        }
+      ],
+      "method_key": "opensearch-doc-v3",
+      "range_ndcg@10": 0.40046507428885736,
+      "slice": "positive_lexical_overlap",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "(0,0.25]",
+          "n": 31,
+          "ndcg@10": 0.08014221472697111
+        },
+        {
+          "bin": "(0.25,0.50]",
+          "n": 64,
+          "ndcg@10": 0.334900823207914
+        },
+        {
+          "bin": ">0.50",
+          "n": 8,
+          "ndcg@10": 0.6233141556412315
+        }
+      ],
+      "method_key": "bge-m3",
+      "range_ndcg@10": 0.5431719409142604,
+      "slice": "positive_lexical_overlap",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "(0,0.25]",
+          "n": 31,
+          "ndcg@10": 0.03658478487497532
+        },
+        {
+          "bin": "(0.25,0.50]",
+          "n": 64,
+          "ndcg@10": 0.302853312186758
+        },
+        {
+          "bin": ">0.50",
+          "n": 8,
+          "ndcg@10": 0.6886307003163991
+        }
+      ],
+      "method_key": "splade-tiny",
+      "range_ndcg@10": 0.6520459154414238,
+      "slice": "positive_lexical_overlap",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "(0,0.25]",
+          "n": 31,
+          "ndcg@10": 0.06381088799510858
+        },
+        {
+          "bin": "(0.25,0.50]",
+          "n": 64,
+          "ndcg@10": 0.3704676444744913
+        },
+        {
+          "bin": ">0.50",
+          "n": 8,
+          "ndcg@10": 0.41084042922358255
+        }
+      ],
+      "method_key": "opensearch-doc-v2-distill",
+      "range_ndcg@10": 0.34702954122847396,
+      "slice": "positive_lexical_overlap",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "(0,0.25]",
+          "n": 31,
+          "ndcg@10": 0.08246010046706632
+        },
+        {
+          "bin": "(0.25,0.50]",
+          "n": 64,
+          "ndcg@10": 0.2971883065539524
+        },
+        {
+          "bin": ">0.50",
+          "n": 8,
+          "ndcg@10": 0.5177642589302183
+        }
+      ],
+      "method_key": "opensearch-multilingual",
+      "range_ndcg@10": 0.43530415846315196,
+      "slice": "positive_lexical_overlap",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "(0,0.25]",
+          "n": 31,
+          "ndcg@10": 0.05695596038247233
+        },
+        {
+          "bin": "(0.25,0.50]",
+          "n": 64,
+          "ndcg@10": 0.3062278362573106
+        },
+        {
+          "bin": ">0.50",
+          "n": 8,
+          "ndcg@10": 0.5621560459051266
+        }
+      ],
+      "method_key": "colbert-v2",
+      "range_ndcg@10": 0.5052000855226543,
+      "slice": "positive_lexical_overlap",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "(0,0.25]",
+          "n": 31,
+          "ndcg@10": 0.10354271133853368
+        },
+        {
+          "bin": "(0.25,0.50]",
+          "n": 64,
+          "ndcg@10": 0.3531705669311863
+        },
+        {
+          "bin": ">0.50",
+          "n": 8,
+          "ndcg@10": 0.6703687827078272
+        }
+      ],
+      "method_key": "answerai-colbert-small",
+      "range_ndcg@10": 0.5668260713692935,
+      "slice": "positive_lexical_overlap",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "(0,0.25]",
+          "n": 31,
+          "ndcg@10": 0.07896941347025695
+        },
+        {
+          "bin": "(0.25,0.50]",
+          "n": 64,
+          "ndcg@10": 0.369271457363018
+        },
+        {
+          "bin": ">0.50",
+          "n": 8,
+          "ndcg@10": 0.6113985089306958
+        }
+      ],
+      "method_key": "gte-modern-colbert",
+      "range_ndcg@10": 0.5324290954604388,
+      "slice": "positive_lexical_overlap",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=128",
+          "n": 18,
+          "ndcg@10": 0.16635864297043906
+        },
+        {
+          "bin": "129-512",
+          "n": 69,
+          "ndcg@10": 0.2662650259294522
+        },
+        {
+          "bin": ">512",
+          "n": 16,
+          "ndcg@10": 0.29178005985746097
+        }
+      ],
+      "method_key": "bm25-unicode",
+      "range_ndcg@10": 0.1254214168870219,
+      "slice": "positive_passage_length",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=128",
+          "n": 18,
+          "ndcg@10": 0.150779822753957
+        },
+        {
+          "bin": "129-512",
+          "n": 69,
+          "ndcg@10": 0.17627905392290547
+        },
+        {
+          "bin": ">512",
+          "n": 16,
+          "ndcg@10": 0.0931741327343551
+        }
+      ],
+      "method_key": "tfidf-word-sublinear",
+      "range_ndcg@10": 0.08310492118855037,
+      "slice": "positive_passage_length",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=128",
+          "n": 18,
+          "ndcg@10": 0.2698566179875258
+        },
+        {
+          "bin": "129-512",
+          "n": 69,
+          "ndcg@10": 0.2676253943047467
+        },
+        {
+          "bin": ">512",
+          "n": 16,
+          "ndcg@10": 0.17967074873014172
+        }
+      ],
+      "method_key": "bge-m3-dense",
+      "range_ndcg@10": 0.09018586925738409,
+      "slice": "positive_passage_length",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=128",
+          "n": 18,
+          "ndcg@10": 0.3324471521731658
+        },
+        {
+          "bin": "129-512",
+          "n": 69,
+          "ndcg@10": 0.25329168206448843
+        },
+        {
+          "bin": ">512",
+          "n": 16,
+          "ndcg@10": 0.22800723605815074
+        }
+      ],
+      "method_key": "all-minilm-l6-v2",
+      "range_ndcg@10": 0.10443991611501505,
+      "slice": "positive_passage_length",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=128",
+          "n": 18,
+          "ndcg@10": 0.29261151153743525
+        },
+        {
+          "bin": "129-512",
+          "n": 69,
+          "ndcg@10": 0.27120169972425445
+        },
+        {
+          "bin": ">512",
+          "n": 16,
+          "ndcg@10": 0.17199717909445536
+        }
+      ],
+      "method_key": "granite-30m-sparse",
+      "range_ndcg@10": 0.1206143324429799,
+      "slice": "positive_passage_length",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=128",
+          "n": 18,
+          "ndcg@10": 0.1808938159400947
+        },
+        {
+          "bin": "129-512",
+          "n": 69,
+          "ndcg@10": 0.2741799356763043
+        },
+        {
+          "bin": ">512",
+          "n": 16,
+          "ndcg@10": 0.21326863431186163
+        }
+      ],
+      "method_key": "opensearch-doc-v2-mini",
+      "range_ndcg@10": 0.09328611973620957,
+      "slice": "positive_passage_length",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=128",
+          "n": 18,
+          "ndcg@10": 0.20287705884287302
+        },
+        {
+          "bin": "129-512",
+          "n": 69,
+          "ndcg@10": 0.2698751239427597
+        },
+        {
+          "bin": ">512",
+          "n": 16,
+          "ndcg@10": 0.18102907811734048
+        }
+      ],
+      "method_key": "opensearch-doc-v3",
+      "range_ndcg@10": 0.08884604582541922,
+      "slice": "positive_passage_length",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=128",
+          "n": 18,
+          "ndcg@10": 0.20480016509936794
+        },
+        {
+          "bin": "129-512",
+          "n": 69,
+          "ndcg@10": 0.29489868776336975
+        },
+        {
+          "bin": ">512",
+          "n": 16,
+          "ndcg@10": 0.3043851349694572
+        }
+      ],
+      "method_key": "bge-m3",
+      "range_ndcg@10": 0.09958496987008925,
+      "slice": "positive_passage_length",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=128",
+          "n": 18,
+          "ndcg@10": 0.1299527409834452
+        },
+        {
+          "bin": "129-512",
+          "n": 69,
+          "ndcg@10": 0.26621978546128544
+        },
+        {
+          "bin": ">512",
+          "n": 16,
+          "ndcg@10": 0.33234196119232684
+        }
+      ],
+      "method_key": "splade-tiny",
+      "range_ndcg@10": 0.20238922020888164,
+      "slice": "positive_passage_length",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=128",
+          "n": 18,
+          "ndcg@10": 0.30102992116983396
+        },
+        {
+          "bin": "129-512",
+          "n": 69,
+          "ndcg@10": 0.2965664842626046
+        },
+        {
+          "bin": ">512",
+          "n": 16,
+          "ndcg@10": 0.19332276330173373
+        }
+      ],
+      "method_key": "opensearch-doc-v2-distill",
+      "range_ndcg@10": 0.10770715786810023,
+      "slice": "positive_passage_length",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=128",
+          "n": 18,
+          "ndcg@10": 0.18613880364743995
+        },
+        {
+          "bin": "129-512",
+          "n": 69,
+          "ndcg@10": 0.27617884536865883
+        },
+        {
+          "bin": ">512",
+          "n": 16,
+          "ndcg@10": 0.20697437558014836
+        }
+      ],
+      "method_key": "opensearch-multilingual",
+      "range_ndcg@10": 0.09004004172121888,
+      "slice": "positive_passage_length",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=128",
+          "n": 18,
+          "ndcg@10": 0.2879096421656764
+        },
+        {
+          "bin": "129-512",
+          "n": 69,
+          "ndcg@10": 0.23245863791152183
+        },
+        {
+          "bin": ">512",
+          "n": 16,
+          "ndcg@10": 0.28996531779302215
+        }
+      ],
+      "method_key": "colbert-v2",
+      "range_ndcg@10": 0.05750667988150032,
+      "slice": "positive_passage_length",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=128",
+          "n": 18,
+          "ndcg@10": 0.30622375494265075
+        },
+        {
+          "bin": "129-512",
+          "n": 69,
+          "ndcg@10": 0.29358437172022295
+        },
+        {
+          "bin": ">512",
+          "n": 16,
+          "ndcg@10": 0.3378963349431244
+        }
+      ],
+      "method_key": "answerai-colbert-small",
+      "range_ndcg@10": 0.04431196322290143,
+      "slice": "positive_passage_length",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=128",
+          "n": 18,
+          "ndcg@10": 0.2706976187129952
+        },
+        {
+          "bin": "129-512",
+          "n": 69,
+          "ndcg@10": 0.3005807135191153
+        },
+        {
+          "bin": ">512",
+          "n": 16,
+          "ndcg@10": 0.3349991744127382
+        }
+      ],
+      "method_key": "gte-modern-colbert",
+      "range_ndcg@10": 0.064301555699743,
+      "slice": "positive_passage_length",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "1",
+          "n": 35,
+          "ndcg@10": 0.22806901014779074
+        },
+        {
+          "bin": "2-4",
+          "n": 30,
+          "ndcg@10": 0.2752052576375392
+        },
+        {
+          "bin": ">=5",
+          "n": 38,
+          "ndcg@10": 0.25780658515843763
+        }
+      ],
+      "method_key": "bm25-unicode",
+      "range_ndcg@10": 0.047136247489748484,
+      "slice": "qrel_density",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "1",
+          "n": 35,
+          "ndcg@10": 0.17018702733208668
+        },
+        {
+          "bin": "2-4",
+          "n": 30,
+          "ndcg@10": 0.13459211581920394
+        },
+        {
+          "bin": ">=5",
+          "n": 38,
+          "ndcg@10": 0.16773074270532193
+        }
+      ],
+      "method_key": "tfidf-word-sublinear",
+      "range_ndcg@10": 0.03559491151288274,
+      "slice": "qrel_density",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "1",
+          "n": 35,
+          "ndcg@10": 0.3232581809969458
+        },
+        {
+          "bin": "2-4",
+          "n": 30,
+          "ndcg@10": 0.22385718887641237
+        },
+        {
+          "bin": ">=5",
+          "n": 38,
+          "ndcg@10": 0.21496187656052052
+        }
+      ],
+      "method_key": "bge-m3-dense",
+      "range_ndcg@10": 0.1082963044364253,
+      "slice": "qrel_density",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "1",
+          "n": 35,
+          "ndcg@10": 0.30880285375466493
+        },
+        {
+          "bin": "2-4",
+          "n": 30,
+          "ndcg@10": 0.2469081272088248
+        },
+        {
+          "bin": ">=5",
+          "n": 38,
+          "ndcg@10": 0.2340512337057653
+        }
+      ],
+      "method_key": "all-minilm-l6-v2",
+      "range_ndcg@10": 0.07475162004889963,
+      "slice": "qrel_density",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "1",
+          "n": 35,
+          "ndcg@10": 0.25715850232806614
+        },
+        {
+          "bin": "2-4",
+          "n": 30,
+          "ndcg@10": 0.26398397460575834
+        },
+        {
+          "bin": ">=5",
+          "n": 38,
+          "ndcg@10": 0.25820559301325285
+        }
+      ],
+      "method_key": "granite-30m-sparse",
+      "range_ndcg@10": 0.006825472277692202,
+      "slice": "qrel_density",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "1",
+          "n": 35,
+          "ndcg@10": 0.2260777773081195
+        },
+        {
+          "bin": "2-4",
+          "n": 30,
+          "ndcg@10": 0.31251944193652753
+        },
+        {
+          "bin": ">=5",
+          "n": 38,
+          "ndcg@10": 0.21838149825517034
+        }
+      ],
+      "method_key": "opensearch-doc-v2-mini",
+      "range_ndcg@10": 0.0941379436813572,
+      "slice": "qrel_density",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "1",
+          "n": 35,
+          "ndcg@10": 0.2303139932567156
+        },
+        {
+          "bin": "2-4",
+          "n": 30,
+          "ndcg@10": 0.26971223079101
+        },
+        {
+          "bin": ">=5",
+          "n": 38,
+          "ndcg@10": 0.23729682035221664
+        }
+      ],
+      "method_key": "opensearch-doc-v3",
+      "range_ndcg@10": 0.03939823753429439,
+      "slice": "qrel_density",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "1",
+          "n": 35,
+          "ndcg@10": 0.2681789342950676
+        },
+        {
+          "bin": "2-4",
+          "n": 30,
+          "ndcg@10": 0.2714847678593689
+        },
+        {
+          "bin": ">=5",
+          "n": 38,
+          "ndcg@10": 0.2993097066016846
+        }
+      ],
+      "method_key": "bge-m3",
+      "range_ndcg@10": 0.031130772306616983,
+      "slice": "qrel_density",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "1",
+          "n": 35,
+          "ndcg@10": 0.24877820530016426
+        },
+        {
+          "bin": "2-4",
+          "n": 30,
+          "ndcg@10": 0.24129647654706357
+        },
+        {
+          "bin": ">=5",
+          "n": 38,
+          "ndcg@10": 0.26525406399184953
+        }
+      ],
+      "method_key": "splade-tiny",
+      "range_ndcg@10": 0.02395758744478596,
+      "slice": "qrel_density",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "1",
+          "n": 35,
+          "ndcg@10": 0.24029940572151648
+        },
+        {
+          "bin": "2-4",
+          "n": 30,
+          "ndcg@10": 0.3102157927177033
+        },
+        {
+          "bin": ">=5",
+          "n": 38,
+          "ndcg@10": 0.2962588743742183
+        }
+      ],
+      "method_key": "opensearch-doc-v2-distill",
+      "range_ndcg@10": 0.0699163869961868,
+      "slice": "qrel_density",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "1",
+          "n": 35,
+          "ndcg@10": 0.24649145910064096
+        },
+        {
+          "bin": "2-4",
+          "n": 30,
+          "ndcg@10": 0.31653009409632843
+        },
+        {
+          "bin": ">=5",
+          "n": 38,
+          "ndcg@10": 0.19987697142003863
+        }
+      ],
+      "method_key": "opensearch-multilingual",
+      "range_ndcg@10": 0.1166531226762898,
+      "slice": "qrel_density",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "1",
+          "n": 35,
+          "ndcg@10": 0.2961202322602874
+        },
+        {
+          "bin": "2-4",
+          "n": 30,
+          "ndcg@10": 0.19893010810974684
+        },
+        {
+          "bin": ">=5",
+          "n": 38,
+          "ndcg@10": 0.2507724549253439
+        }
+      ],
+      "method_key": "colbert-v2",
+      "range_ndcg@10": 0.09719012415054054,
+      "slice": "qrel_density",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "1",
+          "n": 35,
+          "ndcg@10": 0.3210131273335735
+        },
+        {
+          "bin": "2-4",
+          "n": 30,
+          "ndcg@10": 0.29198871395843157
+        },
+        {
+          "bin": ">=5",
+          "n": 38,
+          "ndcg@10": 0.2942255189822386
+        }
+      ],
+      "method_key": "answerai-colbert-small",
+      "range_ndcg@10": 0.029024413375141944,
+      "slice": "qrel_density",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "1",
+          "n": 35,
+          "ndcg@10": 0.30506848097389605
+        },
+        {
+          "bin": "2-4",
+          "n": 30,
+          "ndcg@10": 0.2867884765249003
+        },
+        {
+          "bin": ">=5",
+          "n": 38,
+          "ndcg@10": 0.3076726850111397
+        }
+      ],
+      "method_key": "gte-modern-colbert",
+      "range_ndcg@10": 0.020884208486239397,
+      "slice": "qrel_density",
+      "track": "economics"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=64",
+          "n": 17,
+          "ndcg@10": 0.355835290172645
+        },
+        {
+          "bin": "65-128",
+          "n": 48,
+          "ndcg@10": 0.16413581847044922
+        },
+        {
+          "bin": ">128",
+          "n": 36,
+          "ndcg@10": 0.0609547383549007
+        }
+      ],
+      "method_key": "bm25-unicode",
+      "range_ndcg@10": 0.2948805518177443,
+      "slice": "query_length",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=64",
+          "n": 17,
+          "ndcg@10": 0.1607577349119597
+        },
+        {
+          "bin": "65-128",
+          "n": 48,
+          "ndcg@10": 0.08136458538417608
+        },
+        {
+          "bin": ">128",
+          "n": 36,
+          "ndcg@10": 0.04712177303668199
+        }
+      ],
+      "method_key": "tfidf-word-sublinear",
+      "range_ndcg@10": 0.11363596187527769,
+      "slice": "query_length",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=64",
+          "n": 17,
+          "ndcg@10": 0.4277808263804796
+        },
+        {
+          "bin": "65-128",
+          "n": 48,
+          "ndcg@10": 0.2651750697817237
+        },
+        {
+          "bin": ">128",
+          "n": 36,
+          "ndcg@10": 0.27785453124266485
+        }
+      ],
+      "method_key": "bge-m3-dense",
+      "range_ndcg@10": 0.16260575659875587,
+      "slice": "query_length",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=64",
+          "n": 17,
+          "ndcg@10": 0.3635727185636274
+        },
+        {
+          "bin": "65-128",
+          "n": 48,
+          "ndcg@10": 0.25474958706012574
+        },
+        {
+          "bin": ">128",
+          "n": 36,
+          "ndcg@10": 0.269000905958968
+        }
+      ],
+      "method_key": "all-minilm-l6-v2",
+      "range_ndcg@10": 0.10882313150350165,
+      "slice": "query_length",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=64",
+          "n": 17,
+          "ndcg@10": 0.3708797095418721
+        },
+        {
+          "bin": "65-128",
+          "n": 48,
+          "ndcg@10": 0.28649037026382945
+        },
+        {
+          "bin": ">128",
+          "n": 36,
+          "ndcg@10": 0.2742134899377074
+        }
+      ],
+      "method_key": "granite-30m-sparse",
+      "range_ndcg@10": 0.09666621960416472,
+      "slice": "query_length",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=64",
+          "n": 17,
+          "ndcg@10": 0.31489065423457174
+        },
+        {
+          "bin": "65-128",
+          "n": 48,
+          "ndcg@10": 0.21798498714948855
+        },
+        {
+          "bin": ">128",
+          "n": 36,
+          "ndcg@10": 0.26415168847913856
+        }
+      ],
+      "method_key": "opensearch-doc-v2-mini",
+      "range_ndcg@10": 0.09690566708508319,
+      "slice": "query_length",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=64",
+          "n": 17,
+          "ndcg@10": 0.28906011900772527
+        },
+        {
+          "bin": "65-128",
+          "n": 48,
+          "ndcg@10": 0.1998992415057974
+        },
+        {
+          "bin": ">128",
+          "n": 36,
+          "ndcg@10": 0.26645624490744757
+        }
+      ],
+      "method_key": "opensearch-doc-v3",
+      "range_ndcg@10": 0.08916087750192786,
+      "slice": "query_length",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=64",
+          "n": 17,
+          "ndcg@10": 0.3615159198750007
+        },
+        {
+          "bin": "65-128",
+          "n": 48,
+          "ndcg@10": 0.29414083425987986
+        },
+        {
+          "bin": ">128",
+          "n": 36,
+          "ndcg@10": 0.3423471360300907
+        }
+      ],
+      "method_key": "bge-m3",
+      "range_ndcg@10": 0.06737508561512084,
+      "slice": "query_length",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=64",
+          "n": 17,
+          "ndcg@10": 0.26792512281410436
+        },
+        {
+          "bin": "65-128",
+          "n": 48,
+          "ndcg@10": 0.2330528494565507
+        },
+        {
+          "bin": ">128",
+          "n": 36,
+          "ndcg@10": 0.2837495911913049
+        }
+      ],
+      "method_key": "splade-tiny",
+      "range_ndcg@10": 0.05069674173475419,
+      "slice": "query_length",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=64",
+          "n": 17,
+          "ndcg@10": 0.346998059734287
+        },
+        {
+          "bin": "65-128",
+          "n": 48,
+          "ndcg@10": 0.24948020437002938
+        },
+        {
+          "bin": ">128",
+          "n": 36,
+          "ndcg@10": 0.3103704643645379
+        }
+      ],
+      "method_key": "opensearch-doc-v2-distill",
+      "range_ndcg@10": 0.09751785536425761,
+      "slice": "query_length",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=64",
+          "n": 17,
+          "ndcg@10": 0.41665010355740195
+        },
+        {
+          "bin": "65-128",
+          "n": 48,
+          "ndcg@10": 0.23341765272865345
+        },
+        {
+          "bin": ">128",
+          "n": 36,
+          "ndcg@10": 0.3028102154783523
+        }
+      ],
+      "method_key": "opensearch-multilingual",
+      "range_ndcg@10": 0.1832324508287485,
+      "slice": "query_length",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=64",
+          "n": 17,
+          "ndcg@10": 0.495807911695832
+        },
+        {
+          "bin": "65-128",
+          "n": 48,
+          "ndcg@10": 0.29726243986717565
+        },
+        {
+          "bin": ">128",
+          "n": 36,
+          "ndcg@10": 0.2714087206384113
+        }
+      ],
+      "method_key": "colbert-v2",
+      "range_ndcg@10": 0.22439919105742068,
+      "slice": "query_length",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=64",
+          "n": 17,
+          "ndcg@10": 0.5329612323477878
+        },
+        {
+          "bin": "65-128",
+          "n": 48,
+          "ndcg@10": 0.3043203444329295
+        },
+        {
+          "bin": ">128",
+          "n": 36,
+          "ndcg@10": 0.33687204634358425
+        }
+      ],
+      "method_key": "answerai-colbert-small",
+      "range_ndcg@10": 0.22864088791485832,
+      "slice": "query_length",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=64",
+          "n": 17,
+          "ndcg@10": 0.5999016154656318
+        },
+        {
+          "bin": "65-128",
+          "n": 48,
+          "ndcg@10": 0.31043625656794777
+        },
+        {
+          "bin": ">128",
+          "n": 36,
+          "ndcg@10": 0.4149268988007456
+        }
+      ],
+      "method_key": "gte-modern-colbert",
+      "range_ndcg@10": 0.28946535889768404,
+      "slice": "query_length",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "(0,0.25]",
+          "n": 30,
+          "ndcg@10": 0.006113660174946671
+        },
+        {
+          "bin": "(0.25,0.50]",
+          "n": 60,
+          "ndcg@10": 0.18239188928597846
+        },
+        {
+          "bin": ">0.50",
+          "n": 11,
+          "ndcg@10": 0.4541060579896223
+        }
+      ],
+      "method_key": "bm25-unicode",
+      "range_ndcg@10": 0.4479923978146756,
+      "slice": "positive_lexical_overlap",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "(0,0.25]",
+          "n": 30,
+          "ndcg@10": 0.009972358731934562
+        },
+        {
+          "bin": "(0.25,0.50]",
+          "n": 60,
+          "ndcg@10": 0.11619852799461645
+        },
+        {
+          "bin": ">0.50",
+          "n": 11,
+          "ndcg@10": 0.09669845269357227
+        }
+      ],
+      "method_key": "tfidf-word-sublinear",
+      "range_ndcg@10": 0.10622616926268189,
+      "slice": "positive_lexical_overlap",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "(0,0.25]",
+          "n": 30,
+          "ndcg@10": 0.16203210630502107
+        },
+        {
+          "bin": "(0.25,0.50]",
+          "n": 60,
+          "ndcg@10": 0.35302434488083173
+        },
+        {
+          "bin": ">0.50",
+          "n": 11,
+          "ndcg@10": 0.36009242188420837
+        }
+      ],
+      "method_key": "bge-m3-dense",
+      "range_ndcg@10": 0.1980603155791873,
+      "slice": "positive_lexical_overlap",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "(0,0.25]",
+          "n": 30,
+          "ndcg@10": 0.1675861772370262
+        },
+        {
+          "bin": "(0.25,0.50]",
+          "n": 60,
+          "ndcg@10": 0.3197753446304541
+        },
+        {
+          "bin": ">0.50",
+          "n": 11,
+          "ndcg@10": 0.3526039103684106
+        }
+      ],
+      "method_key": "all-minilm-l6-v2",
+      "range_ndcg@10": 0.1850177331313844,
+      "slice": "positive_lexical_overlap",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "(0,0.25]",
+          "n": 30,
+          "ndcg@10": 0.16356380581613436
+        },
+        {
+          "bin": "(0.25,0.50]",
+          "n": 60,
+          "ndcg@10": 0.358952097635828
+        },
+        {
+          "bin": ">0.50",
+          "n": 11,
+          "ndcg@10": 0.3167398581817627
+        }
+      ],
+      "method_key": "granite-30m-sparse",
+      "range_ndcg@10": 0.19538829181969367,
+      "slice": "positive_lexical_overlap",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "(0,0.25]",
+          "n": 30,
+          "ndcg@10": 0.125132113914458
+        },
+        {
+          "bin": "(0.25,0.50]",
+          "n": 60,
+          "ndcg@10": 0.30061921283706333
+        },
+        {
+          "bin": ">0.50",
+          "n": 11,
+          "ndcg@10": 0.3213422820686017
+        }
+      ],
+      "method_key": "opensearch-doc-v2-mini",
+      "range_ndcg@10": 0.19621016815414372,
+      "slice": "positive_lexical_overlap",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "(0,0.25]",
+          "n": 30,
+          "ndcg@10": 0.12324796648164701
+        },
+        {
+          "bin": "(0.25,0.50]",
+          "n": 60,
+          "ndcg@10": 0.2959520277590756
+        },
+        {
+          "bin": ">0.50",
+          "n": 11,
+          "ndcg@10": 0.24064088837125208
+        }
+      ],
+      "method_key": "opensearch-doc-v3",
+      "range_ndcg@10": 0.17270406127742857,
+      "slice": "positive_lexical_overlap",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "(0,0.25]",
+          "n": 30,
+          "ndcg@10": 0.15583533038572142
+        },
+        {
+          "bin": "(0.25,0.50]",
+          "n": 60,
+          "ndcg@10": 0.4102985036615455
+        },
+        {
+          "bin": ">0.50",
+          "n": 11,
+          "ndcg@10": 0.29964158619710346
+        }
+      ],
+      "method_key": "bge-m3",
+      "range_ndcg@10": 0.25446317327582413,
+      "slice": "positive_lexical_overlap",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "(0,0.25]",
+          "n": 30,
+          "ndcg@10": 0.12608318317695408
+        },
+        {
+          "bin": "(0.25,0.50]",
+          "n": 60,
+          "ndcg@10": 0.30938530533184616
+        },
+        {
+          "bin": ">0.50",
+          "n": 11,
+          "ndcg@10": 0.3282395754019809
+        }
+      ],
+      "method_key": "splade-tiny",
+      "range_ndcg@10": 0.20215639222502682,
+      "slice": "positive_lexical_overlap",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "(0,0.25]",
+          "n": 30,
+          "ndcg@10": 0.14821496891258454
+        },
+        {
+          "bin": "(0.25,0.50]",
+          "n": 60,
+          "ndcg@10": 0.3482813209517109
+        },
+        {
+          "bin": ">0.50",
+          "n": 11,
+          "ndcg@10": 0.3367295652624966
+        }
+      ],
+      "method_key": "opensearch-doc-v2-distill",
+      "range_ndcg@10": 0.20006635203912634,
+      "slice": "positive_lexical_overlap",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "(0,0.25]",
+          "n": 30,
+          "ndcg@10": 0.11572705226654999
+        },
+        {
+          "bin": "(0.25,0.50]",
+          "n": 60,
+          "ndcg@10": 0.3761146074961044
+        },
+        {
+          "bin": ">0.50",
+          "n": 11,
+          "ndcg@10": 0.28632534826446504
+        }
+      ],
+      "method_key": "opensearch-multilingual",
+      "range_ndcg@10": 0.2603875552295544,
+      "slice": "positive_lexical_overlap",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "(0,0.25]",
+          "n": 30,
+          "ndcg@10": 0.12294946943150868
+        },
+        {
+          "bin": "(0.25,0.50]",
+          "n": 60,
+          "ndcg@10": 0.36432967761804025
+        },
+        {
+          "bin": ">0.50",
+          "n": 11,
+          "ndcg@10": 0.6290709832189735
+        }
+      ],
+      "method_key": "colbert-v2",
+      "range_ndcg@10": 0.5061215137874648,
+      "slice": "positive_lexical_overlap",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "(0,0.25]",
+          "n": 30,
+          "ndcg@10": 0.1576329252291439
+        },
+        {
+          "bin": "(0.25,0.50]",
+          "n": 60,
+          "ndcg@10": 0.41479836012436194
+        },
+        {
+          "bin": ">0.50",
+          "n": 11,
+          "ndcg@10": 0.5616565260660006
+        }
+      ],
+      "method_key": "answerai-colbert-small",
+      "range_ndcg@10": 0.4040236008368567,
+      "slice": "positive_lexical_overlap",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "(0,0.25]",
+          "n": 30,
+          "ndcg@10": 0.21051476668022293
+        },
+        {
+          "bin": "(0.25,0.50]",
+          "n": 60,
+          "ndcg@10": 0.44639476059087085
+        },
+        {
+          "bin": ">0.50",
+          "n": 11,
+          "ndcg@10": 0.6306824999222853
+        }
+      ],
+      "method_key": "gte-modern-colbert",
+      "range_ndcg@10": 0.42016773324206236,
+      "slice": "positive_lexical_overlap",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=128",
+          "n": 16,
+          "ndcg@10": 0.07429802431600756
+        },
+        {
+          "bin": "129-512",
+          "n": 66,
+          "ndcg@10": 0.12981693592160515
+        },
+        {
+          "bin": ">512",
+          "n": 19,
+          "ndcg@10": 0.3350212442321522
+        }
+      ],
+      "method_key": "bm25-unicode",
+      "range_ndcg@10": 0.2607232199161446,
+      "slice": "positive_passage_length",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=128",
+          "n": 16,
+          "ndcg@10": 0.05496168540209043
+        },
+        {
+          "bin": "129-512",
+          "n": 66,
+          "ndcg@10": 0.07123219000111258
+        },
+        {
+          "bin": ">512",
+          "n": 19,
+          "ndcg@10": 0.14495020603986533
+        }
+      ],
+      "method_key": "tfidf-word-sublinear",
+      "range_ndcg@10": 0.0899885206377749,
+      "slice": "positive_passage_length",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=128",
+          "n": 16,
+          "ndcg@10": 0.2155329418998049
+        },
+        {
+          "bin": "129-512",
+          "n": 66,
+          "ndcg@10": 0.3126257815190547
+        },
+        {
+          "bin": ">512",
+          "n": 19,
+          "ndcg@10": 0.31166378274064943
+        }
+      ],
+      "method_key": "bge-m3-dense",
+      "range_ndcg@10": 0.09709283961924978,
+      "slice": "positive_passage_length",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=128",
+          "n": 16,
+          "ndcg@10": 0.22783618724328641
+        },
+        {
+          "bin": "129-512",
+          "n": 66,
+          "ndcg@10": 0.275968774929373
+        },
+        {
+          "bin": ">512",
+          "n": 19,
+          "ndcg@10": 0.32807530882943936
+        }
+      ],
+      "method_key": "all-minilm-l6-v2",
+      "range_ndcg@10": 0.10023912158615295,
+      "slice": "positive_passage_length",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=128",
+          "n": 16,
+          "ndcg@10": 0.2155284093283034
+        },
+        {
+          "bin": "129-512",
+          "n": 66,
+          "ndcg@10": 0.3031388547569853
+        },
+        {
+          "bin": ">512",
+          "n": 19,
+          "ndcg@10": 0.34066102681153776
+        }
+      ],
+      "method_key": "granite-30m-sparse",
+      "range_ndcg@10": 0.12513261748323437,
+      "slice": "positive_passage_length",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=128",
+          "n": 16,
+          "ndcg@10": 0.2647707699522647
+        },
+        {
+          "bin": "129-512",
+          "n": 66,
+          "ndcg@10": 0.21298357400424758
+        },
+        {
+          "bin": ">512",
+          "n": 19,
+          "ndcg@10": 0.37013858352082024
+        }
+      ],
+      "method_key": "opensearch-doc-v2-mini",
+      "range_ndcg@10": 0.15715500951657266,
+      "slice": "positive_passage_length",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=128",
+          "n": 16,
+          "ndcg@10": 0.2613166475174569
+        },
+        {
+          "bin": "129-512",
+          "n": 66,
+          "ndcg@10": 0.2196754730857573
+        },
+        {
+          "bin": ">512",
+          "n": 19,
+          "ndcg@10": 0.28536646569149604
+        }
+      ],
+      "method_key": "opensearch-doc-v3",
+      "range_ndcg@10": 0.06569099260573874,
+      "slice": "positive_passage_length",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=128",
+          "n": 16,
+          "ndcg@10": 0.16682283529208858
+        },
+        {
+          "bin": "129-512",
+          "n": 66,
+          "ndcg@10": 0.3515415684969136
+        },
+        {
+          "bin": ">512",
+          "n": 19,
+          "ndcg@10": 0.3535851944190947
+        }
+      ],
+      "method_key": "bge-m3",
+      "range_ndcg@10": 0.18676235912700612,
+      "slice": "positive_passage_length",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=128",
+          "n": 16,
+          "ndcg@10": 0.24019085517206692
+        },
+        {
+          "bin": "129-512",
+          "n": 66,
+          "ndcg@10": 0.23186289239159627
+        },
+        {
+          "bin": ">512",
+          "n": 19,
+          "ndcg@10": 0.3584339244233031
+        }
+      ],
+      "method_key": "splade-tiny",
+      "range_ndcg@10": 0.1265710320317068,
+      "slice": "positive_passage_length",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=128",
+          "n": 16,
+          "ndcg@10": 0.17114453200927085
+        },
+        {
+          "bin": "129-512",
+          "n": 66,
+          "ndcg@10": 0.2950631180527615
+        },
+        {
+          "bin": ">512",
+          "n": 19,
+          "ndcg@10": 0.35973027572300326
+        }
+      ],
+      "method_key": "opensearch-doc-v2-distill",
+      "range_ndcg@10": 0.1885857437137324,
+      "slice": "positive_passage_length",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=128",
+          "n": 16,
+          "ndcg@10": 0.20746659913786436
+        },
+        {
+          "bin": "129-512",
+          "n": 66,
+          "ndcg@10": 0.3044519143796671
+        },
+        {
+          "bin": ">512",
+          "n": 19,
+          "ndcg@10": 0.30394604807410647
+        }
+      ],
+      "method_key": "opensearch-multilingual",
+      "range_ndcg@10": 0.09698531524180276,
+      "slice": "positive_passage_length",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=128",
+          "n": 16,
+          "ndcg@10": 0.19036297490690812
+        },
+        {
+          "bin": "129-512",
+          "n": 66,
+          "ndcg@10": 0.29247184224632594
+        },
+        {
+          "bin": ">512",
+          "n": 19,
+          "ndcg@10": 0.5325840194035969
+        }
+      ],
+      "method_key": "colbert-v2",
+      "range_ndcg@10": 0.3422210444966888,
+      "slice": "positive_passage_length",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=128",
+          "n": 16,
+          "ndcg@10": 0.1868137968026424
+        },
+        {
+          "bin": "129-512",
+          "n": 66,
+          "ndcg@10": 0.33943955867308406
+        },
+        {
+          "bin": ">512",
+          "n": 19,
+          "ndcg@10": 0.547530501568222
+        }
+      ],
+      "method_key": "answerai-colbert-small",
+      "range_ndcg@10": 0.3607167047655796,
+      "slice": "positive_passage_length",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "<=128",
+          "n": 16,
+          "ndcg@10": 0.2329881262248781
+        },
+        {
+          "bin": "129-512",
+          "n": 66,
+          "ndcg@10": 0.38052333096388835
+        },
+        {
+          "bin": ">512",
+          "n": 19,
+          "ndcg@10": 0.5891729616731262
+        }
+      ],
+      "method_key": "gte-modern-colbert",
+      "range_ndcg@10": 0.3561848354482481,
+      "slice": "positive_passage_length",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "1",
+          "n": 35,
+          "ndcg@10": 0.14091313569244113
+        },
+        {
+          "bin": "2-4",
+          "n": 32,
+          "ndcg@10": 0.2199957758563748
+        },
+        {
+          "bin": ">=5",
+          "n": 34,
+          "ndcg@10": 0.12206662422510355
+        }
+      ],
+      "method_key": "bm25-unicode",
+      "range_ndcg@10": 0.09792915163127126,
+      "slice": "qrel_density",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "1",
+          "n": 35,
+          "ndcg@10": 0.04878065946421014
+        },
+        {
+          "bin": "2-4",
+          "n": 32,
+          "ndcg@10": 0.14077331033365634
+        },
+        {
+          "bin": ">=5",
+          "n": 34,
+          "ndcg@10": 0.06243224733352829
+        }
+      ],
+      "method_key": "tfidf-word-sublinear",
+      "range_ndcg@10": 0.09199265086944619,
+      "slice": "qrel_density",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "1",
+          "n": 35,
+          "ndcg@10": 0.3108108170708943
+        },
+        {
+          "bin": "2-4",
+          "n": 32,
+          "ndcg@10": 0.3299808206129398
+        },
+        {
+          "bin": ">=5",
+          "n": 34,
+          "ndcg@10": 0.25193163722445455
+        }
+      ],
+      "method_key": "bge-m3-dense",
+      "range_ndcg@10": 0.07804918338848527,
+      "slice": "qrel_density",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "1",
+          "n": 35,
+          "ndcg@10": 0.21551619061049618
+        },
+        {
+          "bin": "2-4",
+          "n": 32,
+          "ndcg@10": 0.33537643744851087
+        },
+        {
+          "bin": ">=5",
+          "n": 34,
+          "ndcg@10": 0.28875400997855394
+        }
+      ],
+      "method_key": "all-minilm-l6-v2",
+      "range_ndcg@10": 0.11986024683801469,
+      "slice": "qrel_density",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "1",
+          "n": 35,
+          "ndcg@10": 0.2715932760570463
+        },
+        {
+          "bin": "2-4",
+          "n": 32,
+          "ndcg@10": 0.3418400063738077
+        },
+        {
+          "bin": ">=5",
+          "n": 34,
+          "ndcg@10": 0.27892745901984234
+        }
+      ],
+      "method_key": "granite-30m-sparse",
+      "range_ndcg@10": 0.07024673031676137,
+      "slice": "qrel_density",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "1",
+          "n": 35,
+          "ndcg@10": 0.18274922388972084
+        },
+        {
+          "bin": "2-4",
+          "n": 32,
+          "ndcg@10": 0.3263887052242745
+        },
+        {
+          "bin": ">=5",
+          "n": 34,
+          "ndcg@10": 0.24956529079691603
+        }
+      ],
+      "method_key": "opensearch-doc-v2-mini",
+      "range_ndcg@10": 0.14363948133455365,
+      "slice": "qrel_density",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "1",
+          "n": 35,
+          "ndcg@10": 0.18884140584540274
+        },
+        {
+          "bin": "2-4",
+          "n": 32,
+          "ndcg@10": 0.30099716733360476
+        },
+        {
+          "bin": ">=5",
+          "n": 34,
+          "ndcg@10": 0.23118387861215503
+        }
+      ],
+      "method_key": "opensearch-doc-v3",
+      "range_ndcg@10": 0.11215576148820203,
+      "slice": "qrel_density",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "1",
+          "n": 35,
+          "ndcg@10": 0.31506150256319104
+        },
+        {
+          "bin": "2-4",
+          "n": 32,
+          "ndcg@10": 0.377804027728748
+        },
+        {
+          "bin": ">=5",
+          "n": 34,
+          "ndcg@10": 0.2785925324235556
+        }
+      ],
+      "method_key": "bge-m3",
+      "range_ndcg@10": 0.09921149530519241,
+      "slice": "qrel_density",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "1",
+          "n": 35,
+          "ndcg@10": 0.2177013112795677
+        },
+        {
+          "bin": "2-4",
+          "n": 32,
+          "ndcg@10": 0.31528134889149667
+        },
+        {
+          "bin": ">=5",
+          "n": 34,
+          "ndcg@10": 0.2425794142743653
+        }
+      ],
+      "method_key": "splade-tiny",
+      "range_ndcg@10": 0.09758003761192896,
+      "slice": "qrel_density",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "1",
+          "n": 35,
+          "ndcg@10": 0.2683654074489821
+        },
+        {
+          "bin": "2-4",
+          "n": 32,
+          "ndcg@10": 0.34188725437680995
+        },
+        {
+          "bin": ">=5",
+          "n": 34,
+          "ndcg@10": 0.25629918063515766
+        }
+      ],
+      "method_key": "opensearch-doc-v2-distill",
+      "range_ndcg@10": 0.08558807374165228,
+      "slice": "qrel_density",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "1",
+          "n": 35,
+          "ndcg@10": 0.28427835171546967
+        },
+        {
+          "bin": "2-4",
+          "n": 32,
+          "ndcg@10": 0.3265605170175293
+        },
+        {
+          "bin": ">=5",
+          "n": 34,
+          "ndcg@10": 0.2584878821785148
+        }
+      ],
+      "method_key": "opensearch-multilingual",
+      "range_ndcg@10": 0.06807263483901449,
+      "slice": "qrel_density",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "1",
+          "n": 35,
+          "ndcg@10": 0.29973624091668605
+        },
+        {
+          "bin": "2-4",
+          "n": 32,
+          "ndcg@10": 0.39257665101865313
+        },
+        {
+          "bin": ">=5",
+          "n": 34,
+          "ndcg@10": 0.27690659678692553
+        }
+      ],
+      "method_key": "colbert-v2",
+      "range_ndcg@10": 0.1156700542317276,
+      "slice": "qrel_density",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "1",
+          "n": 35,
+          "ndcg@10": 0.40276274229164555
+        },
+        {
+          "bin": "2-4",
+          "n": 32,
+          "ndcg@10": 0.33986290741853914
+        },
+        {
+          "bin": ">=5",
+          "n": 34,
+          "ndcg@10": 0.3183177098076822
+        }
+      ],
+      "method_key": "answerai-colbert-small",
+      "range_ndcg@10": 0.08444503248396334,
+      "slice": "qrel_density",
+      "track": "psychology"
+    },
+    {
+      "all_frozen_bins_present": true,
+      "bins": [
+        {
+          "bin": "1",
+          "n": 35,
+          "ndcg@10": 0.4277474623191677
+        },
+        {
+          "bin": "2-4",
+          "n": 32,
+          "ndcg@10": 0.4303003338252895
+        },
+        {
+          "bin": ">=5",
+          "n": 34,
+          "ndcg@10": 0.3322313021007042
+        }
+      ],
+      "method_key": "gte-modern-colbert",
+      "range_ndcg@10": 0.09806903172458531,
+      "slice": "qrel_density",
+      "track": "psychology"
+    }
+  ],
+  "publication": {
+    "classification": "research_only",
+    "gate": "closed",
+    "leaderboard_publish": false,
+    "public_export_allowed": false,
+    "publish": false,
+    "restricted_content_allowed": false
+  },
+  "schema_version": "bright-cross-paradigm-descriptive-sensitivity-v1",
+  "story_id": "S-20260814-009"
+}

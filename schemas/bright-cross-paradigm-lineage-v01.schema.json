@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema_version", "story_id", "publication", "canonical_data_manifest_sha256", "accepted_package_sha256", "contextual_anchors", "cells", "fairness"],
+  "properties": {
+    "schema_version": {"const": "bright-cross-paradigm-lineage-v1"}, "story_id": {"const": "S-20260814-009"},
+    "publication": {"const": {"publish": false, "leaderboard_publish": false, "public_export_allowed": false, "gate": "closed", "classification": "research_only", "restricted_content_allowed": false}},
+    "canonical_data_manifest_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "accepted_package_sha256": {"type": "object", "additionalProperties": false, "required": ["S-005", "S-008", "S-012"], "properties": {"S-005": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "S-008": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "S-012": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}},
+    "contextual_anchors": {"type": "array", "minItems": 4, "maxItems": 4, "items": {"type": "object", "required": ["cell_id", "role", "accepted_cell_sha256", "queries", "exact_order_queries", "mismatched_order_queries", "top100_overlap_min", "top100_overlap_mean", "all_mismatched_queries_have_full_top100_overlap", "metric_delta_rerun_minus_accepted"]}},
+    "cells": {"type": "array", "minItems": 28, "maxItems": 28, "items": {"type": "object", "additionalProperties": false, "required": ["cell_id", "method_key", "family", "track", "quality_origin", "source_story", "cell_sha256", "recomputation", "quality_comparability", "resource_comparability", "system_error"], "properties": {"cell_id": {"type": "string"}, "method_key": {"type": "string"}, "family": {"enum": ["lexical", "dense", "learned_sparse", "multi_vector"]}, "track": {"enum": ["economics", "psychology"]}, "quality_origin": {"type": "string"}, "source_story": {"type": "string"}, "cell_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "revision": {"type": ["string", "null"]}, "recomputation": {"type": "string"}, "quality_comparability": {"const": "direct_same_input_candidate_retrieval_unit_top100_metrics"}, "resource_comparability": {"const": "unified_rerun_only"}, "system_error": {"const": "none_exact_search"}}}},
+    "fairness": {"type": "object", "additionalProperties": false, "required": ["quality", "latency", "representation_bytes", "historical_resources", "approximation_error"], "properties": {"quality": {"type": "string"}, "latency": {"type": "string"}, "representation_bytes": {"type": "string"}, "historical_resources": {"const": "contextual_anchor_only"}, "approximation_error": {"const": "not_applicable_exact_full_corpus"}}}
+  }
+}

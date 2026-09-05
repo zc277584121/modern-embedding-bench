@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "story_id", "publication", "counts", "local_mapping_sha256", "cases"],
+  "properties": {
+    "schema_version": {"const": "bright-cross-paradigm-cases-v1"},
+    "story_id": {"const": "S-20260814-009"},
+    "publication": {"const": {"publish": false, "leaderboard_publish": false, "public_export_allowed": false, "gate": "closed", "classification": "research_only", "restricted_content_allowed": false}},
+    "local_mapping_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "counts": {
+      "type": "object",
+      "properties": {"total": {"const": 24}, "per_track_disagreement": {"const": 6}, "per_track_failure": {"const": 6}},
+      "required": ["total", "per_track_disagreement", "per_track_failure"],
+      "additionalProperties": false
+    },
+    "cases": {"type": "array", "minItems": 24, "maxItems": 24, "items": {"type": "object", "required": ["case_hash", "track", "category", "selection_rule", "local_evidence_sha256"]}}
+  }
+}

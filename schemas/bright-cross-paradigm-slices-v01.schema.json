@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "story_id", "publication", "small_slice_policy", "tracks"],
+  "properties": {
+    "schema_version": {"const": "bright-cross-paradigm-slices-v1"},
+    "story_id": {"const": "S-20260814-009"},
+    "publication": {"const": {"publish": false, "leaderboard_publish": false, "public_export_allowed": false, "gate": "closed", "classification": "research_only", "restricted_content_allowed": false}},
+    "small_slice_policy": {"type": "string", "minLength": 1},
+    "tracks": {
+      "type": "object",
+      "required": ["economics", "psychology"],
+      "additionalProperties": false,
+      "properties": {
+        "economics": {"type": "array", "minItems": 4, "maxItems": 4, "items": {"$ref": "#/$defs/slice"}},
+        "psychology": {"type": "array", "minItems": 4, "maxItems": 4, "items": {"$ref": "#/$defs/slice"}}
+      }
+    }
+  },
+  "$defs": {
+    "slice": {"type": "object", "required": ["key", "unit", "bins"]}
+  }
+}

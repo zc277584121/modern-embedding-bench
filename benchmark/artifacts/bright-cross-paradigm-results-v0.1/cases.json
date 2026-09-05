@@ -1,0 +1,260 @@
+{
+  "cases": [
+    {
+      "best_method_ndcg@10": 0.46927872602275644,
+      "case_hash": "af5611605e41fdd5452f3b17332162d26557d356e9793bf54ca32892a0bfdf0d",
+      "category": "disagreement",
+      "local_evidence_sha256": "1cdb8305e090812b154597b4144a8b76dc857107a5c3d41a5cdc0218534f2b78",
+      "rank_spread": 100,
+      "restricted_content_included": false,
+      "selection_rule": "largest_best_positive_rank_spread_then_query_hash",
+      "track": "economics"
+    },
+    {
+      "best_method_ndcg@10": 0.6955762265703532,
+      "case_hash": "f4e11fb036a2033a55278e609f13fcb8a88e48103ca523f5e80c0ea2658adf8c",
+      "category": "disagreement",
+      "local_evidence_sha256": "e2a43f45878c41b144715b370cc6893b5a5f7e7af3b9e13288de4280a7175efb",
+      "rank_spread": 100,
+      "restricted_content_included": false,
+      "selection_rule": "largest_best_positive_rank_spread_then_query_hash",
+      "track": "economics"
+    },
+    {
+      "best_method_ndcg@10": 0.4950605206767564,
+      "case_hash": "b0c5da9b36c307c9254c6cf33fc4ba8cb91d25112a3a8369d8bd563cd9b901c9",
+      "category": "disagreement",
+      "local_evidence_sha256": "a904287bb837f4061a7bf844a31d785a61ba4add5000f0fe986e0f95b714597d",
+      "rank_spread": 100,
+      "restricted_content_included": false,
+      "selection_rule": "largest_best_positive_rank_spread_then_query_hash",
+      "track": "economics"
+    },
+    {
+      "best_method_ndcg@10": 1.0,
+      "case_hash": "75dd4c34d025ec4f42907e8db2ce76fc5427a7215b61016a7021256e3556d002",
+      "category": "disagreement",
+      "local_evidence_sha256": "73bcbabdb61f9c38cf9a4d01a70fff0aab134643c930db478addae6a35f71d93",
+      "rank_spread": 100,
+      "restricted_content_included": false,
+      "selection_rule": "largest_best_positive_rank_spread_then_query_hash",
+      "track": "economics"
+    },
+    {
+      "best_method_ndcg@10": 0.6131471927654584,
+      "case_hash": "0086c75f65b71c4de3a074f9fbfd9aa5149dfa3584b4317c1e674bad01713887",
+      "category": "disagreement",
+      "local_evidence_sha256": "4eedf713749850a3a1c6da698c554c41208ec5334c6ccea5f1240fa538bf1502",
+      "rank_spread": 100,
+      "restricted_content_included": false,
+      "selection_rule": "largest_best_positive_rank_spread_then_query_hash",
+      "track": "economics"
+    },
+    {
+      "best_method_ndcg@10": 1.0,
+      "case_hash": "7c9e3ed024af11f445c75adf06072b7eb5f0c9aa8cce5a0313d1fcb296b127eb",
+      "category": "disagreement",
+      "local_evidence_sha256": "8a3964bb367755e1e8e2a018868efcb9fa2bb2c093b261437003ef43c02cd9b9",
+      "rank_spread": 100,
+      "restricted_content_included": false,
+      "selection_rule": "largest_best_positive_rank_spread_then_query_hash",
+      "track": "economics"
+    },
+    {
+      "best_method_ndcg@10": 0.0,
+      "case_hash": "ba18c61e13e43c83de0a7396999bd778c95014e122c806bd53a782328f990bfe",
+      "category": "failure",
+      "local_evidence_sha256": "77afb56bfa2847c01789165a24ca7a77edb7d16c4784307a8242145662213d20",
+      "rank_spread": 0,
+      "restricted_content_included": false,
+      "selection_rule": "lowest_best_method_ndcg_at_10_then_query_hash",
+      "track": "economics"
+    },
+    {
+      "best_method_ndcg@10": 0.0,
+      "case_hash": "8aef762c3b7d4cfd75a322699bbbe00849fb439ffce264df0166195acc45b9ad",
+      "category": "failure",
+      "local_evidence_sha256": "640e2c4a0d80f460ac5fd620c57a863a5e788eb74b9488b151b50273631c9d71",
+      "rank_spread": 90,
+      "restricted_content_included": false,
+      "selection_rule": "lowest_best_method_ndcg_at_10_then_query_hash",
+      "track": "economics"
+    },
+    {
+      "best_method_ndcg@10": 0.0,
+      "case_hash": "e8539e2cbb9d1a0bfd882af5b834705e78095fc1128e03977c0cd96ca22015e7",
+      "category": "failure",
+      "local_evidence_sha256": "1d21befba14c1e52bd6cfaa19f0a66104d11a743472ef59ecc73c7f9f1aa6205",
+      "rank_spread": 80,
+      "restricted_content_included": false,
+      "selection_rule": "lowest_best_method_ndcg_at_10_then_query_hash",
+      "track": "economics"
+    },
+    {
+      "best_method_ndcg@10": 0.0,
+      "case_hash": "a3d96725f972b2041b7dfafa0b3691940fff23f85c597d392b42ef1e1956c088",
+      "category": "failure",
+      "local_evidence_sha256": "a1cd697d0ddfbc621b91be8acf4924244ce0064df009c6830dea2b362b882cdc",
+      "rank_spread": 0,
+      "restricted_content_included": false,
+      "selection_rule": "lowest_best_method_ndcg_at_10_then_query_hash",
+      "track": "economics"
+    },
+    {
+      "best_method_ndcg@10": 0.0,
+      "case_hash": "bff9c08691769d92551726fd0896559ce9e0382703f3a41fbea4dd4449bdfc6d",
+      "category": "failure",
+      "local_evidence_sha256": "de0af26a7288f0daf19ea68e6f5b18cee7aa785dbf6d7405f7da3742ae48434a",
+      "rank_spread": 89,
+      "restricted_content_included": false,
+      "selection_rule": "lowest_best_method_ndcg_at_10_then_query_hash",
+      "track": "economics"
+    },
+    {
+      "best_method_ndcg@10": 0.0,
+      "case_hash": "4d33e3ede0066d2a603ec697402f065ff081d8fefdb028bc6205019610112cbc",
+      "category": "failure",
+      "local_evidence_sha256": "53c79e086c119efd1ffed879219cd8cbb21cd4312f92384caefc0c39690a1be4",
+      "rank_spread": 77,
+      "restricted_content_included": false,
+      "selection_rule": "lowest_best_method_ndcg_at_10_then_query_hash",
+      "track": "economics"
+    },
+    {
+      "best_method_ndcg@10": 1.0,
+      "case_hash": "90f6a0262df1a209b44d57f37f84bb209e3a17da7f055bad43f7c42510ad78cd",
+      "category": "disagreement",
+      "local_evidence_sha256": "17a29c31179e72869d6f40cce03b71449befdfa573e4a852c222484a604e1d28",
+      "rank_spread": 100,
+      "restricted_content_included": false,
+      "selection_rule": "largest_best_positive_rank_spread_then_query_hash",
+      "track": "psychology"
+    },
+    {
+      "best_method_ndcg@10": 1.0,
+      "case_hash": "14ed940ead0cb9389f3b4238d2b50275247907b79ec52514cbf5c32699887a38",
+      "category": "disagreement",
+      "local_evidence_sha256": "67c0bb5eba2a216af01f2fc8aa9c76962400fae47e45130f75867f8473c8cff1",
+      "rank_spread": 100,
+      "restricted_content_included": false,
+      "selection_rule": "largest_best_positive_rank_spread_then_query_hash",
+      "track": "psychology"
+    },
+    {
+      "best_method_ndcg@10": 1.0,
+      "case_hash": "1abcaba188ad9cd430f2425a80b02cc144f89603bab5c1a66d70d89e830b9e26",
+      "category": "disagreement",
+      "local_evidence_sha256": "499db5762125a9594e42af8d5cf80d6c82a96695c3b1dbfaf5b16cb00a49871f",
+      "rank_spread": 100,
+      "restricted_content_included": false,
+      "selection_rule": "largest_best_positive_rank_spread_then_query_hash",
+      "track": "psychology"
+    },
+    {
+      "best_method_ndcg@10": 1.0,
+      "case_hash": "5a4ba7e6faf40a355b9311fd3fd1b8bab8ac23c3e8527e1747d6bbbffc7b53ad",
+      "category": "disagreement",
+      "local_evidence_sha256": "d77efc261de9ca2621f5d761df071e82bf113a25add73136ce0a8755ea3beb8e",
+      "rank_spread": 100,
+      "restricted_content_included": false,
+      "selection_rule": "largest_best_positive_rank_spread_then_query_hash",
+      "track": "psychology"
+    },
+    {
+      "best_method_ndcg@10": 1.0,
+      "case_hash": "ec048462c6085d40fe61ad2f7900710b3999ec8309754d69a835141ab90bcceb",
+      "category": "disagreement",
+      "local_evidence_sha256": "f50a97524cdae35b24bf9d8e99bfb2a5268932037decf6bb8db2d44c77053c2b",
+      "rank_spread": 100,
+      "restricted_content_included": false,
+      "selection_rule": "largest_best_positive_rank_spread_then_query_hash",
+      "track": "psychology"
+    },
+    {
+      "best_method_ndcg@10": 1.0,
+      "case_hash": "c1ab8fc655ba51ac15b37ef6f038e24925b1d3e313a429c167bdea1b5d578bd5",
+      "category": "disagreement",
+      "local_evidence_sha256": "50f8b1e51659b995ccbf2f50357441bba26d31fa8554f8e5ef3aa7e4fbcad703",
+      "rank_spread": 100,
+      "restricted_content_included": false,
+      "selection_rule": "largest_best_positive_rank_spread_then_query_hash",
+      "track": "psychology"
+    },
+    {
+      "best_method_ndcg@10": 0.0,
+      "case_hash": "1241cfe6be552d1ade6b4d860609b6c8a0ed95f2156a0fb8d7682409560974de",
+      "category": "failure",
+      "local_evidence_sha256": "87bce281c7659601b80c5aa40041e1517b292b014a43fe2dbb10f3d79ccc159f",
+      "rank_spread": 90,
+      "restricted_content_included": false,
+      "selection_rule": "lowest_best_method_ndcg_at_10_then_query_hash",
+      "track": "psychology"
+    },
+    {
+      "best_method_ndcg@10": 0.0,
+      "case_hash": "a47f89fb3c9dea1b80bb519c433cc512da3982b536839f20cb79169265c11826",
+      "category": "failure",
+      "local_evidence_sha256": "b1685399675f95e6d9d884b29ce624f46940d58e7a5b123300e1bd33ab2f78b4",
+      "rank_spread": 80,
+      "restricted_content_included": false,
+      "selection_rule": "lowest_best_method_ndcg_at_10_then_query_hash",
+      "track": "psychology"
+    },
+    {
+      "best_method_ndcg@10": 0.0,
+      "case_hash": "4ce4b26e999d973157cb4327869c980dc1b2e4d701e050ca60749929159d1cd6",
+      "category": "failure",
+      "local_evidence_sha256": "38250be31816da7e3019064949e7653bddffe6cf0b3de218bd9086eddde09138",
+      "rank_spread": 87,
+      "restricted_content_included": false,
+      "selection_rule": "lowest_best_method_ndcg_at_10_then_query_hash",
+      "track": "psychology"
+    },
+    {
+      "best_method_ndcg@10": 0.0,
+      "case_hash": "9f94089c1066689db489a0e75ca3e70fdc20dc3c8fd217ec81ac990ec82d9c24",
+      "category": "failure",
+      "local_evidence_sha256": "716aea7546c072719a6c8edfabd1ab069295036b0bb422d558ea01e064e26731",
+      "rank_spread": 86,
+      "restricted_content_included": false,
+      "selection_rule": "lowest_best_method_ndcg_at_10_then_query_hash",
+      "track": "psychology"
+    },
+    {
+      "best_method_ndcg@10": 0.0,
+      "case_hash": "4405aaa5655813d77d270065afda41f0ef6fe320183aeaa25cfc0275b8c05b97",
+      "category": "failure",
+      "local_evidence_sha256": "b9ad782a2c6426e601907bebf71a3fd83832cefaee02f2aaccf0f4c6b6c9f3fa",
+      "rank_spread": 0,
+      "restricted_content_included": false,
+      "selection_rule": "lowest_best_method_ndcg_at_10_then_query_hash",
+      "track": "psychology"
+    },
+    {
+      "best_method_ndcg@10": 0.0,
+      "case_hash": "3cdceb227a15aeef7c34f2385e3894eb0637e98367abc7bbcbca34cce1235349",
+      "category": "failure",
+      "local_evidence_sha256": "594117e1f47e2a24efda674f28c5ab742e82122c3eb82093c21418163af48e2a",
+      "rank_spread": 80,
+      "restricted_content_included": false,
+      "selection_rule": "lowest_best_method_ndcg_at_10_then_query_hash",
+      "track": "psychology"
+    }
+  ],
+  "counts": {
+    "per_track_disagreement": 6,
+    "per_track_failure": 6,
+    "total": 24
+  },
+  "local_mapping_sha256": "a4fa0349d3c3c039b351bf1a2bebcbc1733a34e5794de7ffedbfe3bf58e0c949",
+  "publication": {
+    "classification": "research_only",
+    "gate": "closed",
+    "leaderboard_publish": false,
+    "public_export_allowed": false,
+    "publish": false,
+    "restricted_content_allowed": false
+  },
+  "schema_version": "bright-cross-paradigm-cases-v1",
+  "story_id": "S-20260814-009"
+}

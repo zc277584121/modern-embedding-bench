@@ -1,0 +1,2939 @@
+{
+  "cells": [
+    {
+      "build_seconds": 0.44668838009238243,
+      "cell_id": "bm25-unicode:economics",
+      "cuda_peak_vram_bytes": 0,
+      "document_encoding": {
+        "batch_used": null,
+        "fallback": "not_applicable",
+        "seconds": 0.44668838009238243,
+        "throughput_items_per_second": 16790.228567058042
+      },
+      "end_to_end_seconds": 42.57827343605459,
+      "failure": null,
+      "family": "lexical",
+      "gate": {
+        "documents": 4,
+        "passed": true,
+        "queries": 1
+      },
+      "hardware": {
+        "driver": "565.57.01",
+        "gpu": "NVIDIA GeForce RTX 3080 Ti",
+        "gpu_memory_bytes": 12884901888,
+        "gpu_uuid": "GPU-435154a8-568c-35a7-ee5f-da29fbf97a39",
+        "numpy": "2.4.3",
+        "python": "3.12.9"
+      },
+      "identity": {
+        "b": 0.75,
+        "k1": 1.2,
+        "tokenizer": "unicode-word-lower-v1"
+      },
+      "load_seconds": 0.0,
+      "method_key": "bm25-unicode",
+      "model_load_seconds": 0.0,
+      "network_bytes": 0,
+      "process_peak_rss_bytes": 158470144,
+      "quality_verification": {
+        "fresh_top100_ids_match": true,
+        "system_error": "none"
+      },
+      "query_encoding": {
+        "batch_used": null,
+        "fallback": "not_applicable",
+        "seconds": 0.0,
+        "throughput_items_per_second": null
+      },
+      "representation": {
+        "bytes": 3115406,
+        "paradigm": "inverted_index",
+        "scope": "estimated_postings_terms_frequencies_and_lengths"
+      },
+      "schema_version": "bright-cross-paradigm-resource-cell-v1",
+      "search": {
+        "measured_trials": [
+          {
+            "ordinal": 1,
+            "p50_seconds": 0.08887807466089725,
+            "p95_seconds": 0.1320992551743984,
+            "p99_seconds": 0.14604773942381147,
+            "queries_per_second": 11.298113934804451,
+            "wall_seconds": 9.116565879434347
+          },
+          {
+            "ordinal": 2,
+            "p50_seconds": 0.08728788048028946,
+            "p95_seconds": 0.1318098336458206,
+            "p99_seconds": 0.14283977173268797,
+            "queries_per_second": 11.168640472244688,
+            "wall_seconds": 9.222250483930111
+          },
+          {
+            "ordinal": 3,
+            "p50_seconds": 0.09032534807920456,
+            "p95_seconds": 0.13764786273241042,
+            "p99_seconds": 0.1437955128028989,
+            "queries_per_second": 11.090937865894803,
+            "wall_seconds": 9.286861151456833
+          }
+        ],
+        "median_queries_per_second": 11.168640472244688,
+        "pooled_p50_seconds": 0.08887807466089725,
+        "pooled_p95_seconds": 0.13465400263667104,
+        "pooled_p99_seconds": 0.146054063141346,
+        "trials_completed": 3,
+        "warmup_query_searches": 1
+      },
+      "status": "pass",
+      "story_id": "S-20260814-009",
+      "track": "economics"
+    },
+    {
+      "build_seconds": 0.42441839911043644,
+      "cell_id": "bm25-unicode:psychology",
+      "cuda_peak_vram_bytes": 0,
+      "document_encoding": {
+        "batch_used": null,
+        "fallback": "not_applicable",
+        "seconds": 0.42441839911043644,
+        "throughput_items_per_second": 17671.241434677886
+      },
+      "end_to_end_seconds": 39.11694964021444,
+      "failure": null,
+      "family": "lexical",
+      "gate": {
+        "documents": 4,
+        "passed": true,
+        "queries": 1
+      },
+      "hardware": {
+        "driver": "565.57.01",
+        "gpu": "NVIDIA GeForce RTX 3080 Ti",
+        "gpu_memory_bytes": 12884901888,
+        "gpu_uuid": "GPU-435154a8-568c-35a7-ee5f-da29fbf97a39",
+        "numpy": "2.4.3",
+        "python": "3.12.9"
+      },
+      "identity": {
+        "b": 0.75,
+        "k1": 1.2,
+        "tokenizer": "unicode-word-lower-v1"
+      },
+      "load_seconds": 0.0,
+      "method_key": "bm25-unicode",
+      "model_load_seconds": 0.0,
+      "network_bytes": 0,
+      "process_peak_rss_bytes": 161071104,
+      "quality_verification": {
+        "fresh_top100_ids_match": true,
+        "system_error": "none"
+      },
+      "query_encoding": {
+        "batch_used": null,
+        "fallback": "not_applicable",
+        "seconds": 0.0,
+        "throughput_items_per_second": null
+      },
+      "representation": {
+        "bytes": 3184115,
+        "paradigm": "inverted_index",
+        "scope": "estimated_postings_terms_frequencies_and_lengths"
+      },
+      "schema_version": "bright-cross-paradigm-resource-cell-v1",
+      "search": {
+        "measured_trials": [
+          {
+            "ordinal": 1,
+            "p50_seconds": 0.08346854709088802,
+            "p95_seconds": 0.12296068668365479,
+            "p99_seconds": 0.13929763808846474,
+            "queries_per_second": 11.86553992275122,
+            "wall_seconds": 8.512044176459312
+          },
+          {
+            "ordinal": 2,
+            "p50_seconds": 0.08326674066483974,
+            "p95_seconds": 0.12434936128556728,
+            "p99_seconds": 0.13835701160132885,
+            "queries_per_second": 11.822214671402817,
+            "wall_seconds": 8.543238539248705
+          },
+          {
+            "ordinal": 3,
+            "p50_seconds": 0.08458764478564262,
+            "p95_seconds": 0.12569057568907738,
+            "p99_seconds": 0.1392766870558262,
+            "queries_per_second": 11.861988349357524,
+            "wall_seconds": 8.514592749997973
+          }
+        ],
+        "median_queries_per_second": 11.861988349357524,
+        "pooled_p50_seconds": 0.0835488960146904,
+        "pooled_p95_seconds": 0.1255978042259812,
+        "pooled_p99_seconds": 0.13929721906781198,
+        "trials_completed": 3,
+        "warmup_query_searches": 1
+      },
+      "status": "pass",
+      "story_id": "S-20260814-009",
+      "track": "psychology"
+    },
+    {
+      "build_seconds": 0.42970455065369606,
+      "cell_id": "tfidf-word-sublinear:economics",
+      "cuda_peak_vram_bytes": 0,
+      "document_encoding": {
+        "batch_used": null,
+        "fallback": "not_applicable",
+        "seconds": 0.42970455065369606,
+        "throughput_items_per_second": 17453.852859110953
+      },
+      "end_to_end_seconds": 3.9623929131776094,
+      "failure": null,
+      "family": "lexical",
+      "gate": {
+        "evidence": "frozen_gate_summary",
+        "passed": true
+      },
+      "hardware": {
+        "driver": "565.57.01",
+        "gpu": "NVIDIA GeForce RTX 3080 Ti",
+        "gpu_memory_bytes": 12884901888,
+        "gpu_uuid": "GPU-435154a8-568c-35a7-ee5f-da29fbf97a39",
+        "numpy": "2.4.3",
+        "python": "3.12.9"
+      },
+      "identity": {
+        "revision": null,
+        "snapshot_sha256": null
+      },
+      "load_seconds": 0.0,
+      "method_key": "tfidf-word-sublinear",
+      "model_load_seconds": 0.0,
+      "network_bytes": 0,
+      "process_peak_rss_bytes": 218959872,
+      "quality_verification": {
+        "exact_top100_replay": true,
+        "system_error": "none"
+      },
+      "query_encoding": {
+        "batch_used": null,
+        "fallback": "not_applicable",
+        "seconds": 0.007444199174642563,
+        "throughput_items_per_second": 13836.276755040692
+      },
+      "representation": {
+        "bytes": 2993932,
+        "paradigm": "lexical",
+        "scope": "complete_document_and_query_representation_plus_idf_for_tfidf"
+      },
+      "schema_version": "bright-cross-paradigm-resource-cell-v1",
+      "search": {
+        "measured_trials": [
+          {
+            "ordinal": 1,
+            "p50_seconds": 0.007243536412715912,
+            "p95_seconds": 0.007687765359878539,
+            "p99_seconds": 0.008699570670723916,
+            "queries_per_second": 133.29396362623086,
+            "wall_seconds": 0.7727281656116247
+          },
+          {
+            "ordinal": 2,
+            "p50_seconds": 0.007351735606789589,
+            "p95_seconds": 0.0076139548793435095,
+            "p99_seconds": 0.0077633319422602655,
+            "queries_per_second": 136.84713475513792,
+            "wall_seconds": 0.7526646442711353
+          },
+          {
+            "ordinal": 3,
+            "p50_seconds": 0.007337847724556923,
+            "p95_seconds": 0.007655010558664799,
+            "p99_seconds": 0.007719454132020473,
+            "queries_per_second": 136.66200727738848,
+            "wall_seconds": 0.7536842320114374
+          }
+        ],
+        "median_queries_per_second": 136.66200727738848,
+        "pooled_p50_seconds": 0.007303265854716301,
+        "pooled_p95_seconds": 0.00764494389295578,
+        "pooled_p99_seconds": 0.007826098054647446,
+        "trials_completed": 3,
+        "warmup_query_searches": 1
+      },
+      "status": "pass",
+      "story_id": "S-20260814-009",
+      "track": "economics"
+    },
+    {
+      "build_seconds": 0.5879760105162859,
+      "cell_id": "tfidf-word-sublinear:psychology",
+      "cuda_peak_vram_bytes": 0,
+      "document_encoding": {
+        "batch_used": null,
+        "fallback": "not_applicable",
+        "seconds": 0.5879760105162859,
+        "throughput_items_per_second": 12755.622450335095
+      },
+      "end_to_end_seconds": 5.2292862720787525,
+      "failure": null,
+      "family": "lexical",
+      "gate": {
+        "evidence": "frozen_gate_summary",
+        "passed": true
+      },
+      "hardware": {
+        "driver": "565.57.01",
+        "gpu": "NVIDIA GeForce RTX 3080 Ti",
+        "gpu_memory_bytes": 12884901888,
+        "gpu_uuid": "GPU-435154a8-568c-35a7-ee5f-da29fbf97a39",
+        "numpy": "2.4.3",
+        "python": "3.12.9"
+      },
+      "identity": {
+        "revision": null,
+        "snapshot_sha256": null
+      },
+      "load_seconds": 0.0,
+      "method_key": "tfidf-word-sublinear",
+      "model_load_seconds": 0.0,
+      "network_bytes": 0,
+      "process_peak_rss_bytes": 224129024,
+      "quality_verification": {
+        "exact_top100_replay": true,
+        "system_error": "none"
+      },
+      "query_encoding": {
+        "batch_used": null,
+        "fallback": "not_applicable",
+        "seconds": 0.009146047756075859,
+        "throughput_items_per_second": 11043.021280192219
+      },
+      "representation": {
+        "bytes": 2995016,
+        "paradigm": "lexical",
+        "scope": "complete_document_and_query_representation_plus_idf_for_tfidf"
+      },
+      "schema_version": "bright-cross-paradigm-resource-cell-v1",
+      "search": {
+        "measured_trials": [
+          {
+            "ordinal": 1,
+            "p50_seconds": 0.01104559563100338,
+            "p95_seconds": 0.011682547628879547,
+            "p99_seconds": 0.015178205445408821,
+            "queries_per_second": 85.16927235387183,
+            "wall_seconds": 1.1858736984431744
+          },
+          {
+            "ordinal": 2,
+            "p50_seconds": 0.011249169707298279,
+            "p95_seconds": 0.011555736884474754,
+            "p99_seconds": 0.011991826817393303,
+            "queries_per_second": 88.75491615197365,
+            "wall_seconds": 1.1379651334136724
+          },
+          {
+            "ordinal": 3,
+            "p50_seconds": 0.007289310917258263,
+            "p95_seconds": 0.01114371232688427,
+            "p99_seconds": 0.011440735310316086,
+            "queries_per_second": 130.08124112713804,
+            "wall_seconds": 0.7764378562569618
+          }
+        ],
+        "median_queries_per_second": 88.75491615197365,
+        "pooled_p50_seconds": 0.011033285409212112,
+        "pooled_p95_seconds": 0.011550533585250378,
+        "pooled_p99_seconds": 0.012146611623466018,
+        "trials_completed": 3,
+        "warmup_query_searches": 1
+      },
+      "status": "pass",
+      "story_id": "S-20260814-009",
+      "track": "psychology"
+    },
+    {
+      "build_seconds": 0.0,
+      "cell_id": "bge-m3-dense:economics",
+      "cuda_peak_vram_bytes": 2486608896,
+      "document_encoding": {
+        "attempted_batches": [
+          4
+        ],
+        "batch_used": 4,
+        "fallback": [
+          4
+        ],
+        "fallback_count": 0,
+        "oom_count": 0,
+        "retry_count": 0,
+        "seconds": 77.07673550024629,
+        "throughput_items_per_second": 97.30562602740272
+      },
+      "end_to_end_seconds": 106.9320487305522,
+      "failure": null,
+      "family": "dense",
+      "gate": {
+        "documents": 4,
+        "passed": true,
+        "queries": 1
+      },
+      "hardware": {
+        "driver": "565.57.01",
+        "gpu": "NVIDIA GeForce RTX 3080 Ti",
+        "gpu_memory_bytes": 12884901888,
+        "gpu_uuid": "GPU-435154a8-568c-35a7-ee5f-da29fbf97a39",
+        "numpy": "2.4.3",
+        "python": "3.12.9"
+      },
+      "identity": {
+        "max_length": 1024,
+        "repo_id": "BAAI/bge-m3",
+        "revision": "5617a9f61b028005a4858fdac845db406aefb181",
+        "trust_remote_code": false
+      },
+      "load_seconds": 0.0,
+      "method_key": "bge-m3-dense",
+      "model_load_seconds": 2.6650818549096584,
+      "network_bytes": 0,
+      "process_peak_rss_bytes": 3655208960,
+      "quality_verification": {
+        "all_mismatches_full_top100_overlap": true,
+        "exact_order_queries": 103,
+        "formal_queries": 103,
+        "fresh_top100_ids_match": true,
+        "mismatched_order_queries": 0,
+        "system_error": "none",
+        "top100_overlap_max": 100,
+        "top100_overlap_mean": 100.0,
+        "top100_overlap_min": 100
+      },
+      "query_encoding": {
+        "attempted_batches": [
+          4
+        ],
+        "batch_used": 4,
+        "fallback": [
+          4
+        ],
+        "fallback_count": 0,
+        "oom_count": 0,
+        "retry_count": 0,
+        "seconds": 1.0959694553166628,
+        "throughput_items_per_second": 93.98072136074249
+      },
+      "representation": {
+        "bytes": 31141888,
+        "paradigm": "dense",
+        "scope": "float32_document_and_query_vectors"
+      },
+      "schema_version": "bright-cross-paradigm-resource-cell-v1",
+      "search": {
+        "measured_trials": [
+          {
+            "ordinal": 1,
+            "p50_seconds": 0.0060767196118831635,
+            "p95_seconds": 0.011427543126046658,
+            "p99_seconds": 0.011453978195786476,
+            "queries_per_second": 132.26329543425965,
+            "wall_seconds": 0.7787496875971556
+          },
+          {
+            "ordinal": 2,
+            "p50_seconds": 0.00619717501103878,
+            "p95_seconds": 0.011534604802727699,
+            "p99_seconds": 0.01161210235208273,
+            "queries_per_second": 133.00097855504436,
+            "wall_seconds": 0.7744303923100233
+          },
+          {
+            "ordinal": 3,
+            "p50_seconds": 0.006301261484622955,
+            "p95_seconds": 0.011769092082977294,
+            "p99_seconds": 0.012002864032983781,
+            "queries_per_second": 124.32136782060743,
+            "wall_seconds": 0.828497963026166
+          }
+        ],
+        "median_queries_per_second": 132.26329543425965,
+        "pooled_p50_seconds": 0.006189458072185516,
+        "pooled_p95_seconds": 0.011552751436829567,
+        "pooled_p99_seconds": 0.011933098360896111,
+        "trials_completed": 3,
+        "warmup_query_searches": 1
+      },
+      "status": "pass",
+      "story_id": "S-20260814-009",
+      "track": "economics"
+    },
+    {
+      "build_seconds": 0.0,
+      "cell_id": "bge-m3-dense:psychology",
+      "cuda_peak_vram_bytes": 2486395904,
+      "document_encoding": {
+        "attempted_batches": [
+          4
+        ],
+        "batch_used": 4,
+        "fallback": [
+          4
+        ],
+        "fallback_count": 0,
+        "oom_count": 0,
+        "retry_count": 0,
+        "seconds": 66.88715907372534,
+        "throughput_items_per_second": 112.12914562170656
+      },
+      "end_to_end_seconds": 96.5789523459971,
+      "failure": null,
+      "family": "dense",
+      "gate": {
+        "documents": 4,
+        "passed": true,
+        "queries": 1
+      },
+      "hardware": {
+        "driver": "565.57.01",
+        "gpu": "NVIDIA GeForce RTX 3080 Ti",
+        "gpu_memory_bytes": 12884901888,
+        "gpu_uuid": "GPU-435154a8-568c-35a7-ee5f-da29fbf97a39",
+        "numpy": "2.4.3",
+        "python": "3.12.9"
+      },
+      "identity": {
+        "max_length": 1024,
+        "repo_id": "BAAI/bge-m3",
+        "revision": "5617a9f61b028005a4858fdac845db406aefb181",
+        "trust_remote_code": false
+      },
+      "load_seconds": 0.0,
+      "method_key": "bge-m3-dense",
+      "model_load_seconds": 2.751444298774004,
+      "network_bytes": 0,
+      "process_peak_rss_bytes": 3663691776,
+      "quality_verification": {
+        "all_mismatches_full_top100_overlap": true,
+        "exact_order_queries": 101,
+        "formal_queries": 101,
+        "fresh_top100_ids_match": true,
+        "mismatched_order_queries": 0,
+        "system_error": "none",
+        "top100_overlap_max": 100,
+        "top100_overlap_mean": 100.0,
+        "top100_overlap_min": 100
+      },
+      "query_encoding": {
+        "attempted_batches": [
+          4
+        ],
+        "batch_used": 4,
+        "fallback": [
+          4
+        ],
+        "fallback_count": 0,
+        "oom_count": 0,
+        "retry_count": 0,
+        "seconds": 0.9451362360268831,
+        "throughput_items_per_second": 106.86290097666638
+      },
+      "representation": {
+        "bytes": 31133696,
+        "paradigm": "dense",
+        "scope": "float32_document_and_query_vectors"
+      },
+      "schema_version": "bright-cross-paradigm-resource-cell-v1",
+      "search": {
+        "measured_trials": [
+          {
+            "ordinal": 1,
+            "p50_seconds": 0.004944320768117905,
+            "p95_seconds": 0.005112063139677048,
+            "p99_seconds": 0.005371909588575363,
+            "queries_per_second": 201.92013022516926,
+            "wall_seconds": 0.5001977756619453
+          },
+          {
+            "ordinal": 2,
+            "p50_seconds": 0.005052102729678154,
+            "p95_seconds": 0.005498889833688736,
+            "p99_seconds": 0.0059236083179712296,
+            "queries_per_second": 195.74345096840443,
+            "wall_seconds": 0.5159815028309822
+          },
+          {
+            "ordinal": 3,
+            "p50_seconds": 0.00505867600440979,
+            "p95_seconds": 0.005276363343000412,
+            "p99_seconds": 0.006071479991078377,
+            "queries_per_second": 196.22667433392968,
+            "wall_seconds": 0.514710858464241
+          }
+        ],
+        "median_queries_per_second": 196.22667433392968,
+        "pooled_p50_seconds": 0.005016995593905449,
+        "pooled_p95_seconds": 0.005290782637894153,
+        "pooled_p99_seconds": 0.005948444604873658,
+        "trials_completed": 3,
+        "warmup_query_searches": 1
+      },
+      "status": "pass",
+      "story_id": "S-20260814-009",
+      "track": "psychology"
+    },
+    {
+      "build_seconds": 0.0,
+      "cell_id": "all-minilm-l6-v2:economics",
+      "cuda_peak_vram_bytes": 714956288,
+      "document_encoding": {
+        "batch_used": 128,
+        "fallback": [
+          128,
+          64,
+          32,
+          16,
+          8,
+          4,
+          2,
+          1
+        ],
+        "seconds": 4.848835369572043,
+        "throughput_items_per_second": 1546.7631767959874
+      },
+      "end_to_end_seconds": 16.93562682531774,
+      "failure": null,
+      "family": "dense",
+      "gate": {
+        "evidence": "frozen_gate_summary",
+        "passed": true
+      },
+      "hardware": {
+        "driver": "565.57.01",
+        "gpu": "NVIDIA GeForce RTX 3080 Ti",
+        "gpu_memory_bytes": 12884901888,
+        "gpu_uuid": "GPU-435154a8-568c-35a7-ee5f-da29fbf97a39",
+        "numpy": "2.4.3",
+        "python": "3.12.9"
+      },
+      "identity": {
+        "revision": "c9745ed1d9f207416be6d2e6f8de32d1f16199bf",
+        "snapshot_sha256": "04c1a2ae6a1c7299745f8eb7f8db75456a7df9652dd4f48a40be2ee59d7c37c1"
+      },
+      "load_seconds": 0.0,
+      "method_key": "all-minilm-l6-v2",
+      "model_load_seconds": 0.60087700933218,
+      "network_bytes": 0,
+      "process_peak_rss_bytes": 1707216896,
+      "quality_verification": {
+        "exact_top100_replay": true,
+        "system_error": "none"
+      },
+      "query_encoding": {
+        "batch_used": 256,
+        "fallback": [
+          256,
+          128,
+          64,
+          32,
+          16,
+          8,
+          4,
+          2,
+          1
+        ],
+        "seconds": 0.09945222549140453,
+        "throughput_items_per_second": 1035.6731535273898
+      },
+      "representation": {
+        "bytes": 11678208,
+        "paradigm": "dense",
+        "scope": "complete_float32_dense_document_and_query_vectors_only"
+      },
+      "schema_version": "bright-cross-paradigm-resource-cell-v1",
+      "search": {
+        "measured_trials": [
+          {
+            "ordinal": 1,
+            "p50_seconds": 0.0063780322670936584,
+            "p95_seconds": 0.012373481132090091,
+            "p99_seconds": 0.012695150747895241,
+            "queries_per_second": 146.4480973635851,
+            "wall_seconds": 0.7033208478242159
+          },
+          {
+            "ordinal": 2,
+            "p50_seconds": 0.011203974485397339,
+            "p95_seconds": 0.012636901065707204,
+            "p99_seconds": 0.012770168073475361,
+            "queries_per_second": 102.64900112536749,
+            "wall_seconds": 1.0034194085747004
+          },
+          {
+            "ordinal": 3,
+            "p50_seconds": 0.006730685010552406,
+            "p95_seconds": 0.012916620448231697,
+            "p99_seconds": 0.01315805982798338,
+            "queries_per_second": 121.13285179849854,
+            "wall_seconds": 0.8503060769289732
+          }
+        ],
+        "median_queries_per_second": 121.13285179849854,
+        "pooled_p50_seconds": 0.006698187440633774,
+        "pooled_p95_seconds": 0.012763192504644394,
+        "pooled_p99_seconds": 0.01306611865758896,
+        "trials_completed": 3,
+        "warmup_query_searches": 1
+      },
+      "status": "pass",
+      "story_id": "S-20260814-009",
+      "track": "economics"
+    },
+    {
+      "build_seconds": 0.0,
+      "cell_id": "all-minilm-l6-v2:psychology",
+      "cuda_peak_vram_bytes": 714569216,
+      "document_encoding": {
+        "batch_used": 128,
+        "fallback": [
+          128,
+          64,
+          32,
+          16,
+          8,
+          4,
+          2,
+          1
+        ],
+        "seconds": 4.792389988899231,
+        "throughput_items_per_second": 1564.981150818797
+      },
+      "end_to_end_seconds": 17.4711324442178,
+      "failure": null,
+      "family": "dense",
+      "gate": {
+        "evidence": "frozen_gate_summary",
+        "passed": true
+      },
+      "hardware": {
+        "driver": "565.57.01",
+        "gpu": "NVIDIA GeForce RTX 3080 Ti",
+        "gpu_memory_bytes": 12884901888,
+        "gpu_uuid": "GPU-435154a8-568c-35a7-ee5f-da29fbf97a39",
+        "numpy": "2.4.3",
+        "python": "3.12.9"
+      },
+      "identity": {
+        "revision": "c9745ed1d9f207416be6d2e6f8de32d1f16199bf",
+        "snapshot_sha256": "04c1a2ae6a1c7299745f8eb7f8db75456a7df9652dd4f48a40be2ee59d7c37c1"
+      },
+      "load_seconds": 0.0,
+      "method_key": "all-minilm-l6-v2",
+      "model_load_seconds": 0.46534482203423977,
+      "network_bytes": 0,
+      "process_peak_rss_bytes": 1912545280,
+      "quality_verification": {
+        "exact_top100_replay": true,
+        "system_error": "none"
+      },
+      "query_encoding": {
+        "batch_used": 256,
+        "fallback": [
+          256,
+          128,
+          64,
+          32,
+          16,
+          8,
+          4,
+          2,
+          1
+        ],
+        "seconds": 0.09896249510347843,
+        "throughput_items_per_second": 1020.5886572927561
+      },
+      "representation": {
+        "bytes": 11675136,
+        "paradigm": "dense",
+        "scope": "complete_float32_dense_document_and_query_vectors_only"
+      },
+      "schema_version": "bright-cross-paradigm-resource-cell-v1",
+      "search": {
+        "measured_trials": [
+          {
+            "ordinal": 1,
+            "p50_seconds": 0.011173225939273834,
+            "p95_seconds": 0.011411763727664948,
+            "p99_seconds": 0.011459819972515106,
+            "queries_per_second": 91.33291578836183,
+            "wall_seconds": 1.105844471603632
+          },
+          {
+            "ordinal": 2,
+            "p50_seconds": 0.007098045200109482,
+            "p95_seconds": 0.007556634023785591,
+            "p99_seconds": 0.009047364816069603,
+            "queries_per_second": 139.43010576618153,
+            "wall_seconds": 0.7243772745132446
+          },
+          {
+            "ordinal": 3,
+            "p50_seconds": 0.007016727700829506,
+            "p95_seconds": 0.008044799789786339,
+            "p99_seconds": 0.013305706903338432,
+            "queries_per_second": 136.12593222033954,
+            "wall_seconds": 0.7419600244611502
+          }
+        ],
+        "median_queries_per_second": 136.12593222033954,
+        "pooled_p50_seconds": 0.007149385288357735,
+        "pooled_p95_seconds": 0.011387415416538715,
+        "pooled_p99_seconds": 0.011459883861243724,
+        "trials_completed": 3,
+        "warmup_query_searches": 1
+      },
+      "status": "pass",
+      "story_id": "S-20260814-009",
+      "track": "psychology"
+    },
+    {
+      "build_seconds": 0.0,
+      "cell_id": "granite-30m-sparse:economics",
+      "cuda_peak_vram_bytes": 898789888,
+      "document_encoding": {
+        "attempted_batches": [
+          8
+        ],
+        "batch_used": 8,
+        "fallback": [
+          8
+        ],
+        "fallback_count": 0,
+        "oom_count": 0,
+        "retry_count": 0,
+        "seconds": 13.16663583740592,
+        "throughput_items_per_second": 569.6215869123364
+      },
+      "end_to_end_seconds": 32.699628338217735,
+      "failure": {
+        "message_sha256": "44f97463fc4e41ec958351cd698c2b68340bb4d829a563fbff22858349b9b500",
+        "stage": "quality_verification",
+        "stopping_condition_applied": true,
+        "type": "AggregateTop100Mismatch"
+      },
+      "family": "learned_sparse",
+      "gate": {
+        "documents": 4,
+        "passed": true,
+        "queries": 1
+      },
+      "hardware": {
+        "driver": "565.57.01",
+        "gpu": "NVIDIA GeForce RTX 3080 Ti",
+        "gpu_memory_bytes": 12884901888,
+        "gpu_uuid": "GPU-435154a8-568c-35a7-ee5f-da29fbf97a39",
+        "numpy": "2.4.3",
+        "python": "3.12.9"
+      },
+      "identity": {
+        "revision": "ad82b1fd09541c998c8d45045d601c51fdb8a9b7",
+        "snapshot_sha256": "392f7930e073c6025d3eefd1caa3eedc01789b3dfcb7d7bc734179ccb511afaa"
+      },
+      "load_seconds": 0.0,
+      "method_key": "granite-30m-sparse",
+      "model_load_seconds": 5.681179735809565,
+      "network_bytes": 0,
+      "process_peak_rss_bytes": 1887686656,
+      "quality_verification": {
+        "all_mismatches_full_top100_overlap": false,
+        "exact_order_queries": 0,
+        "formal_queries": 103,
+        "fresh_top100_ids_match": false,
+        "mismatched_order_queries": 103,
+        "system_error": "top100_set_and_order_mismatch",
+        "top100_overlap_max": 100,
+        "top100_overlap_mean": 99.7378640776699,
+        "top100_overlap_min": 98
+      },
+      "query_encoding": {
+        "attempted_batches": [
+          8
+        ],
+        "batch_used": 8,
+        "fallback": [
+          8
+        ],
+        "fallback_count": 0,
+        "oom_count": 0,
+        "retry_count": 0,
+        "seconds": 0.2656911965459585,
+        "throughput_items_per_second": 387.6680949125213
+      },
+      "representation": {
+        "bytes": 9869428,
+        "paradigm": "learned_sparse",
+        "scope": "in_memory_float32_csr_document_and_query_values_indices_indptr"
+      },
+      "schema_version": "bright-cross-paradigm-resource-cell-v1",
+      "search": {
+        "measured_trials": [
+          {
+            "ordinal": 1,
+            "p50_seconds": 0.017854856327176094,
+            "p95_seconds": 0.01945752203464508,
+            "p99_seconds": 0.02102539196610451,
+            "queries_per_second": 55.48255561038757,
+            "wall_seconds": 1.856439359486103
+          },
+          {
+            "ordinal": 2,
+            "p50_seconds": 0.01834864728152752,
+            "p95_seconds": 0.019858918339014053,
+            "p99_seconds": 0.022193576693534858,
+            "queries_per_second": 54.19234118134619,
+            "wall_seconds": 1.9006375763565302
+          },
+          {
+            "ordinal": 3,
+            "p50_seconds": 0.018406029790639877,
+            "p95_seconds": 0.020014375448226925,
+            "p99_seconds": 0.021575514934957032,
+            "queries_per_second": 54.25970450284209,
+            "wall_seconds": 1.8982779383659363
+          }
+        ],
+        "median_queries_per_second": 54.25970450284209,
+        "pooled_p50_seconds": 0.018215175718069077,
+        "pooled_p95_seconds": 0.0198335338383913,
+        "pooled_p99_seconds": 0.022176675274968156,
+        "trials_completed": 3,
+        "warmup_query_searches": 1
+      },
+      "status": "failed_closed",
+      "story_id": "S-20260814-009",
+      "track": "economics"
+    },
+    {
+      "build_seconds": 0.0,
+      "cell_id": "granite-30m-sparse:psychology",
+      "cuda_peak_vram_bytes": 898789888,
+      "document_encoding": {
+        "attempted_batches": [
+          8
+        ],
+        "batch_used": 8,
+        "fallback": [
+          8
+        ],
+        "fallback_count": 0,
+        "oom_count": 0,
+        "retry_count": 0,
+        "seconds": 12.824909638613462,
+        "throughput_items_per_second": 584.7994419718069
+      },
+      "end_to_end_seconds": 34.37330833077431,
+      "failure": {
+        "message_sha256": "44f97463fc4e41ec958351cd698c2b68340bb4d829a563fbff22858349b9b500",
+        "stage": "quality_verification",
+        "stopping_condition_applied": true,
+        "type": "AggregateTop100Mismatch"
+      },
+      "family": "learned_sparse",
+      "gate": {
+        "documents": 4,
+        "passed": true,
+        "queries": 1
+      },
+      "hardware": {
+        "driver": "565.57.01",
+        "gpu": "NVIDIA GeForce RTX 3080 Ti",
+        "gpu_memory_bytes": 12884901888,
+        "gpu_uuid": "GPU-435154a8-568c-35a7-ee5f-da29fbf97a39",
+        "numpy": "2.4.3",
+        "python": "3.12.9"
+      },
+      "identity": {
+        "revision": "ad82b1fd09541c998c8d45045d601c51fdb8a9b7",
+        "snapshot_sha256": "392f7930e073c6025d3eefd1caa3eedc01789b3dfcb7d7bc734179ccb511afaa"
+      },
+      "load_seconds": 0.0,
+      "method_key": "granite-30m-sparse",
+      "model_load_seconds": 6.770505188032985,
+      "network_bytes": 0,
+      "process_peak_rss_bytes": 1900408832,
+      "quality_verification": {
+        "all_mismatches_full_top100_overlap": false,
+        "exact_order_queries": 2,
+        "formal_queries": 101,
+        "fresh_top100_ids_match": false,
+        "mismatched_order_queries": 99,
+        "system_error": "top100_set_and_order_mismatch",
+        "top100_overlap_max": 100,
+        "top100_overlap_mean": 99.75247524752476,
+        "top100_overlap_min": 98
+      },
+      "query_encoding": {
+        "attempted_batches": [
+          8
+        ],
+        "batch_used": 8,
+        "fallback": [
+          8
+        ],
+        "fallback_count": 0,
+        "oom_count": 0,
+        "retry_count": 0,
+        "seconds": 0.23304134793579578,
+        "throughput_items_per_second": 433.3994842315539
+      },
+      "representation": {
+        "bytes": 9751796,
+        "paradigm": "learned_sparse",
+        "scope": "in_memory_float32_csr_document_and_query_values_indices_indptr"
+      },
+      "schema_version": "bright-cross-paradigm-resource-cell-v1",
+      "search": {
+        "measured_trials": [
+          {
+            "ordinal": 1,
+            "p50_seconds": 0.01939048059284687,
+            "p95_seconds": 0.02136095240712166,
+            "p99_seconds": 0.022543182596564293,
+            "queries_per_second": 51.30005912018063,
+            "wall_seconds": 1.9688086472451687
+          },
+          {
+            "ordinal": 2,
+            "p50_seconds": 0.018871339038014412,
+            "p95_seconds": 0.021036196500062943,
+            "p99_seconds": 0.021700864657759666,
+            "queries_per_second": 52.29711133891302,
+            "wall_seconds": 1.931273017078638
+          },
+          {
+            "ordinal": 3,
+            "p50_seconds": 0.01985059306025505,
+            "p95_seconds": 0.02287280559539795,
+            "p99_seconds": 0.024065181612968445,
+            "queries_per_second": 50.06509811815548,
+            "wall_seconds": 2.0173734556883574
+          }
+        ],
+        "median_queries_per_second": 51.30005912018063,
+        "pooled_p50_seconds": 0.01943172700703144,
+        "pooled_p95_seconds": 0.021696086600422857,
+        "pooled_p99_seconds": 0.02325333133339882,
+        "trials_completed": 3,
+        "warmup_query_searches": 1
+      },
+      "status": "failed_closed",
+      "story_id": "S-20260814-009",
+      "track": "psychology"
+    },
+    {
+      "build_seconds": 0.0,
+      "cell_id": "opensearch-doc-v2-mini:economics",
+      "cuda_peak_vram_bytes": 1104987648,
+      "document_encoding": {
+        "batch_used": 8,
+        "fallback": [
+          8
+        ],
+        "seconds": 16.768309297040105,
+        "throughput_items_per_second": 447.2722841129773
+      },
+      "end_to_end_seconds": 40.9356018230319,
+      "failure": null,
+      "family": "learned_sparse",
+      "gate": {
+        "documents": 4,
+        "passed": true,
+        "queries": 1
+      },
+      "hardware": {
+        "driver": "565.57.01",
+        "gpu": "NVIDIA GeForce RTX 3080 Ti",
+        "gpu_memory_bytes": 12884901888,
+        "gpu_uuid": "GPU-435154a8-568c-35a7-ee5f-da29fbf97a39",
+        "numpy": "2.4.3",
+        "python": "3.12.9"
+      },
+      "identity": {
+        "revision": "4af867a426867dfdd744097531046f4289a32fdd",
+        "snapshot_sha256": "46c91e3325d59555e2d848890835c276f406d96951c510ba25376e8c08c61458"
+      },
+      "load_seconds": 0.0,
+      "method_key": "opensearch-doc-v2-mini",
+      "model_load_seconds": 6.763793908059597,
+      "network_bytes": 0,
+      "process_peak_rss_bytes": 2040025088,
+      "quality_verification": {
+        "fresh_top100_ids_match": true,
+        "system_error": "none"
+      },
+      "query_encoding": {
+        "batch_used": 8,
+        "fallback": [
+          8
+        ],
+        "seconds": 0.11219670809805393,
+        "throughput_items_per_second": 918.0304997004324
+      },
+      "representation": {
+        "bytes": 12424364,
+        "paradigm": "learned_sparse",
+        "scope": "in_memory_float32_csr_document_and_query_values_indices_indptr"
+      },
+      "schema_version": "bright-cross-paradigm-resource-cell-v1",
+      "search": {
+        "measured_trials": [
+          {
+            "ordinal": 1,
+            "p50_seconds": 0.026646587997674942,
+            "p95_seconds": 0.04721247162669897,
+            "p99_seconds": 0.050199516117572784,
+            "queries_per_second": 30.546312125864883,
+            "wall_seconds": 3.3719291407614946
+          },
+          {
+            "ordinal": 2,
+            "p50_seconds": 0.02474844455718994,
+            "p95_seconds": 0.027826301380991934,
+            "p99_seconds": 0.028342934809625152,
+            "queries_per_second": 39.68657472551873,
+            "wall_seconds": 2.5953360982239246
+          },
+          {
+            "ordinal": 3,
+            "p50_seconds": 0.024874640628695488,
+            "p95_seconds": 0.02815969418734312,
+            "p99_seconds": 0.03214655943214894,
+            "queries_per_second": 36.679428183610376,
+            "wall_seconds": 2.808113569393754
+          }
+        ],
+        "median_queries_per_second": 36.679428183610376,
+        "pooled_p50_seconds": 0.025326402857899666,
+        "pooled_p95_seconds": 0.04499634206295013,
+        "pooled_p99_seconds": 0.04925090640783312,
+        "trials_completed": 3,
+        "warmup_query_searches": 1
+      },
+      "status": "pass",
+      "story_id": "S-20260814-009",
+      "track": "economics"
+    },
+    {
+      "build_seconds": 0.0,
+      "cell_id": "opensearch-doc-v2-mini:psychology",
+      "cuda_peak_vram_bytes": 1104987648,
+      "document_encoding": {
+        "attempted_batches": [
+          8
+        ],
+        "batch_used": 8,
+        "fallback": [
+          8
+        ],
+        "fallback_count": 0,
+        "oom_count": 0,
+        "retry_count": 0,
+        "seconds": 14.415638307109475,
+        "throughput_items_per_second": 520.2683252881814
+      },
+      "end_to_end_seconds": 37.567185401916504,
+      "failure": {
+        "message_sha256": "44f97463fc4e41ec958351cd698c2b68340bb4d829a563fbff22858349b9b500",
+        "stage": "quality_verification",
+        "stopping_condition_applied": true,
+        "type": "AggregateTop100Mismatch"
+      },
+      "family": "learned_sparse",
+      "gate": {
+        "documents": 4,
+        "passed": true,
+        "queries": 1
+      },
+      "hardware": {
+        "driver": "565.57.01",
+        "gpu": "NVIDIA GeForce RTX 3080 Ti",
+        "gpu_memory_bytes": 12884901888,
+        "gpu_uuid": "GPU-435154a8-568c-35a7-ee5f-da29fbf97a39",
+        "numpy": "2.4.3",
+        "python": "3.12.9"
+      },
+      "identity": {
+        "revision": "4af867a426867dfdd744097531046f4289a32fdd",
+        "snapshot_sha256": "46c91e3325d59555e2d848890835c276f406d96951c510ba25376e8c08c61458"
+      },
+      "load_seconds": 0.0,
+      "method_key": "opensearch-doc-v2-mini",
+      "model_load_seconds": 5.183445475995541,
+      "network_bytes": 0,
+      "process_peak_rss_bytes": 1744547840,
+      "quality_verification": {
+        "all_mismatches_full_top100_overlap": true,
+        "exact_order_queries": 98,
+        "formal_queries": 101,
+        "fresh_top100_ids_match": false,
+        "mismatched_order_queries": 3,
+        "system_error": "exact_order_mismatch_full_set_preserved",
+        "top100_overlap_max": 100,
+        "top100_overlap_mean": 100.0,
+        "top100_overlap_min": 100
+      },
+      "query_encoding": {
+        "attempted_batches": [
+          8
+        ],
+        "batch_used": 8,
+        "fallback": [
+          8
+        ],
+        "fallback_count": 0,
+        "oom_count": 0,
+        "retry_count": 0,
+        "seconds": 0.14311032742261887,
+        "throughput_items_per_second": 705.7492063569744
+      },
+      "representation": {
+        "bytes": 12322084,
+        "paradigm": "learned_sparse",
+        "scope": "in_memory_float32_csr_document_and_query_values_indices_indptr"
+      },
+      "schema_version": "bright-cross-paradigm-resource-cell-v1",
+      "search": {
+        "measured_trials": [
+          {
+            "ordinal": 1,
+            "p50_seconds": 0.02847268432378769,
+            "p95_seconds": 0.047676900401711464,
+            "p99_seconds": 0.048803042620420456,
+            "queries_per_second": 28.399589341357885,
+            "wall_seconds": 3.5563894528895617
+          },
+          {
+            "ordinal": 2,
+            "p50_seconds": 0.02544923685491085,
+            "p95_seconds": 0.027719546109437943,
+            "p99_seconds": 0.028416559100151062,
+            "queries_per_second": 38.9037870512025,
+            "wall_seconds": 2.59614828415215
+          },
+          {
+            "ordinal": 3,
+            "p50_seconds": 0.02515742927789688,
+            "p95_seconds": 0.028254123404622078,
+            "p99_seconds": 0.029816579073667526,
+            "queries_per_second": 36.419843950450876,
+            "wall_seconds": 2.773213420063257
+          }
+        ],
+        "median_queries_per_second": 36.419843950450876,
+        "pooled_p50_seconds": 0.025906799361109734,
+        "pooled_p95_seconds": 0.046725175529718395,
+        "pooled_p99_seconds": 0.04802003316581249,
+        "trials_completed": 3,
+        "warmup_query_searches": 1
+      },
+      "status": "failed_closed",
+      "story_id": "S-20260814-009",
+      "track": "psychology"
+    },
+    {
+      "build_seconds": 0.0,
+      "cell_id": "opensearch-doc-v3:economics",
+      "cuda_peak_vram_bytes": 1293060608,
+      "document_encoding": {
+        "batch_used": 8,
+        "fallback": [
+          8
+        ],
+        "seconds": 22.104806495830417,
+        "throughput_items_per_second": 339.29272357189416
+      },
+      "end_to_end_seconds": 44.906851690262556,
+      "failure": null,
+      "family": "learned_sparse",
+      "gate": {
+        "documents": 4,
+        "passed": true,
+        "queries": 1
+      },
+      "hardware": {
+        "driver": "565.57.01",
+        "gpu": "NVIDIA GeForce RTX 3080 Ti",
+        "gpu_memory_bytes": 12884901888,
+        "gpu_uuid": "GPU-435154a8-568c-35a7-ee5f-da29fbf97a39",
+        "numpy": "2.4.3",
+        "python": "3.12.9"
+      },
+      "identity": {
+        "revision": "babf71f3c48695e2e53a978208e8aba48335e3c0",
+        "snapshot_sha256": "55bf8e1df3905b6a4f81d7dd78402cf31088bd3db1a724baec8d5eace8b75151"
+      },
+      "load_seconds": 0.0,
+      "method_key": "opensearch-doc-v3",
+      "model_load_seconds": 6.954790795221925,
+      "network_bytes": 0,
+      "process_peak_rss_bytes": 2022879232,
+      "quality_verification": {
+        "fresh_top100_ids_match": true,
+        "system_error": "none"
+      },
+      "query_encoding": {
+        "batch_used": 8,
+        "fallback": [
+          8
+        ],
+        "seconds": 0.1440234761685133,
+        "throughput_items_per_second": 715.1611858019996
+      },
+      "representation": {
+        "bytes": 11064940,
+        "paradigm": "learned_sparse",
+        "scope": "in_memory_float32_csr_document_and_query_values_indices_indptr"
+      },
+      "schema_version": "bright-cross-paradigm-resource-cell-v1",
+      "search": {
+        "measured_trials": [
+          {
+            "ordinal": 1,
+            "p50_seconds": 0.02627755142748356,
+            "p95_seconds": 0.04270810559391975,
+            "p99_seconds": 0.04659181106835605,
+            "queries_per_second": 32.76202466263391,
+            "wall_seconds": 3.143883842974901
+          },
+          {
+            "ordinal": 2,
+            "p50_seconds": 0.022568924352526665,
+            "p95_seconds": 0.026110808365046975,
+            "p99_seconds": 0.0289038634672761,
+            "queries_per_second": 43.876554559499134,
+            "wall_seconds": 2.347495172172785
+          },
+          {
+            "ordinal": 3,
+            "p50_seconds": 0.02274412102997303,
+            "p95_seconds": 0.024974060617387293,
+            "p99_seconds": 0.028756394758820542,
+            "queries_per_second": 43.66367990273407,
+            "wall_seconds": 2.358939975500107
+          }
+        ],
+        "median_queries_per_second": 43.66367990273407,
+        "pooled_p50_seconds": 0.022928543388843536,
+        "pooled_p95_seconds": 0.04005768932402133,
+        "pooled_p99_seconds": 0.04417086720466614,
+        "trials_completed": 3,
+        "warmup_query_searches": 1
+      },
+      "status": "pass",
+      "story_id": "S-20260814-009",
+      "track": "economics"
+    },
+    {
+      "build_seconds": 0.0,
+      "cell_id": "opensearch-doc-v3:psychology",
+      "cuda_peak_vram_bytes": 1289464320,
+      "document_encoding": {
+        "attempted_batches": [
+          8
+        ],
+        "batch_used": 8,
+        "fallback": [
+          8
+        ],
+        "fallback_count": 0,
+        "oom_count": 0,
+        "retry_count": 0,
+        "seconds": 19.97276616282761,
+        "throughput_items_per_second": 375.5113307218633
+      },
+      "end_to_end_seconds": 41.06940266676247,
+      "failure": {
+        "message_sha256": "44f97463fc4e41ec958351cd698c2b68340bb4d829a563fbff22858349b9b500",
+        "stage": "quality_verification",
+        "stopping_condition_applied": true,
+        "type": "AggregateTop100Mismatch"
+      },
+      "family": "learned_sparse",
+      "gate": {
+        "documents": 4,
+        "passed": true,
+        "queries": 1
+      },
+      "hardware": {
+        "driver": "565.57.01",
+        "gpu": "NVIDIA GeForce RTX 3080 Ti",
+        "gpu_memory_bytes": 12884901888,
+        "gpu_uuid": "GPU-435154a8-568c-35a7-ee5f-da29fbf97a39",
+        "numpy": "2.4.3",
+        "python": "3.12.9"
+      },
+      "identity": {
+        "revision": "babf71f3c48695e2e53a978208e8aba48335e3c0",
+        "snapshot_sha256": "55bf8e1df3905b6a4f81d7dd78402cf31088bd3db1a724baec8d5eace8b75151"
+      },
+      "load_seconds": 0.0,
+      "method_key": "opensearch-doc-v3",
+      "model_load_seconds": 6.432535469532013,
+      "network_bytes": 0,
+      "process_peak_rss_bytes": 1796919296,
+      "quality_verification": {
+        "all_mismatches_full_top100_overlap": true,
+        "exact_order_queries": 100,
+        "formal_queries": 101,
+        "fresh_top100_ids_match": false,
+        "mismatched_order_queries": 1,
+        "system_error": "exact_order_mismatch_full_set_preserved",
+        "top100_overlap_max": 100,
+        "top100_overlap_mean": 100.0,
+        "top100_overlap_min": 100
+      },
+      "query_encoding": {
+        "attempted_batches": [
+          8
+        ],
+        "batch_used": 8,
+        "fallback": [
+          8
+        ],
+        "fallback_count": 0,
+        "oom_count": 0,
+        "retry_count": 0,
+        "seconds": 0.11719082295894623,
+        "throughput_items_per_second": 861.8422283405406
+      },
+      "representation": {
+        "bytes": 11037996,
+        "paradigm": "learned_sparse",
+        "scope": "in_memory_float32_csr_document_and_query_values_indices_indptr"
+      },
+      "schema_version": "bright-cross-paradigm-resource-cell-v1",
+      "search": {
+        "measured_trials": [
+          {
+            "ordinal": 1,
+            "p50_seconds": 0.021811693906784058,
+            "p95_seconds": 0.02379395253956318,
+            "p99_seconds": 0.024494754150509834,
+            "queries_per_second": 45.427139353662284,
+            "wall_seconds": 2.223340528085828
+          },
+          {
+            "ordinal": 2,
+            "p50_seconds": 0.022032981738448143,
+            "p95_seconds": 0.023981435224413872,
+            "p99_seconds": 0.024466905742883682,
+            "queries_per_second": 44.907128857149196,
+            "wall_seconds": 2.2490861155092716
+          },
+          {
+            "ordinal": 3,
+            "p50_seconds": 0.022138455882668495,
+            "p95_seconds": 0.023833872750401497,
+            "p99_seconds": 0.024515440687537193,
+            "queries_per_second": 44.954237643470954,
+            "wall_seconds": 2.2467292360961437
+          }
+        ],
+        "median_queries_per_second": 44.954237643470954,
+        "pooled_p50_seconds": 0.0219925194978714,
+        "pooled_p95_seconds": 0.023951449431478977,
+        "pooled_p99_seconds": 0.02449422635138035,
+        "trials_completed": 3,
+        "warmup_query_searches": 1
+      },
+      "status": "failed_closed",
+      "story_id": "S-20260814-009",
+      "track": "psychology"
+    },
+    {
+      "build_seconds": 0.0,
+      "cell_id": "bge-m3:economics",
+      "cuda_peak_vram_bytes": 1248337408,
+      "document_encoding": {
+        "batch_used": 8,
+        "fallback": [
+          8
+        ],
+        "seconds": 43.48491021245718,
+        "throughput_items_per_second": 172.4736227660754
+      },
+      "end_to_end_seconds": 68.51976668462157,
+      "failure": null,
+      "family": "learned_sparse",
+      "gate": {
+        "documents": 4,
+        "passed": true,
+        "queries": 1
+      },
+      "hardware": {
+        "driver": "565.57.01",
+        "gpu": "NVIDIA GeForce RTX 3080 Ti",
+        "gpu_memory_bytes": 12884901888,
+        "gpu_uuid": "GPU-435154a8-568c-35a7-ee5f-da29fbf97a39",
+        "numpy": "2.4.3",
+        "python": "3.12.9"
+      },
+      "identity": {
+        "revision": "5617a9f61b028005a4858fdac845db406aefb181",
+        "snapshot_sha256": "b74878c8ce0438f0cefe3d3422e699507bc1ba04cf9c59f0615f77fd3224a2d0"
+      },
+      "load_seconds": 0.0,
+      "method_key": "bge-m3",
+      "model_load_seconds": 14.598013244569302,
+      "network_bytes": 0,
+      "process_peak_rss_bytes": 3951005696,
+      "quality_verification": {
+        "fresh_top100_ids_match": true,
+        "system_error": "none"
+      },
+      "query_encoding": {
+        "batch_used": 8,
+        "fallback": [
+          8
+        ],
+        "seconds": 0.6497053969651461,
+        "throughput_items_per_second": 158.53339141267054
+      },
+      "representation": {
+        "bytes": 3170996,
+        "paradigm": "learned_sparse",
+        "scope": "in_memory_float32_csr_document_and_query_values_indices_indptr"
+      },
+      "schema_version": "bright-cross-paradigm-resource-cell-v1",
+      "search": {
+        "measured_trials": [
+          {
+            "ordinal": 1,
+            "p50_seconds": 0.016470544040203094,
+            "p95_seconds": 0.02091404404491185,
+            "p99_seconds": 0.026179878972470767,
+            "queries_per_second": 58.634319186465405,
+            "wall_seconds": 1.7566503956913948
+          },
+          {
+            "ordinal": 2,
+            "p50_seconds": 0.016468126326799393,
+            "p95_seconds": 0.0185444351285696,
+            "p99_seconds": 0.02044969599694014,
+            "queries_per_second": 64.4394262037029,
+            "wall_seconds": 1.5984003283083439
+          },
+          {
+            "ordinal": 3,
+            "p50_seconds": 0.010256132110953331,
+            "p95_seconds": 0.01158960573375225,
+            "p99_seconds": 0.012463048100471498,
+            "queries_per_second": 96.52560263326772,
+            "wall_seconds": 1.067074405029416
+          }
+        ],
+        "median_queries_per_second": 64.4394262037029,
+        "pooled_p50_seconds": 0.015932725742459297,
+        "pooled_p95_seconds": 0.018707563355565063,
+        "pooled_p99_seconds": 0.023578491061925905,
+        "trials_completed": 3,
+        "warmup_query_searches": 1
+      },
+      "status": "pass",
+      "story_id": "S-20260814-009",
+      "track": "economics"
+    },
+    {
+      "build_seconds": 0.0,
+      "cell_id": "bge-m3:psychology",
+      "cuda_peak_vram_bytes": 1248042496,
+      "document_encoding": {
+        "batch_used": 8,
+        "fallback": [
+          8
+        ],
+        "seconds": 43.54442139901221,
+        "throughput_items_per_second": 172.23790692440193
+      },
+      "end_to_end_seconds": 65.63202555291355,
+      "failure": null,
+      "family": "learned_sparse",
+      "gate": {
+        "documents": 4,
+        "passed": true,
+        "queries": 1
+      },
+      "hardware": {
+        "driver": "565.57.01",
+        "gpu": "NVIDIA GeForce RTX 3080 Ti",
+        "gpu_memory_bytes": 12884901888,
+        "gpu_uuid": "GPU-435154a8-568c-35a7-ee5f-da29fbf97a39",
+        "numpy": "2.4.3",
+        "python": "3.12.9"
+      },
+      "identity": {
+        "revision": "5617a9f61b028005a4858fdac845db406aefb181",
+        "snapshot_sha256": "b74878c8ce0438f0cefe3d3422e699507bc1ba04cf9c59f0615f77fd3224a2d0"
+      },
+      "load_seconds": 0.0,
+      "method_key": "bge-m3",
+      "model_load_seconds": 11.803219052031636,
+      "network_bytes": 0,
+      "process_peak_rss_bytes": 3950985216,
+      "quality_verification": {
+        "fresh_top100_ids_match": true,
+        "system_error": "none"
+      },
+      "query_encoding": {
+        "batch_used": 8,
+        "fallback": [
+          8
+        ],
+        "seconds": 0.588278753682971,
+        "throughput_items_per_second": 171.68731552462262
+      },
+      "representation": {
+        "bytes": 2951156,
+        "paradigm": "learned_sparse",
+        "scope": "in_memory_float32_csr_document_and_query_values_indices_indptr"
+      },
+      "schema_version": "bright-cross-paradigm-resource-cell-v1",
+      "search": {
+        "measured_trials": [
+          {
+            "ordinal": 1,
+            "p50_seconds": 0.016020188108086586,
+            "p95_seconds": 0.017435984686017036,
+            "p99_seconds": 0.019665876403450966,
+            "queries_per_second": 61.94129551196527,
+            "wall_seconds": 1.6305761635303497
+          },
+          {
+            "ordinal": 2,
+            "p50_seconds": 0.016317324712872505,
+            "p95_seconds": 0.018272610381245613,
+            "p99_seconds": 0.019103044643998146,
+            "queries_per_second": 62.287374845497645,
+            "wall_seconds": 1.621516402810812
+          },
+          {
+            "ordinal": 3,
+            "p50_seconds": 0.01025938056409359,
+            "p95_seconds": 0.011295076459646225,
+            "p99_seconds": 0.011994404718279839,
+            "queries_per_second": 97.84687094026961,
+            "wall_seconds": 1.032225139439106
+          }
+        ],
+        "median_queries_per_second": 62.287374845497645,
+        "pooled_p50_seconds": 0.01563543826341629,
+        "pooled_p95_seconds": 0.017793639004230498,
+        "pooled_p99_seconds": 0.019101653620600702,
+        "trials_completed": 3,
+        "warmup_query_searches": 1
+      },
+      "status": "pass",
+      "story_id": "S-20260814-009",
+      "track": "psychology"
+    },
+    {
+      "build_seconds": 0.0,
+      "cell_id": "splade-tiny:economics",
+      "cuda_peak_vram_bytes": 1031410688,
+      "document_encoding": {
+        "batch_used": 8,
+        "fallback": [
+          8
+        ],
+        "seconds": 11.79694214835763,
+        "throughput_items_per_second": 635.7579706402264
+      },
+      "end_to_end_seconds": 30.31298287026584,
+      "failure": null,
+      "family": "learned_sparse",
+      "gate": {
+        "documents": 4,
+        "passed": true,
+        "queries": 1
+      },
+      "hardware": {
+        "driver": "565.57.01",
+        "gpu": "NVIDIA GeForce RTX 3080 Ti",
+        "gpu_memory_bytes": 12884901888,
+        "gpu_uuid": "GPU-435154a8-568c-35a7-ee5f-da29fbf97a39",
+        "numpy": "2.4.3",
+        "python": "3.12.9"
+      },
+      "identity": {
+        "revision": "7391972eac4411e33efff5fad27b886ec97895c0",
+        "snapshot_sha256": "b8f98b34237158477a371b0f85f883ad0d67d67954a1821b306417b5816fbfe1"
+      },
+      "load_seconds": 0.0,
+      "method_key": "splade-tiny",
+      "model_load_seconds": 5.841397212818265,
+      "network_bytes": 0,
+      "process_peak_rss_bytes": 1940107264,
+      "quality_verification": {
+        "fresh_top100_ids_match": true,
+        "system_error": "none"
+      },
+      "query_encoding": {
+        "batch_used": 8,
+        "fallback": [
+          8
+        ],
+        "seconds": 0.18098178505897522,
+        "throughput_items_per_second": 569.1180466942358
+      },
+      "representation": {
+        "bytes": 7558900,
+        "paradigm": "learned_sparse",
+        "scope": "in_memory_float32_csr_document_and_query_values_indices_indptr"
+      },
+      "schema_version": "bright-cross-paradigm-resource-cell-v1",
+      "search": {
+        "measured_trials": [
+          {
+            "ordinal": 1,
+            "p50_seconds": 0.023961391299962997,
+            "p95_seconds": 0.027351422794163225,
+            "p99_seconds": 0.03514048282057047,
+            "queries_per_second": 36.20875390161267,
+            "wall_seconds": 2.8446159809827805
+          },
+          {
+            "ordinal": 2,
+            "p50_seconds": 0.015501171350479126,
+            "p95_seconds": 0.02559703458100557,
+            "p99_seconds": 0.02903039455413819,
+            "queries_per_second": 55.25608571531225,
+            "wall_seconds": 1.864048071205616
+          },
+          {
+            "ordinal": 3,
+            "p50_seconds": 0.01490183174610138,
+            "p95_seconds": 0.01650676093995571,
+            "p99_seconds": 0.018486482352018357,
+            "queries_per_second": 66.72332110348246,
+            "wall_seconds": 1.5436881482601166
+          }
+        ],
+        "median_queries_per_second": 55.25608571531225,
+        "pooled_p50_seconds": 0.016102971509099007,
+        "pooled_p95_seconds": 0.02630365714430809,
+        "pooled_p99_seconds": 0.03212599061429501,
+        "trials_completed": 3,
+        "warmup_query_searches": 1
+      },
+      "status": "pass",
+      "story_id": "S-20260814-009",
+      "track": "economics"
+    },
+    {
+      "build_seconds": 0.0,
+      "cell_id": "splade-tiny:psychology",
+      "cuda_peak_vram_bytes": 1031410688,
+      "document_encoding": {
+        "batch_used": 8,
+        "fallback": [
+          8
+        ],
+        "seconds": 11.868810320273042,
+        "throughput_items_per_second": 631.9083208524528
+      },
+      "end_to_end_seconds": 29.680694377049804,
+      "failure": null,
+      "family": "learned_sparse",
+      "gate": {
+        "documents": 4,
+        "passed": true,
+        "queries": 1
+      },
+      "hardware": {
+        "driver": "565.57.01",
+        "gpu": "NVIDIA GeForce RTX 3080 Ti",
+        "gpu_memory_bytes": 12884901888,
+        "gpu_uuid": "GPU-435154a8-568c-35a7-ee5f-da29fbf97a39",
+        "numpy": "2.4.3",
+        "python": "3.12.9"
+      },
+      "identity": {
+        "revision": "7391972eac4411e33efff5fad27b886ec97895c0",
+        "snapshot_sha256": "b8f98b34237158477a371b0f85f883ad0d67d67954a1821b306417b5816fbfe1"
+      },
+      "load_seconds": 0.0,
+      "method_key": "splade-tiny",
+      "model_load_seconds": 4.973945101723075,
+      "network_bytes": 0,
+      "process_peak_rss_bytes": 2149548032,
+      "quality_verification": {
+        "fresh_top100_ids_match": true,
+        "system_error": "none"
+      },
+      "query_encoding": {
+        "batch_used": 8,
+        "fallback": [
+          8
+        ],
+        "seconds": 0.1652614325284958,
+        "throughput_items_per_second": 611.152877321118
+      },
+      "representation": {
+        "bytes": 7420036,
+        "paradigm": "learned_sparse",
+        "scope": "in_memory_float32_csr_document_and_query_values_indices_indptr"
+      },
+      "schema_version": "bright-cross-paradigm-resource-cell-v1",
+      "search": {
+        "measured_trials": [
+          {
+            "ordinal": 1,
+            "p50_seconds": 0.025957796722650528,
+            "p95_seconds": 0.02909056656062603,
+            "p99_seconds": 0.029442649334669113,
+            "queries_per_second": 38.02377620870407,
+            "wall_seconds": 2.6562327593564987
+          },
+          {
+            "ordinal": 2,
+            "p50_seconds": 0.016493242233991623,
+            "p95_seconds": 0.027730345726013184,
+            "p99_seconds": 0.034196335822343826,
+            "queries_per_second": 47.49243416985141,
+            "wall_seconds": 2.126654524356127
+          },
+          {
+            "ordinal": 3,
+            "p50_seconds": 0.015631839632987976,
+            "p95_seconds": 0.017018282786011696,
+            "p99_seconds": 0.018101999536156654,
+            "queries_per_second": 63.635088171790144,
+            "wall_seconds": 1.5871746689081192
+          }
+        ],
+        "median_queries_per_second": 47.49243416985141,
+        "pooled_p50_seconds": 0.01683782786130905,
+        "pooled_p95_seconds": 0.028534173779189584,
+        "pooled_p99_seconds": 0.031019495464861418,
+        "trials_completed": 3,
+        "warmup_query_searches": 1
+      },
+      "status": "pass",
+      "story_id": "S-20260814-009",
+      "track": "psychology"
+    },
+    {
+      "build_seconds": 0.0,
+      "cell_id": "opensearch-doc-v2-distill:economics",
+      "cuda_peak_vram_bytes": 1282925056,
+      "document_encoding": {
+        "batch_used": 8,
+        "fallback": [
+          8
+        ],
+        "seconds": 20.498531833291054,
+        "throughput_items_per_second": 365.8798620796575
+      },
+      "end_to_end_seconds": 41.30043853633106,
+      "failure": null,
+      "family": "learned_sparse",
+      "gate": {
+        "documents": 4,
+        "passed": true,
+        "queries": 1
+      },
+      "hardware": {
+        "driver": "565.57.01",
+        "gpu": "NVIDIA GeForce RTX 3080 Ti",
+        "gpu_memory_bytes": 12884901888,
+        "gpu_uuid": "GPU-435154a8-568c-35a7-ee5f-da29fbf97a39",
+        "numpy": "2.4.3",
+        "python": "3.12.9"
+      },
+      "identity": {
+        "revision": "269e6638b2c4f648996691f6d751495285d8f330",
+        "snapshot_sha256": "a8d620de7536c51931c198616042a62c68a8701e4458516635cb244d4509a984"
+      },
+      "load_seconds": 0.0,
+      "method_key": "opensearch-doc-v2-distill",
+      "model_load_seconds": 6.043477792292833,
+      "network_bytes": 0,
+      "process_peak_rss_bytes": 1965408256,
+      "quality_verification": {
+        "fresh_top100_ids_match": true,
+        "system_error": "none"
+      },
+      "query_encoding": {
+        "batch_used": 8,
+        "fallback": [
+          8
+        ],
+        "seconds": 0.33912339247763157,
+        "throughput_items_per_second": 303.72425578631777
+      },
+      "representation": {
+        "bytes": 10197580,
+        "paradigm": "learned_sparse",
+        "scope": "in_memory_float32_csr_document_and_query_values_indices_indptr"
+      },
+      "schema_version": "bright-cross-paradigm-resource-cell-v1",
+      "search": {
+        "measured_trials": [
+          {
+            "ordinal": 1,
+            "p50_seconds": 0.021652057766914368,
+            "p95_seconds": 0.03664201200008392,
+            "p99_seconds": 0.04049138452857734,
+            "queries_per_second": 38.25015269379049,
+            "wall_seconds": 2.6927997078746557
+          },
+          {
+            "ordinal": 2,
+            "p50_seconds": 0.02062222547829151,
+            "p95_seconds": 0.0224193450063467,
+            "p99_seconds": 0.02621357340365649,
+            "queries_per_second": 48.10541763072665,
+            "wall_seconds": 2.141130980104208
+          },
+          {
+            "ordinal": 3,
+            "p50_seconds": 0.02053714729845524,
+            "p95_seconds": 0.023374948650598526,
+            "p99_seconds": 0.027281970791518697,
+            "queries_per_second": 44.14612257998092,
+            "wall_seconds": 2.333160739392042
+          }
+        ],
+        "median_queries_per_second": 44.14612257998092,
+        "pooled_p50_seconds": 0.020718837156891823,
+        "pooled_p95_seconds": 0.03597776032984257,
+        "pooled_p99_seconds": 0.038224409744143505,
+        "trials_completed": 3,
+        "warmup_query_searches": 1
+      },
+      "status": "pass",
+      "story_id": "S-20260814-009",
+      "track": "economics"
+    },
+    {
+      "build_seconds": 0.0,
+      "cell_id": "opensearch-doc-v2-distill:psychology",
+      "cuda_peak_vram_bytes": 1282925056,
+      "document_encoding": {
+        "attempted_batches": [
+          8
+        ],
+        "batch_used": 8,
+        "fallback": [
+          8
+        ],
+        "fallback_count": 0,
+        "oom_count": 0,
+        "retry_count": 0,
+        "seconds": 18.75835936702788,
+        "throughput_items_per_second": 399.82174630810044
+      },
+      "end_to_end_seconds": 37.60762391798198,
+      "failure": {
+        "message_sha256": "44f97463fc4e41ec958351cd698c2b68340bb4d829a563fbff22858349b9b500",
+        "stage": "quality_verification",
+        "stopping_condition_applied": true,
+        "type": "AggregateTop100Mismatch"
+      },
+      "family": "learned_sparse",
+      "gate": {
+        "documents": 4,
+        "passed": true,
+        "queries": 1
+      },
+      "hardware": {
+        "driver": "565.57.01",
+        "gpu": "NVIDIA GeForce RTX 3080 Ti",
+        "gpu_memory_bytes": 12884901888,
+        "gpu_uuid": "GPU-435154a8-568c-35a7-ee5f-da29fbf97a39",
+        "numpy": "2.4.3",
+        "python": "3.12.9"
+      },
+      "identity": {
+        "revision": "269e6638b2c4f648996691f6d751495285d8f330",
+        "snapshot_sha256": "a8d620de7536c51931c198616042a62c68a8701e4458516635cb244d4509a984"
+      },
+      "load_seconds": 0.0,
+      "method_key": "opensearch-doc-v2-distill",
+      "model_load_seconds": 5.2696804236620665,
+      "network_bytes": 0,
+      "process_peak_rss_bytes": 1712906240,
+      "quality_verification": {
+        "all_mismatches_full_top100_overlap": true,
+        "exact_order_queries": 99,
+        "formal_queries": 101,
+        "fresh_top100_ids_match": false,
+        "mismatched_order_queries": 2,
+        "system_error": "exact_order_mismatch_full_set_preserved",
+        "top100_overlap_max": 100,
+        "top100_overlap_mean": 100.0,
+        "top100_overlap_min": 100
+      },
+      "query_encoding": {
+        "attempted_batches": [
+          8
+        ],
+        "batch_used": 8,
+        "fallback": [
+          8
+        ],
+        "fallback_count": 0,
+        "oom_count": 0,
+        "retry_count": 0,
+        "seconds": 0.29420313239097595,
+        "throughput_items_per_second": 343.30021974673565
+      },
+      "representation": {
+        "bytes": 10335708,
+        "paradigm": "learned_sparse",
+        "scope": "in_memory_float32_csr_document_and_query_values_indices_indptr"
+      },
+      "schema_version": "bright-cross-paradigm-resource-cell-v1",
+      "search": {
+        "measured_trials": [
+          {
+            "ordinal": 1,
+            "p50_seconds": 0.020962391048669815,
+            "p95_seconds": 0.02274671010673046,
+            "p99_seconds": 0.025058435276150703,
+            "queries_per_second": 47.236325540257575,
+            "wall_seconds": 2.138184942305088
+          },
+          {
+            "ordinal": 2,
+            "p50_seconds": 0.021007133647799492,
+            "p95_seconds": 0.022463057190179825,
+            "p99_seconds": 0.02305571921169758,
+            "queries_per_second": 47.3515051055453,
+            "wall_seconds": 2.1329839415848255
+          },
+          {
+            "ordinal": 3,
+            "p50_seconds": 0.021064020693302155,
+            "p95_seconds": 0.02288380078971386,
+            "p99_seconds": 0.02331148274242878,
+            "queries_per_second": 47.09063185328901,
+            "wall_seconds": 2.1448002718389034
+          }
+        ],
+        "median_queries_per_second": 47.236325540257575,
+        "pooled_p50_seconds": 0.02102706953883171,
+        "pooled_p95_seconds": 0.02265099100768566,
+        "pooled_p99_seconds": 0.02355283122509718,
+        "trials_completed": 3,
+        "warmup_query_searches": 1
+      },
+      "status": "failed_closed",
+      "story_id": "S-20260814-009",
+      "track": "psychology"
+    },
+    {
+      "build_seconds": 0.0,
+      "cell_id": "opensearch-multilingual:economics",
+      "cuda_peak_vram_bytes": 4163289600,
+      "document_encoding": {
+        "attempted_batches": [
+          8
+        ],
+        "batch_used": 8,
+        "fallback": [
+          8
+        ],
+        "fallback_count": 0,
+        "oom_count": 0,
+        "retry_count": 0,
+        "seconds": 42.4664920438081,
+        "throughput_items_per_second": 176.60983139984953
+      },
+      "end_to_end_seconds": 67.45147420652211,
+      "failure": {
+        "message_sha256": "44f97463fc4e41ec958351cd698c2b68340bb4d829a563fbff22858349b9b500",
+        "stage": "quality_verification",
+        "stopping_condition_applied": true,
+        "type": "AggregateTop100Mismatch"
+      },
+      "family": "learned_sparse",
+      "gate": {
+        "documents": 4,
+        "passed": true,
+        "queries": 1
+      },
+      "hardware": {
+        "driver": "565.57.01",
+        "gpu": "NVIDIA GeForce RTX 3080 Ti",
+        "gpu_memory_bytes": 12884901888,
+        "gpu_uuid": "GPU-435154a8-568c-35a7-ee5f-da29fbf97a39",
+        "numpy": "2.4.3",
+        "python": "3.12.9"
+      },
+      "identity": {
+        "revision": "1e0f096c2b51c234f1d20725c793e1b5b6d556db",
+        "snapshot_sha256": "ff6f330a406ad263a5bd8c92d139a79731ee11061905efdb26cd3d4d0b22e5c2"
+      },
+      "load_seconds": 0.0,
+      "method_key": "opensearch-multilingual",
+      "model_load_seconds": 6.61618572846055,
+      "network_bytes": 0,
+      "process_peak_rss_bytes": 1802698752,
+      "quality_verification": {
+        "all_mismatches_full_top100_overlap": true,
+        "exact_order_queries": 102,
+        "formal_queries": 103,
+        "fresh_top100_ids_match": false,
+        "mismatched_order_queries": 1,
+        "system_error": "exact_order_mismatch_full_set_preserved",
+        "top100_overlap_max": 100,
+        "top100_overlap_mean": 100.0,
+        "top100_overlap_min": 100
+      },
+      "query_encoding": {
+        "attempted_batches": [
+          8
+        ],
+        "batch_used": 8,
+        "fallback": [
+          8
+        ],
+        "fallback_count": 0,
+        "oom_count": 0,
+        "retry_count": 0,
+        "seconds": 0.18725350499153137,
+        "throughput_items_per_second": 550.0564595822024
+      },
+      "representation": {
+        "bytes": 15005060,
+        "paradigm": "learned_sparse",
+        "scope": "in_memory_float32_csr_document_and_query_values_indices_indptr"
+      },
+      "schema_version": "bright-cross-paradigm-resource-cell-v1",
+      "search": {
+        "measured_trials": [
+          {
+            "ordinal": 1,
+            "p50_seconds": 0.0315127819776535,
+            "p95_seconds": 0.034470245242118835,
+            "p99_seconds": 0.03664323326200247,
+            "queries_per_second": 29.891731774341025,
+            "wall_seconds": 3.4457689095288515
+          },
+          {
+            "ordinal": 2,
+            "p50_seconds": 0.03101447969675064,
+            "p95_seconds": 0.034279093332588675,
+            "p99_seconds": 0.035398358590900895,
+            "queries_per_second": 31.86164549190435,
+            "wall_seconds": 3.232726948335767
+          },
+          {
+            "ordinal": 3,
+            "p50_seconds": 0.03183211758732796,
+            "p95_seconds": 0.034106756933033465,
+            "p99_seconds": 0.03497488256543875,
+            "queries_per_second": 31.401231457519827,
+            "wall_seconds": 3.2801261357963085
+          }
+        ],
+        "median_queries_per_second": 31.401231457519827,
+        "pooled_p50_seconds": 0.031416991725564,
+        "pooled_p95_seconds": 0.034290825948119164,
+        "pooled_p99_seconds": 0.03565456479787827,
+        "trials_completed": 3,
+        "warmup_query_searches": 1
+      },
+      "status": "failed_closed",
+      "story_id": "S-20260814-009",
+      "track": "economics"
+    },
+    {
+      "build_seconds": 0.0,
+      "cell_id": "opensearch-multilingual:psychology",
+      "cuda_peak_vram_bytes": 4163289600,
+      "document_encoding": {
+        "batch_used": 8,
+        "fallback": [
+          8
+        ],
+        "seconds": 37.61155053600669,
+        "throughput_items_per_second": 199.406828304513
+      },
+      "end_to_end_seconds": 69.05524339526892,
+      "failure": null,
+      "family": "learned_sparse",
+      "gate": {
+        "documents": 4,
+        "passed": true,
+        "queries": 1
+      },
+      "hardware": {
+        "driver": "565.57.01",
+        "gpu": "NVIDIA GeForce RTX 3080 Ti",
+        "gpu_memory_bytes": 12884901888,
+        "gpu_uuid": "GPU-435154a8-568c-35a7-ee5f-da29fbf97a39",
+        "numpy": "2.4.3",
+        "python": "3.12.9"
+      },
+      "identity": {
+        "revision": "1e0f096c2b51c234f1d20725c793e1b5b6d556db",
+        "snapshot_sha256": "ff6f330a406ad263a5bd8c92d139a79731ee11061905efdb26cd3d4d0b22e5c2"
+      },
+      "load_seconds": 0.0,
+      "method_key": "opensearch-multilingual",
+      "model_load_seconds": 7.408966839313507,
+      "network_bytes": 0,
+      "process_peak_rss_bytes": 2280701952,
+      "quality_verification": {
+        "fresh_top100_ids_match": true,
+        "system_error": "none"
+      },
+      "query_encoding": {
+        "batch_used": 8,
+        "fallback": [
+          8
+        ],
+        "seconds": 0.13685529679059982,
+        "throughput_items_per_second": 738.0057795975448
+      },
+      "representation": {
+        "bytes": 16446204,
+        "paradigm": "learned_sparse",
+        "scope": "in_memory_float32_csr_document_and_query_values_indices_indptr"
+      },
+      "schema_version": "bright-cross-paradigm-resource-cell-v1",
+      "search": {
+        "measured_trials": [
+          {
+            "ordinal": 1,
+            "p50_seconds": 0.05989546328783035,
+            "p95_seconds": 0.06512193940579891,
+            "p99_seconds": 0.06822866946458817,
+            "queries_per_second": 16.62103022064684,
+            "wall_seconds": 6.076638972386718
+          },
+          {
+            "ordinal": 2,
+            "p50_seconds": 0.03644412383437157,
+            "p95_seconds": 0.06205441430211067,
+            "p99_seconds": 0.06647106260061264,
+            "queries_per_second": 22.081369721026284,
+            "wall_seconds": 4.573991617187858
+          },
+          {
+            "ordinal": 3,
+            "p50_seconds": 0.034394219517707825,
+            "p95_seconds": 0.03738962113857269,
+            "p99_seconds": 0.04014396481215954,
+            "queries_per_second": 28.700397646976057,
+            "wall_seconds": 3.5191150046885014
+          }
+        ],
+        "median_queries_per_second": 22.081369721026284,
+        "pooled_p50_seconds": 0.03738962113857269,
+        "pooled_p95_seconds": 0.06291407346725464,
+        "pooled_p99_seconds": 0.06740231424570084,
+        "trials_completed": 3,
+        "warmup_query_searches": 1
+      },
+      "status": "pass",
+      "story_id": "S-20260814-009",
+      "track": "psychology"
+    },
+    {
+      "build_seconds": 0.0,
+      "cell_id": "colbert-v2:economics",
+      "cuda_peak_vram_bytes": 578006528,
+      "document_encoding": {
+        "batch_used": 32,
+        "fallback": [
+          32,
+          16,
+          8,
+          4,
+          2,
+          1
+        ],
+        "items_are_windows": true,
+        "seconds": 25.19778500497341,
+        "throughput_items_per_second": 455.99246115212753
+      },
+      "end_to_end_seconds": 200.39159453473985,
+      "failure": null,
+      "family": "multi_vector",
+      "gate": {
+        "documents": 4,
+        "passed": true,
+        "queries": 1
+      },
+      "hardware": {
+        "driver": "565.57.01",
+        "gpu": "NVIDIA GeForce RTX 3080 Ti",
+        "gpu_memory_bytes": 12884901888,
+        "gpu_uuid": "GPU-435154a8-568c-35a7-ee5f-da29fbf97a39",
+        "numpy": "2.4.3",
+        "python": "3.12.9"
+      },
+      "identity": {
+        "revision": "c1e84128e85ef755c096a95bdb06b47793b13acf",
+        "snapshot_sha256": "9c6543efa377c830da013da2d07246a157c5f01f89568ea703272d902ac75210"
+      },
+      "load_seconds": 0.0,
+      "method_key": "colbert-v2",
+      "model_load_seconds": 0.5738519746810198,
+      "network_bytes": 0,
+      "process_peak_rss_bytes": 2267197440,
+      "quality_verification": {
+        "fresh_top100_ids_match": true,
+        "system_error": "none"
+      },
+      "query_encoding": {
+        "batch_used": 64,
+        "fallback": [
+          64,
+          32,
+          16,
+          8,
+          4,
+          2,
+          1
+        ],
+        "seconds": 0.0875038355588913,
+        "throughput_items_per_second": 1177.0912593960475
+      },
+      "representation": {
+        "bytes": 485630224,
+        "paradigm": "multi_vector",
+        "scope": "compact_float32_token_vectors_plus_window_mapping"
+      },
+      "schema_version": "bright-cross-paradigm-resource-cell-v1",
+      "search": {
+        "measured_trials": [
+          {
+            "ordinal": 1,
+            "p50_seconds": 0.40096682868897915,
+            "p95_seconds": 0.5216307848691939,
+            "p99_seconds": 0.5707893819361927,
+            "queries_per_second": 2.435773529021641,
+            "wall_seconds": 42.28636150807142
+          },
+          {
+            "ordinal": 2,
+            "p50_seconds": 0.3940314408391714,
+            "p95_seconds": 0.4501049280166624,
+            "p99_seconds": 0.5284961669892073,
+            "queries_per_second": 2.4859663725289387,
+            "wall_seconds": 41.43257975578308
+          },
+          {
+            "ordinal": 3,
+            "p50_seconds": 0.4063512720167637,
+            "p95_seconds": 0.514144280925393,
+            "p99_seconds": 0.5523023533076049,
+            "queries_per_second": 2.4034129956372308,
+            "wall_seconds": 42.85572233609855
+          }
+        ],
+        "median_queries_per_second": 2.435773529021641,
+        "pooled_p50_seconds": 0.4006956871598959,
+        "pooled_p95_seconds": 0.5029302354902027,
+        "pooled_p99_seconds": 0.5518027217686178,
+        "trials_completed": 3,
+        "warmup_query_searches": 1
+      },
+      "status": "pass",
+      "story_id": "S-20260814-009",
+      "track": "economics"
+    },
+    {
+      "build_seconds": 0.0,
+      "cell_id": "colbert-v2:psychology",
+      "cuda_peak_vram_bytes": 578043392,
+      "document_encoding": {
+        "batch_used": 32,
+        "fallback": [
+          32,
+          16,
+          8,
+          4,
+          2,
+          1
+        ],
+        "items_are_windows": true,
+        "seconds": 24.154018096625805,
+        "throughput_items_per_second": 467.0858469538051
+      },
+      "end_to_end_seconds": 189.03856025636196,
+      "failure": null,
+      "family": "multi_vector",
+      "gate": {
+        "documents": 4,
+        "passed": true,
+        "queries": 1
+      },
+      "hardware": {
+        "driver": "565.57.01",
+        "gpu": "NVIDIA GeForce RTX 3080 Ti",
+        "gpu_memory_bytes": 12884901888,
+        "gpu_uuid": "GPU-435154a8-568c-35a7-ee5f-da29fbf97a39",
+        "numpy": "2.4.3",
+        "python": "3.12.9"
+      },
+      "identity": {
+        "revision": "c1e84128e85ef755c096a95bdb06b47793b13acf",
+        "snapshot_sha256": "9c6543efa377c830da013da2d07246a157c5f01f89568ea703272d902ac75210"
+      },
+      "load_seconds": 0.0,
+      "method_key": "colbert-v2",
+      "model_load_seconds": 0.6477364636957645,
+      "network_bytes": 0,
+      "process_peak_rss_bytes": 2207686656,
+      "quality_verification": {
+        "fresh_top100_ids_match": true,
+        "system_error": "none"
+      },
+      "query_encoding": {
+        "batch_used": 64,
+        "fallback": [
+          64,
+          32,
+          16,
+          8,
+          4,
+          2,
+          1
+        ],
+        "seconds": 0.08539724349975586,
+        "throughput_items_per_second": 1182.7079641076325
+      },
+      "representation": {
+        "bytes": 454659728,
+        "paradigm": "multi_vector",
+        "scope": "compact_float32_token_vectors_plus_window_mapping"
+      },
+      "schema_version": "bright-cross-paradigm-resource-cell-v1",
+      "search": {
+        "measured_trials": [
+          {
+            "ordinal": 1,
+            "p50_seconds": 0.3746693003922701,
+            "p95_seconds": 0.46171092242002487,
+            "p99_seconds": 0.49948044680058956,
+            "queries_per_second": 2.5969910073992675,
+            "wall_seconds": 38.89116277731955
+          },
+          {
+            "ordinal": 2,
+            "p50_seconds": 0.38685941882431507,
+            "p95_seconds": 0.4260480608791113,
+            "p99_seconds": 0.4809468500316143,
+            "queries_per_second": 2.5843029382182774,
+            "wall_seconds": 39.08210547082126
+          },
+          {
+            "ordinal": 3,
+            "p50_seconds": 0.3860758226364851,
+            "p95_seconds": 0.4352658838033676,
+            "p99_seconds": 0.5042397156357765,
+            "queries_per_second": 2.5677968191576523,
+            "wall_seconds": 39.3333301320672
+          }
+        ],
+        "median_queries_per_second": 2.5843029382182774,
+        "pooled_p50_seconds": 0.3850140832364559,
+        "pooled_p95_seconds": 0.43930981680750836,
+        "pooled_p99_seconds": 0.502442655004561,
+        "trials_completed": 3,
+        "warmup_query_searches": 1
+      },
+      "status": "pass",
+      "story_id": "S-20260814-009",
+      "track": "psychology"
+    },
+    {
+      "build_seconds": 0.0,
+      "cell_id": "answerai-colbert-small:economics",
+      "cuda_peak_vram_bytes": 266061824,
+      "document_encoding": {
+        "batch_used": 32,
+        "fallback": [
+          32,
+          16,
+          8,
+          4,
+          2,
+          1
+        ],
+        "items_are_windows": true,
+        "seconds": 17.852584306150675,
+        "throughput_items_per_second": 643.6042985687735
+      },
+      "end_to_end_seconds": 185.84738900884986,
+      "failure": null,
+      "family": "multi_vector",
+      "gate": {
+        "documents": 4,
+        "passed": true,
+        "queries": 1
+      },
+      "hardware": {
+        "driver": "565.57.01",
+        "gpu": "NVIDIA GeForce RTX 3080 Ti",
+        "gpu_memory_bytes": 12884901888,
+        "gpu_uuid": "GPU-435154a8-568c-35a7-ee5f-da29fbf97a39",
+        "numpy": "2.4.3",
+        "python": "3.12.9"
+      },
+      "identity": {
+        "revision": "934fa8bb4ce2284f4c2baa232d81aca4d076fa5e",
+        "snapshot_sha256": "dc7f723cf56098f88a755742503f24b13e1ad406450d75f8990815ff605a3652"
+      },
+      "load_seconds": 0.0,
+      "method_key": "answerai-colbert-small",
+      "model_load_seconds": 0.4626508317887783,
+      "network_bytes": 0,
+      "process_peak_rss_bytes": 2167681024,
+      "quality_verification": {
+        "fresh_top100_ids_match": true,
+        "system_error": "none"
+      },
+      "query_encoding": {
+        "batch_used": 64,
+        "fallback": [
+          64,
+          32,
+          16,
+          8,
+          4,
+          2,
+          1
+        ],
+        "seconds": 0.07137502357363701,
+        "throughput_items_per_second": 1443.0818351147132
+      },
+      "representation": {
+        "bytes": 413250192,
+        "paradigm": "multi_vector",
+        "scope": "compact_float32_token_vectors_plus_window_mapping"
+      },
+      "schema_version": "bright-cross-paradigm-resource-cell-v1",
+      "search": {
+        "measured_trials": [
+          {
+            "ordinal": 1,
+            "p50_seconds": 0.39048320427536964,
+            "p95_seconds": 0.47620315738022323,
+            "p99_seconds": 0.5123372005671263,
+            "queries_per_second": 2.5204055511053447,
+            "wall_seconds": 40.86643911525607
+          },
+          {
+            "ordinal": 2,
+            "p50_seconds": 0.38762578181922436,
+            "p95_seconds": 0.4370248354971409,
+            "p99_seconds": 0.4864849062263966,
+            "queries_per_second": 2.571585111702326,
+            "wall_seconds": 40.05311725102365
+          },
+          {
+            "ordinal": 3,
+            "p50_seconds": 0.38801310025155544,
+            "p95_seconds": 0.47702830936759705,
+            "p99_seconds": 0.501908842921257,
+            "queries_per_second": 2.526566910304445,
+            "wall_seconds": 40.766781033948064
+          }
+        ],
+        "median_queries_per_second": 2.526566910304445,
+        "pooled_p50_seconds": 0.38900461234152317,
+        "pooled_p95_seconds": 0.47346320711076256,
+        "pooled_p99_seconds": 0.5018754812330007,
+        "trials_completed": 3,
+        "warmup_query_searches": 1
+      },
+      "status": "pass",
+      "story_id": "S-20260814-009",
+      "track": "economics"
+    },
+    {
+      "build_seconds": 0.0,
+      "cell_id": "answerai-colbert-small:psychology",
+      "cuda_peak_vram_bytes": 266061824,
+      "document_encoding": {
+        "batch_used": 32,
+        "fallback": [
+          32,
+          16,
+          8,
+          4,
+          2,
+          1
+        ],
+        "items_are_windows": true,
+        "seconds": 17.63409391976893,
+        "throughput_items_per_second": 639.7833680216576
+      },
+      "end_to_end_seconds": 177.66649452224374,
+      "failure": null,
+      "family": "multi_vector",
+      "gate": {
+        "documents": 4,
+        "passed": true,
+        "queries": 1
+      },
+      "hardware": {
+        "driver": "565.57.01",
+        "gpu": "NVIDIA GeForce RTX 3080 Ti",
+        "gpu_memory_bytes": 12884901888,
+        "gpu_uuid": "GPU-435154a8-568c-35a7-ee5f-da29fbf97a39",
+        "numpy": "2.4.3",
+        "python": "3.12.9"
+      },
+      "identity": {
+        "revision": "934fa8bb4ce2284f4c2baa232d81aca4d076fa5e",
+        "snapshot_sha256": "dc7f723cf56098f88a755742503f24b13e1ad406450d75f8990815ff605a3652"
+      },
+      "load_seconds": 0.0,
+      "method_key": "answerai-colbert-small",
+      "model_load_seconds": 0.6463053915649652,
+      "network_bytes": 0,
+      "process_peak_rss_bytes": 2148798464,
+      "quality_verification": {
+        "fresh_top100_ids_match": true,
+        "system_error": "none"
+      },
+      "query_encoding": {
+        "batch_used": 64,
+        "fallback": [
+          64,
+          32,
+          16,
+          8,
+          4,
+          2,
+          1
+        ],
+        "seconds": 0.06136782839894295,
+        "throughput_items_per_second": 1645.8134927541237
+      },
+      "representation": {
+        "bytes": 404315152,
+        "paradigm": "multi_vector",
+        "scope": "compact_float32_token_vectors_plus_window_mapping"
+      },
+      "schema_version": "bright-cross-paradigm-resource-cell-v1",
+      "search": {
+        "measured_trials": [
+          {
+            "ordinal": 1,
+            "p50_seconds": 0.3658945932984352,
+            "p95_seconds": 0.4409658033400774,
+            "p99_seconds": 0.46758938767015934,
+            "queries_per_second": 2.665234305258521,
+            "wall_seconds": 37.89535494148731
+          },
+          {
+            "ordinal": 2,
+            "p50_seconds": 0.37712808698415756,
+            "p95_seconds": 0.4361109547317028,
+            "p99_seconds": 0.47659122571349144,
+            "queries_per_second": 2.6371413225454727,
+            "wall_seconds": 38.29904720559716
+          },
+          {
+            "ordinal": 3,
+            "p50_seconds": 0.37537320144474506,
+            "p95_seconds": 0.42034224420785904,
+            "p99_seconds": 0.482709676027298,
+            "queries_per_second": 2.634263819471418,
+            "wall_seconds": 38.34088266082108
+          }
+        ],
+        "median_queries_per_second": 2.6371413225454727,
+        "pooled_p50_seconds": 0.37438786774873734,
+        "pooled_p95_seconds": 0.4359047822654247,
+        "pooled_p99_seconds": 0.4765634750947356,
+        "trials_completed": 3,
+        "warmup_query_searches": 1
+      },
+      "status": "pass",
+      "story_id": "S-20260814-009",
+      "track": "psychology"
+    },
+    {
+      "build_seconds": 0.0,
+      "cell_id": "gte-modern-colbert:economics",
+      "cuda_peak_vram_bytes": 749182976,
+      "document_encoding": {
+        "batch_used": 32,
+        "fallback": [
+          32,
+          16,
+          8,
+          4,
+          2,
+          1
+        ],
+        "items_are_windows": true,
+        "seconds": 50.66358809545636,
+        "throughput_items_per_second": 226.7900958446023
+      },
+      "end_to_end_seconds": 283.0010610334575,
+      "failure": null,
+      "family": "multi_vector",
+      "gate": {
+        "documents": 4,
+        "passed": true,
+        "queries": 1
+      },
+      "hardware": {
+        "driver": "565.57.01",
+        "gpu": "NVIDIA GeForce RTX 3080 Ti",
+        "gpu_memory_bytes": 12884901888,
+        "gpu_uuid": "GPU-435154a8-568c-35a7-ee5f-da29fbf97a39",
+        "numpy": "2.4.3",
+        "python": "3.12.9"
+      },
+      "identity": {
+        "revision": "25f6f7bb8237b7ae25ae1d9b805ce17c0d1cc639",
+        "snapshot_sha256": "34ac97a354fa6f209d13c55cbaa0f2d64656e1d64be7ba148bfc9b8bdfcb9ab7"
+      },
+      "load_seconds": 0.0,
+      "method_key": "gte-modern-colbert",
+      "model_load_seconds": 0.7246187012642622,
+      "network_bytes": 0,
+      "process_peak_rss_bytes": 2512146432,
+      "quality_verification": {
+        "fresh_top100_ids_match": true,
+        "system_error": "none"
+      },
+      "query_encoding": {
+        "batch_used": 64,
+        "fallback": [
+          64,
+          32,
+          16,
+          8,
+          4,
+          2,
+          1
+        ],
+        "seconds": 0.146337503567338,
+        "throughput_items_per_second": 703.8523788442516
+      },
+      "representation": {
+        "bytes": 679263504,
+        "paradigm": "multi_vector",
+        "scope": "compact_float32_token_vectors_plus_window_mapping"
+      },
+      "schema_version": "bright-cross-paradigm-resource-cell-v1",
+      "search": {
+        "measured_trials": [
+          {
+            "ordinal": 1,
+            "p50_seconds": 0.5258057042956352,
+            "p95_seconds": 0.6607794987037778,
+            "p99_seconds": 0.7169863600283861,
+            "queries_per_second": 1.853907334584699,
+            "wall_seconds": 55.558332435786724
+          },
+          {
+            "ordinal": 2,
+            "p50_seconds": 0.5397481750696898,
+            "p95_seconds": 0.6771114725619554,
+            "p99_seconds": 0.7494910343363882,
+            "queries_per_second": 1.8096377149110086,
+            "wall_seconds": 56.917469806969166
+          },
+          {
+            "ordinal": 3,
+            "p50_seconds": 0.5276234447956085,
+            "p95_seconds": 0.6295687947422265,
+            "p99_seconds": 0.6918462731689216,
+            "queries_per_second": 1.8545291647470865,
+            "wall_seconds": 55.53970353119075
+          }
+        ],
+        "median_queries_per_second": 1.853907334584699,
+        "pooled_p50_seconds": 0.529009748250246,
+        "pooled_p95_seconds": 0.6681292247027156,
+        "pooled_p99_seconds": 0.7276626581698658,
+        "trials_completed": 3,
+        "warmup_query_searches": 1
+      },
+      "status": "pass",
+      "story_id": "S-20260814-009",
+      "track": "economics"
+    },
+    {
+      "build_seconds": 0.0,
+      "cell_id": "gte-modern-colbert:psychology",
+      "cuda_peak_vram_bytes": 751961088,
+      "document_encoding": {
+        "batch_used": 32,
+        "fallback": [
+          32,
+          16,
+          8,
+          4,
+          2,
+          1
+        ],
+        "items_are_windows": true,
+        "seconds": 48.13763600960374,
+        "throughput_items_per_second": 234.3696312330164
+      },
+      "end_to_end_seconds": 262.37048959359527,
+      "failure": null,
+      "family": "multi_vector",
+      "gate": {
+        "documents": 4,
+        "passed": true,
+        "queries": 1
+      },
+      "hardware": {
+        "driver": "565.57.01",
+        "gpu": "NVIDIA GeForce RTX 3080 Ti",
+        "gpu_memory_bytes": 12884901888,
+        "gpu_uuid": "GPU-435154a8-568c-35a7-ee5f-da29fbf97a39",
+        "numpy": "2.4.3",
+        "python": "3.12.9"
+      },
+      "identity": {
+        "revision": "25f6f7bb8237b7ae25ae1d9b805ce17c0d1cc639",
+        "snapshot_sha256": "34ac97a354fa6f209d13c55cbaa0f2d64656e1d64be7ba148bfc9b8bdfcb9ab7"
+      },
+      "load_seconds": 0.0,
+      "method_key": "gte-modern-colbert",
+      "model_load_seconds": 0.9427250251173973,
+      "network_bytes": 0,
+      "process_peak_rss_bytes": 2469068800,
+      "quality_verification": {
+        "fresh_top100_ids_match": true,
+        "system_error": "none"
+      },
+      "query_encoding": {
+        "batch_used": 64,
+        "fallback": [
+          64,
+          32,
+          16,
+          8,
+          4,
+          2,
+          1
+        ],
+        "seconds": 0.13630218617618084,
+        "throughput_items_per_second": 741.0005872499352
+      },
+      "representation": {
+        "bytes": 654238352,
+        "paradigm": "multi_vector",
+        "scope": "compact_float32_token_vectors_plus_window_mapping"
+      },
+      "schema_version": "bright-cross-paradigm-resource-cell-v1",
+      "search": {
+        "measured_trials": [
+          {
+            "ordinal": 1,
+            "p50_seconds": 0.49430494755506516,
+            "p95_seconds": 0.6226097606122494,
+            "p99_seconds": 0.6760430615395308,
+            "queries_per_second": 1.9789858230397475,
+            "wall_seconds": 51.03624231368303
+          },
+          {
+            "ordinal": 2,
+            "p50_seconds": 0.4939292576164007,
+            "p95_seconds": 0.607700752094388,
+            "p99_seconds": 0.6625520326197147,
+            "queries_per_second": 1.980713292807658,
+            "wall_seconds": 50.991731295362115
+          },
+          {
+            "ordinal": 3,
+            "p50_seconds": 0.4888484887778759,
+            "p95_seconds": 0.6049866620451212,
+            "p99_seconds": 0.6758294682949781,
+            "queries_per_second": 2.0157727948472686,
+            "wall_seconds": 50.10485321469605
+          }
+        ],
+        "median_queries_per_second": 1.980713292807658,
+        "pooled_p50_seconds": 0.490630641579628,
+        "pooled_p95_seconds": 0.6115116095170378,
+        "pooled_p99_seconds": 0.6760387896746397,
+        "trials_completed": 3,
+        "warmup_query_searches": 1
+      },
+      "status": "pass",
+      "story_id": "S-20260814-009",
+      "track": "psychology"
+    }
+  ],
+  "comparability": {
+    "historical": "contextual_only",
+    "representation_bytes": "stratified_by_paradigm",
+    "timing": "within_unified_rerun_only"
+  },
+  "coverage": {
+    "complete": true,
+    "failed_closed": 6,
+    "passed": 22,
+    "planned": 28
+  },
+  "protocol": {
+    "batch_fallback": "Use each accepted method's frozen fallback; MiniLM uses its new-method fallback; log every OOM/retry and final batch.",
+    "comparability": "Compare timing only within the unified rerun; report representation bytes stratified by paradigm without synthetic normalization.",
+    "encoding_trials": "One complete document encoding and one complete query encoding per method-track, timed separately after warmup.",
+    "hardware": {
+      "device": "cuda:0 for neural methods; same host CPU for lexical methods",
+      "driver": "565.57.01",
+      "gpu": "NVIDIA GeForce RTX 3080 Ti",
+      "gpu_memory_bytes": 12884901888,
+      "gpu_uuid": "GPU-435154a8-568c-35a7-ee5f-da29fbf97a39",
+      "numpy": "2.4.3",
+      "python": "3.12.9",
+      "scikit_learn": "1.8.0",
+      "scipy": "1.17.1",
+      "sentence_transformers": "6.0.1",
+      "torch": "2.10.0+cu128",
+      "transformers": "5.3.0"
+    },
+    "measurements": [
+      "document_encoding",
+      "query_encoding",
+      "representation_or_index_bytes",
+      "build",
+      "load",
+      "search",
+      "throughput",
+      "p50",
+      "p95",
+      "p99",
+      "process_peak_rss",
+      "cuda_peak_vram",
+      "network_bytes",
+      "end_to_end"
+    ],
+    "network": "Zero during measured runs; all snapshots local-only.",
+    "process_isolation": "Fresh process per method; one track at a time; no concurrent benchmark workload on cuda:0.",
+    "scope": "Remeasure all 14 methods on both tracks; historical resource figures remain contextual anchors.",
+    "search_trials": "Three complete ordered query sweeps per method-track; report each trial and median throughput plus pooled P50/P95/P99 per-query latency.",
+    "warmup": "Run the frozen synthetic 1-query/4-document gate once before measured work; run one unrecorded query search before each measured search series."
+  },
+  "publication": {
+    "classification": "research_only",
+    "gate": "closed",
+    "leaderboard_publish": false,
+    "public_export_allowed": false,
+    "publish": false,
+    "restricted_content_allowed": false
+  },
+  "schema_version": "bright-cross-paradigm-resources-v1",
+  "story_id": "S-20260814-009"
+}

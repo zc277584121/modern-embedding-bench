@@ -1,0 +1,45 @@
+{
+  "attestation": {
+    "accepted_formal_scores_visible_before_freeze": true,
+    "any_bounded_gate_run_before_freeze": true,
+    "any_new_formal_score_generated_before_freeze": false,
+    "inventory_selected_by_scores": false,
+    "new_minilm_formal_scores_visible_before_freeze": false,
+    "new_tfidf_formal_scores_visible_before_freeze": false,
+    "pre_freeze_gate_deviation": "A synthetic TF-IDF 1-query/4-document implementation unit test ran before durable artifact freeze. It read no benchmark inputs and generated no formal score. The dense gate did not run, and neither method nor protocol was changed from the already implemented non-score selection.",
+    "prior_minilm_diagnostic_scores_visible_before_freeze": true
+  },
+  "facts": [
+    {
+      "at": "2026-09-05T13:22:09Z",
+      "event": "download-free metadata preflight completed",
+      "sha256": "47c58095b4051ec3aca0ea53c76c151559a431415e0ca2b095ff310930c536ad"
+    },
+    {
+      "at": "2026-09-05T13:22:14Z",
+      "event": "14-method inventory frozen",
+      "sha256": "084568b59134b1e71764018d4e5fb5a444265afb8d04f6b284bd4617ebe952db"
+    },
+    {
+      "at": "2026-09-05T13:22:14Z",
+      "event": "accepted identity audit frozen",
+      "sha256": "2456ed3f20002b634dcd935fbc27c4d1c69fdb3ccf29c1bd9539bc54b7006628"
+    },
+    {
+      "at": "2026-09-05T13:22:14Z",
+      "event": "28-cell protocol and fairness plan frozen",
+      "sha256": "e1f6ca4bc069ef8ffb05b5dbf673c9515ddff3403e2614e9f782abfb2c25ca30"
+    }
+  ],
+  "next_allowed_action": "Run only the frozen synthetic 1-query/4-document gates.",
+  "publication": {
+    "classification": "research_only",
+    "gate": "closed",
+    "leaderboard_publish": false,
+    "public_export_allowed": false,
+    "publish": false,
+    "restricted_content_allowed": false
+  },
+  "schema_version": "bright-cross-paradigm-chronology-v1",
+  "story_id": "S-20260814-009"
+}

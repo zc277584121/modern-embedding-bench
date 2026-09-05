@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema_version", "story_id", "publication", "protocol", "coverage", "comparability", "cells"],
+  "properties": {
+    "schema_version": {"const": "bright-cross-paradigm-resources-v1"}, "story_id": {"const": "S-20260814-009"},
+    "publication": {"$ref": "#/$defs/publication"}, "protocol": {"type": "object", "minProperties": 8},
+    "coverage": {"type": "object", "additionalProperties": false, "required": ["planned", "passed", "failed_closed", "complete"], "properties": {"planned": {"const": 28}, "passed": {"type": "integer", "minimum": 0, "maximum": 28}, "failed_closed": {"type": "integer", "minimum": 0, "maximum": 28}, "complete": {"const": true}}},
+    "comparability": {"type": "object", "required": ["timing", "representation_bytes", "historical"]},
+    "cells": {"type": "array", "minItems": 28, "maxItems": 28, "items": {"$ref": "#/$defs/cell"}}
+  },
+  "$defs": {
+    "publication": {"const": {"publish": false, "leaderboard_publish": false, "public_export_allowed": false, "gate": "closed", "classification": "research_only", "restricted_content_allowed": false}},
+    "encoding": {"type": "object", "required": ["seconds", "throughput_items_per_second", "batch_used", "fallback"], "properties": {"seconds": {"type": "number", "minimum": 0}, "throughput_items_per_second": {"type": ["number", "null"], "minimum": 0}, "batch_used": {"type": ["integer", "null"]}, "fallback": {}}},
+    "search": {"type": "object", "required": ["warmup_query_searches", "trials_completed", "measured_trials"], "properties": {"warmup_query_searches": {"type": "integer", "minimum": 0}, "trials_completed": {"enum": [0, 3]}, "measured_trials": {"type": "array", "maxItems": 3}}},
+    "failure": {"type": "object", "required": ["type", "message_sha256", "stopping_condition_applied"], "properties": {"type": {"type": "string", "minLength": 1}, "stage": {"type": "string", "minLength": 1}, "message_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "stopping_condition_applied": {"const": true}}},
+    "cell": {
+      "type": "object",
+      "required": ["schema_version", "story_id", "cell_id", "method_key", "family", "track", "status", "hardware", "network_bytes", "process_peak_rss_bytes", "end_to_end_seconds", "identity", "gate", "model_load_seconds", "document_encoding", "query_encoding", "representation", "build_seconds", "load_seconds", "search", "cuda_peak_vram_bytes", "quality_verification", "failure"],
+      "properties": {
+        "schema_version": {"const": "bright-cross-paradigm-resource-cell-v1"},
+        "story_id": {"const": "S-20260814-009"},
+        "cell_id": {"type": "string"},
+        "method_key": {"type": "string"},
+        "family": {"enum": ["lexical", "dense", "learned_sparse", "multi_vector"]},
+        "track": {"enum": ["economics", "psychology"]},
+        "status": {"enum": ["pass", "failed_closed"]},
+        "hardware": {"type": "object"},
+        "network_bytes": {"const": 0},
+        "process_peak_rss_bytes": {"type": "integer", "minimum": 1},
+        "end_to_end_seconds": {"type": "number", "exclusiveMinimum": 0},
+        "identity": {"type": "object"},
+        "gate": {"type": "object"},
+        "model_load_seconds": {"type": ["number", "null"]},
+        "document_encoding": {"oneOf": [{"$ref": "#/$defs/encoding"}, {"type": "null"}]},
+        "query_encoding": {"oneOf": [{"$ref": "#/$defs/encoding"}, {"type": "null"}]},
+        "representation": {"type": "object", "required": ["paradigm", "bytes", "scope"], "properties": {"paradigm": {"type": "string"}, "bytes": {"type": ["integer", "null"]}, "scope": {"type": "string"}}},
+        "build_seconds": {"type": ["number", "null"]},
+        "load_seconds": {"type": ["number", "null"]},
+        "search": {"$ref": "#/$defs/search"},
+        "cuda_peak_vram_bytes": {"type": ["integer", "null"]},
+        "quality_verification": {"type": "object", "minProperties": 2},
+        "failure": {"oneOf": [{"$ref": "#/$defs/failure"}, {"type": "null"}]}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"status": {"const": "pass"}}, "required": ["status"]},
+          "then": {"properties": {"failure": {"type": "null"}, "document_encoding": {"$ref": "#/$defs/encoding"}, "query_encoding": {"$ref": "#/$defs/encoding"}, "representation": {"properties": {"bytes": {"type": "integer", "minimum": 1}}}, "search": {"properties": {"trials_completed": {"const": 3}, "measured_trials": {"minItems": 3, "maxItems": 3}}}}}
+        },
+        {
+          "if": {"properties": {"status": {"const": "failed_closed"}}, "required": ["status"]},
+          "then": {"properties": {"failure": {"$ref": "#/$defs/failure"}}}
+        },
+        {
+          "if": {"properties": {"method_key": {"const": "tfidf-word-sublinear"}}, "required": ["method_key"]},
+          "then": {"properties": {"family": {"const": "lexical"}, "representation": {"properties": {"paradigm": {"const": "lexical"}, "scope": {"const": "complete_document_and_query_representation_plus_idf_for_tfidf"}}}}}
+        },
+        {
+          "if": {"properties": {"method_key": {"const": "all-minilm-l6-v2"}}, "required": ["method_key"]},
+          "then": {"properties": {"family": {"const": "dense"}, "representation": {"properties": {"paradigm": {"const": "dense"}, "scope": {"const": "complete_float32_dense_document_and_query_vectors_only"}}}}}
+        }
+      ]
+    }
+  }
+}

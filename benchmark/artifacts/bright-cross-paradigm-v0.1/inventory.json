@@ -1,0 +1,328 @@
+{
+  "counts": {
+    "dense": 2,
+    "learned_sparse": 7,
+    "lexical": 2,
+    "multi_vector": 3
+  },
+  "exclusions": [
+    {
+      "candidate": "BM25L/BM25+ parameter variants",
+      "family": "lexical",
+      "reason": "Too close to the accepted BM25 family to establish the required material mechanism distinction."
+    },
+    {
+      "candidate": "character n-gram TF-IDF",
+      "family": "lexical",
+      "reason": "Deferred to avoid adding a third lexical configuration before the two-method minimum is complete."
+    },
+    {
+      "candidate": "intfloat/multilingual-e5-small",
+      "family": "dense",
+      "reason": "Cached but adds multilingual/prefix semantics while the shared tracks are English; MiniLM is the cleaner small symmetric complement."
+    },
+    {
+      "candidate": "Alibaba-NLP/gte-multilingual-base",
+      "family": "dense",
+      "reason": "Cached but substantially larger and less resource-complementary than MiniLM for the second dense slot."
+    },
+    {
+      "candidate": "BAAI/bge-small-en-v1.5",
+      "family": "dense",
+      "reason": "Same BGE lineage as the accepted anchor and not already cached; weaker independence and cache complementarity."
+    }
+  ],
+  "methods": [
+    {
+      "accepted_cell_sha256": {
+        "economics": "1ebde57cd64dd1a8386a99edd93881e0d599f4355606e769df03166e7b7c1e8a",
+        "psychology": "de849fb10d10f314c0049ae33581c4fe961f61a40f3bee6114d729815b18e65e"
+      },
+      "b": 0.75,
+      "family": "lexical",
+      "implementation": "project in-process exact BM25",
+      "k1": 1.2,
+      "key": "bm25-unicode",
+      "license": "project license",
+      "mechanism": "probabilistic term saturation and document-length normalization",
+      "status": "accepted_read_only",
+      "tokenizer": "unicode-word-lower-v1"
+    },
+    {
+      "configuration": {
+        "analyzer": "word",
+        "dtype": "float32",
+        "lowercase": true,
+        "norm": "l2",
+        "smooth_idf": true,
+        "sublinear_tf": true,
+        "token_pattern": "(?u)\\b\\w+\\b",
+        "use_idf": true
+      },
+      "family": "lexical",
+      "implementation": "sklearn.feature_extraction.text.TfidfVectorizer",
+      "key": "tfidf-word-sublinear",
+      "license": "BSD-3-Clause",
+      "mechanism": "sublinear term frequency times smoothed inverse document frequency with L2 cosine",
+      "package": "scikit-learn==1.8.0",
+      "reason": "Mature in-process sparse vector-space retrieval with no service/JVM and a materially different weighting/normalization mechanism from BM25.",
+      "status": "selected_new_formal_run"
+    },
+    {
+      "accepted_cell_sha256": {
+        "economics": "0d4547191ad302ccb9df7501c7b343f3e25aec00b457a58cc76bf5cc5c8207c1",
+        "psychology": "dc83435b0684dba719fe9d190813bda8b3028f07f7513ce6cb09b8ee51a7e577"
+      },
+      "declared_max_length": 8192,
+      "dimensions": 1024,
+      "document_route": "symmetric SentenceTransformer dense encode without prompt",
+      "family": "dense",
+      "formal_max_length": 1024,
+      "gated": false,
+      "key": "bge-m3-dense",
+      "license": "MIT",
+      "parameters": 568000000,
+      "query_route": "symmetric SentenceTransformer dense encode without prompt",
+      "repo_id": "BAAI/bge-m3",
+      "revision": "5617a9f61b028005a4858fdac845db406aefb181",
+      "similarity": "exact cosine via float32 inner product over normalized vectors",
+      "status": "accepted_read_only",
+      "trust_remote_code": false
+    },
+    {
+      "dimensions": 384,
+      "document_route": "symmetric SentenceTransformer encode without prompt",
+      "family": "dense",
+      "gated": false,
+      "key": "all-minilm-l6-v2",
+      "license": "Apache-2.0",
+      "max_length": 256,
+      "parameters": 22713728,
+      "private": false,
+      "query_route": "symmetric SentenceTransformer encode without prompt",
+      "reason": "Independent mature 22.7M MiniLM sentence encoder already cached at the pinned revision; it complements the 568M BGE-M3 anchor in size, dimension, and context budget.",
+      "repo_id": "sentence-transformers/all-MiniLM-L6-v2",
+      "representation": "mean-pooled L2-normalized float32 dense vector",
+      "revision": "c9745ed1d9f207416be6d2e6f8de32d1f16199bf",
+      "similarity": "exact cosine via float32 inner product over normalized vectors",
+      "snapshot_bytes": 91578367,
+      "snapshot_sha256": "04c1a2ae6a1c7299745f8eb7f8db75456a7df9652dd4f48a40be2ee59d7c37c1",
+      "status": "selected_new_formal_run",
+      "trust_remote_code": false
+    },
+    {
+      "accepted_cell_sha256": {
+        "economics": "e8a8f9ac2aa59e2e819b64dbc3cc189b04b880330658aedf5d9ad5b218daeca1",
+        "psychology": "8db4c46b6e379fcd1a932789bd72eb1dc33c28acd35c0c9aac62eaccfaa6174c"
+      },
+      "dimensions": 50265,
+      "document_route": "neural",
+      "estimated_snapshot_bytes": 63318503,
+      "family": "learned_sparse",
+      "gated": false,
+      "key": "granite-30m-sparse",
+      "license": "Apache-2.0",
+      "max_length": 512,
+      "query_route": "neural",
+      "repo_id": "ibm-granite/granite-embedding-30m-sparse",
+      "revision": "ad82b1fd09541c998c8d45045d601c51fdb8a9b7",
+      "status": "accepted_read_only",
+      "trust_remote_code": false
+    },
+    {
+      "accepted_cell_sha256": {
+        "economics": "7d2caaf6f3659ca896e6406b597f40594baf804472ccdfd45feb0995ce3c3d88",
+        "psychology": "6d8ab1a65881a75c313678fd7a530252c15f60f7cc6e3e4df31b07c14f21b7b2"
+      },
+      "dimensions": 30522,
+      "document_route": "document_expansion",
+      "estimated_snapshot_bytes": 94631975,
+      "family": "learned_sparse",
+      "gated": false,
+      "key": "opensearch-doc-v2-mini",
+      "license": "Apache-2.0",
+      "max_length": 512,
+      "query_route": "static_lookup",
+      "repo_id": "opensearch-project/opensearch-neural-sparse-encoding-doc-v2-mini",
+      "revision": "4af867a426867dfdd744097531046f4289a32fdd",
+      "status": "accepted_read_only",
+      "trust_remote_code": false
+    },
+    {
+      "accepted_cell_sha256": {
+        "economics": "09b1de1954e36f65aec38e8a0580b9523663a1b9e5ac053b8af00fe858f889ed",
+        "psychology": "567425dffa5f829373675de97901400f150c031abd9d71e0174c31331151730e"
+      },
+      "dimensions": 30522,
+      "document_route": "document_expansion",
+      "estimated_snapshot_bytes": 271581184,
+      "family": "learned_sparse",
+      "gated": false,
+      "key": "opensearch-doc-v3",
+      "license": "Apache-2.0",
+      "max_length": 512,
+      "query_route": "static_lookup",
+      "repo_id": "opensearch-project/opensearch-neural-sparse-encoding-doc-v3-distill",
+      "revision": "babf71f3c48695e2e53a978208e8aba48335e3c0",
+      "status": "accepted_read_only",
+      "trust_remote_code": false
+    },
+    {
+      "accepted_cell_sha256": {
+        "economics": "e022c394f09812b81c40f71128e18b2e799e9dd6dab2a6c294ab9d6ebf7c6b56",
+        "psychology": "a15cc88c80b2a25411c5f82e173e19633b5f668b56eab5831fff01a145e9bffa"
+      },
+      "dimensions": 250002,
+      "document_route": "neural",
+      "estimated_snapshot_bytes": 3221225472,
+      "family": "learned_sparse",
+      "gated": false,
+      "key": "bge-m3",
+      "license": "MIT",
+      "max_length": 512,
+      "query_route": "neural",
+      "repo_id": "BAAI/bge-m3",
+      "revision": "5617a9f61b028005a4858fdac845db406aefb181",
+      "status": "accepted_read_only",
+      "trust_remote_code": false
+    },
+    {
+      "accepted_cell_sha256": {
+        "economics": "60d3e647a638f88b8f259ac21d5f90087ee1b2e2282671bd8e0f0102b738c702",
+        "psychology": "8e2bd3e5ffb378852396821301027860cf7eafb1a83ad37b089687ea561422ca"
+      },
+      "dimensions": 30522,
+      "document_route": "neural",
+      "estimated_snapshot_bytes": 18618173,
+      "family": "learned_sparse",
+      "gated": false,
+      "key": "splade-tiny",
+      "license": "MIT (pinned model-card/API evidence; no standalone LICENSE)",
+      "max_length": 512,
+      "query_route": "neural",
+      "repo_id": "rasyosef/splade-tiny",
+      "revision": "7391972eac4411e33efff5fad27b886ec97895c0",
+      "status": "accepted_read_only",
+      "trust_remote_code": false
+    },
+    {
+      "accepted_cell_sha256": {
+        "economics": "221ee4f320395385556d000b1eb5903363ae3fdc580b2a95523045992872fc47",
+        "psychology": "cc2d98e239ad583829ba9d71ffd65b56cce67d82a3aae6929d0052a4834c01a3"
+      },
+      "dimensions": 30522,
+      "document_route": "neural",
+      "estimated_snapshot_bytes": 268899492,
+      "family": "learned_sparse",
+      "gated": false,
+      "key": "opensearch-doc-v2-distill",
+      "license": "Apache-2.0",
+      "max_length": 512,
+      "query_route": "neural",
+      "repo_id": "opensearch-project/opensearch-neural-sparse-encoding-v2-distill",
+      "revision": "269e6638b2c4f648996691f6d751495285d8f330",
+      "status": "accepted_read_only",
+      "trust_remote_code": false
+    },
+    {
+      "accepted_cell_sha256": {
+        "economics": "aa93b60bd8b17e036e3e537f59d121836d4b3608a7f692324d89883a53563779",
+        "psychology": "99d6f3754fc698612ff416b5f9ca1a6ad601b50b76920e580f1de1ac063d8b55"
+      },
+      "dimensions": 105879,
+      "document_route": "document_expansion",
+      "estimated_snapshot_bytes": 683815451,
+      "family": "learned_sparse",
+      "gated": false,
+      "key": "opensearch-multilingual",
+      "license": "Apache-2.0",
+      "max_length": 512,
+      "query_route": "static_lookup",
+      "repo_id": "opensearch-project/opensearch-neural-sparse-encoding-multilingual-v1",
+      "revision": "1e0f096c2b51c234f1d20725c793e1b5b6d556db",
+      "status": "accepted_read_only",
+      "trust_remote_code": false
+    },
+    {
+      "accepted_cell_sha256": {
+        "economics": "8067efa1401c45387b12f0148a5c60d39cc75ba4118f61900f14b26c2758f0ec",
+        "psychology": "67714a1aefe3488be59311daf3035764dd7d199ef3ce767a3584a3cbbcc2bdba"
+      },
+      "dimensions": 128,
+      "document_length": 180,
+      "document_route": "encode_document with [D]/[unused1] marker",
+      "estimated_snapshot_bytes": 439062205,
+      "family": "multi_vector",
+      "gated": false,
+      "key": "colbert-v2",
+      "license": "MIT",
+      "parameters": 110000000,
+      "query_length": 32,
+      "query_route": "encode_query with [Q]/[unused0] marker and fixed mask-token expansion",
+      "repo_id": "colbert-ir/colbertv2.0",
+      "revision": "c1e84128e85ef755c096a95bdb06b47793b13acf",
+      "status": "accepted_read_only",
+      "trust_remote_code": false
+    },
+    {
+      "accepted_cell_sha256": {
+        "economics": "feb065838630077e63ca00df29156afdb162c35a43dcf2049143cc344a68462e",
+        "psychology": "c6133948d0ebbc0bedc1dce60cea7e1a5a6d230f16e7bcfe3cd95dba378de917"
+      },
+      "dimensions": 96,
+      "document_length": 300,
+      "document_route": "encode_document with [D]/[unused1] marker",
+      "estimated_snapshot_bytes": 134567234,
+      "family": "multi_vector",
+      "gated": false,
+      "key": "answerai-colbert-small",
+      "license": "Apache-2.0",
+      "parameters": 33000000,
+      "query_length": 32,
+      "query_route": "encode_query with [Q]/[unused0] marker and fixed mask-token expansion",
+      "repo_id": "answerdotai/answerai-colbert-small-v1",
+      "revision": "934fa8bb4ce2284f4c2baa232d81aca4d076fa5e",
+      "status": "accepted_read_only",
+      "trust_remote_code": false
+    },
+    {
+      "accepted_cell_sha256": {
+        "economics": "fdbfe070e83a3141ce29dcdadb790bc339b611a9e013fca99ceace6229f373ef",
+        "psychology": "ff7c04328e4ad8d3bac0656e81d5eb546142635ea155d02ab37cd003d59c8af8"
+      },
+      "dimensions": 128,
+      "document_length": 300,
+      "document_route": "encode_document with saved document route",
+      "estimated_snapshot_bytes": 600484363,
+      "family": "multi_vector",
+      "gated": false,
+      "key": "gte-modern-colbert",
+      "license": "Apache-2.0",
+      "parameters": 149000000,
+      "query_length": 48,
+      "query_route": "encode_query with saved query route and no mask-token expansion",
+      "repo_id": "lightonai/GTE-ModernColBERT-v1",
+      "revision": "25f6f7bb8237b7ae25ae1d9b805ce17c0d1cc639",
+      "status": "accepted_read_only",
+      "trust_remote_code": false
+    }
+  ],
+  "publication": {
+    "classification": "research_only",
+    "gate": "closed",
+    "leaderboard_publish": false,
+    "public_export_allowed": false,
+    "publish": false,
+    "restricted_content_allowed": false
+  },
+  "schema_version": "bright-cross-paradigm-inventory-v1",
+  "selection_basis": [
+    "mechanism diversity",
+    "license clarity",
+    "implementation maturity",
+    "cache and resource complementarity"
+  ],
+  "selection_score_blind": false,
+  "selection_score_blind_explanation": "Accepted S-005, S-008, S-012, and prior MiniLM diagnostic scores were already visible. All accepted learned-sparse and multi-vector identities are retained unchanged; new choices are justified only by the declared non-score criteria.",
+  "story_id": "S-20260814-009"
+}

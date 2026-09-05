@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "story_id", "publication", "candidate_order", "bindings", "matrix", "statistics", "privacy", "tracked_files"],
+  "properties": {
+    "schema_version": {"const": "bright-cross-paradigm-results-manifest-v1"},
+    "story_id": {"const": "S-20260814-009"},
+    "publication": {"const": {"publish": false, "leaderboard_publish": false, "public_export_allowed": false, "gate": "closed", "classification": "research_only", "restricted_content_allowed": false}},
+    "candidate_order": {"type": "array", "minItems": 10, "maxItems": 10, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "bindings": {"type": "object", "additionalProperties": false, "required": ["inventory_sha256", "predeclaration_sha256", "gate_summary_sha256", "chronology_sha256", "resource_summary_sha256", "local_mapping_sha256"], "properties": {"inventory_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "predeclaration_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "gate_summary_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "chronology_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "resource_summary_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "local_mapping_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}},
+    "matrix": {
+      "type": "object",
+      "required": ["methods", "tracks", "cells", "complete"],
+      "properties": {"methods": {"const": 14}, "tracks": {"const": 2}, "cells": {"const": 28}, "complete": {"const": true}},
+      "additionalProperties": false
+    },
+    "statistics": {
+      "type": "object",
+      "required": ["pairs_per_track", "samples", "seed"],
+      "properties": {"pairs_per_track": {"const": 91}, "samples": {"const": 10000}, "seed": {"const": 20260826}}
+    },
+    "privacy": {"type": "object", "required": ["status", "restricted_keys_absent", "private_paths_absent"], "properties": {"status": {"const": "pass"}, "restricted_keys_absent": {"const": true}, "private_paths_absent": {"const": true}}},
+    "tracked_files": {"type": "object", "minProperties": 9}
+  }
+}
