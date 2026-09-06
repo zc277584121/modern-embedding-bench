@@ -1,0 +1,305 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://modern-embedding-bench.local/schemas/bright-label-audit-adjudication-v01.schema.json",
+  "title": "Restricted BRIGHT label-audit adjudication decision v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "audit_id",
+    "phase",
+    "review_scope",
+    "track",
+    "query_id",
+    "unit_type",
+    "document_id",
+    "trigger_reasons",
+    "conflicting_fields",
+    "primary_judgment",
+    "validator_judgment",
+    "adjudicated_judgment",
+    "adjudication_provenance"
+  ],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "audit_id": {"const": "bright-label-quality-audit-v0.1"},
+    "phase": {"const": "post_seal_validator_adjudication"},
+    "review_scope": {"enum": ["core_conflict", "supplement_low_confidence"]},
+    "track": {"enum": ["economics", "psychology"]},
+    "query_id": {"type": "string", "minLength": 1},
+    "unit_type": {"enum": ["gold", "candidate", "query"]},
+    "document_id": {"type": ["string", "null"]},
+    "trigger_reasons": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"enum": ["field_disagreement", "primary_low_confidence_or_unresolved"]}
+    },
+    "conflicting_fields": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string"}
+    },
+    "primary_judgment": {"type": "object"},
+    "validator_judgment": {"type": "object"},
+    "adjudicated_judgment": {"type": "object"},
+    "adjudication_provenance": {"$ref": "#/$defs/adjudicationProvenance"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"unit_type": {"const": "gold"}}, "required": ["unit_type"]},
+      "then": {
+        "properties": {
+          "document_id": {"type": "string", "minLength": 1},
+          "conflicting_fields": {
+            "items": {"enum": ["support", "ambiguity", "confidence", "decision_status"]}
+          },
+          "primary_judgment": {
+            "$ref": "https://modern-embedding-bench.local/schemas/bright-label-audit-annotation-v01.schema.json#/$defs/goldReview"
+          },
+          "validator_judgment": {
+            "$ref": "https://modern-embedding-bench.local/schemas/bright-label-audit-annotation-v01.schema.json#/$defs/goldReview"
+          },
+          "adjudicated_judgment": {"$ref": "#/$defs/adjudicatedGold"}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"unit_type": {"const": "candidate"}}, "required": ["unit_type"]},
+      "then": {
+        "properties": {
+          "document_id": {"type": "string", "minLength": 1},
+          "conflicting_fields": {
+            "items": {
+              "enum": [
+                "relevance",
+                "likely_hard_negative",
+                "suspected_missing_positive",
+                "sensitive_information_risk",
+                "sensitive_information_types",
+                "confidence",
+                "decision_status"
+              ]
+            }
+          },
+          "primary_judgment": {
+            "$ref": "https://modern-embedding-bench.local/schemas/bright-label-audit-annotation-v01.schema.json#/$defs/candidateReview"
+          },
+          "validator_judgment": {
+            "$ref": "https://modern-embedding-bench.local/schemas/bright-label-audit-annotation-v01.schema.json#/$defs/candidateReview"
+          },
+          "adjudicated_judgment": {"$ref": "#/$defs/adjudicatedCandidate"}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"unit_type": {"const": "query"}}, "required": ["unit_type"]},
+      "then": {
+        "properties": {
+          "document_id": {"type": "null"},
+          "conflicting_fields": {
+            "items": {
+              "enum": [
+                "credible_missing_positive",
+                "credible_missing_positive_ids",
+                "likely_hard_negative_present",
+                "likely_hard_negative_ids",
+                "qrels_completeness",
+                "answerability",
+                "label_incompleteness_risk",
+                "sensitive_information_risk",
+                "confidence",
+                "decision_status"
+              ]
+            }
+          },
+          "primary_judgment": {
+            "$ref": "https://modern-embedding-bench.local/schemas/bright-label-audit-annotation-v01.schema.json#/$defs/queryReview"
+          },
+          "validator_judgment": {
+            "$ref": "https://modern-embedding-bench.local/schemas/bright-label-audit-annotation-v01.schema.json#/$defs/queryReview"
+          },
+          "adjudicated_judgment": {"$ref": "#/$defs/adjudicatedQuery"}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"trigger_reasons": {"contains": {"const": "field_disagreement"}}}},
+      "then": {"properties": {"conflicting_fields": {"minItems": 1}}},
+      "else": {"properties": {"conflicting_fields": {"maxItems": 0}}}
+    }
+  ],
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "risk": {"enum": ["none", "low", "moderate", "high", "uncertain"]},
+    "confidence": {"enum": ["high", "medium", "low"]},
+    "decisionStatus": {"enum": ["decided", "uncertain", "abstain"]},
+    "adjudicationProvenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "judgment_origin",
+        "agent_role",
+        "provider",
+        "model",
+        "model_revision",
+        "session_id",
+        "round",
+        "judged_at",
+        "rubric_sha256",
+        "review_scope",
+        "source_input_artifact_sha256",
+        "source_input_row_sha256",
+        "primary_annotations_sha256",
+        "primary_annotation_row_sha256",
+        "validator_annotations_sha256",
+        "validator_annotation_row_sha256",
+        "validator_core_seal_sha256",
+        "input_bundle_sha256",
+        "prompt_recipe_sha256",
+        "request_prompt_sha256",
+        "sampling",
+        "sampling_sha256",
+        "output_schema_sha256"
+      ],
+      "properties": {
+        "judgment_origin": {"enum": ["agent_judged", "llm_assisted"]},
+        "agent_role": {"const": "validator_adjudicator"},
+        "provider": {"type": "string", "minLength": 1},
+        "model": {"type": "string", "minLength": 1},
+        "model_revision": {"type": ["string", "null"]},
+        "session_id": {"type": "string", "minLength": 1},
+        "round": {"type": "integer", "minimum": 1},
+        "judged_at": {"type": "string", "format": "date-time"},
+        "rubric_sha256": {"$ref": "#/$defs/sha256"},
+        "review_scope": {"enum": ["core_conflict", "supplement_low_confidence"]},
+        "source_input_artifact_sha256": {"$ref": "#/$defs/sha256"},
+        "source_input_row_sha256": {"$ref": "#/$defs/sha256"},
+        "primary_annotations_sha256": {"$ref": "#/$defs/sha256"},
+        "primary_annotation_row_sha256": {"$ref": "#/$defs/sha256"},
+        "validator_annotations_sha256": {"$ref": "#/$defs/sha256"},
+        "validator_annotation_row_sha256": {"$ref": "#/$defs/sha256"},
+        "validator_core_seal_sha256": {"$ref": "#/$defs/sha256"},
+        "input_bundle_sha256": {"$ref": "#/$defs/sha256"},
+        "prompt_recipe_sha256": {"$ref": "#/$defs/sha256"},
+        "request_prompt_sha256": {"$ref": "#/$defs/sha256"},
+        "sampling": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["temperature", "top_p", "seed", "max_output_tokens", "response_format", "thinking_level"],
+          "properties": {
+            "temperature": {"type": "number"},
+            "top_p": {"type": ["number", "string"]},
+            "seed": {"type": ["integer", "string"]},
+            "max_output_tokens": {"type": "integer", "minimum": 1},
+            "response_format": {"type": "string", "minLength": 1},
+            "thinking_level": {"type": "string", "minLength": 1}
+          }
+        },
+        "sampling_sha256": {"$ref": "#/$defs/sha256"},
+        "output_schema_sha256": {"$ref": "#/$defs/sha256"},
+        "deterministic_postprocessing": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["postprocessed_at", "pre_normalized_judgment_sha256", "rule"],
+          "properties": {
+            "postprocessed_at": {"type": "string", "format": "date-time"},
+            "pre_normalized_judgment_sha256": {"$ref": "#/$defs/sha256"},
+            "rule": {"type": "string", "minLength": 1}
+          }
+        }
+      }
+    },
+    "adjudicatedGold": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["document_id", "support", "ambiguity", "confidence", "decision_status", "notes", "provenance"],
+      "properties": {
+        "document_id": {"type": "string", "minLength": 1},
+        "support": {"enum": ["supports", "partially_supports", "does_not_support", "uncertain"]},
+        "ambiguity": {"enum": ["unambiguous", "ambiguous", "uncertain"]},
+        "confidence": {"$ref": "#/$defs/confidence"},
+        "decision_status": {"$ref": "#/$defs/decisionStatus"},
+        "notes": {"type": "string"},
+        "provenance": {"$ref": "#/$defs/adjudicationProvenance"}
+      }
+    },
+    "adjudicatedCandidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "document_id",
+        "relevance",
+        "likely_hard_negative",
+        "suspected_missing_positive",
+        "sensitive_information_risk",
+        "sensitive_information_types",
+        "confidence",
+        "decision_status",
+        "notes",
+        "provenance"
+      ],
+      "properties": {
+        "document_id": {"type": "string", "minLength": 1},
+        "relevance": {"enum": ["relevant", "not_relevant", "uncertain"]},
+        "likely_hard_negative": {"enum": ["yes", "no", "uncertain"]},
+        "suspected_missing_positive": {"enum": ["credible", "not_credible", "not_applicable", "uncertain"]},
+        "sensitive_information_risk": {"$ref": "#/$defs/risk"},
+        "sensitive_information_types": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "personal_contact",
+              "public_contact",
+              "network_identifier",
+              "credential_or_secret",
+              "health",
+              "financial",
+              "legal",
+              "minor",
+              "reidentification",
+              "other"
+            ]
+          }
+        },
+        "confidence": {"$ref": "#/$defs/confidence"},
+        "decision_status": {"$ref": "#/$defs/decisionStatus"},
+        "notes": {"type": "string"},
+        "provenance": {"$ref": "#/$defs/adjudicationProvenance"}
+      }
+    },
+    "adjudicatedQuery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "credible_missing_positive",
+        "credible_missing_positive_ids",
+        "likely_hard_negative_present",
+        "likely_hard_negative_ids",
+        "qrels_completeness",
+        "answerability",
+        "label_incompleteness_risk",
+        "sensitive_information_risk",
+        "confidence",
+        "decision_status",
+        "notes",
+        "provenance"
+      ],
+      "properties": {
+        "credible_missing_positive": {"enum": ["yes", "no", "uncertain"]},
+        "credible_missing_positive_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "likely_hard_negative_present": {"enum": ["yes", "no", "uncertain"]},
+        "likely_hard_negative_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "qrels_completeness": {"enum": ["complete_enough", "incomplete", "uncertain"]},
+        "answerability": {"enum": ["answerable", "no_answer", "uncertain"]},
+        "label_incompleteness_risk": {"$ref": "#/$defs/risk"},
+        "sensitive_information_risk": {"$ref": "#/$defs/risk"},
+        "confidence": {"$ref": "#/$defs/confidence"},
+        "decision_status": {"$ref": "#/$defs/decisionStatus"},
+        "notes": {"type": "string"},
+        "provenance": {"$ref": "#/$defs/adjudicationProvenance"}
+      }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://modern-embedding-bench.local/schemas/bright-label-audit-selection-v01.schema.json",
+  "title": "Restricted BRIGHT label-audit double-review selection row v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["track", "query_id", "query_length_stratum", "source_plan_row_sha256"],
+  "properties": {
+    "track": {"enum": ["economics", "psychology"]},
+    "query_id": {"type": "string", "minLength": 1},
+    "query_length_stratum": {"enum": ["short", "medium", "long"]},
+    "source_plan_row_sha256": {"$ref": "#/$defs/sha256"}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

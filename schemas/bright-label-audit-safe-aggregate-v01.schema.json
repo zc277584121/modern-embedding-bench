@@ -1,0 +1,280 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://modern-embedding-bench.local/schemas/bright-label-audit-safe-aggregate-v01.schema.json",
+  "title": "Publication-safe BRIGHT label-audit aggregate v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "audit_id",
+    "source_identities",
+    "coverage",
+    "gold",
+    "candidates",
+    "queries",
+    "adjudication",
+    "agreement",
+    "gates",
+    "outcome",
+    "official_qrels_modified",
+    "judgment_standard",
+    "publication",
+    "restricted_text_identifiers_rankings_paths_or_reviewer_identity_included"
+  ],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "audit_id": {"const": "bright-label-quality-audit-v0.1"},
+    "source_identities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "review_plan_sha256",
+        "audit_pack_sha256",
+        "rubric_sha256",
+        "predeclaration_sha256",
+        "frozen_input_manifest_sha256",
+        "primary_input_sha256",
+        "primary_annotations_sha256",
+        "validator_core_input_sha256",
+        "validator_core_annotations_sha256",
+        "validator_core_seal_sha256",
+        "validator_supplement_input_sha256",
+        "validator_supplement_annotations_sha256",
+        "double_review_selection_sha256",
+        "double_review_selection_identity_sha256",
+        "adjudication_decisions_sha256"
+      ],
+      "properties": {
+        "review_plan_sha256": {"const": "93848a826c12acf9cb6fed50d71dd9490be7baebfcea1122dd4fffb4881fdc4e"},
+        "audit_pack_sha256": {"const": "9549525cbd35e0a3c520ad16b5961b3f5e8658ff7cb4b5061e9edd39bc96c956"},
+        "rubric_sha256": {"$ref": "#/$defs/sha256"},
+        "predeclaration_sha256": {"$ref": "#/$defs/sha256"},
+        "frozen_input_manifest_sha256": {"$ref": "#/$defs/sha256"},
+        "primary_input_sha256": {"$ref": "#/$defs/sha256"},
+        "primary_annotations_sha256": {"$ref": "#/$defs/sha256"},
+        "validator_core_input_sha256": {"$ref": "#/$defs/sha256"},
+        "validator_core_annotations_sha256": {"$ref": "#/$defs/sha256"},
+        "validator_core_seal_sha256": {"$ref": "#/$defs/sha256"},
+        "validator_supplement_input_sha256": {"$ref": "#/$defs/sha256"},
+        "validator_supplement_annotations_sha256": {"$ref": "#/$defs/sha256"},
+        "double_review_selection_sha256": {"$ref": "#/$defs/sha256"},
+        "double_review_selection_identity_sha256": {"$ref": "#/$defs/sha256"},
+        "adjudication_decisions_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["queries", "gold_items", "candidate_items", "tracks"],
+      "properties": {
+        "queries": {"const": 120},
+        "gold_items": {"const": 1235},
+        "candidate_items": {"const": 2804},
+        "tracks": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["economics", "psychology"],
+          "properties": {
+            "economics": {"const": 60},
+            "psychology": {"const": 60}
+          }
+        }
+      }
+    },
+    "gold": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["support", "ambiguity", "confidence", "decision_status"],
+      "properties": {
+        "support": {"$ref": "#/$defs/supportCounter"},
+        "ambiguity": {"$ref": "#/$defs/ambiguityCounter"},
+        "confidence": {"$ref": "#/$defs/confidenceCounter"},
+        "decision_status": {"$ref": "#/$defs/decisionCounter"}
+      }
+    },
+    "candidates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["relevance", "likely_hard_negative", "suspected_missing_positive", "sensitive_information_risk", "confidence", "decision_status"],
+      "properties": {
+        "relevance": {"$ref": "#/$defs/relevanceCounter"},
+        "likely_hard_negative": {"$ref": "#/$defs/ternaryCounter"},
+        "suspected_missing_positive": {"$ref": "#/$defs/missingCounter"},
+        "sensitive_information_risk": {"$ref": "#/$defs/riskCounter"},
+        "confidence": {"$ref": "#/$defs/confidenceCounter"},
+        "decision_status": {"$ref": "#/$defs/decisionCounter"}
+      }
+    },
+    "queries": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["credible_missing_positive", "likely_hard_negative_present", "qrels_completeness", "answerability", "label_incompleteness_risk", "sensitive_information_risk", "confidence", "decision_status"],
+      "properties": {
+        "credible_missing_positive": {"$ref": "#/$defs/ternaryCounter"},
+        "likely_hard_negative_present": {"$ref": "#/$defs/ternaryCounter"},
+        "qrels_completeness": {"$ref": "#/$defs/completenessCounter"},
+        "answerability": {"$ref": "#/$defs/answerabilityCounter"},
+        "label_incompleteness_risk": {"$ref": "#/$defs/riskCounter"},
+        "sensitive_information_risk": {"$ref": "#/$defs/riskCounter"}
+        ,"confidence": {"$ref": "#/$defs/confidenceCounter"}
+        ,"decision_status": {"$ref": "#/$defs/decisionCounter"}
+      }
+    },
+    "adjudication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["decisions", "review_scope", "unit_type"],
+      "properties": {
+        "decisions": {"$ref": "#/$defs/count"},
+        "review_scope": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["core_conflict", "supplement_low_confidence"],
+          "properties": {
+            "core_conflict": {"$ref": "#/$defs/count"},
+            "supplement_low_confidence": {"$ref": "#/$defs/count"}
+          }
+        },
+        "unit_type": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["gold", "candidate", "query"],
+          "properties": {
+            "gold": {"$ref": "#/$defs/count"},
+            "candidate": {"$ref": "#/$defs/count"},
+            "query": {"$ref": "#/$defs/count"}
+          }
+        }
+      }
+    },
+    "agreement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "double_review_queries", "binary_pairs", "excluded_unresolved_pairs", "kappa"],
+      "properties": {
+        "status": {"enum": ["pending", "complete", "fail_closed"]},
+        "double_review_queries": {"const": 24},
+        "binary_pairs": {"type": "integer", "minimum": 0},
+        "excluded_unresolved_pairs": {"type": "integer", "minimum": 0},
+        "observed_agreement": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "expected_agreement": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "kappa": {"type": ["number", "null"], "minimum": -1, "maximum": 1}
+      }
+    },
+    "gates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["unsupported_or_ambiguous_gold", "credible_missing_positive_queries", "binary_candidate_relevance_kappa", "unresolved_judgments"],
+      "properties": {
+        "unsupported_or_ambiguous_gold": {"$ref": "#/$defs/fractionGate"},
+        "credible_missing_positive_queries": {"$ref": "#/$defs/fractionGate"},
+        "binary_candidate_relevance_kappa": {"$ref": "#/$defs/kappaGate"},
+        "unresolved_judgments": {"$ref": "#/$defs/unresolvedGate"}
+      }
+    },
+    "outcome": {"enum": ["pass", "pending", "fail_closed"]},
+    "official_qrels_modified": {"const": false},
+    "judgment_standard": {"const": "agent_label_audit_not_human_gold"},
+    "publication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classification", "leaderboard", "export"],
+      "properties": {
+        "classification": {"const": "research_only"},
+        "leaderboard": {"const": "closed"},
+        "export": {"const": "closed"}
+      }
+    },
+    "restricted_text_identifiers_rankings_paths_or_reviewer_identity_included": {"const": false}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "count": {"type": "integer", "minimum": 0},
+    "supportCounter": {
+      "type": "object", "additionalProperties": false,
+      "required": ["does_not_support", "partially_supports", "supports", "uncertain"],
+      "properties": {"does_not_support": {"$ref": "#/$defs/count"}, "partially_supports": {"$ref": "#/$defs/count"}, "supports": {"$ref": "#/$defs/count"}, "uncertain": {"$ref": "#/$defs/count"}}
+    },
+    "ambiguityCounter": {
+      "type": "object", "additionalProperties": false,
+      "required": ["ambiguous", "unambiguous", "uncertain"],
+      "properties": {"ambiguous": {"$ref": "#/$defs/count"}, "unambiguous": {"$ref": "#/$defs/count"}, "uncertain": {"$ref": "#/$defs/count"}}
+    },
+    "relevanceCounter": {
+      "type": "object", "additionalProperties": false,
+      "required": ["not_relevant", "relevant", "uncertain"],
+      "properties": {"not_relevant": {"$ref": "#/$defs/count"}, "relevant": {"$ref": "#/$defs/count"}, "uncertain": {"$ref": "#/$defs/count"}}
+    },
+    "ternaryCounter": {
+      "type": "object", "additionalProperties": false,
+      "required": ["no", "uncertain", "yes"],
+      "properties": {"no": {"$ref": "#/$defs/count"}, "uncertain": {"$ref": "#/$defs/count"}, "yes": {"$ref": "#/$defs/count"}}
+    },
+    "missingCounter": {
+      "type": "object", "additionalProperties": false,
+      "required": ["credible", "not_applicable", "not_credible", "uncertain"],
+      "properties": {"credible": {"$ref": "#/$defs/count"}, "not_applicable": {"$ref": "#/$defs/count"}, "not_credible": {"$ref": "#/$defs/count"}, "uncertain": {"$ref": "#/$defs/count"}}
+    },
+    "riskCounter": {
+      "type": "object", "additionalProperties": false,
+      "required": ["high", "low", "moderate", "none", "uncertain"],
+      "properties": {"high": {"$ref": "#/$defs/count"}, "low": {"$ref": "#/$defs/count"}, "moderate": {"$ref": "#/$defs/count"}, "none": {"$ref": "#/$defs/count"}, "uncertain": {"$ref": "#/$defs/count"}}
+    },
+    "confidenceCounter": {
+      "type": "object", "additionalProperties": false,
+      "required": ["high", "low", "medium"],
+      "properties": {"high": {"$ref": "#/$defs/count"}, "low": {"$ref": "#/$defs/count"}, "medium": {"$ref": "#/$defs/count"}}
+    },
+    "decisionCounter": {
+      "type": "object", "additionalProperties": false,
+      "required": ["abstain", "decided", "uncertain"],
+      "properties": {"abstain": {"$ref": "#/$defs/count"}, "decided": {"$ref": "#/$defs/count"}, "uncertain": {"$ref": "#/$defs/count"}}
+    },
+    "completenessCounter": {
+      "type": "object", "additionalProperties": false,
+      "required": ["complete_enough", "incomplete", "uncertain"],
+      "properties": {"complete_enough": {"$ref": "#/$defs/count"}, "incomplete": {"$ref": "#/$defs/count"}, "uncertain": {"$ref": "#/$defs/count"}}
+    },
+    "answerabilityCounter": {
+      "type": "object", "additionalProperties": false,
+      "required": ["answerable", "no_answer", "uncertain"],
+      "properties": {"answerable": {"$ref": "#/$defs/count"}, "no_answer": {"$ref": "#/$defs/count"}, "uncertain": {"$ref": "#/$defs/count"}}
+    },
+    "fractionGate": {
+      "type": "object", "additionalProperties": false,
+      "required": ["threshold", "comparison", "numerator", "denominator", "value", "status"],
+      "properties": {
+        "threshold": {"enum": [0.05, 0.1]}, "comparison": {"const": "exceeds"},
+        "numerator": {"$ref": "#/$defs/count"}, "denominator": {"type": "integer", "minimum": 1},
+        "value": {"type": "number", "minimum": 0, "maximum": 1}, "status": {"enum": ["pass", "fail"]}
+      }
+    },
+    "kappaGate": {
+      "type": "object", "additionalProperties": false,
+      "required": ["threshold", "comparison", "value", "status"],
+      "properties": {"threshold": {"const": 0.7}, "comparison": {"const": "below"}, "value": {"type": ["number", "null"], "minimum": -1, "maximum": 1}, "status": {"enum": ["pass", "fail", "pending", "fail_closed"]}}
+    },
+    "unresolvedGate": {
+      "type": "object", "additionalProperties": false,
+      "required": ["threshold", "comparison", "value", "breakdown", "status"],
+      "properties": {
+        "threshold": {"const": 0},
+        "comparison": {"const": "exceeds"},
+        "value": {"$ref": "#/$defs/count"},
+        "breakdown": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["primary", "validator_core", "validator_supplement", "adjudicated", "effective_final"],
+          "properties": {
+            "primary": {"$ref": "#/$defs/count"},
+            "validator_core": {"$ref": "#/$defs/count"},
+            "validator_supplement": {"$ref": "#/$defs/count"},
+            "adjudicated": {"$ref": "#/$defs/count"},
+            "effective_final": {"$ref": "#/$defs/count"}
+          }
+        },
+        "status": {"enum": ["pass", "fail_closed"]}
+      }
+    }
+  }
+}

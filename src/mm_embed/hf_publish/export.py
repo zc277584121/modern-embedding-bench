@@ -18,7 +18,11 @@ from typing import Any
 
 import yaml
 
-from mm_embed.benchmark.leaderboard import TRAINING_OVERLAP_FIELDNAMES, build_leaderboard, primary_metric_value
+from mm_embed.benchmark.leaderboard import (
+    TRAINING_OVERLAP_FIELDNAMES,
+    build_leaderboard,
+    primary_metric_value,
+)
 from mm_embed.benchmark.materialization import (
     public_data_source_contract_for_record,
     validate_public_data_source_record,
@@ -39,7 +43,6 @@ from mm_embed.benchmark.training_overlap import (
     public_task_source_projection,
     validate_assessment_registry_binding,
 )
-
 
 DEFAULT_EXPORT_ROOT = Path("dist/huggingface")
 PUBLIC_EXCLUDED_PROVIDERS = {"geevec_api", "geevec_lite"}
@@ -368,7 +371,7 @@ def _public_result_record(record: dict[str, Any]) -> dict[str, Any]:
     source_record = {key: value for key, value in record.items() if key != "training_overlap"}
     sanitized = _sanitize_public_result_value(source_record)
     if not isinstance(sanitized, dict):
-        raise ValueError("Public result sanitizer did not produce a result mapping")
+        raise TypeError("Public result sanitizer did not produce a result mapping")
     public_record = sanitized
     public_record["training_overlap"] = {
         key: overlap.get(key)
@@ -1572,6 +1575,59 @@ def _restricted_bright_object_reason(value: object, benchmark_version: str) -> s
             return "BRIGHT v0.2 sensitive-evidence rows"
         if {"query_id", "query", "gold_ids", "gold_documents", "baseline_top10_union"} <= keys:
             return "deep-review audit pack rows"
+        if {
+            "audit_id",
+            "query_id",
+            "query",
+            "source_row_sha256",
+            "gold_documents",
+            "candidate_documents",
+        } <= keys:
+            return "BRIGHT label-audit blind input rows"
+        if {"audit_id", "query_id", "gold_reviews", "candidate_reviews", "query_review"} <= keys:
+            return "BRIGHT label-audit annotation rows"
+        if {"query_id", "query_length_stratum", "source_plan_row_sha256"} <= keys:
+            return "BRIGHT label-audit selection rows"
+        if {
+            "audit_id",
+            "judgment_origin",
+            "provider",
+            "session_id",
+            "requests",
+            "raw_responses",
+            "annotations",
+        } <= keys:
+            return "BRIGHT label-audit run provenance"
+        if {
+            "query_id",
+            "input_row_sha256",
+            "request_ordinal",
+            "session_id",
+            "prompt_recipe_sha256",
+            "raw_response_sha256",
+        } <= keys:
+            return "BRIGHT label-audit request provenance"
+        if {
+            "query_id",
+            "input_row_sha256",
+            "request_ordinal",
+            "session_id",
+            "prompt_recipe_sha256",
+            "content",
+        } <= keys:
+            return "BRIGHT label-audit raw response"
+        if {
+            "audit_id",
+            "phase",
+            "review_scope",
+            "query_id",
+            "unit_type",
+            "primary_judgment",
+            "validator_judgment",
+            "adjudicated_judgment",
+            "adjudication_provenance",
+        } <= keys:
+            return "BRIGHT label-audit adjudication decisions"
         if {"case_sha256", "query_id", "query", "gold_ids", "metrics"} <= keys:
             return "complete retrieval failure-case rows"
         if {"query_id", "query", "gold_ids", "gold_ids_long", "strata", "selection"} <= keys:
@@ -1724,7 +1780,7 @@ def _reject_restricted_materializations(copy_root: Path) -> None:
                 if legacy_layout or multidomain_layout:
                     restricted_markers.add(candidate)
     if restricted_markers:
-        marker = sorted(restricted_markers)[0]
+        marker = min(restricted_markers)
         raise ValueError(f"public export denied for restricted BRIGHT data or result layout: {marker}")
 
 
@@ -1737,9 +1793,7 @@ def _should_skip_data_file(rel: Path, *, include_images: bool) -> bool:
         return True
     if any(part == "__pycache__" for part in rel.parts):
         return True
-    if suffix in {".jpg", ".jpeg", ".png", ".webp"} and not include_images:
-        return True
-    return False
+    return suffix in {".jpg", ".jpeg", ".png", ".webp"} and not include_images
 
 
 def export_space_repo(

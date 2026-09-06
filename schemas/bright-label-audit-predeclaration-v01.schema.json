@@ -1,0 +1,163 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://modern-embedding-bench.local/schemas/bright-label-audit-predeclaration-v01.schema.json",
+  "title": "Publication-safe BRIGHT label-audit predeclaration v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "audit_id",
+    "story_id",
+    "phase",
+    "source_identities",
+    "frozen_artifact_identities",
+    "rubric_sha256",
+    "schema_identities",
+    "double_review",
+    "thresholds",
+    "judgment_origin_allowed",
+    "human_gold_standard_claim_allowed",
+    "official_qrels_modified",
+    "restricted_artifacts_tracked",
+    "safe_aggregate_contains_restricted_text_or_identifiers",
+    "publication"
+  ],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "audit_id": {"const": "bright-label-quality-audit-v0.1"},
+    "story_id": {"const": "S-20260905-001"},
+    "phase": {"enum": ["pre_label", "completed_evidence_bound"]},
+    "source_identities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["review_plan_sha256", "audit_pack_sha256", "review_plan_rows", "audit_pack_rows", "gold_items", "candidate_items"],
+      "properties": {
+        "review_plan_sha256": {"const": "93848a826c12acf9cb6fed50d71dd9490be7baebfcea1122dd4fffb4881fdc4e"},
+        "audit_pack_sha256": {"const": "9549525cbd35e0a3c520ad16b5961b3f5e8658ff7cb4b5061e9edd39bc96c956"},
+        "review_plan_rows": {"const": 120},
+        "audit_pack_rows": {"const": 120},
+        "gold_items": {"const": 1235},
+        "candidate_items": {"const": 2804}
+      }
+    },
+    "frozen_artifact_identities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "frozen_input_manifest_sha256",
+        "primary_input_sha256",
+        "validator_core_input_sha256",
+        "validator_access_manifest_sha256",
+        "double_review_selection_sha256"
+      ],
+      "properties": {
+        "frozen_input_manifest_sha256": {"$ref": "#/$defs/sha256"},
+        "primary_input_sha256": {"$ref": "#/$defs/sha256"},
+        "validator_core_input_sha256": {"$ref": "#/$defs/sha256"},
+        "validator_access_manifest_sha256": {"$ref": "#/$defs/sha256"},
+        "double_review_selection_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "completion_artifact_identities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "primary_annotations_sha256",
+        "validator_core_annotations_sha256",
+        "validator_supplement_input_sha256",
+        "validator_supplement_annotations_sha256",
+        "validator_core_seal_sha256",
+        "adjudication_decisions_sha256"
+      ],
+      "properties": {
+        "primary_annotations_sha256": {"$ref": "#/$defs/sha256"},
+        "validator_core_annotations_sha256": {"$ref": "#/$defs/sha256"},
+        "validator_supplement_input_sha256": {"$ref": "#/$defs/sha256"},
+        "validator_supplement_annotations_sha256": {"$ref": "#/$defs/sha256"},
+        "validator_core_seal_sha256": {"$ref": "#/$defs/sha256"},
+        "adjudication_decisions_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "rubric_sha256": {"$ref": "#/$defs/sha256"},
+    "schema_identities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bright-label-audit-adjudication-v01.schema.json",
+        "bright-label-audit-annotation-v01.schema.json",
+        "bright-label-audit-blind-input-v01.schema.json",
+        "bright-label-audit-frozen-manifest-v01.schema.json",
+        "bright-label-audit-predeclaration-v01.schema.json",
+        "bright-label-audit-safe-aggregate-v01.schema.json",
+        "bright-label-audit-selection-v01.schema.json",
+        "bright-label-audit-validator-access-v01.schema.json",
+        "bright-label-audit-validator-seal-v01.schema.json"
+      ],
+      "properties": {
+        "bright-label-audit-adjudication-v01.schema.json": {"$ref": "#/$defs/sha256"},
+        "bright-label-audit-annotation-v01.schema.json": {"$ref": "#/$defs/sha256"},
+        "bright-label-audit-blind-input-v01.schema.json": {"$ref": "#/$defs/sha256"},
+        "bright-label-audit-frozen-manifest-v01.schema.json": {"$ref": "#/$defs/sha256"},
+        "bright-label-audit-predeclaration-v01.schema.json": {"$ref": "#/$defs/sha256"},
+        "bright-label-audit-safe-aggregate-v01.schema.json": {"$ref": "#/$defs/sha256"},
+        "bright-label-audit-selection-v01.schema.json": {"$ref": "#/$defs/sha256"},
+        "bright-label-audit-validator-access-v01.schema.json": {"$ref": "#/$defs/sha256"},
+        "bright-label-audit-validator-seal-v01.schema.json": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "double_review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["queries", "selection_identity_sha256", "allocation", "selection_score_used", "agreement_metric"],
+      "properties": {
+        "queries": {"const": 24},
+        "selection_identity_sha256": {"$ref": "#/$defs/sha256"},
+        "allocation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["per_track", "per_track_and_query_length_stratum"],
+          "properties": {
+            "per_track": {"const": 12},
+            "per_track_and_query_length_stratum": {"const": 4}
+          }
+        },
+        "selection_score_used": {"const": false},
+        "agreement_metric": {"const": "cohen_kappa_binary_candidate_relevance"}
+      }
+    },
+    "thresholds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["unsupported_or_ambiguous_gold_fraction_exceeds", "credible_missing_positive_query_fraction_exceeds", "binary_candidate_relevance_kappa_below"],
+      "properties": {
+        "unsupported_or_ambiguous_gold_fraction_exceeds": {"const": 0.05},
+        "credible_missing_positive_query_fraction_exceeds": {"const": 0.1},
+        "binary_candidate_relevance_kappa_below": {"const": 0.7}
+      }
+    },
+    "judgment_origin_allowed": {"const": ["agent_judged", "llm_assisted"]},
+    "human_gold_standard_claim_allowed": {"const": false},
+    "official_qrels_modified": {"const": false},
+    "restricted_artifacts_tracked": {"const": false},
+    "safe_aggregate_contains_restricted_text_or_identifiers": {"const": false},
+    "publication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classification", "leaderboard", "export"],
+      "properties": {
+        "classification": {"const": "research_only"},
+        "leaderboard": {"const": "closed"},
+        "export": {"const": "closed"}
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"phase": {"const": "completed_evidence_bound"}}, "required": ["phase"]},
+      "then": {"required": ["completion_artifact_identities"]}
+    }
+  ],
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

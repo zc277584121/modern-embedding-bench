@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://modern-embedding-bench.local/schemas/bright-label-audit-validator-access-v01.schema.json",
+  "title": "Restricted BRIGHT label-audit Validator access manifest v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "audit_id",
+    "phase",
+    "core_input_sha256",
+    "core_input_rows",
+    "rubric_sha256",
+    "annotation_schema_sha256",
+    "allowed_input_roles",
+    "primary_input_allowed",
+    "primary_annotations_allowed",
+    "core_created_before_primary_annotations",
+    "comparison_allowed_before_validator_seal"
+  ],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "audit_id": {"const": "bright-label-quality-audit-v0.1"},
+    "phase": {"const": "independent_core_review"},
+    "core_input_sha256": {"$ref": "#/$defs/sha256"},
+    "core_input_rows": {"const": 24},
+    "rubric_sha256": {"$ref": "#/$defs/sha256"},
+    "annotation_schema_sha256": {"$ref": "#/$defs/sha256"},
+    "allowed_input_roles": {
+      "const": ["validator_core_input", "frozen_rubric", "annotation_schema"]
+    },
+    "primary_input_allowed": {"const": false},
+    "primary_annotations_allowed": {"const": false},
+    "core_created_before_primary_annotations": {"const": true},
+    "comparison_allowed_before_validator_seal": {"const": false}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

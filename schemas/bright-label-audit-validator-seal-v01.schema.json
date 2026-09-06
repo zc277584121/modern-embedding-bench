@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://modern-embedding-bench.local/schemas/bright-label-audit-validator-seal-v01.schema.json",
+  "title": "Restricted BRIGHT label-audit Validator seal v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "audit_id",
+    "phase",
+    "validator_input_sha256",
+    "validator_annotations_sha256",
+    "validator_annotation_rows",
+    "validator_annotation_bytes",
+    "access_manifest_sha256",
+    "rubric_sha256",
+    "comparison_unlocked"
+  ],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "audit_id": {"const": "bright-label-quality-audit-v0.1"},
+    "phase": {"const": "validator_core_sealed_before_comparison"},
+    "validator_input_sha256": {"$ref": "#/$defs/sha256"},
+    "validator_annotations_sha256": {"$ref": "#/$defs/sha256"},
+    "validator_annotation_rows": {"const": 24},
+    "validator_annotation_bytes": {"type": "integer", "minimum": 1},
+    "access_manifest_sha256": {"$ref": "#/$defs/sha256"},
+    "rubric_sha256": {"$ref": "#/$defs/sha256"},
+    "comparison_unlocked": {"const": true}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

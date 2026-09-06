@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://modern-embedding-bench.local/schemas/bright-label-audit-frozen-manifest-v01.schema.json",
+  "title": "Restricted BRIGHT label-audit frozen-input manifest v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "audit_id",
+    "source",
+    "rubric_sha256",
+    "double_review",
+    "primary_input",
+    "validator_core_input",
+    "validator_access_manifest",
+    "contains_restricted_text_and_identifiers",
+    "publication_allowed"
+  ],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "audit_id": {"const": "bright-label-quality-audit-v0.1"},
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["review_plan_sha256", "audit_pack_sha256"],
+      "properties": {
+        "review_plan_sha256": {"const": "93848a826c12acf9cb6fed50d71dd9490be7baebfcea1122dd4fffb4881fdc4e"},
+        "audit_pack_sha256": {"const": "9549525cbd35e0a3c520ad16b5961b3f5e8658ff7cb4b5061e9edd39bc96c956"}
+      }
+    },
+    "rubric_sha256": {"$ref": "#/$defs/sha256"},
+    "double_review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "queries",
+        "selection_identity_sha256",
+        "selection_artifact",
+        "selection_salt",
+        "per_track_and_query_length_stratum"
+      ],
+      "properties": {
+        "queries": {"const": 24},
+        "selection_identity_sha256": {"$ref": "#/$defs/sha256"},
+        "selection_artifact": {"$ref": "#/$defs/jsonl24"},
+        "selection_salt": {"const": "bright-label-quality-audit-v0.1-double-review-v1"},
+        "per_track_and_query_length_stratum": {"const": 4}
+      }
+    },
+    "primary_input": {"$ref": "#/$defs/jsonl120"},
+    "validator_core_input": {"$ref": "#/$defs/jsonl24"},
+    "validator_access_manifest": {"$ref": "#/$defs/json1"},
+    "contains_restricted_text_and_identifiers": {"const": true},
+    "publication_allowed": {"const": false}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rows", "bytes", "sha256"],
+      "properties": {
+        "rows": {"type": "integer", "minimum": 1},
+        "bytes": {"type": "integer", "minimum": 1},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "path": {"type": "string", "minLength": 1}
+      }
+    },
+    "jsonl120": {
+      "allOf": [
+        {"$ref": "#/$defs/artifact"},
+        {"properties": {"rows": {"const": 120}, "path": {"const": "input.jsonl"}}, "required": ["path"]}
+      ]
+    },
+    "jsonl24": {
+      "allOf": [
+        {"$ref": "#/$defs/artifact"},
+        {"properties": {"rows": {"const": 24}}, "required": ["path"]}
+      ]
+    },
+    "json1": {
+      "allOf": [
+        {"$ref": "#/$defs/artifact"},
+        {"properties": {"rows": {"const": 1}, "path": false}}
+      ]
+    }
+  }
+}
