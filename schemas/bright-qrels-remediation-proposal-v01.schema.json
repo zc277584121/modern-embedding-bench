@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://modern-embedding-bench.local/schemas/bright-qrels-remediation-proposal-v01.schema.json",
+  "title": "Restricted inactive BRIGHT qrels remediation proposal v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "proposal_id", "version", "control_sha256", "status", "activation", "publication", "source_identities", "dispositions", "proposed_qrels_rows", "conclusion"],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "proposal_id": {"const": "bright-qrels-remediation-proposal-v0.1"},
+    "version": {"const": "0.1"},
+    "control_sha256": {"$ref": "#/$defs/sha256"},
+    "status": {"const": "inactive"},
+    "activation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["default_activation", "registry_integration", "runner_integration"],
+      "properties": {
+        "default_activation": {"const": false},
+        "registry_integration": {"const": false},
+        "runner_integration": {"const": false}
+      }
+    },
+    "publication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classification", "public_export_allowed", "leaderboard_allowed", "publish_allowed"],
+      "properties": {
+        "classification": {"const": "restricted_no_publish"},
+        "public_export_allowed": {"const": false},
+        "leaderboard_allowed": {"const": false},
+        "publish_allowed": {"const": false}
+      }
+    },
+    "source_identities": {"type": "object"},
+    "dispositions": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/disposition"}
+    },
+    "proposed_qrels_rows": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/qrelsRow"}
+    },
+    "conclusion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tracks", "overall"],
+      "properties": {
+        "tracks": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["economics", "psychology"],
+          "properties": {
+            "economics": {"$ref": "#/$defs/conclusionState"},
+            "psychology": {"$ref": "#/$defs/conclusionState"}
+          }
+        },
+        "overall": {"$ref": "#/$defs/conclusionState"}
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "conclusionState": {"enum": ["remediable_with_existing_data", "insufficient_existing_evidence", "task_semantics_mismatch"]},
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["judgment_origin", "agent_role", "session_id", "round", "judged_at", "rubric_sha256", "input_artifact_sha256", "input_row_sha256", "source_annotation_sha256"],
+      "properties": {
+        "judgment_origin": {"enum": ["agent_judged", "llm_assisted"]},
+        "agent_role": {"type": "string", "minLength": 1},
+        "session_id": {"type": "string", "minLength": 1},
+        "round": {"type": "integer", "minimum": 1},
+        "judged_at": {"type": "string", "format": "date-time"},
+        "rubric_sha256": {"$ref": "#/$defs/sha256"},
+        "input_artifact_sha256": {"$ref": "#/$defs/sha256"},
+        "input_row_sha256": {"$ref": "#/$defs/sha256"},
+        "source_annotation_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "supportingSpan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["document_id", "start_offset", "end_offset", "text", "span_sha256"],
+      "properties": {
+        "document_id": {"type": "string", "minLength": 1},
+        "start_offset": {"type": "integer", "minimum": 0},
+        "end_offset": {"type": "integer", "minimum": 1},
+        "text": {"type": "string", "minLength": 1},
+        "span_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "disposition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["unit_type", "track", "query_id", "document_id", "source_judgment_status", "taxonomy", "disposition", "evidence_level", "supporting_spans", "rationale", "provenance"],
+      "properties": {
+        "unit_type": {"enum": ["query", "gold", "candidate"]},
+        "track": {"enum": ["economics", "psychology"]},
+        "query_id": {"type": "string", "minLength": 1},
+        "document_id": {"type": ["string", "null"]},
+        "source_judgment_status": {"enum": ["clear", "ambiguous", "uncertain", "unjudged"]},
+        "taxonomy": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"enum": ["task_semantics_mismatch", "gold_support_defect", "gold_ambiguity", "credible_missing_positive", "candidate_pool_coverage_gap", "insufficient_existing_evidence", "no_qrels_defect"]}
+        },
+        "disposition": {"enum": ["retain_query", "stop_query_task_semantics_mismatch", "stop_query_insufficient_existing_evidence", "retain_official_positive", "quarantine_official_positive", "propose_add_positive", "no_change_unjudged", "downgrade_to_uncertain", "abstain_uncertain", "not_applicable"]},
+        "evidence_level": {"enum": ["direct_supporting_span", "document_level_support", "contextual_or_topical_only", "conflicting", "insufficient"]},
+        "supporting_spans": {"type": "array", "items": {"$ref": "#/$defs/supportingSpan"}},
+        "rationale": {"type": "string", "minLength": 1},
+        "provenance": {"$ref": "#/$defs/provenance"}
+      }
+    },
+    "qrelsRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["track", "query_id", "document_id", "grade", "operation"],
+      "properties": {
+        "track": {"enum": ["economics", "psychology"]},
+        "query_id": {"type": "string", "minLength": 1},
+        "document_id": {"type": "string", "minLength": 1},
+        "grade": {"type": "integer", "minimum": 1},
+        "operation": {"enum": ["retain", "add"]}
+      }
+    }
+  }
+}

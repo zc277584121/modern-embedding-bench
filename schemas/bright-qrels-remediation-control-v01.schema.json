@@ -1,0 +1,192 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://modern-embedding-bench.local/schemas/bright-qrels-remediation-control-v01.schema.json",
+  "title": "Publication-safe BRIGHT qrels remediation control v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "control_id",
+    "story_id",
+    "phase",
+    "frozen_at",
+    "accepted_baseline",
+    "source_identities",
+    "schema_identities",
+    "rules",
+    "rules_sha256",
+    "proposal_constraints",
+    "safe_content"
+  ],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "control_id": {"const": "bright-qrels-remediation-control-v0.1"},
+    "story_id": {"const": "S-20260906-001"},
+    "phase": {"const": "control_frozen_before_dispositions"},
+    "frozen_at": {"type": "string", "format": "date-time"},
+    "accepted_baseline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["commit", "tree", "parent", "origin_main_at_freeze", "accepted_path_count", "accepted_path_identity_sha256", "accepted_content_identity_sha256"],
+      "properties": {
+        "commit": {"const": "c249c71d178b13b3770df99367849f74c7225b42"},
+        "tree": {"const": "e306270d89710625f2c03fd9b3ac5092dfe592cf"},
+        "parent": {"const": "a6670da6843bb3f9f887fb365ab7f7b81d9e56bc"},
+        "origin_main_at_freeze": {"const": "c249c71d178b13b3770df99367849f74c7225b42"},
+        "accepted_path_count": {"const": 29},
+        "accepted_path_identity_sha256": {"const": "d6ef097f7d1b8e4b6a3b85cd5803f5529f8b60ecb388f0b2140f2826aa55dc30"},
+        "accepted_content_identity_sha256": {"const": "5f967a95cccdd44bd9cf0da7577e21204ea8531a554fa88811368c3c47ff8d08"}
+      }
+    },
+    "source_identities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["audit", "official_qrels", "accepted_results"],
+      "properties": {
+        "audit": {"$ref": "#/$defs/audit"},
+        "official_qrels": {"$ref": "#/$defs/qrels"},
+        "accepted_results": {"$ref": "#/$defs/results"}
+      }
+    },
+    "schema_identities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bright-qrels-remediation-control-v01.schema.json", "bright-qrels-remediation-proposal-v01.schema.json"],
+      "properties": {
+        "bright-qrels-remediation-control-v01.schema.json": {"$ref": "#/$defs/sha256"},
+        "bright-qrels-remediation-proposal-v01.schema.json": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "rules": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["taxonomy", "dispositions", "evidence_levels", "required_provenance", "semantic_boundaries", "stop_thresholds", "conclusion_states", "derivation_precedence"],
+      "properties": {
+        "taxonomy": {"$ref": "#/$defs/nonemptyUniqueStrings"},
+        "dispositions": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["query", "gold", "candidate"],
+          "properties": {
+            "query": {"$ref": "#/$defs/nonemptyUniqueStrings"},
+            "gold": {"$ref": "#/$defs/nonemptyUniqueStrings"},
+            "candidate": {"$ref": "#/$defs/nonemptyUniqueStrings"}
+          }
+        },
+        "evidence_levels": {"$ref": "#/$defs/nonemptyUniqueStrings"},
+        "required_provenance": {"$ref": "#/$defs/nonemptyUniqueStrings"},
+        "semantic_boundaries": {"$ref": "#/$defs/nonemptyUniqueStrings"},
+        "stop_thresholds": {
+          "type": "object",
+          "additionalProperties": false,
+          "minProperties": 1,
+          "patternProperties": {"^[a-z][a-z0-9_]*$": {"const": 0}}
+        },
+        "conclusion_states": {"$ref": "#/$defs/nonemptyUniqueStrings"},
+        "derivation_precedence": {"$ref": "#/$defs/nonemptyUniqueStrings"}
+      }
+    },
+    "rules_sha256": {"$ref": "#/$defs/sha256"},
+    "proposal_constraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["proposal_id", "version", "restricted_root", "status", "default_activation", "registry_integration", "runner_integration", "classification", "public_export_allowed", "leaderboard_allowed", "publish_allowed", "official_qrels_writable", "accepted_evidence_writable", "negative_grade_allowed", "model_performance_selection_allowed"],
+      "properties": {
+        "proposal_id": {"const": "bright-qrels-remediation-proposal-v0.1"},
+        "version": {"const": "0.1"},
+        "restricted_root": {"const": "results/bright-qrels-remediation-v0.1/restricted"},
+        "status": {"const": "inactive"},
+        "default_activation": {"const": false},
+        "registry_integration": {"const": false},
+        "runner_integration": {"const": false},
+        "classification": {"const": "restricted_no_publish"},
+        "public_export_allowed": {"const": false},
+        "leaderboard_allowed": {"const": false},
+        "publish_allowed": {"const": false},
+        "official_qrels_writable": {"const": false},
+        "accepted_evidence_writable": {"const": false},
+        "negative_grade_allowed": {"const": false},
+        "model_performance_selection_allowed": {"const": false}
+      }
+    },
+    "safe_content": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["contains_query_or_document_text", "contains_canonical_ids", "contains_rankings", "contains_supporting_spans", "contains_proposed_qrels_rows", "contains_reviewer_identity", "contains_absolute_private_paths"],
+      "properties": {
+        "contains_query_or_document_text": {"const": false},
+        "contains_canonical_ids": {"const": false},
+        "contains_rankings": {"const": false},
+        "contains_supporting_spans": {"const": false},
+        "contains_proposed_qrels_rows": {"const": false},
+        "contains_reviewer_identity": {"const": false},
+        "contains_absolute_private_paths": {"const": false}
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "nonemptyUniqueStrings": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "fileIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rows", "sha256"],
+      "properties": {"rows": {"type": "integer", "minimum": 0}, "sha256": {"$ref": "#/$defs/sha256"}}
+    },
+    "treeIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["files", "sha256"],
+      "properties": {"files": {"type": "integer", "minimum": 1}, "sha256": {"$ref": "#/$defs/sha256"}}
+    },
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["review_plan", "audit_pack", "primary_annotations", "validator_core_annotations", "validator_supplement_annotations", "adjudications", "frozen_input_manifest_sha256", "accepted_aggregate_sha256", "accepted_predeclaration_sha256", "rubric_sha256", "coverage"],
+      "properties": {
+        "review_plan": {"$ref": "#/$defs/fileIdentity"},
+        "audit_pack": {"$ref": "#/$defs/fileIdentity"},
+        "primary_annotations": {"$ref": "#/$defs/fileIdentity"},
+        "validator_core_annotations": {"$ref": "#/$defs/fileIdentity"},
+        "validator_supplement_annotations": {"$ref": "#/$defs/fileIdentity"},
+        "adjudications": {"$ref": "#/$defs/fileIdentity"},
+        "frozen_input_manifest_sha256": {"$ref": "#/$defs/sha256"},
+        "accepted_aggregate_sha256": {"$ref": "#/$defs/sha256"},
+        "accepted_predeclaration_sha256": {"$ref": "#/$defs/sha256"},
+        "rubric_sha256": {"$ref": "#/$defs/sha256"},
+        "coverage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["queries", "gold_items", "candidate_items", "tracks", "outcome"],
+          "properties": {
+            "queries": {"const": 120},
+            "gold_items": {"const": 1235},
+            "candidate_items": {"const": 2804},
+            "tracks": {"const": {"economics": 60, "psychology": 60}},
+            "outcome": {"const": "fail_closed"}
+          }
+        }
+      }
+    },
+    "qrels": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["economics", "psychology", "combined_sha256"],
+      "properties": {
+        "economics": {"$ref": "#/$defs/fileIdentity"},
+        "psychology": {"$ref": "#/$defs/fileIdentity"},
+        "combined_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "results": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["restricted_tree", "accepted_verification_tree", "tracked_safe_package_tree"],
+      "properties": {
+        "restricted_tree": {"$ref": "#/$defs/treeIdentity"},
+        "accepted_verification_tree": {"$ref": "#/$defs/treeIdentity"},
+        "tracked_safe_package_tree": {"$ref": "#/$defs/treeIdentity"}
+      }
+    }
+  }
+}

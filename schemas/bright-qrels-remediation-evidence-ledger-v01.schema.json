@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://modern-embedding-bench.local/schemas/bright-qrels-remediation-evidence-ledger-v01.schema.json",
+  "title": "Restricted BRIGHT remediation evidence-ledger row v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "proposal_id", "unit_type", "track", "query_id", "document_id", "primary_judgment", "adjudicated_judgment", "effective_judgment", "primary_judgment_sha256", "effective_judgment_sha256", "review_basis", "remediation"],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "proposal_id": {"const": "bright-qrels-remediation-proposal-v0.1"},
+    "unit_type": {"enum": ["query", "gold", "candidate"]},
+    "track": {"enum": ["economics", "psychology"]},
+    "query_id": {"type": "string", "minLength": 1},
+    "document_id": {"type": ["string", "null"]},
+    "primary_judgment": {"type": "object", "minProperties": 1},
+    "adjudicated_judgment": {"type": ["object", "null"]},
+    "effective_judgment": {"type": "object", "minProperties": 1},
+    "primary_judgment_sha256": {"$ref": "#/$defs/sha256"},
+    "effective_judgment_sha256": {"$ref": "#/$defs/sha256"},
+    "review_basis": {"const": "frozen_task_contract_and_accepted_audit_only"},
+    "remediation": {"type": "object", "minProperties": 1}
+  },
+  "$defs": {"sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}
+}

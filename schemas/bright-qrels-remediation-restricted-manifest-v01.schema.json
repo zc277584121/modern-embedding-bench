@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://modern-embedding-bench.local/schemas/bright-qrels-remediation-restricted-manifest-v01.schema.json",
+  "title": "Restricted BRIGHT remediation candidate manifest v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "candidate_id", "repair_round", "story_id", "control_sha256", "rules_sha256", "status", "classification", "artifacts", "schema_identities", "coverage", "conclusion", "official_qrels_modified", "accepted_evidence_modified", "default_activation", "registry_integration", "runner_integration", "public_export_allowed", "leaderboard_allowed", "publish_allowed"],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "candidate_id": {"const": "bright-qrels-remediation-candidate-v0.1"},
+    "repair_round": {"const": 2},
+    "story_id": {"const": "S-20260906-001"},
+    "control_sha256": {"const": "ca007c6810649385ba384e4b7830871a45f932ed402b13fae257db192affbee1"},
+    "rules_sha256": {"const": "4dacff181fff81caa87aa7ee40c7c165fe05e227436d53f97410bb6837bbb52c"},
+    "status": {"const": "inactive"},
+    "classification": {"const": "restricted_no_publish"},
+    "artifacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["proposal.json", "original-vs-proposed.jsonl", "evidence-ledger.jsonl", "query-risk.jsonl"],
+      "properties": {
+        "proposal.json": {"$ref": "#/$defs/artifact"},
+        "original-vs-proposed.jsonl": {"$ref": "#/$defs/artifact"},
+        "evidence-ledger.jsonl": {"$ref": "#/$defs/artifact"},
+        "query-risk.jsonl": {"$ref": "#/$defs/artifact"}
+      }
+    },
+    "schema_identities": {
+      "type": "object",
+      "minProperties": 5,
+      "additionalProperties": {"$ref": "#/$defs/sha256"}
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["queries", "gold_items", "candidate_items"],
+      "properties": {"queries": {"const": 120}, "gold_items": {"const": 1235}, "candidate_items": {"const": 2804}}
+    },
+    "conclusion": {"$ref": "#/$defs/conclusion"},
+    "official_qrels_modified": {"const": false},
+    "accepted_evidence_modified": {"const": false},
+    "default_activation": {"const": false},
+    "registry_integration": {"const": false},
+    "runner_integration": {"const": false},
+    "public_export_allowed": {"const": false},
+    "leaderboard_allowed": {"const": false},
+    "publish_allowed": {"const": false}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "state": {"enum": ["remediable_with_existing_data", "insufficient_existing_evidence", "task_semantics_mismatch"]},
+    "conclusion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tracks", "overall"],
+      "properties": {
+        "tracks": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["economics", "psychology"],
+          "properties": {"economics": {"$ref": "#/$defs/state"}, "psychology": {"$ref": "#/$defs/state"}}
+        },
+        "overall": {"$ref": "#/$defs/state"}
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rows", "bytes", "sha256"],
+      "properties": {
+        "rows": {"type": "integer", "minimum": 1},
+        "bytes": {"type": "integer", "minimum": 1},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    }
+  }
+}

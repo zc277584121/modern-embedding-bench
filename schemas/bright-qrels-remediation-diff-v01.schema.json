@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://modern-embedding-bench.local/schemas/bright-qrels-remediation-diff-v01.schema.json",
+  "title": "Restricted BRIGHT remediation diff row v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "proposal_id", "track", "query_id", "document_id", "original_grade", "proposed_grade", "operation", "disposition", "negative_synthesized"],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "proposal_id": {"const": "bright-qrels-remediation-proposal-v0.1"},
+    "track": {"enum": ["economics", "psychology"]},
+    "query_id": {"type": "string", "minLength": 1},
+    "document_id": {"type": "string", "minLength": 1},
+    "original_grade": {"type": ["integer", "null"], "minimum": 1},
+    "proposed_grade": {"type": ["integer", "null"], "minimum": 1},
+    "operation": {"enum": ["retain", "add", "quarantine"]},
+    "disposition": {"enum": ["retain_official_positive", "quarantine_official_positive", "downgrade_to_uncertain", "propose_add_positive"]},
+    "negative_synthesized": {"const": false}
+  }
+}

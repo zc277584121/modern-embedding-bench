@@ -1,0 +1,116 @@
+{
+  "schema_version": "1",
+  "control_id": "bright-qrels-remediation-control-v0.1",
+  "story_id": "S-20260906-001",
+  "phase": "control_frozen_before_dispositions",
+  "frozen_at": "2026-09-06T18:18:37Z",
+  "accepted_baseline": {
+    "commit": "c249c71d178b13b3770df99367849f74c7225b42",
+    "tree": "e306270d89710625f2c03fd9b3ac5092dfe592cf",
+    "parent": "a6670da6843bb3f9f887fb365ab7f7b81d9e56bc",
+    "origin_main_at_freeze": "c249c71d178b13b3770df99367849f74c7225b42",
+    "accepted_path_count": 29,
+    "accepted_path_identity_sha256": "d6ef097f7d1b8e4b6a3b85cd5803f5529f8b60ecb388f0b2140f2826aa55dc30",
+    "accepted_content_identity_sha256": "5f967a95cccdd44bd9cf0da7577e21204ea8531a554fa88811368c3c47ff8d08"
+  },
+  "source_identities": {
+    "audit": {
+      "review_plan": {"rows": 120, "sha256": "93848a826c12acf9cb6fed50d71dd9490be7baebfcea1122dd4fffb4881fdc4e"},
+      "audit_pack": {"rows": 120, "sha256": "9549525cbd35e0a3c520ad16b5961b3f5e8658ff7cb4b5061e9edd39bc96c956"},
+      "primary_annotations": {"rows": 120, "sha256": "4f18deca204c8bcbfd269ecc216f130abbd6a5630a5c245870cfa55a341b0356"},
+      "validator_core_annotations": {"rows": 24, "sha256": "bbe93a3af20f64d6d240a82b481fba7262fca2fbfa9369e966d5c802eb0318ff"},
+      "validator_supplement_annotations": {"rows": 1, "sha256": "8e975641f0d083f972a71286f9782413c75557a5c85627bc35026e5d8940359f"},
+      "adjudications": {"rows": 241, "sha256": "2be3f846b5ee6dc3e7efc11625f3fa813bb31312e14808a871715cab9a74db39"},
+      "frozen_input_manifest_sha256": "fbe3e00f97f158982108e7259fde46cecfe0187193a84a6fd6afcd2eecfd1b85",
+      "accepted_aggregate_sha256": "194506aaf364264b0d9fcf1c8211dcedf947fb0e7ca47401a0bcb210c617ea54",
+      "accepted_predeclaration_sha256": "bfe69d71fc5fa09109a6bb84819cef5c2c528767adc3a2dd8ff0211a3322081d",
+      "rubric_sha256": "cadf239c93ab40e583e524bfe8364c655eaad1d8dde07bc57892fa0776dd22b9",
+      "coverage": {
+        "queries": 120,
+        "gold_items": 1235,
+        "candidate_items": 2804,
+        "tracks": {"economics": 60, "psychology": 60},
+        "outcome": "fail_closed"
+      }
+    },
+    "official_qrels": {
+      "economics": {"rows": 800, "sha256": "e09a3c96a3b112d4233e26baacf5d0f021b6025378fded32478f94e4a2bf3fa3"},
+      "psychology": {"rows": 692, "sha256": "52360d1c95984d8db2b04e018f68e99737063836e889bf3e7f6865b76d26bc44"},
+      "combined_sha256": "235e7ca100a800db998b8254dc4a1148383ef0806be9fce1f5e139e471293f8b"
+    },
+    "accepted_results": {
+      "restricted_tree": {"files": 282, "sha256": "939b32fde334eb52815d606641d5ed4ee5af7cb13d023d074c9f5b747767e7fa"},
+      "accepted_verification_tree": {"files": 38, "sha256": "a18acefb01f3173cefaf415f3b8fbb123e686a011bf7db2ca9a8ba1eeb59bdb7"},
+      "tracked_safe_package_tree": {"files": 20, "sha256": "2dbefe5585991182af040be91eb8ed40d933e4ae1fa77d60f99c444a64e23ced"}
+    }
+  },
+  "schema_identities": {
+    "bright-qrels-remediation-control-v01.schema.json": "21ac34345f35c859c9d2b2b7ffbfef5dcc411a7a43fcd68ff49b722139b1c346",
+    "bright-qrels-remediation-proposal-v01.schema.json": "cdf27a0e6d7dabe93730925d295dd69ff2381b1074076ac2a35546c1f752666b"
+  },
+  "rules": {
+    "taxonomy": [
+      "task_semantics_mismatch",
+      "gold_support_defect",
+      "gold_ambiguity",
+      "credible_missing_positive",
+      "candidate_pool_coverage_gap",
+      "insufficient_existing_evidence",
+      "no_qrels_defect"
+    ],
+    "dispositions": {
+      "query": ["retain_query", "stop_query_task_semantics_mismatch", "stop_query_insufficient_existing_evidence", "not_applicable"],
+      "gold": ["retain_official_positive", "quarantine_official_positive", "downgrade_to_uncertain", "abstain_uncertain", "not_applicable"],
+      "candidate": ["propose_add_positive", "no_change_unjudged", "downgrade_to_uncertain", "abstain_uncertain", "not_applicable"]
+    },
+    "evidence_levels": ["direct_supporting_span", "document_level_support", "contextual_or_topical_only", "conflicting", "insufficient"],
+    "required_provenance": ["judgment_origin", "agent_role", "session_id", "round", "judged_at", "rubric_sha256", "input_artifact_sha256", "input_row_sha256", "source_annotation_sha256"],
+    "semantic_boundaries": [
+      "support_false_does_not_imply_relevance_false",
+      "partial_support_does_not_imply_invalid_positive",
+      "unjudged_ambiguous_or_uncertain_never_implies_negative",
+      "model_score_rank_or_method_win_never_selects_remediation",
+      "task_semantics_mismatch_is_not_silently_rewritten_as_qrels_defect"
+    ],
+    "stop_thresholds": {
+      "missing_or_invalid_provenance": 0,
+      "unknown_identity": 0,
+      "duplicate_or_conflicting_disposition": 0,
+      "source_identity_drift": 0,
+      "default_or_runtime_activation": 0,
+      "publish_export_or_leaderboard_enablement": 0,
+      "negative_grade_or_automatic_negative_conversion": 0,
+      "unresolved_membership_change_per_query": 0,
+      "stopped_or_incomplete_queries_per_remediable_track": 0
+    },
+    "conclusion_states": ["remediable_with_existing_data", "insufficient_existing_evidence", "task_semantics_mismatch"],
+    "derivation_precedence": ["task_semantics_mismatch", "insufficient_existing_evidence", "remediable_with_existing_data"]
+  },
+  "rules_sha256": "4dacff181fff81caa87aa7ee40c7c165fe05e227436d53f97410bb6837bbb52c",
+  "proposal_constraints": {
+    "proposal_id": "bright-qrels-remediation-proposal-v0.1",
+    "version": "0.1",
+    "restricted_root": "results/bright-qrels-remediation-v0.1/restricted",
+    "status": "inactive",
+    "default_activation": false,
+    "registry_integration": false,
+    "runner_integration": false,
+    "classification": "restricted_no_publish",
+    "public_export_allowed": false,
+    "leaderboard_allowed": false,
+    "publish_allowed": false,
+    "official_qrels_writable": false,
+    "accepted_evidence_writable": false,
+    "negative_grade_allowed": false,
+    "model_performance_selection_allowed": false
+  },
+  "safe_content": {
+    "contains_query_or_document_text": false,
+    "contains_canonical_ids": false,
+    "contains_rankings": false,
+    "contains_supporting_spans": false,
+    "contains_proposed_qrels_rows": false,
+    "contains_reviewer_identity": false,
+    "contains_absolute_private_paths": false
+  }
+}

@@ -1,0 +1,196 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://modern-embedding-bench.local/schemas/bright-qrels-remediation-safe-aggregate-v01.schema.json",
+  "title": "Publication-safe inactive BRIGHT remediation aggregate v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "candidate_id", "repair_round", "story_id", "control_sha256", "control_revision", "rules_sha256", "protected_surfaces_sha256", "restricted_artifacts", "coverage", "dispositions", "diff", "accepted_evidence", "tracks", "sensitivity_boundaries", "score_independence", "verdict", "s007_candidate_input", "publication", "safe_content"],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "candidate_id": {"const": "bright-qrels-remediation-candidate-v0.1"},
+    "repair_round": {"const": 2},
+    "story_id": {"const": "S-20260906-001"},
+    "control_sha256": {"const": "ca007c6810649385ba384e4b7830871a45f932ed402b13fae257db192affbee1"},
+    "control_revision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["changed_at", "reason", "previous_control_sha256", "current_control_sha256", "previous_proposal_schema_sha256", "current_proposal_schema_sha256", "rules_sha256"],
+      "properties": {
+        "changed_at": {"const": "2026-09-06T20:30:00Z"},
+        "reason": {"type": "string", "minLength": 1},
+        "previous_control_sha256": {"const": "d05de5d23f5cdff6a5dd12a38f6e856fecb634239641ef0f689e39b62e3dd9c2"},
+        "current_control_sha256": {"const": "ca007c6810649385ba384e4b7830871a45f932ed402b13fae257db192affbee1"},
+        "previous_proposal_schema_sha256": {"const": "de3f42104e4325b86ff628ae5928a36114d0271f6ce19bce7aae20e5d9e8b389"},
+        "current_proposal_schema_sha256": {"const": "cdf27a0e6d7dabe93730925d295dd69ff2381b1074076ac2a35546c1f752666b"},
+        "rules_sha256": {"const": "4dacff181fff81caa87aa7ee40c7c165fe05e227436d53f97410bb6837bbb52c"}
+      }
+    },
+    "rules_sha256": {"const": "4dacff181fff81caa87aa7ee40c7c165fe05e227436d53f97410bb6837bbb52c"},
+    "protected_surfaces_sha256": {"const": "8d4b79c1b5ab17f7e0922009fa3ecd0139f311ac5a40b7d785d47950ad85154c"},
+    "restricted_artifacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tracked", "proposal_sha256", "manifest_sha256", "files"],
+      "properties": {
+        "tracked": {"const": false},
+        "proposal_sha256": {"$ref": "#/$defs/sha256"},
+        "manifest_sha256": {"$ref": "#/$defs/sha256"},
+        "files": {"type": "object", "minProperties": 4, "additionalProperties": {"$ref": "#/$defs/artifact"}}
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["queries", "gold_items", "candidate_items", "tracks"],
+      "properties": {
+        "queries": {"const": 120},
+        "gold_items": {"const": 1235},
+        "candidate_items": {"const": 2804},
+        "tracks": {"const": {"economics": 60, "psychology": 60}}
+      }
+    },
+    "dispositions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["total", "by_unit_type", "by_disposition", "by_evidence_level", "by_taxonomy"],
+      "properties": {
+        "total": {"const": 4159},
+        "by_unit_type": {"const": {"candidate": 2804, "gold": 1235, "query": 120}},
+        "by_disposition": {"$ref": "#/$defs/counts"},
+        "by_evidence_level": {"$ref": "#/$defs/counts"},
+        "by_taxonomy": {"$ref": "#/$defs/counts"}
+      }
+    },
+    "diff": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["original_positive_rows_in_reviewed_scope", "proposed_positive_rows", "retained_positive_rows", "added_positive_rows", "quarantined_or_uncertain_positive_rows", "negative_rows"],
+      "properties": {
+        "original_positive_rows_in_reviewed_scope": {"const": 1235},
+        "proposed_positive_rows": {"type": "integer", "minimum": 0},
+        "retained_positive_rows": {"type": "integer", "minimum": 0},
+        "added_positive_rows": {"type": "integer", "minimum": 0},
+        "quarantined_or_uncertain_positive_rows": {"type": "integer", "minimum": 0},
+        "negative_rows": {"const": 0}
+      }
+    },
+    "accepted_evidence": {"$ref": "#/$defs/acceptedEvidence"},
+    "tracks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["economics", "psychology"],
+      "properties": {"economics": {"$ref": "#/$defs/track"}, "psychology": {"$ref": "#/$defs/track"}}
+    },
+    "sensitivity_boundaries": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"$ref": "#/$defs/sensitivity"}},
+    "score_independence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["model_scores_consumed", "rank_positions_consumed", "method_outcomes_consumed", "rankings_used_for_candidate_location"],
+      "properties": {
+        "model_scores_consumed": {"const": false},
+        "rank_positions_consumed": {"const": false},
+        "method_outcomes_consumed": {"const": false},
+        "rankings_used_for_candidate_location": {"const": false}
+      }
+    },
+    "verdict": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["economics", "psychology", "overall"],
+      "properties": {"economics": {"$ref": "#/$defs/state"}, "psychology": {"$ref": "#/$defs/state"}, "overall": {"$ref": "#/$defs/state"}}
+    },
+    "s007_candidate_input": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["eligible", "reason", "story_modified_or_promoted"],
+      "properties": {"eligible": {"type": "boolean"}, "reason": {"type": "string", "minLength": 1}, "story_modified_or_promoted": {"const": false}}
+    },
+    "publication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "classification", "default_activation", "registry_integration", "runner_integration", "public_export_allowed", "leaderboard_allowed", "publish_allowed", "official_qrels_modified", "accepted_evidence_modified"],
+      "properties": {
+        "status": {"const": "inactive"},
+        "classification": {"const": "restricted_no_publish"},
+        "default_activation": {"const": false},
+        "registry_integration": {"const": false},
+        "runner_integration": {"const": false},
+        "public_export_allowed": {"const": false},
+        "leaderboard_allowed": {"const": false},
+        "publish_allowed": {"const": false},
+        "official_qrels_modified": {"const": false},
+        "accepted_evidence_modified": {"const": false}
+      }
+    },
+    "safe_content": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["contains_query_or_document_text", "contains_canonical_ids", "contains_rankings", "contains_supporting_spans", "contains_proposed_qrels_rows", "contains_reviewer_identity", "contains_absolute_private_paths", "contains_reversible_mapping"],
+      "properties": {
+        "contains_query_or_document_text": {"const": false},
+        "contains_canonical_ids": {"const": false},
+        "contains_rankings": {"const": false},
+        "contains_supporting_spans": {"const": false},
+        "contains_proposed_qrels_rows": {"const": false},
+        "contains_reviewer_identity": {"const": false},
+        "contains_absolute_private_paths": {"const": false},
+        "contains_reversible_mapping": {"const": false}
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "state": {"enum": ["remediable_with_existing_data", "insufficient_existing_evidence", "task_semantics_mismatch"]},
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rows", "bytes", "sha256"],
+      "properties": {"rows": {"type": "integer", "minimum": 1}, "bytes": {"type": "integer", "minimum": 1}, "sha256": {"$ref": "#/$defs/sha256"}}
+    },
+    "counts": {"type": "object", "minProperties": 1, "additionalProperties": {"type": "integer", "minimum": 0}},
+    "acceptedEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["queries", "gold", "candidates", "unresolved_queries", "adjudicated_units"],
+      "properties": {
+        "queries": {"type": "object", "minProperties": 4},
+        "gold": {"type": "object", "minProperties": 2},
+        "candidates": {"type": "object", "minProperties": 3},
+        "unresolved_queries": {"type": "object", "minProperties": 2},
+        "adjudicated_units": {"const": 241}
+      }
+    },
+    "track": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["coverage", "dispositions", "taxonomy", "reviewed_queries_eligible", "reviewed_queries_stopped", "verdict", "retainable_scope", "unsupported_claims", "existing_evidence_gap", "next_minimum_action"],
+      "properties": {
+        "coverage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["queries", "gold_items", "candidate_items"],
+          "properties": {"queries": {"const": 60}, "gold_items": {"type": "integer", "minimum": 1}, "candidate_items": {"type": "integer", "minimum": 1}}
+        },
+        "dispositions": {"$ref": "#/$defs/counts"},
+        "taxonomy": {"$ref": "#/$defs/counts"},
+        "reviewed_queries_eligible": {"type": "integer", "minimum": 0, "maximum": 60},
+        "reviewed_queries_stopped": {"type": "integer", "minimum": 0, "maximum": 60},
+        "verdict": {"$ref": "#/$defs/state"},
+        "retainable_scope": {"type": "string", "minLength": 1},
+        "unsupported_claims": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "existing_evidence_gap": {"type": "string", "minLength": 1},
+        "next_minimum_action": {"type": "string", "minLength": 1}
+      }
+    },
+    "sensitivity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["condition", "verdict", "reason"],
+      "properties": {
+        "condition": {"type": "string", "minLength": 1},
+        "verdict": {"enum": ["task_semantics_mismatch", "insufficient_existing_evidence", "remediable_with_existing_data"]},
+        "reason": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://modern-embedding-bench.local/schemas/bright-qrels-remediation-query-risk-v01.schema.json",
+  "title": "Restricted BRIGHT remediation query-risk row v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "proposal_id", "track", "query_id", "coverage", "source_judgment_status", "dispositions", "membership_diff", "verdict"],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "proposal_id": {"const": "bright-qrels-remediation-proposal-v0.1"},
+    "track": {"enum": ["economics", "psychology"]},
+    "query_id": {"type": "string", "minLength": 1},
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["query", "gold", "candidate", "complete"],
+      "properties": {
+        "query": {"const": 1},
+        "gold": {"type": "integer", "minimum": 1},
+        "candidate": {"type": "integer", "minimum": 1},
+        "complete": {"const": true}
+      }
+    },
+    "source_judgment_status": {"$ref": "#/$defs/counts"},
+    "dispositions": {"$ref": "#/$defs/counts"},
+    "membership_diff": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["retained_positive", "added_positive", "quarantined_or_uncertain_positive", "negative_synthesized"],
+      "properties": {
+        "retained_positive": {"type": "integer", "minimum": 0},
+        "added_positive": {"type": "integer", "minimum": 0},
+        "quarantined_or_uncertain_positive": {"type": "integer", "minimum": 0},
+        "negative_synthesized": {"const": 0}
+      }
+    },
+    "verdict": {"enum": ["remediable_with_existing_data", "insufficient_existing_evidence", "task_semantics_mismatch"]}
+  },
+  "$defs": {
+    "counts": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {"type": "integer", "minimum": 0}
+    }
+  }
+}
