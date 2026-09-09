@@ -3,6 +3,7 @@
   --text: #1f2937;
   --muted: #6b7280;
   --border: #e5e7eb;
+  --surface: #ffffff;
   --background: #f9fafb;
   --blue: #2563eb;
 }
@@ -15,84 +16,63 @@ body {
   margin: 0;
   background: var(--background);
   color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 .page-shell {
-  width: min(1180px, calc(100% - 32px));
-  margin: 28px auto 48px;
+  width: min(1200px, calc(100% - 32px));
+  margin: 30px auto 48px;
 }
 
-.hero {
-  padding: 10px 2px 18px;
-}
-
-.hero h1 {
-  margin: 0 0 8px;
+h1 {
+  margin: 0 0 14px;
   font-size: 32px;
   line-height: 1.25;
 }
 
-.hero p {
-  max-width: 780px;
-  margin: 0;
-  color: var(--muted);
+h2 {
+  margin: 0 0 6px;
+  font-size: 20px;
+}
+
+.summary {
+  margin-bottom: 14px;
+  color: #374151;
   font-size: 15px;
-  line-height: 1.6;
+  line-height: 1.65;
+}
+
+.summary strong {
+  font-weight: 600;
 }
 
 .notice {
-  margin: 10px 0 16px;
-  padding: 11px 14px;
-  border: 1px solid #fcd34d;
+  margin: 0 0 18px;
+  padding: 11px 13px;
+  border: 1px solid #f6d365;
   border-radius: 8px;
-  background: #fffbeb;
-  color: #92400e;
+  background: #fffbea;
+  color: #854d0e;
   font-size: 14px;
-}
-
-.stats {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-  margin-bottom: 18px;
-}
-
-.stat {
-  padding: 13px 15px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: white;
-}
-
-.stat strong {
-  display: block;
-  overflow: hidden;
-  font-size: 20px;
-  line-height: 1.25;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.stat span {
-  color: var(--muted);
-  font-size: 12px;
 }
 
 .tabs {
   display: flex;
-  gap: 18px;
+  gap: 3px;
   overflow-x: auto;
-  border-bottom: 1px solid var(--border);
+  padding: 4px 4px 0;
+  border: 1px solid var(--border);
+  border-bottom: 0;
+  border-radius: 8px 8px 0 0;
+  background: #f3f4f6;
 }
 
 .tab {
-  margin-bottom: -1px;
-  padding: 11px 2px;
+  padding: 10px 14px;
   border: 0;
-  border-bottom: 2px solid transparent;
+  border-radius: 6px 6px 0 0;
   background: transparent;
-  color: var(--muted);
+  color: #4b5563;
   cursor: pointer;
   font: inherit;
   font-size: 14px;
@@ -101,53 +81,101 @@ body {
 }
 
 .tab:hover {
-  color: var(--text);
+  background: #e5e7eb;
 }
 
 .tab.active {
-  border-bottom-color: var(--blue);
-  color: var(--blue);
+  background: var(--surface);
+  color: var(--text);
 }
 
 .panel {
   display: none;
-  min-height: 400px;
-  padding: 20px 0;
+  min-height: 430px;
+  padding: 22px;
+  border: 1px solid var(--border);
+  border-radius: 0 0 8px 8px;
+  background: var(--surface);
 }
 
 .panel.active {
   display: block;
 }
 
-label {
+.task-note {
+  margin-bottom: 18px;
+  line-height: 1.55;
+}
+
+.task-note strong {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 17px;
+}
+
+.task-note p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.task-note code,
+.summary code {
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: #f3f4f6;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+}
+
+.controls {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.three-columns {
+  grid-template-columns: 1fr 1fr 160px;
+}
+
+.two-columns {
+  grid-template-columns: 1fr 160px;
+}
+
+.control label {
   display: block;
   margin-bottom: 6px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
 }
 
-select {
-  width: min(100%, 540px);
-  padding: 9px 36px 9px 11px;
+select,
+input {
+  width: 100%;
+  height: 40px;
+  padding: 8px 11px;
   border: 1px solid #d1d5db;
-  border-radius: 7px;
+  border-radius: 6px;
+  outline: none;
   background: white;
   color: var(--text);
   font: inherit;
   font-size: 14px;
 }
 
-.context {
-  margin: 18px 0 12px;
+select:focus,
+input:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 1px var(--blue);
 }
 
-.context h2 {
-  margin: 0 0 4px;
-  font-size: 18px;
+.search-control {
+  margin: 4px 0 12px;
 }
 
-.context p {
-  margin: 0;
+.view-status,
+.section-copy {
+  margin: 0 0 12px;
   color: var(--muted);
   font-size: 14px;
 }
@@ -155,8 +183,7 @@ select {
 .table-wrap {
   overflow-x: auto;
   border: 1px solid var(--border);
-  border-radius: 8px;
-  background: white;
+  border-radius: 6px;
 }
 
 table {
@@ -196,8 +223,7 @@ tbody tr:hover td {
 }
 
 .rank,
-.muted,
-.metric-note {
+.muted {
   color: var(--muted);
 }
 
@@ -230,73 +256,50 @@ tbody tr:hover td {
   text-decoration: underline;
 }
 
-.metric-note {
-  font-size: 13px;
+.subsection {
+  margin-top: 26px;
 }
 
-.method {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
+.prose {
+  max-width: none;
 }
 
-.method.active {
-  display: grid;
+.prose h2:not(:first-child) {
+  margin-top: 24px;
 }
 
-.method > div {
-  padding: 17px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: white;
-}
-
-.method-number {
-  color: #9ca3af;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 12px;
-}
-
-.method h2 {
-  margin: 7px 0;
-  font-size: 17px;
-}
-
-.method p {
-  color: var(--muted);
+.prose p {
+  max-width: 820px;
+  color: #4b5563;
   font-size: 14px;
-  line-height: 1.55;
+  line-height: 1.65;
 }
 
 pre {
+  width: min(100%, 720px);
   overflow-x: auto;
-  padding: 11px;
+  padding: 12px;
   border: 1px solid var(--border);
   border-radius: 6px;
   background: #f9fafb;
   color: #374151;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 11px;
-  line-height: 1.6;
-}
-
-footer {
-  padding: 20px 0 8px;
-  color: var(--muted);
   font-size: 12px;
-  text-align: center;
+  line-height: 1.6;
 }
 
 @media (max-width: 760px) {
   .page-shell {
-    width: min(100% - 20px, 1180px);
-    margin-top: 16px;
+    width: min(100% - 20px, 1200px);
+    margin-top: 18px;
   }
 
-  .stats {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .panel {
+    padding: 16px;
   }
 
-  .method.active {
+  .three-columns,
+  .two-columns {
     grid-template-columns: 1fr;
   }
 }
