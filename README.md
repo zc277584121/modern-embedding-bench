@@ -46,6 +46,37 @@ Metric
 
 Datasets use Hugging Face `Dataset` and `IterableDataset` directly. Adapters are ordinary Python functions, and ingestion/search phases remain explicit inside each task and solution.
 
+## Retrieval indexes
+
+Milvus is the default production-facing dense index path. The three deployment
+families are explicit so unsupported settings fail early instead of being silently
+ignored:
+
+```python
+from modern_ir_bench.retrieval.indexes import NumpyFlatIndex, VerifiedDenseIndex
+from modern_ir_bench.retrieval.indexes.milvus import MilvusDenseIndex, MilvusLite
+
+index = VerifiedDenseIndex(
+    primary=MilvusDenseIndex(
+        target=MilvusLite("artifacts/example.db"),
+        metric="COSINE",
+    ),
+    oracle=NumpyFlatIndex(metric="COSINE"),
+)
+```
+
+The primary Milvus result is returned to the Task. The independent exhaustive
+NumPy search retains index-recall evidence that helps separate model quality from
+index, consistency, or integration errors. Both backends receive the exact same
+embedding batches through one `DenseIndex` lifecycle: `open`, `add`, `seal`,
+`search`, and `close`.
+
+Milvus sessions always use an isolated temporary collection, Strong consistency,
+and record the requested and actual index descriptions plus client/server versions.
+The framework currently validates Milvus Lite with a real integration test; Server
+and Zilliz Cloud use the same client implementation with deployment-specific index
+validation.
+
 ## Add an experiment
 
 Create an executable module under `benchmarks/`, construct datasets, tasks, metrics, and solutions, then run it directly:

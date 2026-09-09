@@ -1,66 +1,14 @@
-"""Long-form benchmark results and source provenance."""
+"""Long-form benchmark results independent of presentation layers."""
 
 from __future__ import annotations
 
-import json
-import subprocess
 from collections.abc import Iterable
-from dataclasses import dataclass
-from datetime import datetime, timezone
 from pathlib import Path
 
 from datasets import Dataset
 
-from modern_ir_bench.metric import MetricValue
-
-
-def _git(*arguments: str) -> str:
-    completed = subprocess.run(
-        ["git", *arguments],
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    return completed.stdout.strip()
-
-
-def _github_url(remote: str) -> str:
-    if remote.startswith("git@github.com:"):
-        remote = f"https://github.com/{remote.removeprefix('git@github.com:')}"
-    return remote.removesuffix(".git")
-
-
-@dataclass(frozen=True)
-class RunProvenance:
-    """Immutable pointer from a result to its executable source."""
-
-    source_commit: str
-    source_module: str
-    source_path: str
-    source_line: int
-    repository_url: str
-    created_at: str
-
-    @classmethod
-    def capture(
-        cls,
-        *,
-        source_module: str,
-        source_path: str,
-        source_line: int,
-    ) -> RunProvenance:
-        return cls(
-            source_commit=_git("rev-parse", "HEAD"),
-            source_module=source_module,
-            source_path=source_path,
-            source_line=source_line,
-            repository_url=_github_url(_git("remote", "get-url", "origin")),
-            created_at=datetime.now(timezone.utc).isoformat(),
-        )
-
-    @property
-    def source_url(self) -> str:
-        return f"{self.repository_url}/blob/{self.source_commit}/{self.source_path}#L{self.source_line}"
+from modern_ir_bench.core.metric import MetricValue
+from modern_ir_bench.core.provenance import RunProvenance
 
 
 class RunReport:
@@ -133,39 +81,6 @@ class RunReport:
         self.observations.update(other.observations)
         self.tasks.update(other.tasks)
         self.solutions.update(other.solutions)
-
-    def as_payload(self, *, release: str, notice: str) -> dict[str, object]:
-        return {
-            "benchmark": {
-                "title": "Modern IR Bench",
-                "release": release,
-                "notice": notice,
-            },
-            "tasks": sorted(self.tasks.values(), key=lambda item: item["id"]),
-            "solutions": sorted(
-                self.solutions.values(),
-                key=lambda item: item["id"],
-            ),
-            "results": self.records,
-        }
-
-    def write_json(
-        self,
-        path: Path,
-        *,
-        release: str,
-        notice: str,
-    ) -> None:
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(
-            json.dumps(
-                self.as_payload(release=release, notice=notice),
-                indent=2,
-                ensure_ascii=False,
-            )
-            + "\n",
-            encoding="utf-8",
-        )
 
     def write_observations(self, directory: Path) -> None:
         directory.mkdir(parents=True, exist_ok=True)

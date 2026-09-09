@@ -3,7 +3,8 @@ from __future__ import annotations
 from datasets import IterableDataset
 
 from benchmarks.mock_showcase import build_solutions, build_tasks
-from modern_ir_bench import RunProvenance, Runtime
+from modern_ir_bench import RunProvenance
+from modern_ir_bench.exporters import build_space_payload
 
 
 def provenance() -> RunProvenance:
@@ -39,12 +40,27 @@ def test_solution_is_reused_across_different_task_contracts() -> None:
     assert memory_report.records[0]["dataset_id"] != code_report.records[0]["dataset_id"]
 
 
-def test_runtime_batches_hugging_face_iterable_dataset() -> None:
+def test_space_exporter_is_separate_from_the_run_report() -> None:
+    report = build_tasks()[0].run(build_solutions(), provenance=provenance())
+
+    payload = build_space_payload(
+        report,
+        release="test-release",
+        notice="Test data",
+    )
+
+    assert payload["benchmark"]["release"] == "test-release"
+    assert len(payload["tasks"]) == 1
+    assert len(payload["solutions"]) == 3
+    assert len(payload["results"]) == 9
+
+
+def test_hugging_face_batches_iterable_dataset_without_a_custom_runtime() -> None:
     stream = IterableDataset.from_generator(lambda: ({"value": value} for value in range(5)))
 
-    batches = list(Runtime(query_batch_size=2).batch_rows(stream))
+    batches = list(stream.iter(batch_size=2))
 
-    assert [[row["value"] for row in batch] for batch in batches] == [
+    assert [batch["value"] for batch in batches] == [
         [0, 1],
         [2, 3],
         [4],

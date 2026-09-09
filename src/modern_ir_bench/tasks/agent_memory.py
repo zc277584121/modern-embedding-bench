@@ -6,8 +6,9 @@ from typing import Any, ClassVar
 
 from datasets import Dataset, Features, Sequence, Value
 
-from modern_ir_bench.solution import Solution
-from modern_ir_bench.task import Task
+from modern_ir_bench.core.solution import Solution
+from modern_ir_bench.core.task import Task
+from modern_ir_bench.retrieval import MappedResourceSource
 
 
 class AgentMemoryRetrieval(Task):
@@ -29,9 +30,18 @@ class AgentMemoryRetrieval(Task):
         ),
     }
 
-    def __init__(self, *, top_k: int = 3, **kwargs: Any) -> None:
+    def __init__(
+        self,
+        *,
+        top_k: int = 3,
+        query_batch_size: int = 32,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(**kwargs)
+        if query_batch_size < 1:
+            raise ValueError("query_batch_size must be positive")
         self.top_k = top_k
+        self.query_batch_size = query_batch_size
 
     def validate_dataset(self, dataset: Any) -> None:
         if set(dataset) != set(self.dataset_features):
@@ -49,24 +59,33 @@ class AgentMemoryRetrieval(Task):
                 raise ValueError("Each query must reference existing memories")
 
     def evaluate(self, *, dataset: Any, solution: Solution) -> Dataset:
-        searcher = solution.prepare(
+        resources = MappedResourceSource(
             dataset["memories"],
-            id_field="memory_id",
-            text_field="content",
+            id_of=lambda row: row["memory_id"],
+            value_of=lambda row: row["content"],
         )
-        observations = []
-        for batch in self.runtime.batch_rows(dataset["queries"]):
-            results = searcher.search_batch(
-                [row["query"] for row in batch],
-                top_k=self.top_k,
-            )
-            for row, hits in zip(batch, results, strict=True):
-                observations.append(
-                    {
-                        "query_id": row["query_id"],
-                        "expected_ids": row["relevant_memory_ids"],
-                        "ranked_ids": [hit["id"] for hit in hits],
-                        "scores": [hit["score"] for hit in hits],
-                    }
+        searcher = solution.prepare(resources)
+        try:
+            observations = []
+            for batch in dataset["queries"].iter(batch_size=self.query_batch_size):
+                results = searcher.search_batch(
+                    batch["query"],
+                    top_k=self.top_k,
                 )
+                for query_id, relevant_ids, hits in zip(
+                    batch["query_id"],
+                    batch["relevant_memory_ids"],
+                    results,
+                    strict=True,
+                ):
+                    observations.append(
+                        {
+                            "query_id": query_id,
+                            "expected_ids": relevant_ids,
+                            "ranked_ids": [hit.id for hit in hits],
+                            "scores": [hit.score for hit in hits],
+                        }
+                    )
+        finally:
+            searcher.close()
         return Dataset.from_list(observations)

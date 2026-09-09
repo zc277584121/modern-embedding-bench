@@ -8,10 +8,10 @@ from typing import Any
 
 from datasets import Dataset
 
-from modern_ir_bench.metric import MetricSet
-from modern_ir_bench.result import RunProvenance, RunReport
-from modern_ir_bench.runtime import Runtime
-from modern_ir_bench.solution import Solution
+from modern_ir_bench.core.metric import MetricSet
+from modern_ir_bench.core.provenance import RunProvenance
+from modern_ir_bench.core.result import RunReport
+from modern_ir_bench.core.solution import Solution
 
 
 class Task(ABC):
@@ -27,7 +27,6 @@ class Task(ABC):
         datasets: Mapping[str, Any],
         dataset_versions: Mapping[str, str],
         metrics: MetricSet,
-        runtime: Runtime | None = None,
     ) -> None:
         if set(datasets) != set(dataset_versions):
             raise ValueError("Each dataset must have exactly one dataset version")
@@ -38,7 +37,6 @@ class Task(ABC):
         self.datasets = dict(datasets)
         self.dataset_versions = dict(dataset_versions)
         self.metrics = metrics
-        self.runtime = runtime or Runtime()
 
     def run(
         self,
@@ -51,10 +49,7 @@ class Task(ABC):
         for dataset_id, dataset in self.datasets.items():
             self.validate_dataset(dataset)
             for solution in solutions:
-                observations = self.evaluate(
-                    dataset=dataset,
-                    solution=solution,
-                )
+                observations = self.evaluate(dataset=dataset, solution=solution)
                 report.add_evaluation(
                     task_id=self.id,
                     task_title=self.title,

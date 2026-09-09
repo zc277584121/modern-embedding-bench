@@ -6,7 +6,7 @@ import math
 
 from datasets import Dataset
 
-from modern_ir_bench.metric import Metric
+from modern_ir_bench.core.metric import Metric
 
 
 class RankingMetric(Metric):

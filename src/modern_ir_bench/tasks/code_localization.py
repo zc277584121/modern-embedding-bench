@@ -6,8 +6,9 @@ from typing import Any, ClassVar
 
 from datasets import Dataset, Features, Sequence, Value
 
-from modern_ir_bench.solution import Solution
-from modern_ir_bench.task import Task
+from modern_ir_bench.core.solution import Solution
+from modern_ir_bench.core.task import Task
+from modern_ir_bench.retrieval import MappedResourceSource
 
 
 class CodeLocalization(Task):
@@ -29,9 +30,18 @@ class CodeLocalization(Task):
         ),
     }
 
-    def __init__(self, *, top_k: int = 3, **kwargs: Any) -> None:
+    def __init__(
+        self,
+        *,
+        top_k: int = 3,
+        query_batch_size: int = 32,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(**kwargs)
+        if query_batch_size < 1:
+            raise ValueError("query_batch_size must be positive")
         self.top_k = top_k
+        self.query_batch_size = query_batch_size
 
     def validate_dataset(self, dataset: Any) -> None:
         if set(dataset) != set(self.dataset_features):
@@ -49,24 +59,33 @@ class CodeLocalization(Task):
                 raise ValueError("Each issue must reference existing files")
 
     def evaluate(self, *, dataset: Any, solution: Solution) -> Dataset:
-        searcher = solution.prepare(
+        resources = MappedResourceSource(
             dataset["files"],
-            id_field="file_id",
-            text_field="source",
+            id_of=lambda row: row["file_id"],
+            value_of=lambda row: row["source"],
         )
-        observations = []
-        for batch in self.runtime.batch_rows(dataset["issues"]):
-            results = searcher.search_batch(
-                [row["issue"] for row in batch],
-                top_k=self.top_k,
-            )
-            for row, hits in zip(batch, results, strict=True):
-                observations.append(
-                    {
-                        "issue_id": row["issue_id"],
-                        "expected_ids": row["target_file_ids"],
-                        "ranked_ids": [hit["id"] for hit in hits],
-                        "scores": [hit["score"] for hit in hits],
-                    }
+        searcher = solution.prepare(resources)
+        try:
+            observations = []
+            for batch in dataset["issues"].iter(batch_size=self.query_batch_size):
+                results = searcher.search_batch(
+                    batch["issue"],
+                    top_k=self.top_k,
                 )
+                for issue_id, target_ids, hits in zip(
+                    batch["issue_id"],
+                    batch["target_file_ids"],
+                    results,
+                    strict=True,
+                ):
+                    observations.append(
+                        {
+                            "issue_id": issue_id,
+                            "expected_ids": target_ids,
+                            "ranked_ids": [hit.id for hit in hits],
+                            "scores": [hit.score for hit in hits],
+                        }
+                    )
+        finally:
+            searcher.close()
         return Dataset.from_list(observations)

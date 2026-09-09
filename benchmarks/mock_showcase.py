@@ -7,7 +7,8 @@ from pathlib import Path
 
 from datasets import Dataset
 
-from modern_ir_bench import MetricSet, RunProvenance, RunReport, Runtime
+from modern_ir_bench import MetricSet, RunProvenance, RunReport
+from modern_ir_bench.exporters import write_space_results
 from modern_ir_bench.metrics import NDCG, MeanReciprocalRank, Recall, Success
 from modern_ir_bench.solutions import (
     BM25Solution,
@@ -173,7 +174,6 @@ def build_solutions():
 
 
 def build_tasks():
-    runtime = Runtime(query_batch_size=2)
     return [
         AgentMemoryRetrieval(
             id="agent-memory-retrieval",
@@ -186,8 +186,8 @@ def build_tasks():
                 primary=NDCG(k=3),
                 secondary=[Recall(k=3), MeanReciprocalRank(k=3)],
             ),
-            runtime=runtime,
             top_k=3,
+            query_batch_size=2,
         ),
         CodeLocalization(
             id="code-localization",
@@ -200,8 +200,8 @@ def build_tasks():
                 primary=Recall(k=2),
                 secondary=[Success(k=1), MeanReciprocalRank(k=3)],
             ),
-            runtime=runtime,
             top_k=3,
+            query_batch_size=2,
         ),
     ]
 
@@ -223,7 +223,8 @@ def main() -> None:
             )
         )
 
-    report.write_json(
+    write_space_results(
+        report,
         Path("space/data/results.json"),
         release=RELEASE,
         notice=NOTICE,
