@@ -5,7 +5,7 @@ from __future__ import annotations
 import math
 import re
 from collections import Counter
-from collections.abc import Iterable, Mapping
+from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass
 from typing import Any
 
@@ -13,6 +13,7 @@ from modern_ir_bench.core.solution import Solution
 from modern_ir_bench.retrieval.types import RetrievalResource, SearchHit
 
 TOKEN_PATTERN = re.compile(r"[a-z0-9_./-]+")
+TextTokenizer = Callable[[str], list[str]]
 
 
 def _tokens(text: str) -> list[str]:
@@ -47,11 +48,15 @@ class BM25Searcher:
         *,
         k1: float,
         b: float,
+        tokenizer: TextTokenizer,
+        tokenizer_id: str,
     ) -> None:
-        documents = [(resource.id, _tokens(resource.value)) for resource in resources]
+        documents = [(resource.id, tokenizer(resource.value)) for resource in resources]
         self.documents = documents
         self.k1 = k1
         self.b = b
+        self.tokenizer = tokenizer
+        self.tokenizer_id = tokenizer_id
         self.average_length = sum(len(tokens) for _, tokens in documents) / len(documents)
         frequencies: Counter[str] = Counter()
         for _, tokens in documents:
@@ -63,7 +68,7 @@ class BM25Searcher:
     def search_batch(self, queries: list[str], *, top_k: int) -> list[list[SearchHit]]:
         results = []
         for query in queries:
-            query_tokens = _tokens(query)
+            query_tokens = self.tokenizer(query)
             scores: dict[str, float] = {}
             for item_id, document_tokens in self.documents:
                 term_frequency = Counter(document_tokens)
@@ -84,13 +89,20 @@ class BM25Searcher:
 
     @property
     def metadata(self) -> Mapping[str, Any]:
-        return {"backend": "bm25", "k1": self.k1, "b": self.b}
+        return {
+            "backend": "bm25",
+            "tokenizer": self.tokenizer_id,
+            "k1": self.k1,
+            "b": self.b,
+        }
 
 
 @dataclass(frozen=True, kw_only=True)
 class BM25Solution(Solution):
     k1: float = 1.2
     b: float = 0.75
+    tokenizer: TextTokenizer = _tokens
+    tokenizer_id: str = "ascii-retrieval-v1"
 
     def prepare(
         self,
@@ -100,6 +112,8 @@ class BM25Solution(Solution):
             resources,
             k1=self.k1,
             b=self.b,
+            tokenizer=self.tokenizer,
+            tokenizer_id=self.tokenizer_id,
         )
 
 

@@ -66,3 +66,12 @@ def test_targets_reject_index_settings_the_deployment_will_not_honor(tmp_path) -
             target=ZillizCloud(uri="https://example.invalid", token="secret"),
             index_type="FLAT",
         )
+
+
+def test_verified_index_rejects_invalid_recall_threshold() -> None:
+    with pytest.raises(ValueError, match="between zero and one"):
+        VerifiedDenseIndex(
+            primary=NumpyFlatIndex(),
+            oracle=NumpyFlatIndex(),
+            minimum_index_recall=1.1,
+        )

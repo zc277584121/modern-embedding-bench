@@ -33,6 +33,26 @@ class Recall(RankingMetric):
         return sum(values) / len(values)
 
 
+class AveragePrecision(RankingMetric):
+    def __init__(self, k: int) -> None:
+        super().__init__(k)
+        self.id = f"map@{k}"
+        self.label = f"MAP@{k}"
+
+    def compute(self, observations: Dataset) -> float:
+        values = []
+        for row in observations:
+            expected = set(row["expected_ids"])
+            found = 0
+            precision_sum = 0.0
+            for rank, item_id in enumerate(row["ranked_ids"][: self.k], start=1):
+                if item_id in expected:
+                    found += 1
+                    precision_sum += found / rank
+            values.append(precision_sum / len(expected))
+        return sum(values) / len(values)
+
+
 class Success(RankingMetric):
     def __init__(self, k: int) -> None:
         super().__init__(k)
@@ -76,10 +96,18 @@ class NDCG(RankingMetric):
     def compute(self, observations: Dataset) -> float:
         values = []
         for row in observations:
-            expected = set(row["expected_ids"])
-            gains = [1.0 if item_id in expected else 0.0 for item_id in row["ranked_ids"][: self.k]]
+            if "expected_relevance" in observations.column_names:
+                relevance = dict(
+                    zip(row["expected_ids"], row["expected_relevance"], strict=True)
+                )
+            else:
+                relevance = dict.fromkeys(row["expected_ids"], 1)
+            gains = [
+                2 ** relevance.get(item_id, 0) - 1
+                for item_id in row["ranked_ids"][: self.k]
+            ]
             dcg = sum(gain / math.log2(rank + 1) for rank, gain in enumerate(gains, start=1))
-            ideal_count = min(len(expected), self.k)
-            ideal = sum(1.0 / math.log2(rank + 1) for rank in range(1, ideal_count + 1))
+            ideal_gains = sorted((2**value - 1 for value in relevance.values()), reverse=True)[: self.k]
+            ideal = sum(gain / math.log2(rank + 1) for rank, gain in enumerate(ideal_gains, start=1))
             values.append(dcg / ideal)
         return sum(values) / len(values)

@@ -28,11 +28,17 @@ class VerifiedDenseIndex:
 
     primary: DenseIndex
     oracle: DenseIndex
+    minimum_index_recall: float | None = None
+
+    def __post_init__(self) -> None:
+        if self.minimum_index_recall is not None and not 0.0 <= self.minimum_index_recall <= 1.0:
+            raise ValueError("minimum_index_recall must be between zero and one")
 
     def open(self, *, dimension: int) -> VerifiedDenseSession:
         return VerifiedDenseSession(
             primary=self.primary.open(dimension=dimension),
             oracle=self.oracle.open(dimension=dimension),
+            minimum_index_recall=self.minimum_index_recall,
         )
 
 
@@ -42,9 +48,11 @@ class VerifiedDenseSession:
         *,
         primary: DenseIndexSession,
         oracle: DenseIndexSession,
+        minimum_index_recall: float | None,
     ) -> None:
         self.primary = primary
         self.oracle = oracle
+        self.minimum_index_recall = minimum_index_recall
         self.audits: list[DenseIndexAudit] = []
 
     def add(self, ids: Sequence[str], vectors: DenseVectors) -> None:
@@ -67,13 +75,17 @@ class VerifiedDenseSession:
             raise RuntimeError("Primary and oracle indexes returned different batch sizes")
 
         offset = len(self.audits)
-        for index, (primary_hits, oracle_hits) in enumerate(
-            zip(primary_results, oracle_results, strict=True)
-        ):
+        for index, (primary_hits, oracle_hits) in enumerate(zip(primary_results, oracle_results, strict=True)):
             primary_ids = tuple(hit.id for hit in primary_hits)
             oracle_ids = tuple(hit.id for hit in oracle_hits)
             denominator = len(oracle_ids)
             recall = len(set(primary_ids).intersection(oracle_ids)) / denominator if denominator else 1.0
+            if self.minimum_index_recall is not None and recall < self.minimum_index_recall:
+                raise RuntimeError(
+                    "Dense index recall fell below the required threshold: "
+                    f"query_offset={offset + index}, recall={recall}, "
+                    f"required={self.minimum_index_recall}"
+                )
             self.audits.append(
                 DenseIndexAudit(
                     query_offset=offset + index,
@@ -98,6 +110,7 @@ class VerifiedDenseSession:
             "oracle": dict(self.oracle.metadata),
             "audit_queries": len(self.audits),
             "mean_index_recall": self.mean_index_recall,
+            "minimum_index_recall": self.minimum_index_recall,
         }
 
     def close(self) -> None:
