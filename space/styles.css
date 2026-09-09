@@ -212,7 +212,7 @@ th {
 }
 
 .sort-button:hover {
-  color: var(--blue);
+  color: var(--text);
 }
 
 .sort-arrow {
@@ -221,7 +221,7 @@ th {
 }
 
 .sort-button.active .sort-arrow {
-  color: var(--blue);
+  color: var(--text);
 }
 
 td {
@@ -253,11 +253,11 @@ tbody tr:hover td {
 }
 
 .score.primary {
-  color: var(--blue);
+  color: var(--text);
 }
 
 .source {
-  color: var(--blue);
+  color: var(--text);
   font-weight: 500;
   text-decoration: none;
 }
