@@ -26,6 +26,23 @@ cd space
 python -m http.server 7861
 ```
 
+## Real migration validation
+
+The SciFact migration module runs two real retrieval solutions through the new
+framework and checks all five metrics against fixed historical results:
+
+- BM25 with the original tokenizer protocol
+- A fixed MiniLM snapshot with Milvus Lite FLAT, shadowed by NumPy exact search
+
+SciFact is public legacy data used only for regression testing. Its results are
+written under `artifacts/migration-validation/` and are never added to the
+official leaderboard.
+
+```bash
+uv sync --group benchmark
+uv run --group benchmark python -m benchmarks.scifact_migration
+```
+
 ## Core model
 
 ```text
