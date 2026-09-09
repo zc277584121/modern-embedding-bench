@@ -2,12 +2,12 @@
 title: Modern IR Bench
 emoji: 🔭
 colorFrom: indigo
-colorTo: cyan
+colorTo: blue
 sdk: static
 app_file: index.html
 pinned: false
 license: apache-2.0
-short_description: Code-native evaluation for modern information retrieval solutions
+short_description: Code-native benchmark for modern IR solutions
 ---
 
 # Modern IR Bench
