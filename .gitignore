@@ -18,6 +18,7 @@ venv/
 # Local benchmark data and generated outputs
 /data/
 /dist/
+/artifacts/
 /reports/
 /results/
 /pytest-of-zhangchen/

@@ -1,255 +1,67 @@
-# Modern Embedding Bench
+# Modern IR Bench
 
-A maintainable benchmark framework for evaluating embedding models on practical
-retrieval scenarios that are under-covered by broad public leaderboards.
+Modern IR Bench is a code-native benchmark for modern information retrieval solutions. A participant can be a model, an algorithm, a multi-stage retrieval pipeline, a RAG system, or an agent memory system.
 
-The project is being refactored from a one-off evaluation repo into a
-data-backed benchmark that can publish clean artifacts to Hugging Face:
+The project is intentionally Python-only: executable benchmark modules are the source of truth, and every published score links back to an immutable Git commit and the exact code that produced it.
 
-- reviewable model registry
-- reviewable task registry
-- manifest-based runs
-- JSONL result records
-- generated leaderboard tables
-- legacy result import
+## Framework preview
 
-## Current Focus
+The first vertical slice contains deterministic synthetic data for two tasks:
 
-The benchmark focuses on scenario gaps that matter for RAG, multimodal search,
-and agent systems:
+- Agent Memory Retrieval
+- Code Localization
 
-- MRL / dimension compression robustness
-- Chinese-English cross-lingual retrieval with hard negatives
-- long-document needle retrieval for embedding models
-- text-image retrieval with hard negative captions
-- domain retrieval tasks that can later grow into agent memory, tool-doc, and
-  code-aware retrieval tracks
-
-## Repository Layout
-
-```text
-benchmark/
-  models/                 # Model specs in YAML
-  tasks/                  # Task specs, metrics, dataset versions
-  runs/                   # Run manifests
-schemas/                  # JSON schemas for model/task/run/result artifacts
-src/mm_embed/
-  benchmark/              # v2 registry, runner, result, leaderboard utilities
-  providers/              # Provider adapters
-  tasks/                  # Evaluation task implementations
-  data/                   # Dataset loaders
-scripts/
-  run_benchmark.py        # Manifest runner
-  build_leaderboard.py    # JSONL -> CSV leaderboard
-  import_legacy_results.py
-  export_hf_dataset.py    # Build a Hugging Face Dataset repo folder
-  export_hf_space.py      # Build a Hugging Face Gradio Space folder
-  upload_hf.py            # Upload prepared folders to Hugging Face Hub
-  prepare_*.py            # Dataset preparation scripts
-legacy/
-  scripts/                # Old one-off runners and report generators
-```
-
-Generated `results/` and `reports/` directories are ignored by git.
-
-## Install
+It compares three mock solutions—BM25, character n-grams, and a composed hybrid—and generates the data used by the public read-only Hugging Face Space. These numbers validate the framework and UI; they are not scientific benchmark results.
 
 ```bash
 uv sync
+uv run python -m benchmarks.mock_showcase
+uv run pytest
 ```
 
-Install optional extras only when needed:
+Run the Space locally:
 
 ```bash
-uv sync --extra openai
-uv sync --extra local
-uv sync --extra data
+uv sync --extra space
+uv run --extra space python space/app.py
 ```
 
-## Inspect The Registry
+## Core model
+
+```text
+Task
+├── declares its Hugging Face Dataset contract
+├── owns metrics and evaluation semantics
+└── decides how to call a Solution
+
+Solution
+└── model, algorithm, retriever, pipeline, or agent being evaluated
+
+Observation
+└── sample-level evidence produced by a Task
+
+Metric
+└── scores task-specific Observations
+```
+
+Datasets use Hugging Face `Dataset` and `IterableDataset` directly. Adapters are ordinary Python functions, and ingestion/search phases remain explicit inside each task and solution.
+
+## Add an experiment
+
+Create an executable module under `benchmarks/`, construct datasets, tasks, metrics, and solutions, then run it directly:
 
 ```bash
-uv run modern-embed-bench benchmark models
-uv run modern-embed-bench benchmark tasks
+uv run python -m benchmarks.your_experiment
 ```
 
-Model and task definitions live in `benchmark/models/*.yaml` and
-`benchmark/tasks/*.yaml`. Adding a new model should usually start as a YAML
-change before any new provider code is written.
+No YAML registry or parallel configuration language is required.
 
-## Preflight Public Data Contracts
+## Publishing model
 
-Inspect one public task's materialization contract, or all four public tasks in
-deterministic task-ID order, without initializing providers or benchmark tasks
-and without writing result files:
+The Space is a read-only view of maintainer-approved results. Contributions arrive through GitHub pull requests; there is no public model upload or shared evaluation runtime. Dataset releases are immutable, and new data is published as a new version.
 
-```bash
-uv run modern-embed-bench benchmark source-contract-preflight --task mrl_stress
-uv run modern-embed-bench benchmark source-contract-preflight --json
-```
+The full refactor design is maintained locally in `.local.PLAN.md`.
 
-The command exits `0` only when every selected contract validates, `1` when a
-known public task fails closed, and `2` for an unknown or non-public task ID.
-The current repository intentionally has no approved real-source
-materialization manifests, so the all-task command is expected to exit `1`
-with `missing_manifest`; this check does not approve, download, or materialize
-any real source.
+## Historical implementation
 
-## Run A Smoke Benchmark
-
-```bash
-uv run modern-embed-bench benchmark run \
-  --manifest benchmark/runs/openai-smoke.yaml \
-  --output results/openai-smoke.jsonl \
-  --overwrite
-
-uv run modern-embed-bench benchmark leaderboard \
-  --results results/openai-smoke.jsonl \
-  --output results/openai-smoke-leaderboard.csv
-```
-
-The same commands are available as scripts:
-
-```bash
-uv run python scripts/run_benchmark.py --manifest benchmark/runs/openai-smoke.yaml --overwrite
-uv run python scripts/build_leaderboard.py --results results/benchmark-v2.jsonl
-```
-
-## Reproduce The Pinned Code-Source Contract Smoke
-
-The accepted `psf/requests` issue-to-edit source contract can be materialized
-locally without model scoring or publication. The command verifies pinned
-GitHub metadata and payload hashes, applies the Stage A/Stage B eligibility
-policy, builds deterministic chunks and patch-derived qrels under explicit
-caps, prints a source-free evidence summary, and removes its dedicated
-temporary path on PASS, FAILED, or BLOCKED:
-
-```bash
-uv run --no-sync python scripts/materialize_code_edit_source.py \
-  --config benchmark/research/code_edit_chunk_requests_source_contract_20260722.json
-```
-
-The configured `wall_seconds` deadline is enforced inside the Python process,
-including while a source request is blocked. `SIGTERM` is converted into a
-controlled stop, the deadline is disabled while the dedicated path is removed,
-and the prior process signal handlers are restored afterward. An external
-`timeout` wrapper is therefore not required for the 30-minute bound.
-
-This path uses one repository and one issue, caps the archive at 10 MB,
-extracted regular files at 25 MB, each Stage A candidate at 2 MB, eligible
-normalized text at 5 MB, tracked files at 500, chunks at 1,000, target RSS at
-256 MiB, and wall time at 30 minutes. It does not call provider APIs, download
-models or datasets, retain third-party source, register a public task or score,
-or perform any Hugging Face operation.
-
-## Result Shape
-
-Each evaluation writes one JSONL record per model-task pair. Records include:
-
-- schema version
-- run id, metadata, publication intent, and normalized evidence tier
-- git sha
-- model spec id and provider kwargs without secrets
-- task spec id and task kwargs
-- metrics and details
-- error, if the model-task run failed
-
-Legacy JSON result files can be converted:
-
-```bash
-uv run python scripts/import_legacy_results.py legacy/results/eval_rerun_bugfix_20260315.json \
-  --output results/legacy-import.jsonl
-```
-
-New result records store `run.publish` and `run.evidence_tier` (`legacy`,
-`smoke`, `benchmark`, `fixture`, or `unknown`). Explicit `publish: false`
-records are kept out of public result and leaderboard exports. Historical v2
-records without `run.publish` remain public by default, and older evidence
-metadata continues to use compatibility classification.
-
-New result records also snapshot a versioned training-overlap assessment from
-exact, reviewed registry identities. The public leaderboard appends these
-fields after every existing score, provenance, and operational field:
-
-- `data_overlap_status`
-- `task_training_status`
-- `zero_shot_status`
-- `overlap_reason_codes`
-- `overlap_relationship_registry_revision`
-
-Training-overlap status is interpretation evidence for this model revision,
-task source, and reviewed relationship-table revision. Unknown means
-unreported, incomplete, unresolved, or stale; it does not mean zero-shot.
-Status does not change the task score or ranking. Historical records without a
-snapshot remain valid and export as explicit unknown with
-`legacy_missing_contract`; they are never backfilled from today's registry.
-
-The Space keeps unknown rows visible by default. Its strict filter is labeled
-`Reviewed zero-shot only`, and only rows with `zero_shot_status=reviewed_yes`
-pass it.
-
-System-level retrieval-answer fixture results use the separate
-`schemas/system_result.schema.json` contract and never enter the embedding v2
-Dataset, leaderboard, or Space path. Export the three deterministic local runs
-to an explicitly fixture-only directory with no provider or publication call:
-
-```bash
-uv run --no-sync python scripts/export_system_fixture.py \
-  --output-dir dist/system-evaluation/retrieval-answer-utility-fixture-v0
-```
-
-The directory contains only
-`retrieval-answer-utility.system-results.fixture-only.jsonl` and
-`retrieval-answer-utility.system-export.fixture-only.json`. Every record is
-validated before writing and retains `publish: false`, `fixture_only: true`,
-and `evaluation.leaderboard_surface: system`. The export directory must be
-empty or contain only those two owned regular files; unexpected entries cause
-the export to fail without deleting or overwriting existing content.
-
-## Hugging Face Publishing
-
-Export a Dataset repo folder:
-
-```bash
-uv run python scripts/export_hf_dataset.py \
-  --results results/openai-smoke.jsonl \
-  --leaderboard results/openai-smoke-leaderboard.csv \
-  --output-dir dist/huggingface/dataset
-```
-
-Export a Gradio Space folder:
-
-```bash
-uv run python scripts/export_hf_space.py \
-  --dataset-repo-id <namespace>/modern-embedding-bench \
-  --leaderboard results/openai-smoke-leaderboard.csv \
-  --output-dir dist/huggingface/space
-```
-
-Upload with a token from `HF_TOKEN`, `HUGGINGFACE_HUB_TOKEN`, or
-`HUGGINGFACE_TOKEN`:
-
-```bash
-uv run python scripts/upload_hf.py \
-  --folder dist/huggingface/dataset \
-  --repo-type dataset \
-  --repo-id <namespace>/modern-embedding-bench
-
-uv run python scripts/upload_hf.py \
-  --folder dist/huggingface/space \
-  --repo-type space \
-  --repo-id <namespace>/modern-embedding-bench-leaderboard \
-  --space-dataset-repo-id <namespace>/modern-embedding-bench
-```
-
-Use `--private` during dry runs if you want to avoid publishing public artifacts.
-
-`upload_hf.py` is a raw transport for a folder whose publication has already been authorized. It does not
-classify arbitrary external directories or grant redistribution rights. Use the dataset exporter for local
-benchmark data, review its export manifest, and never pass research-only source or materialized data directly
-to the upload command.
-
-## Compatibility CLI
-
-The historical `mm-bench` command still exists for compatibility. New work
-should prefer `modern-embed-bench benchmark run --manifest ...`.
+The previous `mm_embed` implementation and historical benchmark assets remain in the repository temporarily for reference. They are not part of the new public package or API.
