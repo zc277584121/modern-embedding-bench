@@ -2,6 +2,8 @@ const state = {
   payload: null,
   tasks: new Map(),
   solutions: new Map(),
+  taskSort: { key: null, direction: "desc" },
+  solutionSort: { key: "task", direction: "asc" },
 };
 
 const escapeHtml = (value) =>
@@ -18,12 +20,47 @@ function sourceLink(record) {
   return `<a class="source" href="${escapeHtml(record.source_url)}" target="_blank" rel="noreferrer">${escapeHtml(record.source_commit.slice(0, 7))} ↗</a>`;
 }
 
-function renderTable(headers, rows) {
-  const head = headers.map((header) => `<th>${escapeHtml(header)}</th>`).join("");
+function renderTable(headers, rows, tableName, sortState) {
+  const head = headers
+    .map((header) => {
+      if (!header.key) return `<th>${escapeHtml(header.label)}</th>`;
+      const active = sortState?.key === header.key;
+      const arrow = active ? (sortState.direction === "asc" ? "▲" : "▼") : "↕";
+      return `<th><button class="sort-button${active ? " active" : ""}" data-table="${tableName}" data-sort-key="${escapeHtml(header.key)}">${escapeHtml(header.label)} <span class="sort-arrow">${arrow}</span></button></th>`;
+    })
+    .join("");
   const body = rows
     .map((row) => `<tr>${row.map((cell) => `<td>${cell}</td>`).join("")}</tr>`)
     .join("");
   return `<div class="table-wrap"><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
+}
+
+function compareValues(left, right, direction) {
+  let comparison;
+  if (typeof left === "number" && typeof right === "number") {
+    comparison = left - right;
+  } else {
+    comparison = String(left).localeCompare(String(right));
+  }
+  return direction === "asc" ? comparison : -comparison;
+}
+
+function toggleSort(sortState, key, numeric) {
+  if (sortState.key === key) {
+    sortState.direction = sortState.direction === "asc" ? "desc" : "asc";
+  } else {
+    sortState.key = key;
+    sortState.direction = numeric ? "desc" : "asc";
+  }
+}
+
+function installSortButtons(containerSelector, tableName, handler) {
+  document
+    .querySelector(containerSelector)
+    .querySelectorAll(`.sort-button[data-table="${tableName}"]`)
+    .forEach((button) => {
+      button.addEventListener("click", () => handler(button.dataset.sortKey));
+    });
 }
 
 function primaryRecords() {
@@ -54,7 +91,6 @@ function renderTask() {
   const [datasetId, datasetVersion] = document
     .querySelector("#dataset-selector")
     .value.split("|");
-  const query = document.querySelector("#task-search").value.trim().toLowerCase();
   const rowLimit = Number(document.querySelector("#task-rows").value);
   const task = state.tasks.get(taskId);
   const selected = state.payload.results.filter(
@@ -72,17 +108,21 @@ function renderTask() {
     if (!grouped.has(record.solution_id)) grouped.set(record.solution_id, new Map());
     grouped.get(record.solution_id).set(record.metric_id, record);
   });
-  const matching = [...grouped.keys()]
-    .filter((solutionId) => {
-      const solution = state.solutions.get(solutionId);
-      const searchable = `${solutionId} ${solution.title} ${solution.description} ${metricOrder.join(" ")}`;
-      return searchable.toLowerCase().includes(query);
-    })
-    .sort(
-      (left, right) =>
-        grouped.get(right).get(task.primary_metric).value -
-        grouped.get(left).get(task.primary_metric).value,
+  if (!state.taskSort.key || (!metricOrder.includes(state.taskSort.key) && state.taskSort.key !== "solution")) {
+    state.taskSort = { key: task.primary_metric, direction: "desc" };
+  }
+  const valueForSolution = (solutionId) => {
+    if (state.taskSort.key === "solution") return state.solutions.get(solutionId).title;
+    return grouped.get(solutionId).get(state.taskSort.key)?.value ?? Number.NEGATIVE_INFINITY;
+  };
+  const matching = [...grouped.keys()].sort((left, right) => {
+    const comparison = compareValues(
+      valueForSolution(left),
+      valueForSolution(right),
+      state.taskSort.direction,
     );
+    return comparison || left.localeCompare(right);
+  });
   const shown = matching.slice(0, rowLimit);
   const rows = shown.map((solutionId) => {
     const solution = state.solutions.get(solutionId);
@@ -98,7 +138,6 @@ function renderTask() {
       `<span class="rank">${rank}</span>`,
       `<strong>${escapeHtml(solution.title)}</strong><br><span class="muted">${escapeHtml(solution.id)}</span>`,
       ...metricCells,
-      '<span class="pill">Demo</span>',
       sourceLink(records.values().next().value),
     ];
   });
@@ -108,27 +147,46 @@ function renderTask() {
     <p>${escapeHtml(task.description)}</p>
     <p>Primary signal: <code>${escapeHtml(labels.get(task.primary_metric))}</code> · Dataset: <code>${escapeHtml(datasetId)}</code> · Version: <code>${escapeHtml(datasetVersion)}</code></p>`;
   document.querySelector("#task-status").innerHTML = matching.length
-    ? `Showing <strong>${shown.length}</strong> of <strong>${matching.length}</strong> matching rows.`
-    : "No rows match the current search.";
+    ? `Showing <strong>${shown.length}</strong> of <strong>${matching.length}</strong> rows. Ranked by <strong>${escapeHtml(state.taskSort.key === "solution" ? "Solution" : labels.get(state.taskSort.key))}</strong> ${state.taskSort.direction === "asc" ? "ascending" : "descending"}.`
+    : "No rows are available.";
   document.querySelector("#task-table").innerHTML = renderTable(
-    ["Rank", "Solution", ...metricOrder.map((id) => labels.get(id)), "Status", "Source"],
+    [
+      { label: "Rank" },
+      { label: "Solution", key: "solution" },
+      ...metricOrder.map((id) => ({ label: labels.get(id), key: id })),
+      { label: "Source" },
+    ],
     rows,
+    "task",
+    state.taskSort,
   );
+  installSortButtons("#task-table", "task", (key) => {
+    toggleSort(state.taskSort, key, metricOrder.includes(key));
+    renderTask();
+  });
 }
 
 function renderSolution() {
   const solutionId = document.querySelector("#solution-selector").value;
-  const query = document.querySelector("#solution-search").value.trim().toLowerCase();
   const rowLimit = Number(document.querySelector("#solution-rows").value);
   const solution = state.solutions.get(solutionId);
   const matching = primaryRecords()
     .filter((record) => record.solution_id === solutionId)
-    .filter((record) => {
-      const task = state.tasks.get(record.task_id);
-      const searchable = `${task.title} ${record.task_id} ${record.dataset_id} ${record.metric_label}`;
-      return searchable.toLowerCase().includes(query);
-    })
-    .sort((left, right) => left.task_id.localeCompare(right.task_id));
+    .sort((left, right) => {
+      const value = (record) => {
+        if (state.solutionSort.key === "task") return state.tasks.get(record.task_id).title;
+        if (state.solutionSort.key === "metric") return record.metric_label;
+        if (state.solutionSort.key === "score") return record.value;
+        if (state.solutionSort.key === "rank") {
+          const peers = primaryRecords()
+            .filter((item) => item.task_id === record.task_id)
+            .sort((a, b) => b.value - a.value);
+          return peers.findIndex((item) => item.solution_id === solutionId) + 1;
+        }
+        return `${record.dataset_id} ${record.dataset_version}`;
+      };
+      return compareValues(value(left), value(right), state.solutionSort.direction);
+    });
   const shown = matching.slice(0, rowLimit);
   const rows = shown.map((record) => {
     const peers = primaryRecords()
@@ -155,12 +213,25 @@ function renderSolution() {
     <p>${escapeHtml(solution.description)}</p>
     <p>Solution ID: <code>${escapeHtml(solution.id)}</code></p>`;
   document.querySelector("#solution-status").innerHTML = matching.length
-    ? `Showing <strong>${shown.length}</strong> of <strong>${matching.length}</strong> matching rows.`
-    : "No rows match the current search.";
+    ? `Showing <strong>${shown.length}</strong> of <strong>${matching.length}</strong> rows.`
+    : "No rows are available.";
   document.querySelector("#solution-table").innerHTML = renderTable(
-    ["Task", "Primary metric", "Score", "Rank", "Dataset release", "Source"],
+    [
+      { label: "Task", key: "task" },
+      { label: "Primary metric", key: "metric" },
+      { label: "Score", key: "score" },
+      { label: "Rank", key: "rank" },
+      { label: "Dataset release", key: "dataset" },
+      { label: "Source" },
+    ],
     rows,
+    "solution",
+    state.solutionSort,
   );
+  installSortButtons("#solution-table", "solution", (key) => {
+    toggleSort(state.solutionSort, key, ["score", "rank"].includes(key));
+    renderSolution();
+  });
 }
 
 function renderCoverage() {
@@ -191,7 +262,10 @@ function renderCoverage() {
     return cells;
   });
   document.querySelector("#coverage-table").innerHTML = renderTable(
-    ["Solution", ...taskIds.map((taskId) => state.tasks.get(taskId).title)],
+    [
+      { label: "Solution" },
+      ...taskIds.map((taskId) => ({ label: state.tasks.get(taskId).title })),
+    ],
     rows,
   );
 }
@@ -208,7 +282,13 @@ function renderCatalogs() {
     ];
   });
   document.querySelector("#task-catalog").innerHTML = renderTable(
-    ["Task", "Description", "Primary metric", "Task version", "Dataset releases"],
+    [
+      { label: "Task" },
+      { label: "Description" },
+      { label: "Primary metric" },
+      { label: "Task version" },
+      { label: "Dataset releases" },
+    ],
     taskRows,
   );
 
@@ -226,7 +306,12 @@ function renderCatalogs() {
     ];
   });
   document.querySelector("#solution-catalog").innerHTML = renderTable(
-    ["Solution", "ID", "Description", "Evaluated tasks"],
+    [
+      { label: "Solution" },
+      { label: "ID" },
+      { label: "Description" },
+      { label: "Evaluated tasks" },
+    ],
     solutionRows,
   );
 }
@@ -247,10 +332,10 @@ function installControls() {
   [...state.tasks.values()].forEach((task) => taskSelector.add(new Option(task.title, task.id)));
   taskSelector.addEventListener("change", () => {
     populateDatasetSelector();
+    state.taskSort = { key: state.tasks.get(taskSelector.value).primary_metric, direction: "desc" };
     renderTask();
   });
   document.querySelector("#dataset-selector").addEventListener("change", renderTask);
-  document.querySelector("#task-search").addEventListener("input", renderTask);
   document.querySelector("#task-rows").addEventListener("change", renderTask);
 
   const solutionSelector = document.querySelector("#solution-selector");
@@ -258,7 +343,6 @@ function installControls() {
     solutionSelector.add(new Option(solution.title, solution.id)),
   );
   solutionSelector.addEventListener("change", renderSolution);
-  document.querySelector("#solution-search").addEventListener("input", renderSolution);
   document.querySelector("#solution-rows").addEventListener("change", renderSolution);
 }
 

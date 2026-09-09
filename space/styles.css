@@ -149,8 +149,7 @@ h2 {
   font-weight: 500;
 }
 
-select,
-input {
+select {
   width: 100%;
   height: 40px;
   padding: 8px 11px;
@@ -163,14 +162,9 @@ input {
   font-size: 14px;
 }
 
-select:focus,
-input:focus {
+select:focus {
   border-color: var(--blue);
   box-shadow: 0 0 0 1px var(--blue);
-}
-
-.search-control {
-  margin: 4px 0 12px;
 }
 
 .view-status,
@@ -203,6 +197,33 @@ th {
   white-space: nowrap;
 }
 
+.sort-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin: -6px -8px;
+  padding: 6px 8px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-weight: inherit;
+}
+
+.sort-button:hover {
+  color: var(--blue);
+}
+
+.sort-arrow {
+  color: #9ca3af;
+  font-size: 10px;
+}
+
+.sort-button.active .sort-arrow {
+  color: var(--blue);
+}
+
 td {
   padding: 11px 12px;
   border-bottom: 1px solid #f0f1f3;
@@ -233,17 +254,6 @@ tbody tr:hover td {
 
 .score.primary {
   color: var(--blue);
-}
-
-.pill {
-  display: inline-block;
-  padding: 2px 7px;
-  border-radius: 999px;
-  background: #fef3c7;
-  color: #92400e;
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
 }
 
 .source {

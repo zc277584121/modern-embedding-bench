@@ -8,7 +8,7 @@
       content="Code-native evaluation for modern information retrieval solutions"
     />
     <title>Modern IR Bench</title>
-    <link rel="stylesheet" href="styles.css?v=3" />
+    <link rel="stylesheet" href="styles.css?v=4" />
   </head>
   <body>
     <main class="page-shell">
@@ -44,10 +44,6 @@
             </select>
           </div>
         </div>
-        <div class="control search-control">
-          <label for="task-search">Search</label>
-          <input id="task-search" type="search" placeholder="Filter by solution or metric" />
-        </div>
         <div id="task-status" class="view-status"></div>
         <div id="task-table"></div>
       </section>
@@ -67,10 +63,6 @@
               <option value="100">100</option>
             </select>
           </div>
-        </div>
-        <div class="control search-control">
-          <label for="solution-search">Search</label>
-          <input id="solution-search" type="search" placeholder="Filter by task, dataset, or metric" />
         </div>
         <div id="solution-status" class="view-status"></div>
         <div id="solution-table"></div>
@@ -117,6 +109,6 @@ uv run python -m benchmarks.mock_showcase</code></pre>
         </p>
       </section>
     </main>
-    <script src="app.js?v=3" type="module"></script>
+    <script src="app.js?v=4" type="module"></script>
   </body>
 </html>
