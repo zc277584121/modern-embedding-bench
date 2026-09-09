@@ -22,8 +22,8 @@ uv run pytest
 Run the Space locally:
 
 ```bash
-uv sync --extra space
-uv run --extra space python space/app.py
+cd space
+python -m http.server 7861
 ```
 
 ## Core model

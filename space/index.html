@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Code-native evaluation for modern information retrieval solutions"
+    />
+    <title>Modern IR Bench</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="page-shell">
+      <header class="hero">
+        <div class="hero-copy">
+          <div class="eyebrow">Code-native benchmark</div>
+          <h1>Modern IR Bench</h1>
+          <p>
+            Compare models, retrieval algorithms, RAG pipelines, and agent systems
+            across modern information retrieval tasks.
+          </p>
+        </div>
+        <div class="hero-mark" aria-hidden="true">
+          <span></span><span></span><span></span>
+        </div>
+      </header>
+
+      <section id="preview-notice" class="notice" aria-live="polite"></section>
+      <section id="stats" class="stats" aria-label="Benchmark summary"></section>
+
+      <nav class="tabs" aria-label="Benchmark views">
+        <button class="tab active" data-panel="task-panel">Task leaderboards</button>
+        <button class="tab" data-panel="solution-panel">Solution profiles</button>
+        <button class="tab" data-panel="matrix-panel">Cross-task matrix</button>
+        <button class="tab" data-panel="method-panel">Method</button>
+      </nav>
+
+      <section id="task-panel" class="panel active">
+        <label for="task-selector">Task and dataset release</label>
+        <select id="task-selector"></select>
+        <div id="task-context"></div>
+        <div id="task-table"></div>
+      </section>
+
+      <section id="solution-panel" class="panel">
+        <label for="solution-selector">Solution</label>
+        <select id="solution-selector"></select>
+        <div id="solution-context"></div>
+        <div id="solution-table"></div>
+      </section>
+
+      <section id="matrix-panel" class="panel">
+        <div class="context">
+          <h2>Solution × Task</h2>
+          <p>A compact view of each solution’s primary score and rank per task.</p>
+        </div>
+        <div id="matrix-table"></div>
+        <p class="metric-note">
+          Each task keeps its own primary metric. Scores are not averaged into an
+          overall score.
+        </p>
+      </section>
+
+      <section id="method-panel" class="panel method">
+        <div>
+          <div class="method-number">01</div>
+          <h2>One result, one source</h2>
+          <p>
+            Every measurement points to an immutable Git commit and the exact
+            executable Python module that produced it. There is no YAML registry.
+          </p>
+          <pre><code>git checkout &lt;source_commit&gt;
+uv sync
+uv run python -m benchmarks.mock_showcase</code></pre>
+        </div>
+        <div>
+          <div class="method-number">02</div>
+          <h2>Read-only publication</h2>
+          <p>
+            New Tasks, Datasets, Solutions, and experiments enter through reviewed
+            GitHub pull requests. The official runner produces the displayed results.
+          </p>
+        </div>
+        <div>
+          <div class="method-number">03</div>
+          <h2>Honest dimensions</h2>
+          <p>
+            Results use Solution × Task × Dataset × Metric × Version. Unrelated task
+            metrics are not collapsed into a misleading overall score.
+          </p>
+        </div>
+      </section>
+
+      <footer>Modern IR Bench · Flexible tasks, inspectable code, immutable results.</footer>
+    </main>
+    <script src="app.js" type="module"></script>
+  </body>
+</html>

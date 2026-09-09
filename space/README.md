@@ -3,8 +3,8 @@ title: Modern IR Bench
 emoji: 🔭
 colorFrom: indigo
 colorTo: cyan
-sdk: gradio
-app_file: app.py
+sdk: static
+app_file: index.html
 pinned: false
 license: apache-2.0
 short_description: Code-native evaluation for modern information retrieval solutions
